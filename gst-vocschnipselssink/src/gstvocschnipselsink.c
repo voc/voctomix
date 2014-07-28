@@ -66,6 +66,8 @@
 
 GST_DEBUG_CATEGORY_STATIC (gst_voc_schnipsel_sink_debug);
 #define GST_CAT_DEFAULT gst_voc_schnipsel_sink_debug
+#define DEFAULT_LOCATION "%Y-%m-%d_%H-%M-%S.ts" 
+#define DEFAULT_FRAMES (4*60*25)
 
 /* Filter signals and args */
 enum
@@ -77,7 +79,8 @@ enum
 enum
 {
   PROP_0,
-  PROP_SILENT
+  PROP_LOCATION,
+  PROP_FRAMES
 };
 
 /* the capabilities of the inputs and outputs.
@@ -127,8 +130,12 @@ gst_voc_schnipsel_sink_class_init (GstVocSchnipselSinkClass * klass)
   gobject_class->set_property = gst_voc_schnipsel_sink_set_property;
   gobject_class->get_property = gst_voc_schnipsel_sink_get_property;
 
-  g_object_class_install_property (gobject_class, PROP_SILENT,
-      g_param_spec_boolean ("silent", "Silent", "Produce verbose output ?",
+  g_object_class_install_property (gobject_class, PROP_LOCATION,
+      g_param_spec_boolean ("silent", "Silent", "Location of the file to write. Will be processed by strftime, so you can add date/time modifiers. Defaults to " DEFAULT_LOCATION,
+          FALSE, G_PARAM_READWRITE));
+
+  g_object_class_install_property (gobject_class, PROP_FRAMES,
+      g_param_spec_boolean ("silent", "Silent", "Number of frames sfter which a new File will be started. Defaults to 4*60*25 = 6000 Frames",
           FALSE, G_PARAM_READWRITE));
 
   gst_element_class_set_details_simple(gstelement_class,
@@ -147,29 +154,34 @@ gst_voc_schnipsel_sink_class_init (GstVocSchnipselSinkClass * klass)
  * initialize instance structure
  */
 static void
-gst_voc_schnipsel_sink_init (GstVocSchnipselSink * filter)
+gst_voc_schnipsel_sink_init (GstVocSchnipselSink * sink)
 {
-  filter->sinkpad = gst_pad_new_from_static_template (&sink_factory, "sink");
-  gst_pad_set_event_function (filter->sinkpad,
+  sink->sinkpad = gst_pad_new_from_static_template (&sink_factory, "sink");
+  gst_pad_set_event_function (sink->sinkpad,
                               GST_DEBUG_FUNCPTR(gst_voc_schnipsel_sink_sink_event));
-  gst_pad_set_chain_function (filter->sinkpad,
+  gst_pad_set_chain_function (sink->sinkpad,
                               GST_DEBUG_FUNCPTR(gst_voc_schnipsel_sink_chain));
-  GST_PAD_SET_PROXY_CAPS (filter->sinkpad);
-  gst_element_add_pad (GST_ELEMENT (filter), filter->sinkpad);
+  GST_PAD_SET_PROXY_CAPS (sink->sinkpad);
+  gst_element_add_pad (GST_ELEMENT (sink), sink->sinkpad);
 
-  filter->silent = FALSE;
-  filter->frames = 0;
+  sink->location = g_strdup (DEFAULT_LOCATION);
+  sink->maxframes = DEFAULT_FRAMES;
+  sink->frames = 0;
 }
 
 static void
 gst_voc_schnipsel_sink_set_property (GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec)
 {
-  GstVocSchnipselSink *filter = GST_VOCSCHNIPSELSINK (object);
+  GstVocSchnipselSink *sink = GST_VOCSCHNIPSELSINK (object);
 
   switch (prop_id) {
-    case PROP_SILENT:
-      filter->silent = g_value_get_boolean (value);
+    case PROP_LOCATION:
+      g_free (sink->location);
+      sink->location = g_strdup (g_value_get_string (value));
+      break;
+    case PROP_FRAMES:
+      sink->maxframes = g_value_get_uint64 (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -181,11 +193,14 @@ static void
 gst_voc_schnipsel_sink_get_property (GObject * object, guint prop_id,
     GValue * value, GParamSpec * pspec)
 {
-  GstVocSchnipselSink *filter = GST_VOCSCHNIPSELSINK (object);
+  GstVocSchnipselSink *sink = GST_VOCSCHNIPSELSINK (object);
 
   switch (prop_id) {
-    case PROP_SILENT:
-      g_value_set_boolean (value, filter->silent);
+    case PROP_LOCATION:
+      g_value_set_string (value, sink->location);
+      break;
+    case PROP_FRAMES:
+      g_value_set_uint64 (value, sink->maxframes);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -274,8 +289,10 @@ gst_voc_schnipsel_sink_chain (GstPad * pad, GstObject * parent, GstBuffer * buf)
   GstMapInfo map;
   gst_buffer_map (buf, &map, GST_MAP_READ);
 
-  if(++sink->frames > 25 * 5)
+  if(++sink->frames > sink->maxframes)
   {
+    sink->frames = 0;
+
     if (sink->file)
     {
         gst_voc_schnipsel_sink_close_file (sink, buf);
@@ -344,20 +361,17 @@ gst_voc_schnipsel_sink_write_stream_headers (GstVocSchnipselSink * sink)
 static gboolean
 gst_voc_schnipsel_sink_open_next_file (GstVocSchnipselSink * sink)
 {
-  // TODO: prefix
-  // TODO: number of frames
-  // TODO: location
   char filename[250];
 
   g_return_val_if_fail (sink->file == NULL, FALSE);
 
-  //filename = g_strdup_printf (sink->filename, sink->index);
   time_t rawtime;
   struct tm * timeinfo;
   time (&rawtime);
   timeinfo = localtime (&rawtime);
 
-  strftime(filename, sizeof(filename)/sizeof(*filename), "%Y-%m-%d_%H-%M-%S.ts", timeinfo);
+  strftime(filename, sizeof(filename)/sizeof(*filename), sink->location, timeinfo);
+  printf("new file %s\n", filename);
 
   sink->file = fopen (filename, "wb");
   if (sink->file == NULL) {

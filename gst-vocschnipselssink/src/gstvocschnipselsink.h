@@ -76,9 +76,10 @@ struct _GstVocSchnipselSink
 
   GstPad *sinkpad;
 
-  gboolean silent;
+  gchar *location;
   FILE *file;
-  int frames;
+  guint64 frames;
+  guint64 maxframes;
 
   int n_streamheaders;
   GstBuffer **streamheaders;
