@@ -1,11 +1,13 @@
 #!/usr/bin/python3
 import gi
 import signal
-from videomix import Videomix
-from controlserver import ControlServer
 
 gi.require_version('Gst', '1.0')
 from gi.repository import GLib, Gst, Gtk, GObject
+
+from videomix import Videomix
+from controlserver import ControlServer
+
 
 
 class Main:
