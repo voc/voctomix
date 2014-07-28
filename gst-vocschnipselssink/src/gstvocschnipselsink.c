@@ -274,14 +274,8 @@ gst_voc_schnipsel_sink_chain (GstPad * pad, GstObject * parent, GstBuffer * buf)
   GstMapInfo map;
   gst_buffer_map (buf, &map, GST_MAP_READ);
 
-  if (sink->silent == FALSE)
-    g_print ("buffer of size %zu at pts %zu.\n", gst_buffer_get_size(buf), GST_BUFFER_PTS(buf));
-
   if(++sink->frames > 25 * 5)
   {
-    g_print ("1sec is over, starting new file");
-    sink->frames = 0;
-
     if (sink->file)
     {
         gst_voc_schnipsel_sink_close_file (sink, buf);
