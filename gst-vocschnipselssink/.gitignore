@@ -4,7 +4,6 @@ autoregen.sh
 config.*
 configure
 libtool
-INSTALL
 Makefile.in
 depcomp
 install-sh
