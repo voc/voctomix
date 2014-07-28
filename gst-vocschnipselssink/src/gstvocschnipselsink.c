@@ -90,7 +90,7 @@ enum
 static GstStaticPadTemplate sink_factory = GST_STATIC_PAD_TEMPLATE ("sink",
     GST_PAD_SINK,
     GST_PAD_ALWAYS,
-    GST_STATIC_CAPS ("ANY")
+    GST_STATIC_CAPS ("video/mpegts")
     );
 
 #define gst_voc_schnipsel_sink_parent_class parent_class
@@ -131,12 +131,12 @@ gst_voc_schnipsel_sink_class_init (GstVocSchnipselSinkClass * klass)
   gobject_class->get_property = gst_voc_schnipsel_sink_get_property;
 
   g_object_class_install_property (gobject_class, PROP_LOCATION,
-      g_param_spec_boolean ("silent", "Silent", "Location of the file to write. Will be processed by strftime, so you can add date/time modifiers. Defaults to " DEFAULT_LOCATION,
-          FALSE, G_PARAM_READWRITE));
+      g_param_spec_string ("location", "Location", "Location of the file to write. Will be processed by strftime, so you can add date/time modifiers.",
+          DEFAULT_LOCATION, G_PARAM_READWRITE));
 
   g_object_class_install_property (gobject_class, PROP_FRAMES,
-      g_param_spec_boolean ("silent", "Silent", "Number of frames sfter which a new File will be started. Defaults to 4*60*25 = 6000 Frames",
-          FALSE, G_PARAM_READWRITE));
+      g_param_spec_uint64 ("frames", "Frames", "Number of frames sfter which a new File will be started. Defaults to 4*60*25 = 6000 Frames",
+          0, G_MAXUINT64, DEFAULT_FRAMES, G_PARAM_READWRITE));
 
   gst_element_class_set_details_simple(gstelement_class,
     "VocSchnipselSink",
@@ -161,7 +161,6 @@ gst_voc_schnipsel_sink_init (GstVocSchnipselSink * sink)
                               GST_DEBUG_FUNCPTR(gst_voc_schnipsel_sink_sink_event));
   gst_pad_set_chain_function (sink->sinkpad,
                               GST_DEBUG_FUNCPTR(gst_voc_schnipsel_sink_chain));
-  GST_PAD_SET_PROXY_CAPS (sink->sinkpad);
   gst_element_add_pad (GST_ELEMENT (sink), sink->sinkpad);
 
   sink->location = g_strdup (DEFAULT_LOCATION);
