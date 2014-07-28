@@ -254,9 +254,8 @@ static gboolean
 gst_voc_schnipsel_sink_sink_event (GstPad * pad, GstObject * parent, GstEvent * event)
 {
   gboolean ret;
-  GstVocSchnipselSink *filter;
-
-  filter = GST_VOCSCHNIPSELSINK (parent);
+  //GstVocSchnipselSink *filter;
+  //filter = GST_VOCSCHNIPSELSINK (parent);
 
   switch (GST_EVENT_TYPE (event)) {
     case GST_EVENT_CAPS:
