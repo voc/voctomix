@@ -73,6 +73,19 @@ class Videomix:
 			count, grid[0], grid[1], self.monitorSize[0], self.monitorSize[1], cellSize[0], cellSize[1]))
 		
 		for idx, videosource in enumerate(videosources):
+			previewbin = Gst.parse_bin_from_description("""
+				videoscale name=in ! capsfilter name=caps ! videobox name=crop top=0 left=0 bottom=0 right=0 ! videobox fill=red top=-0 left=-0 bottom=-0 right=-0 name=out
+			""", False)
+			self.pipeline.add(previewbin)
+			previewbin.set_name('previewbin-{}'.format(0))
+
+			if idx == 2:
+				crop = previewbin.get_by_name('crop')
+				out = previewbin.get_by_name('out')
+				for side in ('top', 'left', 'right', 'bottom'):
+					crop.set_property(side, 5)
+					out.set_property(side, -5)
+
 			caps = videosource.get_static_pad('src').query_caps(None)
 			capsstruct = caps.get_structure(0)
 			srcSize = (
@@ -94,19 +107,19 @@ class Videomix:
 			print("placing videosrc {} of size {}×{} scaled by {} to {}×{} in a cell {}×{} px cell ({}/{}) at position ({}/{})".format(
 				idx, srcSize[0], srcSize[1], f, scaleSize[0], scaleSize[1], cellSize[0], cellSize[1], place[0], place[1], coord[0], coord[1]))
 
+			videosource.link(previewbin.get_by_name('in'))
+
 			scalecaps = Gst.Caps.new_empty_simple('video/x-raw')
 			scalecaps.set_value('width', round(scaleSize[0]))
 			scalecaps.set_value('height', round(scaleSize[1]))
 
-			scaler = Gst.ElementFactory.make('videoscale', 'quadmix-scaler({})'.format(idx))
-			self.pipeline.add(scaler)
-			videosource.link(scaler)
+			previewbin.get_by_name('caps').set_property('caps', scalecaps)
 
 			# define size somewhere, scale and place here
 			sinkpad = quadmix.get_request_pad('sink_%u')
 			sinkpad.set_property('xpos', round(coord[0]))
 			sinkpad.set_property('ypos', round(coord[1]))
-			scaler.link_filtered(quadmix, scalecaps)
+			previewbin.get_by_name('out').link(quadmix)
 
 			place[0] += 1
 			if place[0] >= grid[0]:
