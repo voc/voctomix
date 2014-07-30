@@ -49,8 +49,14 @@ class Videomix:
 			videomixer name=livevideo ! autovideosink
 			input-selector name=liveaudio ! autoaudiosink
 
-			filesrc location=quadmix-bg.png ! decodebin ! imagefreeze ! videomixer name=quadmix ! autovideosink
+			videotestsrc pattern="solid-color" foreground-color=0x808080 ! capsfilter name=filter ! videomixer name=quadmix ! autovideosink
 		""", False)
+
+		quadmixcaps = Gst.Caps.new_empty_simple('video/x-raw')
+		quadmixcaps.set_value('width', round(self.monitorSize[0]))
+		quadmixcaps.set_value('height', round(self.monitorSize[1]))
+		mixerbin.get_by_name('filter').set_property('caps', quadmixcaps)
+
 		mixerbin.set_name('mixerbin')
 		self.pipeline.add(mixerbin)
 		return mixerbin
