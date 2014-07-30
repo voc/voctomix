@@ -74,17 +74,21 @@ class Videomix:
 		
 		for idx, videosource in enumerate(videosources):
 			previewbin = Gst.parse_bin_from_description("""
-				videoscale name=in ! capsfilter name=caps ! videobox name=crop top=0 left=0 bottom=0 right=0 ! videobox fill=red top=-0 left=-0 bottom=-0 right=-0 name=out
+				videoscale name=in ! capsfilter name=caps !
+					videobox name=crop top=0 left=0 bottom=0 right=0 ! videobox fill=red top=-0 left=-0 bottom=-0 right=-0 name=add !
+					textoverlay color=0xFFFFFFFF halignment=left valignment=top xpad=10 ypad=5 font-desc="sans 35" name=text ! identity name=out
 			""", False)
 			self.pipeline.add(previewbin)
 			previewbin.set_name('previewbin-{}'.format(0))
 
+			previewbin.get_by_name('text').set_property('text', str(idx))
+
 			if idx == 2:
 				crop = previewbin.get_by_name('crop')
-				out = previewbin.get_by_name('out')
+				add = previewbin.get_by_name('add')
 				for side in ('top', 'left', 'right', 'bottom'):
 					crop.set_property(side, 5)
-					out.set_property(side, -5)
+					add.set_property(side, -5)
 
 			caps = videosource.get_static_pad('src').query_caps(None)
 			capsstruct = caps.get_structure(0)
