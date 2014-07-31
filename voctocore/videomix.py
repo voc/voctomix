@@ -210,3 +210,62 @@ class Videomix:
 			# add to pipeline and pass the bin upstream
 			self.pipeline.add(camberabin)
 			yield camberabin
+
+
+	### below are access-methods for the ControlServer
+
+	# return number of available audio sources
+	def numAudioSources():
+		pass
+
+	# switch audio to the selected audio
+	def switchAudio(audiosrc):
+		liveaudio = self.pipeline.get_by_name('liveaudio')
+		pad = liveaudio.get_static_pad('sink_{}'.format(audiosrc))
+		if pad is None:
+			return False
+
+		liveaudio.set_property('active-pad', pad)
+		return True
+
+
+	# return number of available video sources
+	def numVideoSources():
+		pass
+
+	# switch audio to the selected video
+	def switchVideo(videosrc):
+		livevideo = self.pipeline.get_by_name('livevideo')
+		pad = livevideo.get_static_pad('sink_{}'.format(videosrc))
+		# TODO set other videos to alpha = 0
+		pad.set_property('alpha', 1)
+
+	# fade video to the selected video
+	def fadeVideo(videosrc):
+		pass
+
+
+	# switch video-source in the PIP to the selected video
+	def setPipVideo(videosrc):
+		pass
+
+	# fade video-source in the PIP to the selected video
+	def fadePipVideo(videosrc):
+		pass
+
+	# enumeration of possible PIP-Placements
+	class PipPlacements():
+		TopLeft, TopRight, BottomLeft, BottomRight = range(4)
+
+	# place PIP in the selected position
+	def setPipPlacement(placement):
+		assert(isinstance(placement, PipPlacements))
+		pass
+
+	# show or hide PIP
+	def setPipStatus(enabled):
+		pass
+
+	# fade PIP in our out
+	def fadePipStatus(enabled):
+		pass
