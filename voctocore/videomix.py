@@ -4,11 +4,13 @@ from gi.repository import GLib, Gst
 from controlserver import controlServerEntrypoint
 
 class Videomix:
+"""mixing, streaming and encoding pipeline constuction and control"""
 	# size of the monitor-streams
 	# should be anamorphic PAL, beacuse we encode it to dv and send it to the mixer-gui
 	monitorSize = (1024, 576)
 
 	def __init__(self):
+		"""initialize video mixing, streaming and encoding pipeline"""
 		# initialize an empty pipeline
 		self.pipeline = Gst.Pipeline()
 
@@ -39,8 +41,8 @@ class Videomix:
 		Gst.debug_bin_to_dot_file(self.pipeline, Gst.DebugGraphDetails.ALL, 'test')
 		self.pipeline.set_state(Gst.State.PLAYING)
 
-	# create audio and video mixer
 	def createMixer(self):
+		"""create audio and video mixer"""
 		# create mixer-pipeline from string
 		mixerbin = Gst.parse_bin_from_description("""
 			videomixer name=livevideo ! autovideosink
@@ -60,8 +62,8 @@ class Videomix:
 		self.pipeline.add(mixerbin)
 		return mixerbin
 
-	# add all avaiable videosources to the quadmix
 	def addVideosToQuadmix(self, videosources, quadmix):
+		"""add all avaiable videosources to the quadmix"""
 		count = len(videosources)
 
 		# coordinate of the cell where we place the next video
@@ -152,8 +154,8 @@ class Videomix:
 				place[1] += 1
 				place[0] = 0
 
-	# create a simple ×2 distributor
 	def createDistributor(self, videosource, name):
+		"""create a simple ×2 distributor"""
 		distributor = Gst.parse_bin_from_description("""
 			tee name=t
 			t. ! queue name=a
@@ -168,8 +170,9 @@ class Videomix:
 		videosource.link(distributor.get_by_name('t'))
 		return distributor
 
-	# create test-video-sources from files or urls
 	def createDummyCamSources(self):
+		"""create test-video-sources from files or urls"""
+
 		# TODO make configurable
 		uris = ('file:///home/peter/122.mp4', 'file:///home/peter/10025.mp4',)
 		for idx, uri in enumerate(uris):
@@ -192,10 +195,10 @@ class Videomix:
 			yield camberabin
 
 
-	# create real-video-sources from the bmd-drivers
 	def createCamSources(self):
-		# number of installed cams
-		# TODO make configurable
+		"""create real-video-sources from the bmd-drivers"""
+
+		# TODO make number of installed cams configurable
 		for cam in range(2):
 			# create a bin for camera input
 			camberabin = Gst.parse_bin_from_description("""
@@ -227,14 +230,14 @@ class Videomix:
 
 	@controlServerEntrypoint
 	def numAudioSources(self):
-		""" return number of available audio sources """
+		"""return number of available audio sources"""
 		liveaudio = self.pipeline.get_by_name('liveaudio')
 		return str(len(list(self.iteratorHelper(liveaudio.iterate_sink_pads()))))
 
 
 	@controlServerEntrypoint
 	def switchAudio(self, audiosource):
-		""" switch audio to the selected audio """
+		"""switch audio to the selected audio"""
 		liveaudio = self.pipeline.get_by_name('liveaudio')
 		pad = liveaudio.get_static_pad('sink_{}'.format(audiosource))
 		if pad is None:
@@ -246,14 +249,14 @@ class Videomix:
 
 	@controlServerEntrypoint
 	def numVideoSources(self):
-		""" return number of available video sources """
+		"""return number of available video sources"""
 		livevideo = self.pipeline.get_by_name('livevideo')
 		return str(len(list(self.iteratorHelper(livevideo.iterate_sink_pads()))))
 
 
 	@controlServerEntrypoint
 	def switchVideo(self, videosource):
-		""" switch audio to the selected video """
+		"""switch audio to the selected video"""
 		livevideo = self.pipeline.get_by_name('livevideo')
 		pad = livevideo.get_static_pad('sink_{}'.format(videosource))
 		if pad is None:
@@ -267,53 +270,53 @@ class Videomix:
 
 	@controlServerEntrypoint
 	def fadeVideo(self, videosource):
-		""" fade video to the selected video """
+		"""fade video to the selected video"""
 		raise NotImplementedError("fade command is not implemented yet")
 
 
 	@controlServerEntrypoint
 	def setPipVideo(self, videosource):
-		""" switch video-source in the PIP to the selected video """
+		"""switch video-source in the PIP to the selected video"""
 		raise NotImplementedError("pip commands are not implemented yet")
 
 
 	@controlServerEntrypoint
 	def fadePipVideo(self, videosource):
-		""" fade video-source in the PIP to the selected video """
+		"""fade video-source in the PIP to the selected video"""
 		raise NotImplementedError("pip commands are not implemented yet")
 
 
 	class PipPlacements:
-		""" enumeration of possible PIP-Placements """
+		"""enumeration of possible PIP-Placements"""
 		TopLeft, TopRight, BottomLeft, BottomRight = range(4)
 
 
 	@controlServerEntrypoint
 	def setPipPlacement(self, placement):
-		""" place PIP in the selected position """
+		"""place PIP in the selected position"""
 		assert(isinstance(placement, PipPlacements))
 		raise NotImplementedError("pip commands are not implemented yet")
 
 
 	@controlServerEntrypoint
 	def setPipStatus(self, enabled):
-		""" show or hide PIP """
+		"""show or hide PIP"""
 		raise NotImplementedError("pip commands are not implemented yet")
 
 
 	@controlServerEntrypoint
 	def fadePipStatus(self, enabled):
-		""" fade PIP in our out """
+		"""fade PIP in our out"""
 		raise NotImplementedError("pip commands are not implemented yet")
 
 
 	class StreamContents:
-		""" enumeration of possible PIP-Placements """
+		"""enumeration of possible PIP-Placements"""
 		Live, Pause, NoStream = range(3)
 
 
 	@controlServerEntrypoint
 	def selectStreamContent(self, content):
-		""" switch the livestream-content between selected mixer output, pause-image or nostream-image"""
+		"""switch the livestream-content between selected mixer output, pause-image or nostream-imag"""
 		assert(isinstance(content, StreamContents))
 		raise NotImplementedError("pause/nostream switching is not implemented yet")
