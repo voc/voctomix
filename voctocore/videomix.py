@@ -126,7 +126,7 @@ class Videomix:
 				place[1] * cellSize[1] + (cellSize[1] - scaleSize[1]) / 2,
 			)
 
-			print("placing videosrc {} of size {}×{} scaled by {} to {}×{} in a cell {}×{} px cell ({}/{}) at position ({}/{})".format(
+			print("placing videosource {} of size {}×{} scaled by {} to {}×{} in a cell {}×{} px cell ({}/{}) at position ({}/{})".format(
 				idx, srcSize[0], srcSize[1], f, scaleSize[0], scaleSize[1], cellSize[0], cellSize[1], place[0], place[1], coord[0], coord[1]))
 
 			# link the videosource to the input of the preview-bin
@@ -212,22 +212,33 @@ class Videomix:
 			self.pipeline.add(camberabin)
 			yield camberabin
 
+	def iteratorHelper(self, it):
+		while True:
+			result, value = it.next()
+			if result == Gst.IteratorResult.DONE:
+				break
+
+			if result != Gst.IteratorResult.OK:
+				raise IteratorError(result)
+
+			yield value
 
 	### below are access-methods for the ControlServer
 
 	@controlServerEntrypoint
 	def numAudioSources(self):
 		""" return number of available audio sources """
-		pass
+		liveaudio = self.pipeline.get_by_name('liveaudio')
+		return str(len(list(self.iteratorHelper(liveaudio.iterate_sink_pads()))))
 
 
 	@controlServerEntrypoint
-	def switchAudio(self, audiosrc):
+	def switchAudio(self, audiosource):
 		""" switch audio to the selected audio """
 		liveaudio = self.pipeline.get_by_name('liveaudio')
-		pad = liveaudio.get_static_pad('sink_{}'.format(audiosrc))
+		pad = liveaudio.get_static_pad('sink_{}'.format(audiosource))
 		if pad is None:
-			return False
+			return 'unknown audio-source: {}'.format(audiosource)
 
 		liveaudio.set_property('active-pad', pad)
 		return True
@@ -236,34 +247,40 @@ class Videomix:
 	@controlServerEntrypoint
 	def numVideoSources(self):
 		""" return number of available video sources """
-		pass
+		livevideo = self.pipeline.get_by_name('livevideo')
+		return str(len(list(self.iteratorHelper(livevideo.iterate_sink_pads()))))
 
 
 	@controlServerEntrypoint
-	def switchVideo(self, videosrc):
+	def switchVideo(self, videosource):
 		""" switch audio to the selected video """
 		livevideo = self.pipeline.get_by_name('livevideo')
-		pad = livevideo.get_static_pad('sink_{}'.format(videosrc))
-		# TODO set other videos to alpha = 0
-		pad.set_property('alpha', 0.5)
+		pad = livevideo.get_static_pad('sink_{}'.format(videosource))
+		if pad is None:
+			return 'unknown video-source: {}'.format(videosource)
+
+		pad.set_property('alpha', 1)
+		for iterpad in self.iteratorHelper(livevideo.iterate_sink_pads()):
+			if pad != iterpad:
+				iterpad.set_property('alpha', 0)
 
 
 	@controlServerEntrypoint
-	def fadeVideo(self, videosrc):
+	def fadeVideo(self, videosource):
 		""" fade video to the selected video """
-		pass
+		raise NotImplementedError("fade command is not implemented yet")
 
 
 	@controlServerEntrypoint
-	def setPipVideo(self, videosrc):
+	def setPipVideo(self, videosource):
 		""" switch video-source in the PIP to the selected video """
-		pass
+		raise NotImplementedError("pip commands are not implemented yet")
 
 
 	@controlServerEntrypoint
-	def fadePipVideo(self, videosrc):
+	def fadePipVideo(self, videosource):
 		""" fade video-source in the PIP to the selected video """
-		pass
+		raise NotImplementedError("pip commands are not implemented yet")
 
 
 	class PipPlacements:
@@ -275,19 +292,19 @@ class Videomix:
 	def setPipPlacement(self, placement):
 		""" place PIP in the selected position """
 		assert(isinstance(placement, PipPlacements))
-		pass
+		raise NotImplementedError("pip commands are not implemented yet")
 
 
 	@controlServerEntrypoint
 	def setPipStatus(self, enabled):
 		""" show or hide PIP """
-		pass
+		raise NotImplementedError("pip commands are not implemented yet")
 
 
 	@controlServerEntrypoint
 	def fadePipStatus(self, enabled):
 		""" fade PIP in our out """
-		pass
+		raise NotImplementedError("pip commands are not implemented yet")
 
 
 	class StreamContents:
@@ -299,4 +316,4 @@ class Videomix:
 	def selectStreamContent(self, content):
 		""" switch the livestream-content between selected mixer output, pause-image or nostream-image"""
 		assert(isinstance(content, StreamContents))
-		pass
+		raise NotImplementedError("pause/nostream switching is not implemented yet")

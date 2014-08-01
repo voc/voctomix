@@ -47,8 +47,8 @@ class ControlServer():
 
 
 	def processLine(self, line):
-		command, argstring = (line+' ').split(' ', 1)
-		args = argstring.strip().split(' ')
+		command, argstring = (line.strip()+' ').split(' ', 1)
+		args = argstring.strip().split()
 		print(command, args)
 
 		if not hasattr(self.videomix, command):
