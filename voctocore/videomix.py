@@ -1,6 +1,7 @@
 import sys, inspect, math
 from pprint import pprint
 from gi.repository import GLib, Gst
+from controlserver import controlServerEntrypoint
 
 class Videomix:
 	# size of the monitor-streams
@@ -214,12 +215,15 @@ class Videomix:
 
 	### below are access-methods for the ControlServer
 
-	# return number of available audio sources
-	def numAudioSources():
+	@controlServerEntrypoint
+	def numAudioSources(self):
+		""" return number of available audio sources """
 		pass
 
-	# switch audio to the selected audio
-	def switchAudio(audiosrc):
+
+	@controlServerEntrypoint
+	def switchAudio(self, audiosrc):
+		""" switch audio to the selected audio """
 		liveaudio = self.pipeline.get_by_name('liveaudio')
 		pad = liveaudio.get_static_pad('sink_{}'.format(audiosrc))
 		if pad is None:
@@ -229,43 +233,70 @@ class Videomix:
 		return True
 
 
-	# return number of available video sources
-	def numVideoSources():
+	@controlServerEntrypoint
+	def numVideoSources(self):
+		""" return number of available video sources """
 		pass
 
-	# switch audio to the selected video
-	def switchVideo(videosrc):
+
+	@controlServerEntrypoint
+	def switchVideo(self, videosrc):
+		""" switch audio to the selected video """
 		livevideo = self.pipeline.get_by_name('livevideo')
 		pad = livevideo.get_static_pad('sink_{}'.format(videosrc))
 		# TODO set other videos to alpha = 0
-		pad.set_property('alpha', 1)
+		pad.set_property('alpha', 0.5)
 
-	# fade video to the selected video
-	def fadeVideo(videosrc):
+
+	@controlServerEntrypoint
+	def fadeVideo(self, videosrc):
+		""" fade video to the selected video """
 		pass
 
 
-	# switch video-source in the PIP to the selected video
-	def setPipVideo(videosrc):
+	@controlServerEntrypoint
+	def setPipVideo(self, videosrc):
+		""" switch video-source in the PIP to the selected video """
 		pass
 
-	# fade video-source in the PIP to the selected video
-	def fadePipVideo(videosrc):
+
+	@controlServerEntrypoint
+	def fadePipVideo(self, videosrc):
+		""" fade video-source in the PIP to the selected video """
 		pass
 
-	# enumeration of possible PIP-Placements
-	class PipPlacements():
+
+	class PipPlacements:
+		""" enumeration of possible PIP-Placements """
 		TopLeft, TopRight, BottomLeft, BottomRight = range(4)
 
-	# place PIP in the selected position
-	def setPipPlacement(placement):
+
+	@controlServerEntrypoint
+	def setPipPlacement(self, placement):
+		""" place PIP in the selected position """
 		assert(isinstance(placement, PipPlacements))
 		pass
 
-	# show or hide PIP
-	def setPipStatus(enabled):
+
+	@controlServerEntrypoint
+	def setPipStatus(self, enabled):
+		""" show or hide PIP """
 		pass
 
-	# fade PIP in our out
-	def fadePipStatus(enabled):
+
+	@controlServerEntrypoint
+	def fadePipStatus(self, enabled):
+		""" fade PIP in our out """
+		pass
+
+
+	class StreamContents:
+		""" enumeration of possible PIP-Placements """
+		Live, Pause, NoStream = range(3)
+
+
+	@controlServerEntrypoint
+	def selectStreamContent(self, content):
+		""" switch the livestream-content between selected mixer output, pause-image or nostream-image"""
+		assert(isinstance(content, StreamContents))
 		pass
