@@ -4,10 +4,12 @@ from gi.repository import GLib, Gst
 from controlserver import controlServerEntrypoint
 
 class Videomix:
-"""mixing, streaming and encoding pipeline constuction and control"""
+	"""mixing, streaming and encoding pipeline constuction and control"""
 	# size of the monitor-streams
 	# should be anamorphic PAL, beacuse we encode it to dv and send it to the mixer-gui
 	monitorSize = (1024, 576)
+
+	previewbins = []
 
 	def __init__(self):
 		"""initialize video mixing, streaming and encoding pipeline"""
@@ -37,6 +39,11 @@ class Videomix:
 
 		# add all video-sources to the quadmix-monitor-screen
 		self.addVideosToQuadmix(quadmixSources, self.pipeline.get_by_name('quadmix'))
+
+		# initialize to known defaults
+		# TODO: make configurable
+		self.switchVideo(0)
+		self.switchAudio(0)
 
 		Gst.debug_bin_to_dot_file(self.pipeline, Gst.DebugGraphDetails.ALL, 'test')
 		self.pipeline.set_state(Gst.State.PLAYING)
@@ -101,8 +108,9 @@ class Videomix:
 			""", False)
 
 			# name the bin and add it
-			self.pipeline.add(previewbin)
 			previewbin.set_name('previewbin-{}'.format(idx))
+			self.pipeline.add(previewbin)
+			self.previewbins.append(previewbin)
 
 			# set the overlay-text
 			previewbin.get_by_name('text').set_property('text', str(idx))
@@ -226,6 +234,15 @@ class Videomix:
 
 			yield value
 
+	def previewBorderHelper(self, previewbin, enabled, color = 'red'):
+		crop = previewbin.get_by_name('crop')
+		add = previewbin.get_by_name('add')
+		add.set_property('fill', color)
+		for side in ('top', 'left', 'right', 'bottom'):
+			crop.set_property(side, 5 if enabled else 0)
+			add.set_property(side, -5 if enabled else 0)
+
+
 	### below are access-methods for the ControlServer
 
 	@controlServerEntrypoint
@@ -259,12 +276,20 @@ class Videomix:
 		"""switch audio to the selected video"""
 		livevideo = self.pipeline.get_by_name('livevideo')
 		pad = livevideo.get_static_pad('sink_{}'.format(videosource))
-		if pad is None:
+		previewbin = self.pipeline.get_by_name('previewbin-{}'.format(videosource))
+
+		if pad is None or previewbin is None:
 			return 'unknown video-source: {}'.format(videosource)
+
+		self.previewBorderHelper(previewbin, True, 'green')
+		for iterbin in self.previewbins:
+			if previewbin != iterbin:
+				self.previewBorderHelper(iterbin, False)
 
 		pad.set_property('alpha', 1)
 		for iterpad in self.iteratorHelper(livevideo.iterate_sink_pads()):
 			if pad != iterpad:
+				#self.previewBorderHelper(iterpad, 0)
 				iterpad.set_property('alpha', 0)
 
 
