@@ -76,9 +76,8 @@ class FailoverFilter(Gst.Bin):
         self.capsfilter.set_property('caps', Gst.Caps.from_string('video/x-raw,format=I420,width=640,height=480'))
         
         # Connect signal handlers
-        self.queue.connect('underrun', self.on_queue_underrun)
-        self.queue.connect('running', self.on_queue_running)
-        self.queue.connect('pushing', self.on_queue_pushing)
+        self.queue.connect('underrun', self.on_queue)
+        self.queue.connect('running', self.on_queue)
         
         # Link elements
         self.queue.get_static_pad('src').link(self.goodpad)
@@ -93,20 +92,11 @@ class FailoverFilter(Gst.Bin):
             Gst.GhostPad.new('src', self.switch.get_static_pad('src'))
         )
     
-    def on_queue_underrun(self, queue):
-        print('on_queue_underrun()')
+    def on_queue(self, queue):
+        level = queue.get_property('current-level-buffers')
+        print('on_queue()', level)
         switch = queue.get_parent().get_by_name("sw")
-        switch.set_property('active-pad', switch.get_static_pad('sink_1'))
-    
-    def on_queue_running(self, queue):
-        print('on_queue_running()')
-    
-    def on_queue_pushing(self, queue):
-        print('on_queue_pushing()')
-        switch = queue.get_parent().get_by_name("sw")
-        switch.set_property('active-pad', switch.get_static_pad('sink_0'))
-
-
+        switch.set_property('active-pad', switch.get_static_pad('sink_1' if level == 0 else 'sink_0'))
 
 class VideomixerWithDisplay(Gst.Bin):
     def __init__(self):
@@ -115,12 +105,16 @@ class VideomixerWithDisplay(Gst.Bin):
         # Create elements
         self.secondsrc = Gst.ElementFactory.make('videotestsrc', None)
         self.mixer = Gst.ElementFactory.make('videomixer', None)
+        self.q1 = Gst.ElementFactory.make('queue', None)
+        self.q2 = Gst.ElementFactory.make('queue', None)
         self.display = Gst.ElementFactory.make('ximagesink', None)
         
         # Add elements to Bin
         self.add(self.secondsrc)
         self.add(self.mixer)
         self.add(self.display)
+        self.add(self.q1)
+        self.add(self.q2)
         
         # Set properties
         self.secondsrc.set_property('pattern', 'ball')
@@ -135,12 +129,16 @@ class VideomixerWithDisplay(Gst.Bin):
         self.secondpad.set_property('ypos', 50)
         
         # Link elements
-        self.secondsrc.get_static_pad('src').link(self.secondpad)
+        self.q1.get_static_pad('src').link(self.firstpad)
+        
+        self.q2.get_static_pad('src').link(self.secondpad)
+        self.secondsrc.link(self.q2)
+
         self.mixer.link(self.display)
         
         # Add Ghost Pads
         self.add_pad(
-            Gst.GhostPad.new('sink', self.firstpad)
+            Gst.GhostPad.new('sink', self.q1.get_static_pad('sink'))
         )
 
 
