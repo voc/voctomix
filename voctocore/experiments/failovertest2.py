@@ -54,14 +54,17 @@ class FramegrabberSource(Gst.Bin):
 
 
 class FailoverFilter(Gst.Bin):
-    failcount = 1
+    failcount = 1 # start initially failed
+    watchdogcount = 1
+    dead = False
+    
     def __init__(self):
         super().__init__()
         
         self.queue = Gst.ElementFactory.make('queue', None)
         self.failsrc = Gst.ElementFactory.make('videotestsrc', None)
         self.capsfilter = Gst.ElementFactory.make('capsfilter', None)
-        self.switch = Gst.ElementFactory.make('input-selector', "sw")
+        self.switch = Gst.ElementFactory.make('input-selector', None)
         
         # Add elements to Bin
         self.add(self.queue)
@@ -96,19 +99,54 @@ class FailoverFilter(Gst.Bin):
             Gst.GhostPad.new('src', self.switch.get_static_pad('src'))
         )
         
+        # Setup signals
+        for signalname in ('watchdog', 'switch-to-fail', 'switch-to-good', 'dead', 'reanimate'):
+            GObject.signal_new(
+                signalname,
+                self,
+                GObject.SIGNAL_RUN_LAST,
+                GObject.TYPE_NONE,
+                []
+            )
+        
+        self.connect('reanimate', self.reanimate)
+        
         # Start watchdog
         self.watchdog()
     
+    def reanimate(self, caller=None):
+        print('reanimate()')
+        self.failcount = 1
+        self.watchdogcount = 1
+        self.dead = False
+    
     def watchdog(self):
+        if self.dead:
+            return
+        
         self.watchdogtimer = threading.Timer(0.5, self.watchdog)
         self.watchdogtimer.start()
         
+        self.emit('watchdog')
+        
         if self.failcount == 0:
-            print("watchdog switching to goodpad")
-            self.switch.set_property('active-pad', self.goodpad)
+            self.watchdogcount = 0
+            if self.switch.get_property('active-pad') != self.goodpad:
+                print("watchdog switching to goodpad")
+                self.switch.set_property('active-pad', self.goodpad)
+                self.emit('switch-to-good')
         else:
-            print("watchdog switching to failpad")
-            self.switch.set_property('active-pad', self.failpad)
+            self.watchdogcount += 1
+            if self.switch.get_property('active-pad') != self.failpad:
+                print("watchdog switching to failpad")
+                self.switch.set_property('active-pad', self.failpad)
+                self.emit('switch-to-fail')
+            
+            print("self.watchdogcount=", self.watchdogcount)
+            if self.watchdogcount > 20:
+                print("watchdog giving up -> source is dead")
+                self.dead = True
+                self.emit('dead')
     
     def underrun(self, queue):
         level = queue.get_property('current-level-buffers')
@@ -209,6 +247,20 @@ class Example:
 
         self.grabbersrc.link(self.failover)
         self.failover.link(self.mixdisplay)
+        
+        self.failover.connect('dead', self.grabbersrc_is_dead)
+
+    def grabbersrc_is_dead(self, failover):
+        print("grabbersrc_is_dead", failover)
+        self.pipeline.set_state(Gst.State.PAUSED)
+        print(self.grabbersrc.unlink(self.failover))
+        self.pipeline.remove(self.grabbersrc)
+        self.grabbersrc = FramegrabberSource(
+            uri='http://beachcam.kdhnc.com/mjpg/video.mjpg?camera=1')
+        self.pipeline.add(self.grabbersrc)
+        print(self.grabbersrc.link(self.failover))
+        self.failover.reanimate()
+        self.pipeline.set_state(Gst.State.PLAYING)
 
     def run(self):
         self.pipeline.set_state(Gst.State.PLAYING)
