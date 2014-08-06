@@ -2,6 +2,7 @@
 
 from os import path
 
+import threading
 import gi
 gi.require_version('Gst', '1.0')
 from gi.repository import GObject, Gst
@@ -53,6 +54,7 @@ class FramegrabberSource(Gst.Bin):
 
 
 class FailoverFilter(Gst.Bin):
+    failcount = 1
     def __init__(self):
         super().__init__()
         
@@ -72,12 +74,14 @@ class FailoverFilter(Gst.Bin):
         self.failpad = self.switch.get_request_pad('sink_%u')
         
         # Set properties
-        self.switch.set_property('active-pad', self.goodpad)
+        self.switch.set_property('active-pad', self.failpad)
         self.capsfilter.set_property('caps', Gst.Caps.from_string('video/x-raw,format=I420,width=640,height=480'))
         
         # Connect signal handlers
-        self.queue.connect('underrun', self.on_queue)
-        self.queue.connect('running', self.on_queue)
+        self.queue.connect('underrun', self.underrun)
+        self.queue.connect('overrun', self.overrun)
+        self.queue.connect('running', self.running)
+        self.queue.connect('pushing', self.pushing)
         
         # Link elements
         self.queue.get_static_pad('src').link(self.goodpad)
@@ -91,12 +95,51 @@ class FailoverFilter(Gst.Bin):
         self.add_pad(
             Gst.GhostPad.new('src', self.switch.get_static_pad('src'))
         )
+        
+        # Start watchdog
+        self.watchdog()
     
-    def on_queue(self, queue):
+    def watchdog(self):
+        self.watchdogtimer = threading.Timer(0.5, self.watchdog)
+        self.watchdogtimer.start()
+        
+        if self.failcount == 0:
+            print("watchdog switching to goodpad")
+            self.switch.set_property('active-pad', self.goodpad)
+        else:
+            print("watchdog switching to failpad")
+            self.switch.set_property('active-pad', self.failpad)
+    
+    def underrun(self, queue):
         level = queue.get_property('current-level-buffers')
-        print('on_queue()', level)
-        switch = queue.get_parent().get_by_name("sw")
-        switch.set_property('active-pad', switch.get_static_pad('sink_1' if level == 0 else 'sink_0'))
+        
+        failbin = queue.get_parent()
+        if level == 0:
+            failbin.failcount += 1
+        
+        print('underrun(), level=', level, 'failcount=', failbin.failcount)
+    
+    def overrun(self, queue):
+        level = queue.get_property('current-level-buffers')
+        
+        failbin = queue.get_parent()
+        if level > 0:
+            failbin.failcount = 0
+        
+        print('overrun(), level=', level, 'failcount=', failbin.failcount)
+    
+    def running(self, queue):
+        level = queue.get_property('current-level-buffers')
+        print('running(), level=', level)
+    
+    def pushing(self, queue):
+        level = queue.get_property('current-level-buffers')
+        
+        failbin = queue.get_parent()
+        if level == 0:
+            failbin.failcount += 1
+        
+        print('pushing(), level=', level, 'failcount=', failbin.failcount)
 
 class VideomixerWithDisplay(Gst.Bin):
     def __init__(self):
