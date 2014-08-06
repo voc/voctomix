@@ -11,23 +11,20 @@ GObject.threads_init()
 Gst.init(None)
 
 class FramegrabberSource(Gst.Bin):
-    def __init__(self, uri, caps):
+    def __init__(self, uri):
         super().__init__()
-        self.caps = caps
 
         # Create elements
         self.http = Gst.ElementFactory.make('souphttpsrc', None)
         self.demux = Gst.ElementFactory.make('multipartdemux', None)
         self.parse = Gst.ElementFactory.make('jpegparse', None)
         self.dec = Gst.ElementFactory.make('jpegdec', None)
-        self.queue = Gst.ElementFactory.make('queue', None)
 
         # Add elements to Bin
         self.add(self.http)
         self.add(self.parse)
         self.add(self.demux)
         self.add(self.dec)
-        self.add(self.queue)
         
         # Set properties
         self.http.set_property('location', uri)
@@ -37,35 +34,78 @@ class FramegrabberSource(Gst.Bin):
         
         # Connect signal handlers
         self.demux.connect('pad-added', self.on_demux_pad_added)
-        self.queue.connect('underrun', self.on_queue_underrun)
-        self.queue.connect('running', self.on_queue_running)
-        self.queue.connect('pushing', self.on_queue_pushing)
         
         # Link elements
         self.http.link(self.demux)
         # dynamic linked # self.demux.link(self.parse)
-        self.parse.link(self.dec)
-        self.dec.link(self.queue)
-
+        self.parse.link(self.dec)   
+        
         # Add Ghost Pads
         self.add_pad(
-            Gst.GhostPad.new('src', self.queue.get_static_pad('src'))
+            Gst.GhostPad.new('src', self.dec.get_static_pad('src'))
         )
-    
+
     def on_demux_pad_added(self, element, pad):
         string = pad.query_caps(None).to_string()
         print('on_demux_pad_added():', string)
         if string.startswith('image/jpeg'):
             pad.link(self.parse.get_static_pad('sink'))
+
+
+class FailoverFilter(Gst.Bin):
+    def __init__(self):
+        super().__init__()
+        
+        self.queue = Gst.ElementFactory.make('queue', None)
+        self.failsrc = Gst.ElementFactory.make('videotestsrc', None)
+        self.capsfilter = Gst.ElementFactory.make('capsfilter', None)
+        self.switch = Gst.ElementFactory.make('input-selector', "sw")
+        
+        # Add elements to Bin
+        self.add(self.queue)
+        self.add(self.failsrc)
+        self.add(self.capsfilter)
+        self.add(self.switch)
+        
+        # Request Pads
+        self.goodpad = self.switch.get_request_pad('sink_%u')
+        self.failpad = self.switch.get_request_pad('sink_%u')
+        
+        # Set properties
+        self.switch.set_property('active-pad', self.goodpad)
+        self.capsfilter.set_property('caps', Gst.Caps.from_string('video/x-raw,format=I420,width=640,height=480'))
+        
+        # Connect signal handlers
+        self.queue.connect('underrun', self.on_queue_underrun)
+        self.queue.connect('running', self.on_queue_running)
+        self.queue.connect('pushing', self.on_queue_pushing)
+        
+        # Link elements
+        self.queue.get_static_pad('src').link(self.goodpad)
+        self.failsrc.link(self.capsfilter)
+        self.capsfilter.get_static_pad('src').link(self.failpad)
+        
+        # Add Ghost Pads
+        self.add_pad(
+            Gst.GhostPad.new('sink', self.queue.get_static_pad('sink'))
+        )
+        self.add_pad(
+            Gst.GhostPad.new('src', self.switch.get_static_pad('src'))
+        )
     
     def on_queue_underrun(self, queue):
         print('on_queue_underrun()')
+        switch = queue.get_parent().get_by_name("sw")
+        switch.set_property('active-pad', switch.get_static_pad('sink_1'))
     
     def on_queue_running(self, queue):
         print('on_queue_running()')
     
     def on_queue_pushing(self, queue):
         print('on_queue_pushing()')
+        switch = queue.get_parent().get_by_name("sw")
+        switch.set_property('active-pad', switch.get_static_pad('sink_0'))
+
 
 
 class VideomixerWithDisplay(Gst.Bin):
@@ -116,16 +156,18 @@ class Example:
 
         # Create elements
         self.grabbersrc = FramegrabberSource(
-            uri='http://beachcam.kdhnc.com/mjpg/video.mjpg?camera=1',
-            caps=Gst.caps_from_string('image/jpeg,framerate=1/1'))
-
+            uri='http://beachcam.kdhnc.com/mjpg/video.mjpg?camera=1')
+        
+        self.failover = FailoverFilter()
         self.mixdisplay = VideomixerWithDisplay()
 
         # Add elements to pipeline      
         self.pipeline.add(self.grabbersrc)
+        self.pipeline.add(self.failover)
         self.pipeline.add(self.mixdisplay)
 
-        self.grabbersrc.link(self.mixdisplay)
+        self.grabbersrc.link(self.failover)
+        self.failover.link(self.mixdisplay)
 
     def run(self):
         self.pipeline.set_state(Gst.State.PLAYING)
@@ -137,11 +179,11 @@ class Example:
 
     def on_eos(self, bus, msg):
         print('on_eos()')
-        self.kill()
+        #self.kill()
 
     def on_error(self, bus, msg):
         print('on_error():', msg.parse_error())
-        self.kill()
+        #self.kill()
 
 
 example = Example()
