@@ -1,0 +1,13 @@
+# works with gstreamer 1.4 - will probably not work with lower versions
+
+# video/audio-src
+gst-launch-1.0 -vm uridecodebin uri=file:///home/peter/avsync.mp4 name=src \
+src. ! video/x-raw,format=I420,width=1280,height=720,framerate=25/1 ! queue ! shmsink sync=true socket-path=/tmp/sock-v wait-for-connection=false shm-size=100000000 \
+src. ! audio/x-raw,format=S16LE,layout=interleaved,rate=44100,channels=2 ! queue ! shmsink sync=true socket-path=/tmp/sock-a wait-for-connection=false shm-size=10000000
+
+# video sink
+gst-launch-1.0 -vm shmsrc is-live=true do-timestamp=true socket-path=/tmp/sock-v ! video/x-raw,format=I420,width=1280,height=720,framerate=25/1 ! videomixer ! xvimagesink
+
+# audio sink
+gst-launch-1.0 -vm shmsrc is-live=true do-timestamp=true socket-path=/tmp/sock-a ! audio/x-raw,format=S16LE,layout=interleaved,rate=int44100,channels=2 ! alsasink
+
