@@ -1,0 +1,4 @@
+#!/bin/bash
+
+gst-launch-1.0 -q videotestsrc num-buffers=1 pattern=smpte100 ! video/x-raw,format=RGBA,width=1024,height=576 ! filesink location = dead-1024x576.rgba
+gst-launch-1.0 -q videotestsrc num-buffers=1 pattern=smpte100 ! video/x-raw,format=RGBA,width=1920,height=1080 ! filesink location = dead-1920x1080.rgba
