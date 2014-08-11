@@ -1,10 +1,5 @@
 #!/usr/bin/python3
 import gi
-import time
-import signal
-from http.client import HTTPConnection
-from termcolor import colored
-from threading import Timer, Thread
 
 # import GStreamer and GTK-Helper classes
 gi.require_version('Gst', '1.0')
@@ -13,62 +8,44 @@ from gi.repository import GLib, Gst, Gtk, GObject
 # init GObject before importing local classes
 GObject.threads_init()
 Gst.init(None)
-loop = GLib.MainLoop()
 
-# make killable by ctrl-c
-signal.signal(signal.SIGINT, signal.SIG_DFL)
+from videodisplay import VideomixerWithDisplay
+from shmsrc import ShmSrc
 
-# parse_launch
-p = Gst.parse_launch("""
-	input-selector name=failover ! autovideosink
+class Example:
+	def __init__(self):
+		self.mainloop = GObject.MainLoop()
+		self.pipeline = Gst.Pipeline()
 
-	appsrc name=src blocksize=4096 is-live=true block=true ! multipartdemux name=demux ! jpegparse ! jpegdec ! videoconvert ! failover.sink_1
-	videotestsrc ! video/x-raw,width=500,height=375 ! failover.sink_0
-""")
+		self.bus = self.pipeline.get_bus()
+		self.bus.add_signal_watch()
+		self.bus.connect('message::eos', self.on_eos)
+		self.bus.connect('message::error', self.on_error)
 
-def failsafeVideoSource():
-	src = p.get_by_name('src')
-	dec = p.get_by_name('dec')
-	demux = p.get_by_name('demux')
-	failover = p.get_by_name('failover')
-	srcActive = True
+		self.mixdisplay = VideomixerWithDisplay()
+		self.grabbersrc = ShmSrc('/tmp/grabber', Gst.Caps.from_string('video/x-raw,width=1280,height=720,framerate=25/1,format=BGRA'))
 
-	while True:
-		print('connecting to framegrabber')
-		try:
-			con = HTTPConnection('beachcam.kdhnc.com', 80, timeout=3)
-			req = con.request('GET', '/mjpg/video.mjpg?camera=1')
-			res = con.getresponse()
-			srcActive = True
+		# Add elements to pipeline
+		self.pipeline.add(self.mixdisplay)
+		self.pipeline.add(self.grabbersrc)
 
-			print('connected, switching to video')
-			failover.set_property('active-pad', failover.get_static_pad('sink_1'))
+		self.grabbersrc.link(self.mixdisplay)
 
-			while srcActive:
-				chunk = res.read(4094)
-				chunklen = len(chunk)
-				print('read ', len(chunk), ' of ', 4096, ', closed=', res.isclosed())
-				
-				if chunklen > 0:
-					src.emit('push-buffer', Gst.Buffer.new_wrapped(chunk))
-				else:
-					srcActive = False
-		except:
-			print('exception')
-			srcActive = False
+	def run(self):
+		self.pipeline.set_state(Gst.State.PLAYING)
+		self.mainloop.run()
 
-		print('switching to failsave')
-		failover.set_property('active-pad', failover.get_static_pad('sink_0'))
+	def kill(self):
+		self.pipeline.set_state(Gst.State.NULL)
+		self.mainloop.quit()
 
-		print('sleeping before retry')
-		time.sleep(1)
+	def on_eos(self, bus, msg):
+		print('on_eos()')
+		#self.kill()
 
-fsThread = Thread(target=failsafeVideoSource)
-fsThread.deamon = True
-fsThread.start()
+	def on_error(self, bus, msg):
+		print('on_error():', msg.parse_error())
+		#self.kill()
 
-# set playing
-p.set_state(Gst.State.PLAYING)
-
-# start mainloop
-loop.run()
+example = Example()
+example.run()
