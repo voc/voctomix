@@ -20,8 +20,12 @@ class ShmSrc(Gst.Bin):
 
 		self.caps.set_property('caps', caps)
 		self.shmsrc.link(self.caps)
+		self.shmsrc.get_static_pad('src').add_probe(Gst.PadProbeType.BLOCK | Gst.PadProbeType.EVENT_BOTH, self.event_probe, None)
 
 		# Add Ghost Pads
 		self.add_pad(
 			Gst.GhostPad.new('sink', self.caps.get_static_pad('src'))
 		)
+
+	def event_probe(self, pad, info, ud):
+		print("event_probe")
