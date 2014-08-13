@@ -23,7 +23,7 @@ class Example:
 		self.bus.connect('message::error', self.on_error)
 
 		self.mixdisplay = VideomixerWithDisplay()
-		self.grabbersrc = ShmSrc('/tmp/grabber', Gst.Caps.from_string('video/x-raw,width=1280,height=720,framerate=25/1,format=BGRA'))
+		self.grabbersrc = ShmSrc('/tmp/grabber-v', Gst.Caps.from_string('video/x-raw,width=1280,height=720,framerate=25/1,format=BGRA'))
 
 		# Add elements to pipeline
 		self.pipeline.add(self.mixdisplay)

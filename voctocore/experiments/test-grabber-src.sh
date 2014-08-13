@@ -5,6 +5,6 @@ gst-launch-1.0 -vm \
 	queue !\
 	shmsink \
 		sync=true \
-		socket-path=/tmp/grabber \
+		socket-path=/tmp/grabber-v \
 		wait-for-connection=false \
 		shm-size=100000000
