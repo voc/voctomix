@@ -3,7 +3,7 @@ import gi
 
 # import GStreamer and GTK-Helper classes
 gi.require_version('Gst', '1.0')
-from gi.repository import GLib, Gst, Gtk, GObject
+from gi.repository import GLib, Gst, GObject
 
 # init GObject before importing local classes
 GObject.threads_init()
