@@ -20,7 +20,8 @@ class ShmSrc(Gst.Bin):
 
 		self.caps.set_property('caps', caps)
 		self.shmsrc.link(self.caps)
-		self.shmsrc.get_static_pad('src').add_probe(Gst.PadProbeType.BLOCK | Gst.PadProbeType.EVENT_BOTH, self.event_probe, None)
+		self.shmsrc.get_static_pad('src').add_probe(Gst.PadProbeType.BLOCK | Gst.PadProbeType.EVENT_DOWNSTREAM, self.event_probe, None)
+		self.shmsrc.get_static_pad('src').add_probe(Gst.PadProbeType.IDLE | Gst.PadProbeType.DATA_DOWNSTREAM, self.data_probe, None)
 
 		# Add Ghost Pads
 		self.add_pad(
@@ -28,4 +29,13 @@ class ShmSrc(Gst.Bin):
 		)
 
 	def event_probe(self, pad, info, ud):
-		print("event_probe")
+		e = info.get_event()
+		print("event_probe", e.type)
+		if e.type == Gst.EventType.EOS:
+			print("shmsrc reported EOS - switching to failover")
+			return Gst.PadProbeReturn.DROP
+		return Gst.PadProbeReturn.PASS
+
+	def data_probe(self, pad, info, ud):
+		print("shmsrc sends data - switching to shmsrc")
+		return Gst.PadProbeReturn.PASS
