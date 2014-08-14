@@ -9,7 +9,6 @@ class VideomixerWithDisplay(Gst.Bin):
 		self.secondsrc = Gst.ElementFactory.make('videotestsrc', None)
 		self.mixer = Gst.ElementFactory.make('videomixer', None)
 		self.ident = Gst.ElementFactory.make('identity', None)
-		self.conv = Gst.ElementFactory.make('videoconvert', None)
 		self.q1 = Gst.ElementFactory.make('queue', None)
 		self.q2 = Gst.ElementFactory.make('queue', None)
 		self.display = Gst.ElementFactory.make('ximagesink', None)
@@ -18,7 +17,6 @@ class VideomixerWithDisplay(Gst.Bin):
 		self.add(self.secondsrc)
 		self.add(self.mixer)
 		self.add(self.ident)
-		self.add(self.conv)
 		self.add(self.display)
 		self.add(self.q1)
 		self.add(self.q2)
@@ -41,11 +39,10 @@ class VideomixerWithDisplay(Gst.Bin):
 		self.q1.get_static_pad('src').link(self.firstpad)
 
 		self.q2.get_static_pad('src').link(self.secondpad)
-		self.secondsrc.link_filtered(self.ident, Gst.Caps.from_string('video/x-raw,format=BGRA,width=400,height=400,framerate=25/1'))
+		self.secondsrc.link_filtered(self.ident, Gst.Caps.from_string('video/x-raw,width=400,height=400,framerate=25/1,format=RGB'))
 		self.ident.link(self.q2)
 
-		self.mixer.link(self.conv)
-		self.conv.link(self.display)
+		self.mixer.link(self.display)
 
 		# Add Ghost Pads
 		self.add_pad(
