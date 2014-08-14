@@ -1,47 +1,54 @@
 #!/usr/bin/python3
-from gi.repository import GObject, Gst
+import time
+from gi.repository import GLib, Gst
 
 class ShmSrc(Gst.Bin):
+	last_buffer_arrived = 0
+	is_in_failstate = True
+
 	def __init__(self, socket, caps):
 		super().__init__()
 
 		# Create elements
 		self.shmsrc = Gst.ElementFactory.make('shmsrc', None)
-		self.caps1 = Gst.ElementFactory.make('capsfilter', None)
-		self.caps2 = Gst.ElementFactory.make('capsfilter', None)
+		self.identity1 = Gst.ElementFactory.make('identity', None)
+		self.identity2 = Gst.ElementFactory.make('identity', None)
 		self.switch = Gst.ElementFactory.make('input-selector', None)
-		self.secondsrc = Gst.ElementFactory.make('videotestsrc', None)
+		self.failsrc = Gst.ElementFactory.make('videotestsrc', None)
 
 		# Add elements to Bin
 		self.add(self.shmsrc)
-		self.add(self.caps1)
-		self.add(self.caps2)
+		self.add(self.identity1)
+		self.add(self.identity2)
 		self.add(self.switch)
-		self.add(self.secondsrc)
+		self.add(self.failsrc)
 
 		# Get Switcher-Pads
-		self.firstpad = self.switch.get_request_pad('sink_%u')
-		self.secondpad = self.switch.get_request_pad('sink_%u')
+		self.goodpad = self.switch.get_request_pad('sink_%u')
+		self.failpad = self.switch.get_request_pad('sink_%u')
 
 		# Set properties
 		self.shmsrc.set_property('socket-path', socket)
 		self.shmsrc.set_property('is-live', True)
 		self.shmsrc.set_property('do-timestamp', True)
-		self.caps1.set_property('caps', caps)
-		self.caps2.set_property('caps', caps)
-		self.switch.set_property('active-pad', self.firstpad)
-		self.secondsrc.set_property('pattern', 'snow')
+		#self.identity1.set_property('sync', True)
+		self.identity2.set_property('sync', True)
+		self.switch.set_property('active-pad', self.failpad)
+		self.failsrc.set_property('pattern', 'snow')
 
 		# Link elements
-		self.shmsrc.link(self.caps1)
-		self.caps1.get_static_pad('src').link(self.firstpad)
+		self.shmsrc.link_filtered(self.identity1, caps)
+		self.identity1.get_static_pad('src').link(self.goodpad)
 
-		self.secondsrc.link(self.caps2)
-		self.caps2.get_static_pad('src').link(self.secondpad)
+		self.failsrc.link_filtered(self.identity2, caps)
+		self.identity2.get_static_pad('src').link(self.failpad)
 
 		# Install pad probes
 		self.shmsrc.get_static_pad('src').add_probe(Gst.PadProbeType.BLOCK | Gst.PadProbeType.EVENT_DOWNSTREAM, self.event_probe, None)
-		self.shmsrc.get_static_pad('src').add_probe(Gst.PadProbeType.IDLE | Gst.PadProbeType.DATA_DOWNSTREAM, self.data_probe, None)
+		self.shmsrc.get_static_pad('src').add_probe(Gst.PadProbeType.BLOCK | Gst.PadProbeType.BUFFER, self.data_probe, None)
+
+		# Install Watchdog
+		GLib.timeout_add(500, self.watchdog)
 
 		# Add Ghost Pads
 		self.add_pad(
@@ -50,14 +57,46 @@ class ShmSrc(Gst.Bin):
 
 	def event_probe(self, pad, info, ud):
 		e = info.get_event()
-		print("event_probe", e.type)
 		if e.type == Gst.EventType.EOS:
-			print("shmsrc reported EOS - switching to failover")
-			self.switch.set_property('active-pad', self.secondpad)
+			self.switch_to_failstate()
+			
 			return Gst.PadProbeReturn.DROP
+		
 		return Gst.PadProbeReturn.PASS
 
+
 	def data_probe(self, pad, info, ud):
-		print("shmsrc sends data - switching to shmsrc")
-		# todo: add a timeout of 2*framerate (ie 2*1/25 seconds)
+		self.last_buffer_arrived = time.time()
+		self.switch_to_goodstate()
 		return Gst.PadProbeReturn.PASS
+
+	def watchdog(self):
+		if self.last_buffer_arrived + 0.1 < time.time():
+			print("watchdog()::timeout")
+			self.switch_to_failstate()
+		
+		if self.last_buffer_arrived + 3 < time.time() and round(time.time() % 3) == 0:
+			print("watchdog()::restart")
+			self.restart()
+		
+		return True
+	
+	def restart(self):
+		self.shmsrc.set_state(Gst.State.NULL)
+		self.shmsrc.set_state(Gst.State.PLAYING)
+	
+	def switch_to_goodstate(self):
+		if not self.is_in_failstate:
+			return
+		
+		print("switch_to_goodstate()")
+		self.is_in_failstate = False
+		self.switch.set_property('active-pad', self.goodpad)
+	
+	def switch_to_failstate(self):
+		if self.is_in_failstate:
+			return
+		
+		print("switch_to_failstate()")
+		self.is_in_failstate = True
+		self.switch.set_property('active-pad', self.failpad)
