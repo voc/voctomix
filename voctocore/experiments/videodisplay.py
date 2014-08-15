@@ -39,7 +39,7 @@ class VideomixerWithDisplay(Gst.Bin):
 		self.q1.get_static_pad('src').link(self.firstpad)
 
 		self.q2.get_static_pad('src').link(self.secondpad)
-		self.secondsrc.link_filtered(self.ident, Gst.Caps.from_string('video/x-raw,width=400,height=400,framerate=25/1,format=RGB'))
+		self.secondsrc.link_filtered(self.ident, Gst.Caps.from_string('video/x-raw,width=400,height=400,framerate=25/1,format=RGBx'))
 		self.ident.link(self.q2)
 
 		self.mixer.link(self.display)

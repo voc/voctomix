@@ -10,7 +10,7 @@ gst-launch-1.0 -v \
 	videoconvert !\
 	videorate !\
 	videoscale !\
-	video/x-raw,format=RGB,width=1280,height=720,framerate=25/1 !\
+	video/x-raw,format=RGBx,width=1280,height=720,framerate=25/1 !\
 	shmsink \
 		sync=true \
 		socket-path=/tmp/grabber-v \
