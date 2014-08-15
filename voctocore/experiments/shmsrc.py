@@ -55,11 +55,18 @@ class ShmSrc(Gst.Bin):
 			Gst.GhostPad.new('sink', self.switch.get_static_pad('src'))
 		)
 
+	def do_handle_message(self, msg):
+		if msg.type == Gst.MessageType.ERROR:
+			print("do_handle_message(): dropping error")
+			return
+		
+		print("do_handle_message()", msg.src, msg.type)
+		Gst.Bin.do_handle_message(self, msg)
+
 	def event_probe(self, pad, info, ud):
 		e = info.get_event()
 		if e.type == Gst.EventType.EOS:
 			self.switch_to_failstate()
-			
 			return Gst.PadProbeReturn.DROP
 		
 		return Gst.PadProbeReturn.PASS
