@@ -14,7 +14,7 @@
 # but somehow this is not enough to make the pipeline start in an error-condition..
 #
 
-import gi
+import gi, time
 
 # import GStreamer and GTK-Helper classes
 gi.require_version('Gst', '1.0')
@@ -44,6 +44,10 @@ class Example:
 		self.src.link(self.sink)
 
 	def run(self):
+		print("PAUSED")
+		self.pipeline.set_state(Gst.State.PAUSED)
+		time.sleep(0.1)
+		print("PLAYING")
 		self.pipeline.set_state(Gst.State.PLAYING)
 		self.mainloop.run()
 
