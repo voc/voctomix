@@ -1,7 +1,7 @@
 import sys, inspect, math
 from pprint import pprint
 from gi.repository import GLib, Gst
-from controlserver import controlServerEntrypoint
+from lib.controlserver import controlServerEntrypoint
 
 class Videomix:
 	"""mixing, streaming and encoding pipeline constuction and control"""

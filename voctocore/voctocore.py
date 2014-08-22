@@ -1,6 +1,5 @@
 #!/usr/bin/python3
-import gi
-import signal
+import gi, signal
 
 # import GStreamer and GTK-Helper classes
 gi.require_version('Gst', '1.0')
@@ -11,8 +10,8 @@ GObject.threads_init()
 Gst.init(None)
 
 # import local classes
-from videomix import Videomix
-from controlserver import ControlServer
+from lib.videomix import Videomix
+from lib.controlserver import ControlServer
 
 class Main:
 	def __init__(self):
@@ -25,7 +24,7 @@ def runmain():
 	signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 	# start main-class and main-loop
-	start=Main()
+	start = Main()
 	Gtk.main()
 
 if __name__ == '__main__':
