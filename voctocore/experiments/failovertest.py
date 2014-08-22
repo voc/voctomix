@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import gi
+import gi, time
 
 # import GStreamer and GTK-Helper classes
 gi.require_version('Gst', '1.0')
@@ -32,6 +32,8 @@ class Example:
 		self.grabbersrc.link(self.mixdisplay)
 
 	def run(self):
+		self.pipeline.set_state(Gst.State.PAUSED)
+		time.sleep(0.5)
 		self.pipeline.set_state(Gst.State.PLAYING)
 		self.mainloop.run()
 
