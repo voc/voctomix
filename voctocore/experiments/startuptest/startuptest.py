@@ -55,13 +55,5 @@ class Example:
 		self.pipeline.set_state(Gst.State.NULL)
 		self.mainloop.quit()
 
-	def on_eos(self, bus, msg):
-		print('on_eos()')
-		#self.kill()
-
-	def on_error(self, bus, msg):
-		print('on_error():', msg.parse_error())
-		#self.kill()
-
 example = Example()
 example.run()
