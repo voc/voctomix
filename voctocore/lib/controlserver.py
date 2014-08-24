@@ -1,4 +1,4 @@
-import socket, threading, queue
+import socket, threading, queue, logging
 from gi.repository import GObject
 
 def controlServerEntrypoint(f):
@@ -7,6 +7,7 @@ def controlServerEntrypoint(f):
 	return f
 
 class ControlServer():
+	log = logging.getLogger('ControlServer')
 	def __init__(self, videomix):
 		'''Initialize server and start listening.'''
 		self.videomix = videomix
@@ -22,7 +23,7 @@ class ControlServer():
 	def listener(self, sock, *args):
 		'''Asynchronous connection listener. Starts a handler for each connection.'''
 		conn, addr = sock.accept()
-		print("Connection from ", addr)
+		self.log.info("Connection from %s", addr)
 
 		# register data-received handler inside the GTK-Mainloop
 		GObject.io_add_watch(conn, GObject.IO_IN, self.handler)
@@ -32,7 +33,7 @@ class ControlServer():
 		'''Asynchronous connection handler. Processes each line from the socket.'''
 		line = conn.recv(4096)
 		if not len(line):
-			print("Connection closed.")
+			self.log.debug("Connection closed.")
 			return False
 
 		r = self.processLine(line.decode('utf-8'))
@@ -49,7 +50,7 @@ class ControlServer():
 	def processLine(self, line):
 		command, argstring = (line.strip()+' ').split(' ', 1)
 		args = argstring.strip().split()
-		print(command, args)
+		self.log.info(command % args)
 
 		if not hasattr(self.videomix, command):
 			return 'unknown command {}'.format(command)
