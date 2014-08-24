@@ -9,9 +9,8 @@ class FailsafeShmSrc(Gst.Bin):
 	last_buffer_arrived = 0
 	is_in_failstate = True
 
-	def __init__(self, name, socket):
+	def __init__(self, socket):
 		super().__init__()
-		self.set_name(socket)
 
 		caps = Gst.Caps.from_string(Config.get('sources', 'videocaps'))
 		self.log.debug('parsing videocaps from config: %s', caps.to_string())

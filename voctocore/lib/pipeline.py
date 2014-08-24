@@ -49,7 +49,7 @@ class Pipeline(Gst.Pipeline):
 			socket = os.path.join(socketpath, 'v-'+name)
 
 			self.log.info('Creating video-source %s at socket-path %s', name, socket)
-			sourcebin = FailsafeShmSrc(name, socket)
+			sourcebin = FailsafeShmSrc(socket)
 			self.add(sourcebin)
 			self.quadmixer.add_source(sourcebin)
 
