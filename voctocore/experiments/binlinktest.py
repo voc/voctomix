@@ -37,6 +37,11 @@ class MixBin(Gst.Bin):
 			Gst.GhostPad.new('src', self.mix.get_static_pad('src'))
 		)
 
+	def create_ghostpad(self, pad):
+		ghostpad = Gst.GhostPad.new(pad.get_name(), pad)
+		self.add_pad(ghostpad)
+		return ghostpad
+
 	def add_src(self, src):
 		sinkpad = self.mix.get_request_pad('sink_%u')
 		sinkpad.set_property('alpha', 0.75)
@@ -46,7 +51,11 @@ class MixBin(Gst.Bin):
 		#print(src.link(self.mix)) # True
 
 		# doesn't
-		print(srcpad.link(sinkpad)) # Error => GST_PAD_LINK_WRONG_HIERARCHY
+		#print(srcpad.link(sinkpad)) # Error => GST_PAD_LINK_WRONG_HIERARCHY
+
+		# but this does
+		sinkghostpad = self.create_ghostpad(sinkpad)
+		print(srcpad.link(sinkghostpad)) # True
 
 class Example:
 	def __init__(self):
