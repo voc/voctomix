@@ -68,8 +68,24 @@ class QuadMix(Gst.Bin):
 
 		# iterate over all video-sources
 		for idx, videosource in enumerate(self.sources):
+			# create a sub-preview-bin
+			previewbin = QuadMixPreview()
+			self.add(previewbin)
+			self.previewbins.append(previewbin)
+
+			previewsink = previewbin.get_static_pad('sink')
+			previewsrc = previewbin.get_static_pad('src')
+
+			srcpad = videosource.get_compatible_pad(previewsink, None)
+			#srcpad.link(previewsink) # linking ghost pads
+			print(videosource.link(previewbin))
+
+			sinkpad = self.mixer.get_request_pad('sink_%u')
+			#previewsrc.link(sinkpad) # linking ghost pads
+			print(previewbin.link(self.mixer))
+
 			# query the video-source caps and extract its size
-			caps = videosource.get_static_pad('src').query_caps(None)
+			caps = srcpad.query_caps(None)
 			capsstruct = caps.get_structure(0)
 			srcSize = (
 				capsstruct.get_int('width')[1],
@@ -93,20 +109,11 @@ class QuadMix(Gst.Bin):
 				idx, srcSize[0], srcSize[1], f, scaleSize[0], scaleSize[1], cellSize[0], cellSize[1], place[0], place[1], coord[0], coord[1])
 
 			# request a pad from the quadmixer and configure x/y position
-			sinkpad = self.mixer.get_request_pad('sink_%u')
 			sinkpad.set_property('xpos', round(coord[0]))
 			sinkpad.set_property('ypos', round(coord[1]))
 
-			# create a sub-preview-bin
-			previewbin = QuadMixPreview(idx, scaleSize)
-			self.add(previewbin)
-			self.previewbins.append(previewbin)
-
-			# link videosource to input of previewbin
-			videosource.link(previewbin)
-
-			# link the output of the preview-bin to the mixer
-			previewbin.get_static_pad('src').link(sinkpad)
+			previewbin.set_size(scaleSize)
+			previewbin.set_idx(idx)
 
 			# increment grid position
 			place[0] += 1
@@ -122,22 +129,20 @@ class QuadMixPreview(Gst.Bin):
 	log = logging.getLogger('QuadMixPreview')
 	strokeWidth = 5
 
-	def __init__(self, idx, scaleSize):
+	def __init__(self):
 		super().__init__()
 
 		self.scale = Gst.ElementFactory.make('videoscale', 'scale')
+		self.caps = Gst.ElementFactory.make('capsfilter', 'caps')
 		self.cropbox = Gst.ElementFactory.make('videobox', 'cropbox')
 		self.strokebox = Gst.ElementFactory.make('videobox', 'strokebox')
 		self.textoverlay = Gst.ElementFactory.make('textoverlay', 'textoverlay')
 
 		self.add(self.scale)
+		self.add(self.caps)
 		self.add(self.cropbox)
 		self.add(self.strokebox)
 		self.add(self.textoverlay)
-
-		caps = Gst.Caps.new_empty_simple('video/x-raw')
-		caps.set_value('width', round(scaleSize[0]))
-		caps.set_value('height', round(scaleSize[1]))
 
 		self.strokebox.set_property('fill', 'green')
 
@@ -148,7 +153,8 @@ class QuadMixPreview(Gst.Bin):
 		self.textoverlay.set_property('ypad', 5)
 		self.textoverlay.set_property('font-desc', 'sans 35')
 
-		self.scale.link_filtered(self.cropbox, caps)
+		self.scale.link(self.caps)
+		self.caps.link(self.cropbox)
 		self.cropbox.link(self.strokebox)
 		self.strokebox.link(self.textoverlay)
 
@@ -162,11 +168,20 @@ class QuadMixPreview(Gst.Bin):
 			Gst.GhostPad.new('src', self.textoverlay.get_static_pad('src'))
 		)
 
+	def set_size(self, scaleSize):
+		caps = Gst.Caps.new_empty_simple('video/x-raw')
+		caps.set_value('width', round(scaleSize[0]))
+		caps.set_value('height', round(scaleSize[1]))
+		self.caps.set_property('caps', caps)
+
+	def set_idx(self, idx):
+		self.textoverlay.set_property('text', str(idx))
+
 	def set_active(self, active):
 		self.log.info("switching active-state to %u", active)
 		for side in ('top', 'left', 'right', 'bottom'):
 			self.cropbox.set_property(side, self.strokeWidth if active else 0)
 			self.strokebox.set_property(side, -self.strokeWidth if active else 0)
 
-	def setColor(self, color):
+	def set_color(self, color):
 		self.strokebox.set_property('fill', color)

@@ -8,9 +8,9 @@ from lib.controlserver import controlServerEntrypoint
 # import library components
 from lib.config import Config
 from lib.quadmix import QuadMix
-# from lib.videomix import VideoMix
+from lib.videomix import VideoMix
 # from lib.audiomix import AudioMix
-# from lib.distributor import TimesTwoDistributor
+from lib.distributor import TimesTwoDistributor
 from lib.shmsrc import FailsafeShmSrc
 
 class Pipeline(Gst.Pipeline):
@@ -27,8 +27,8 @@ class Pipeline(Gst.Pipeline):
 		self.quadmixer = QuadMix()
 		self.add(self.quadmixer)
 
-		# self.videomixer = VideoMix()
-		# self.add(self.videomixer)
+		self.videomixer = VideoMix()
+		self.add(self.videomixer)
 
 		# self.audiomixer = AudioMix()
 		# self.add(self.audiomixer)
@@ -51,10 +51,13 @@ class Pipeline(Gst.Pipeline):
 			self.log.info('Creating video-source %s at socket-path %s', name, socket)
 			sourcebin = FailsafeShmSrc(socket)
 			self.add(sourcebin)
-			self.quadmixer.add_source(sourcebin)
 
-			# distributor = TimesTwoDistributor(sourcebin)
-			# self.add(distributor)
+			distributor = TimesTwoDistributor()
+			self.add(distributor)
+			sourcebin.link(distributor)
+
+			self.quadmixer.add_source(distributor)
+			self.videomixer.add_source(distributor)
 
 			# distributor.link(self.quadmixer)
 			# distributor.link(self.videomixer)
@@ -68,14 +71,18 @@ class Pipeline(Gst.Pipeline):
 		# tell the quadmix that this were all sources and no more sources will come after this
 		self.quadmixer.finalize()
 
+		self.quadmixer.set_active(0)
+		self.videomixer.set_active(0)
+
 		self.quadmixsink = Gst.ElementFactory.make('autovideosink', 'quadmixsink')
 		self.quadmixsink.set_property('sync', False)
 		self.add(self.quadmixsink)
 		self.quadmixer.link(self.quadmixsink)
 
-		# self.videosink = Gst.ElementFactory.make('autovideosink', 'videosink')
-		# self.add(self.videosink)
-		# self.videomixer.link(self.videosink)
+		self.videosink = Gst.ElementFactory.make('autovideosink', 'videosink')
+		self.videosink.set_property('sync', False)
+		self.add(self.videosink)
+		self.videomixer.link(self.videosink)
 
 		# self.audiosink = Gst.ElementFactory.make('autoaudiosink', 'audiosink')
 		# self.add(self.audiosink)
@@ -349,7 +356,8 @@ class Pipeline(Gst.Pipeline):
 
 		self.log.info("switching quadmix to video-source %u", idx)
 		self.quadmixer.set_active(idx)
-		# todo: switch main switcher
+		self.videomixer.set_active(idx)
+
 
 	@controlServerEntrypoint
 	def fadeVideo(self, videosource):
