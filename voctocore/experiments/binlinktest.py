@@ -40,9 +40,13 @@ class MixBin(Gst.Bin):
 	def add_src(self, src):
 		sinkpad = self.mix.get_request_pad('sink_%u')
 		sinkpad.set_property('alpha', 0.75)
-		src = src.get_static_pad('src')
+		srcpad = src.get_static_pad('src')
 
-		print(src.link(sinkpad)) # Error => GST_PAD_LINK_WRONG_HIERARCHY
+		# works
+		#print(src.link(self.mix)) # True
+
+		# doesn't
+		print(srcpad.link(sinkpad)) # Error => GST_PAD_LINK_WRONG_HIERARCHY
 
 class Example:
 	def __init__(self):
