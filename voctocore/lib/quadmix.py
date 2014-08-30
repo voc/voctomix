@@ -49,12 +49,13 @@ class QuadMix(Gst.Bin):
 		self.mixerpads.append(mixerpad)
 		srcpad.link(mixerpad)
 
+		self.log.info('requested mixerpad %u', len(self.mixerpads) - 1)
 		ghostpad = Gst.GhostPad.new(mixerpad.get_name(), sinkpad)
 		self.add_pad(ghostpad)
 		return ghostpad
 
 	def finalize(self):
-		self.log.debug('all sources added, calculating layout')
+		self.log.debug('all sources linked, calculating layout')
 
 		# number of placed sources
 		count = len(self.previewbins)
@@ -77,10 +78,12 @@ class QuadMix(Gst.Bin):
 		self.log.info('showing %u videosources in a %u×%u grid in a %u×%u px window, which gives cells of %u×%u px per videosource',
 			count, grid[0], grid[1], self.monitorSize[0], self.monitorSize[1], cellSize[0], cellSize[1])
 
-		# iterate over all video-sources
+		# iterate over all previewbins
 		for idx, previewbin in enumerate(self.previewbins):
-			# ...
+			# request srcpad to query videosize and aspect from it
 			srcpad = previewbin.get_static_pad('src')
+
+			# select the mixerpad responsible for this previewbin from the videomixer 
 			mixerpad = self.mixerpads[idx]
 
 			# query the video-source caps and extract its size
@@ -104,7 +107,7 @@ class QuadMix(Gst.Bin):
 				place[1] * cellSize[1] + (cellSize[1] - scaleSize[1]) / 2,
 			)
 
-			self.log.info('placing videosource %u of size %u×%u scaled by %u to %u×%u in a cell %u×%u px cell (%u/%u) at position (%u/%u)', 
+			self.log.info('placing mixerpad %u of size %u×%u scaled by %u to %u×%u in a cell %u×%u px cell (%u/%u) at position (%u/%u)', 
 				idx, srcSize[0], srcSize[1], f, scaleSize[0], scaleSize[1], cellSize[0], cellSize[1], place[0], place[1], coord[0], coord[1])
 
 			# request a pad from the quadmixer and configure x/y position
@@ -121,6 +124,7 @@ class QuadMix(Gst.Bin):
 				place[0] = 0
 
 	def set_active(self, target):
+		self.log.info('enabling videosource %u, disabling other', target)
 		for idx, previewbin in enumerate(self.previewbins):
 			previewbin.set_active(target == idx)
 

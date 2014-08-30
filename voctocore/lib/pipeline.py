@@ -48,7 +48,7 @@ class Pipeline(Gst.Pipeline):
 		for name in self.videonames:
 			socket = os.path.join(socketpath, 'v-'+name)
 
-			self.log.info('Creating video-source %s at socket-path %s', name, socket)
+			self.log.info('Creating video-source "%s" at socket-path %s', name, socket)
 			sourcebin = FailsafeShmSrc(socket)
 			self.add(sourcebin)
 
