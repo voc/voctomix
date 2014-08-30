@@ -56,7 +56,9 @@ class Pipeline(Gst.Pipeline):
 			self.add(distributor)
 			sourcebin.link(distributor)
 
-			self.quadmixer.add_source(distributor)
+			mixerpad = self.quadmixer.request_mixer_pad()
+			distributor.get_static_pad('src_a').link(mixerpad)
+
 			self.videomixer.add_source(distributor)
 
 			# distributor.link(self.quadmixer)

@@ -7,8 +7,8 @@ from lib.config import Config
 
 class QuadMix(Gst.Bin):
 	log = logging.getLogger('QuadMix')
-	sources = []
 	previewbins = []
+	mixerpads = []
 
 	def __init__(self):
 		super().__init__()
@@ -37,16 +37,27 @@ class QuadMix(Gst.Bin):
 			Gst.GhostPad.new('src', self.scale.get_static_pad('src'))
 		)
 
-	# I don't know how to create a on-request ghost-pad
-	def add_source(self, src):
-		self.log.info('adding source %s', src.get_name())
-		self.sources.append(src)
+	def request_mixer_pad(self):
+		previewbin = QuadMixPreview()
+		self.add(previewbin)
+		self.previewbins.append(previewbin)
+
+		srcpad = previewbin.get_static_pad('src')
+		sinkpad = previewbin.get_static_pad('sink')
+
+		mixerpad = self.mixer.get_request_pad('sink_%u')
+		self.mixerpads.append(mixerpad)
+		srcpad.link(mixerpad)
+
+		ghostpad = Gst.GhostPad.new(mixerpad.get_name(), sinkpad)
+		self.add_pad(ghostpad)
+		return ghostpad
 
 	def finalize(self):
 		self.log.debug('all sources added, calculating layout')
 
 		# number of placed sources
-		count = len(self.sources)
+		count = len(self.previewbins)
 
 		# coordinate of the cell where we place the next video
 		place = [0, 0]
@@ -67,22 +78,10 @@ class QuadMix(Gst.Bin):
 			count, grid[0], grid[1], self.monitorSize[0], self.monitorSize[1], cellSize[0], cellSize[1])
 
 		# iterate over all video-sources
-		for idx, videosource in enumerate(self.sources):
-			# create a sub-preview-bin
-			previewbin = QuadMixPreview()
-			self.add(previewbin)
-			self.previewbins.append(previewbin)
-
-			previewsink = previewbin.get_static_pad('sink')
-			previewsrc = previewbin.get_static_pad('src')
-
-			srcpad = videosource.get_compatible_pad(previewsink, None)
-			#srcpad.link(previewsink) # linking ghost pads
-			print(videosource.link(previewbin))
-
-			sinkpad = self.mixer.get_request_pad('sink_%u')
-			#previewsrc.link(sinkpad) # linking ghost pads
-			print(previewbin.link(self.mixer))
+		for idx, previewbin in enumerate(self.previewbins):
+			# ...
+			srcpad = previewbin.get_static_pad('src')
+			mixerpad = self.mixerpads[idx]
 
 			# query the video-source caps and extract its size
 			caps = srcpad.query_caps(None)
@@ -109,8 +108,8 @@ class QuadMix(Gst.Bin):
 				idx, srcSize[0], srcSize[1], f, scaleSize[0], scaleSize[1], cellSize[0], cellSize[1], place[0], place[1], coord[0], coord[1])
 
 			# request a pad from the quadmixer and configure x/y position
-			sinkpad.set_property('xpos', round(coord[0]))
-			sinkpad.set_property('ypos', round(coord[1]))
+			mixerpad.set_property('xpos', round(coord[0]))
+			mixerpad.set_property('ypos', round(coord[1]))
 
 			previewbin.set_size(scaleSize)
 			previewbin.set_idx(idx)
