@@ -6,7 +6,7 @@ from lib.config import Config
 
 class VideoMix(Gst.Bin):
 	log = logging.getLogger('VideoMix')
-	sinkpads = []
+	mixerpads = []
 
 	def __init__(self):
 		super().__init__()
@@ -27,18 +27,17 @@ class VideoMix(Gst.Bin):
 			Gst.GhostPad.new('src', self.conv.get_static_pad('src'))
 		)
 
-	# I don't know how to create a on-request ghost-pad
-	def add_source(self, src):
-		self.log.info('adding source %s', src.get_name())
-		sinkpad = self.mixer.get_request_pad('sink_%u')
-		sinkpad.set_property('alpha', 1)
-		self.sinkpads.append(sinkpad)
+	def request_mixer_pad(self):
+		mixerpad = self.mixer.get_request_pad('sink_%u')
+		self.mixerpads.append(mixerpad)
+		mixerpad.set_property('alpha', 1)
 
-		#srcpad = src.get_compatible_pad(sinkpad, None)
-		#srcpad.link(sinkpad)
-		src.link(self.mixer) # linking ghost pads
+		self.log.info('requested mixerpad %u (named %s)', len(self.mixerpads) - 1, mixerpad.get_name())
+		ghostpad = Gst.GhostPad.new(mixerpad.get_name(), mixerpad)
+		self.add_pad(ghostpad)
+		return ghostpad
 
 	def set_active(self, target):
-		self.log.info('setting source #%u active', target)
-		for idx, sinkpad in enumerate(self.sinkpads):
-			sinkpad.set_property('alpha', int(target == idx))
+		self.log.info('setting videosource %u active, disabling other', target)
+		for idx, mixerpad in enumerate(self.mixerpads):
+			mixerpad.set_property('alpha', int(target == idx))

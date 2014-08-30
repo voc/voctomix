@@ -49,7 +49,7 @@ class QuadMix(Gst.Bin):
 		self.mixerpads.append(mixerpad)
 		srcpad.link(mixerpad)
 
-		self.log.info('requested mixerpad %u', len(self.mixerpads) - 1)
+		self.log.info('requested mixerpad %u (named %s)', len(self.mixerpads) - 1, mixerpad.get_name())
 		ghostpad = Gst.GhostPad.new(mixerpad.get_name(), sinkpad)
 		self.add_pad(ghostpad)
 		return ghostpad
@@ -124,7 +124,7 @@ class QuadMix(Gst.Bin):
 				place[0] = 0
 
 	def set_active(self, target):
-		self.log.info('enabling videosource %u, disabling other', target)
+		self.log.info('setting videosource %u active, disabling other', target)
 		for idx, previewbin in enumerate(self.previewbins):
 			previewbin.set_active(target == idx)
 

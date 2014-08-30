@@ -59,10 +59,8 @@ class Pipeline(Gst.Pipeline):
 			mixerpad = self.quadmixer.request_mixer_pad()
 			distributor.get_static_pad('src_a').link(mixerpad)
 
-			self.videomixer.add_source(distributor)
-
-			# distributor.link(self.quadmixer)
-			# distributor.link(self.videomixer)
+			mixerpad = self.videomixer.request_mixer_pad()
+			distributor.get_static_pad('src_b').link(mixerpad)
 
 		# for audiosource in Config.getlist('sources', 'audio'):
 		# 	sourcebin = FailsafeShmSrc(os.path.join(socketpath, audiosource))
