@@ -64,7 +64,9 @@ class FailsafeShmSrc(Gst.Bin):
 
 	def do_handle_message(self, msg):
 		if msg.type == Gst.MessageType.ERROR and msg.src == self.shmsrc:
-			self.log.warning('received error-message from ShmSrc, dropping')
+			(err, debug) = msg.parse_error()
+			self.log.warning('received error-message from ShmSrc, dropping: %s', err)
+			self.log.debug('    debug-info from shmsrc: %s', debug)
 		else:
 			Gst.Bin.do_handle_message(self, msg)
 
