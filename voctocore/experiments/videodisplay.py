@@ -7,7 +7,7 @@ class VideomixerWithDisplay(Gst.Bin):
 
 		# Create elements
 		self.secondsrc = Gst.ElementFactory.make('videotestsrc', None)
-		self.mixer = Gst.ElementFactory.make('videomixer', None)
+		self.mixer = Gst.ElementFactory.make('compositor', None)
 		self.ident = Gst.ElementFactory.make('identity', None)
 		self.q1 = Gst.ElementFactory.make('queue', None)
 		self.q2 = Gst.ElementFactory.make('queue', None)
