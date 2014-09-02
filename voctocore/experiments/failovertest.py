@@ -22,14 +22,20 @@ class Example:
 		self.bus.connect('message::eos', self.on_eos)
 		self.bus.connect('message::error', self.on_error)
 
+		self.addTest('/tmp/v-cam2')
+		self.addTest('/tmp/v-cam1')
+
+	def addTest(self, socket):
 		self.mixdisplay = VideomixerWithDisplay()
-		self.grabbersrc = ShmSrc('/tmp/grabber-v', Gst.Caps.from_string('video/x-raw,width=1280,height=720,framerate=25/1,format=RGBx'))
+		self.videoconvert = Gst.ElementFactory.make('videoconvert', None)
+		self.grabbersrc = ShmSrc(socket, Gst.Caps.from_string('video/x-raw,width=1280,height=720,framerate=25/1,format=RGBx'))
 
 		# Add elements to pipeline
-		self.pipeline.add(self.mixdisplay)
 		self.pipeline.add(self.grabbersrc)
-
-		self.grabbersrc.link(self.mixdisplay)
+		self.pipeline.add(self.videoconvert)
+		self.pipeline.add(self.mixdisplay)
+		self.grabbersrc.link(self.videoconvert)
+		self.videoconvert.link(self.mixdisplay)
 
 	def run(self):
 		self.pipeline.set_state(Gst.State.PAUSED)
