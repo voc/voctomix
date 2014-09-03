@@ -98,6 +98,7 @@ class FailsafeShmSrc(Gst.Bin):
 	def restart(self):
 		self.log.warning('restarting ShmSrc')
 		self.shmsrc.set_state(Gst.State.NULL)
+		self.shmsrc.set_base_time(self.get_parent().get_base_time())
 		self.shmsrc.set_state(Gst.State.PLAYING)
 	
 	def switch_to_goodstate(self):

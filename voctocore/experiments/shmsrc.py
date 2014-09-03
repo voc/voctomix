@@ -94,7 +94,7 @@ class ShmSrc(Gst.Bin):
 		# this somehow solves parts of the multi-output-timestamping-issue
 		# starting the 2nd src n seconds after the program started freezes it for n seconds
 		self.shmsrc.set_start_time(0)
-		self.shmsrc.set_base_time(self.get_clock().get_time())
+		self.shmsrc.set_base_time(self.get_parent().get_base_time())
 
 		self.shmsrc.set_state(Gst.State.PLAYING)
 	
