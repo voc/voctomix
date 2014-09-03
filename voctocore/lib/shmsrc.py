@@ -7,6 +7,7 @@ from lib.config import Config
 class FailsafeShmSrc(Gst.Bin):
 	log = logging.getLogger('FailsafeShmSrc')
 	last_buffer_arrived = 0
+	last_restart_retry = 0
 	is_in_failstate = True
 
 	def __init__(self, socket):
@@ -55,7 +56,7 @@ class FailsafeShmSrc(Gst.Bin):
 		self.shmsrc.get_static_pad('src').add_probe(Gst.PadProbeType.BLOCK | Gst.PadProbeType.BUFFER, self.data_probe, None)
 
 		# Install Watchdog
-		GLib.timeout_add(500, self.watchdog)
+		GLib.timeout_add(250, self.watchdog)
 
 		# Add Ghost Pads
 		self.add_pad(
@@ -86,11 +87,13 @@ class FailsafeShmSrc(Gst.Bin):
 		return Gst.PadProbeReturn.PASS
 
 	def watchdog(self):
-		if self.last_buffer_arrived + 0.1 < time.time():
+		t = time.time()
+		if self.last_buffer_arrived + 0.1 < t:
 			self.log.warning('watchdog encountered a timeout')
 			self.switch_to_failstate()
 		
-		if self.last_buffer_arrived + 3 < time.time() and round(time.time() % 3) == 0:
+		if self.is_in_failstate and self.last_restart_retry + 1 < t:
+			self.last_restart_retry = t
 			self.restart()
 		
 		return True
