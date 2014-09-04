@@ -18,18 +18,18 @@ class FailsafeShmSrc(Gst.Bin):
 
 		# Create elements
 		self.shmsrc = Gst.ElementFactory.make('shmsrc', None)
-		self.identity1 = Gst.ElementFactory.make('identity', None)
-		self.identity2 = Gst.ElementFactory.make('identity', None)
+		self.capsfilter = Gst.ElementFactory.make('capsfilter', None)
+		self.failsrcsyncer = Gst.ElementFactory.make('identity', None)
 		self.switch = Gst.ElementFactory.make('input-selector', None)
 		self.failsrc = Gst.ElementFactory.make('videotestsrc', None)
 
-		if not self.shmsrc or not self.identity1 or not self.identity2 or not self.switch or not self.failsrc:
+		if not self.shmsrc or not self.capsfilter or not self.failsrcsyncer or not self.switch or not self.failsrc:
 			self.log.error('could not create elements')
 
 		# Add elements to Bin
 		self.add(self.shmsrc)
-		self.add(self.identity1)
-		self.add(self.identity2)
+		self.add(self.capsfilter)
+		self.add(self.failsrcsyncer)
 		self.add(self.switch)
 		self.add(self.failsrc)
 
@@ -41,15 +41,16 @@ class FailsafeShmSrc(Gst.Bin):
 		self.shmsrc.set_property('socket-path', socket)
 		self.shmsrc.set_property('is-live', True)
 		self.shmsrc.set_property('do-timestamp', True)
-		self.identity2.set_property('sync', True)
 		self.switch.set_property('active-pad', self.failpad)
+		self.failsrcsyncer.set_property('sync', True)
+		self.capsfilter.set_property('caps', caps)
 
 		# Link elements
-		self.shmsrc.link_filtered(self.identity1, caps)
-		self.identity1.get_static_pad('src').link(self.goodpad)
+		self.shmsrc.link(self.capsfilter)
+		self.capsfilter.get_static_pad('src').link(self.goodpad)
 
-		self.failsrc.link_filtered(self.identity2, caps)
-		self.identity2.get_static_pad('src').link(self.failpad)
+		self.failsrc.link_filtered(self.failsrcsyncer, caps)
+		self.failsrcsyncer.get_static_pad('src').link(self.failpad)
 
 		# Install pad probes
 		self.shmsrc.get_static_pad('src').add_probe(Gst.PadProbeType.BLOCK | Gst.PadProbeType.EVENT_DOWNSTREAM, self.event_probe, None)
