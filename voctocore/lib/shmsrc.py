@@ -10,7 +10,7 @@ class FailsafeShmSrc(Gst.Bin):
 	last_restart_retry = 0
 	is_in_failstate = True
 
-	def __init__(self, socket):
+	def __init__(self, socket, failsrc):
 		super().__init__()
 
 		caps = Gst.Caps.from_string(Config.get('sources', 'videocaps'))
@@ -21,7 +21,7 @@ class FailsafeShmSrc(Gst.Bin):
 		self.capsfilter = Gst.ElementFactory.make('capsfilter', None)
 		self.failsrcsyncer = Gst.ElementFactory.make('identity', None)
 		self.switch = Gst.ElementFactory.make('input-selector', None)
-		self.failsrc = Gst.ElementFactory.make('videotestsrc', None)
+		self.failsrc = failsrc;
 
 		if not self.shmsrc or not self.capsfilter or not self.failsrcsyncer or not self.switch or not self.failsrc:
 			self.log.error('could not create elements')

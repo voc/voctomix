@@ -12,6 +12,7 @@ from lib.videomix import VideoMix
 # from lib.audiomix import AudioMix
 from lib.distributor import TimesTwoDistributor
 from lib.shmsrc import FailsafeShmSrc
+from lib.failvideosrc import FailVideoSrc
 
 class Pipeline(Gst.Pipeline):
 	"""mixing, streaming and encoding pipeline constuction and control"""
@@ -45,11 +46,11 @@ class Pipeline(Gst.Pipeline):
 		self.videonames = Config.getlist('sources', 'video')
 		self.audionames = Config.getlist('sources', 'video')
 
-		for name in self.videonames:
+		for idx, name in enumerate(self.videonames):
 			socket = os.path.join(socketpath, 'v-'+name)
 
 			self.log.info('Creating video-source "%s" at socket-path %s', name, socket)
-			sourcebin = FailsafeShmSrc(socket)
+			sourcebin = FailsafeShmSrc(socket, FailVideoSrc(idx, name))
 			self.add(sourcebin)
 
 			distributor = TimesTwoDistributor()
