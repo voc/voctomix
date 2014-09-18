@@ -9,5 +9,5 @@ src. ! audio/x-raw,format=S16LE,layout=interleaved,rate=44100,channels=2 ! queue
 gst-launch-1.0 -vm shmsrc is-live=true do-timestamp=true socket-path=/tmp/sock-v ! video/x-raw,format=I420,width=1280,height=720,framerate=25/1 ! videomixer ! ximagesink
 
 # audio sink
-gst-launch-1.0 -vm shmsrc is-live=true do-timestamp=true socket-path=/tmp/sock-a ! audio/x-raw,format=S16LE,layout=interleaved,rate=int44100,channels=2 ! alsasink
+gst-launch-1.0 -vm shmsrc is-live=true do-timestamp=true socket-path=/tmp/sock-a ! audio/x-raw,format=S16LE,layout=interleaved,rate=44100,channels=2 ! alsasink
 
