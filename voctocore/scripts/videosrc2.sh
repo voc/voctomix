@@ -1,8 +1,9 @@
 #!/bin/sh
+mkdir -p /tmp/voctomix-sockets/
 rm -f /tmp/voctomix-sockets/v-cam2 /tmp/voctomix-sockets/a-cam2
 gst-launch-1.0 -v \
 	uridecodebin \
-		uri=file:///home/peter/Sintel.2010.720p.mkv \
+		uri=file:///home/peter/ED_1280.avi \
 		name=src \
 	\
 	src. !\
@@ -11,20 +12,18 @@ gst-launch-1.0 -v \
 	videoconvert !\
 	videorate !\
 	videoscale !\
-	video/x-raw,format=RGBx,width=1280,height=720,framerate=25/1 !\
+	video/x-raw,format=RGBx,width=1280,height=720,framerate=25/1,pixel-aspect-ratio=1/1 !\
+	gdppay !\
 	shmsink \
-		sync=true \
 		socket-path=/tmp/voctomix-sockets/v-cam2 \
-		wait-for-connection=false \
 		shm-size=100000000 \
 	\
 	src. !\
 	queue !\
+	audioresample !\
 	audioconvert !\
-	audiorate !\
-	audio/x-raw,format=F32LE,layout=interleaved,channels=2,rate=48000 !\
+	audio/x-raw,format=S16LE,layout=interleaved,rate=48000,channels=2 !\
+	gdppay !\
 	shmsink \
-		sync=true \
 		socket-path=/tmp/voctomix-sockets/a-cam2 \
-		wait-for-connection=false \
 		shm-size=10000000

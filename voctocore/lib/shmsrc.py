@@ -10,24 +10,24 @@ class FailsafeShmSrc(Gst.Bin):
 	last_restart_retry = 0
 	is_in_failstate = True
 
-	def __init__(self, socket, failsrc):
+	def __init__(self, socket, caps, failsrc):
 		super().__init__()
-
-		caps = Gst.Caps.from_string(Config.get('sources', 'videocaps'))
-		self.log.debug('parsing videocaps from config: %s', caps.to_string())
 
 		# Create elements
 		self.shmsrc = Gst.ElementFactory.make('shmsrc', None)
+		self.depay = Gst.ElementFactory.make('gdpdepay', None)
 		self.capsfilter = Gst.ElementFactory.make('capsfilter', None)
 		self.failsrcsyncer = Gst.ElementFactory.make('identity', None)
 		self.switch = Gst.ElementFactory.make('input-selector', None)
-		self.failsrc = failsrc;
+		self.failsrc = failsrc
+		self.capsstr = caps.to_string()
 
 		if not self.shmsrc or not self.capsfilter or not self.failsrcsyncer or not self.switch or not self.failsrc:
 			self.log.error('could not create elements')
 
 		# Add elements to Bin
 		self.add(self.shmsrc)
+		self.add(self.depay)
 		self.add(self.capsfilter)
 		self.add(self.failsrcsyncer)
 		self.add(self.switch)
@@ -39,14 +39,13 @@ class FailsafeShmSrc(Gst.Bin):
 
 		# Set properties
 		self.shmsrc.set_property('socket-path', socket)
-		self.shmsrc.set_property('is-live', True)
-		self.shmsrc.set_property('do-timestamp', True)
+		self.shmsrc.link(self.depay)
 		self.switch.set_property('active-pad', self.failpad)
 		self.failsrcsyncer.set_property('sync', True)
 		self.capsfilter.set_property('caps', caps)
 
 		# Link elements
-		self.shmsrc.link(self.capsfilter)
+		self.depay.link(self.capsfilter)
 		self.capsfilter.get_static_pad('src').link(self.goodpad)
 
 		self.failsrc.link_filtered(self.failsrcsyncer, caps)
@@ -57,7 +56,12 @@ class FailsafeShmSrc(Gst.Bin):
 		self.shmsrc.get_static_pad('src').add_probe(Gst.PadProbeType.BLOCK | Gst.PadProbeType.BUFFER, self.data_probe, None)
 
 		# Install Watchdog
-		GLib.timeout_add(250, self.watchdog)
+		if self.capsstr.startswith('audio'):
+			timeoutms = 1000
+		else:
+			timeoutms = 250
+
+		GLib.timeout_add(timeoutms, self.watchdog)
 
 		# Add Ghost Pads
 		self.add_pad(
@@ -80,7 +84,6 @@ class FailsafeShmSrc(Gst.Bin):
 			return Gst.PadProbeReturn.DROP
 		
 		return Gst.PadProbeReturn.PASS
-
 
 	def data_probe(self, pad, info, ud):
 		self.last_buffer_arrived = time.time()

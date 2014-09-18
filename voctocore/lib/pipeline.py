@@ -9,10 +9,11 @@ from lib.controlserver import controlServerEntrypoint
 from lib.config import Config
 from lib.quadmix import QuadMix
 from lib.videomix import VideoMix
-# from lib.audiomix import AudioMix
+from lib.audiomix import AudioMix
 from lib.distributor import TimesTwoDistributor
 from lib.shmsrc import FailsafeShmSrc
 from lib.failvideosrc import FailVideoSrc
+from lib.failaudiosrc import FailAudioSrc
 
 class Pipeline(Gst.Pipeline):
 	"""mixing, streaming and encoding pipeline constuction and control"""
@@ -31,8 +32,8 @@ class Pipeline(Gst.Pipeline):
 		self.videomixer = VideoMix()
 		self.add(self.videomixer)
 
-		# self.audiomixer = AudioMix()
-		# self.add(self.audiomixer)
+		self.audiomixer = AudioMix()
+		self.add(self.audiomixer)
 
 		# read the path where the shm-control-sockets are located and ensure it exists
 		socketpath = Config.get('sources', 'socketpath')
@@ -44,13 +45,16 @@ class Pipeline(Gst.Pipeline):
 				raise
 
 		self.videonames = Config.getlist('sources', 'video')
-		self.audionames = Config.getlist('sources', 'video')
+		self.audionames = Config.getlist('sources', 'audio')
+
+		caps = Gst.Caps.from_string(Config.get('sources', 'videocaps'))
+		self.log.debug('parsing videocaps from config: %s', caps.to_string())
 
 		for idx, name in enumerate(self.videonames):
 			socket = os.path.join(socketpath, 'v-'+name)
 
 			self.log.info('Creating video-source "%s" at socket-path %s', name, socket)
-			sourcebin = FailsafeShmSrc(socket, FailVideoSrc(idx, name))
+			sourcebin = FailsafeShmSrc(socket, caps, FailVideoSrc(idx, name))
 			self.add(sourcebin)
 
 			distributor = TimesTwoDistributor()
@@ -63,31 +67,62 @@ class Pipeline(Gst.Pipeline):
 			mixerpad = self.videomixer.request_mixer_pad()
 			distributor.get_static_pad('src_b').link(mixerpad)
 
-		# for audiosource in Config.getlist('sources', 'audio'):
-		# 	sourcebin = FailsafeShmSrc(os.path.join(socketpath, audiosource))
 
-		# 	self.add(sourcebin)
-		# 	sourcebin.link(self.audiomixer)
+		caps = Gst.Caps.from_string(Config.get('sources', 'audiocaps'))
+		self.log.debug('parsing videocaps from config: %s', caps.to_string())
+
+		for idx, name in enumerate(self.audionames):
+			socket = os.path.join(socketpath, 'a-'+name)
+
+			self.log.info('Creating audio-source "%s" at socket-path %s', name, socket)
+			sourcebin = FailsafeShmSrc(socket, caps, FailAudioSrc(idx, name))
+			self.add(sourcebin)
+
+			mixerpad = self.audiomixer.request_mixer_pad()
+			sourcebin.get_static_pad('src').link(mixerpad)
 
 		# tell the quadmix that this were all sources and no more sources will come after this
 		self.quadmixer.finalize()
 
 		self.quadmixer.set_active(0)
 		self.videomixer.set_active(0)
+		self.audiomixer.set_active(0)
+
+		self.audioconv = Gst.ElementFactory.make('audioconvert', 'audioconv')
+		self.audioenc = Gst.ElementFactory.make('avenc_mp2', 'audioenc')
+
+		self.videoconv = Gst.ElementFactory.make('videoconvert', 'videoconv')
+		self.videoenc = Gst.ElementFactory.make('avenc_mpeg2video', 'videoenc')
+
+		self.mux = Gst.ElementFactory.make('mpegtsmux', 'mux')
+		self.sink = Gst.ElementFactory.make('filesink', 'sink')
+
+		self.add(self.audioconv)
+		self.add(self.audioenc)
+		self.add(self.videoconv)
+		self.add(self.videoenc)
+
+		self.add(self.mux)
+		self.add(self.sink)
+
+		self.videomixer.link(self.videoconv)
+		self.videoconv.link(self.videoenc)
+
+		self.audiomixer.link(self.audioconv)
+		self.audioconv.link(self.audioenc)
+
+		self.videoenc.link(self.mux)
+		self.audioenc.link(self.mux)
+
+		self.mux.link(self.sink)
+
+		self.sink.set_property('location', '/home/peter/test.ts')
+
 
 		self.quadmixsink = Gst.ElementFactory.make('autovideosink', 'quadmixsink')
 		self.quadmixsink.set_property('sync', False)
 		self.add(self.quadmixsink)
 		self.quadmixer.link(self.quadmixsink)
-
-		self.videosink = Gst.ElementFactory.make('autovideosink', 'videosink')
-		self.videosink.set_property('sync', False)
-		self.add(self.videosink)
-		self.videomixer.link(self.videosink)
-
-		# self.audiosink = Gst.ElementFactory.make('autoaudiosink', 'audiosink')
-		# self.add(self.audiosink)
-		# self.audiomixer.link(self.audiosink)
 
 	def run(self):
 		self.set_state(Gst.State.PAUSED)
@@ -327,7 +362,13 @@ class Pipeline(Gst.Pipeline):
 	@controlServerEntrypoint
 	def switchAudio(self, audiosource):
 		"""switch audio to the selected audio"""
-		raise NotImplementedError("audio is not implemented yet")
+		idx = int(audiosource)
+		if idx >= len(self.audionames):
+			return 'unknown audio-source: %s' % (audiosource)
+
+		self.log.info("switching mixer to audio-source %u", idx)
+		self.audiomixer.set_active(idx)
+
 
 
 	@controlServerEntrypoint
@@ -339,23 +380,12 @@ class Pipeline(Gst.Pipeline):
 
 	@controlServerEntrypoint
 	def switchVideo(self, videosource):
-		"""switch audio to the selected video"""
-		if videosource.isnumeric():
-			idx = int(videosource)
-			self.log.info("interpreted input as videosource-index %u", idx)
-			if idx >= len(self.videonames):
-				idx = None
-		else:
-			try:
-				idx = self.videonames.index(videosource)
-				self.log.info("interpreted input as videosource-name, lookup to %u", idx)
-			except IndexError:
-				idx = None
-
-		if idx == None:
+		"""switch video to the selected video"""
+		idx = int(videosource)
+		if idx >= len(self.videonames):
 			return 'unknown video-source: %s' % (videosource)
 
-		self.log.info("switching quadmix to video-source %u", idx)
+		self.log.info("switching mixer to video-source %u", idx)
 		self.quadmixer.set_active(idx)
 		self.videomixer.set_active(idx)
 
