@@ -7,7 +7,6 @@ gst-launch-1.0 -vm \
 	src. !\
 	queue !\
 	videoconvert !\
-	videorate !\
 	videoscale !\
 	video/x-raw,height=600,width=800,format=I420,framerate=25/1 ! \
 	timeoverlay valignment=bottom ! \
