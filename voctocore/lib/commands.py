@@ -36,6 +36,10 @@ class ControlServerCommands():
 		return True
 
 	def set_composite_mode(self, composite_mode):
-		mode = CompositeModes[composite_mode]
+		try:
+			mode = CompositeModes[composite_mode]
+		except KeyError as e:
+			raise KeyError("composite-mode %s unknown" % composite_mode)
+
 		self.pipeline.vmixer.setCompositeMode(mode)
 		return True

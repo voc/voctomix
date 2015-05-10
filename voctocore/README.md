@@ -33,4 +33,9 @@ TCP-Port 9999
 
 < set_video_a blafoo
 > error "blafoo" is no known src
+
+…
+
+> signal video_a cam1
+
 ````
