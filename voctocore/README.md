@@ -1,11 +1,13 @@
 ````
-                             /-> Encoder -> PreviewPort 12000
-                 /-> VideoMix -> OutputPort 11000
-10000… VideoSrc  --> MirrorPort 13000…
-                 \-> Encoder -> PreviewPort 14000…
+                              /-> Encoder -> PreviewPort 12000
+                 /-> VideoMix --> OutputPort 11000
+                /             \-> StreamBlanker -> StreamOutputPort 11001
+10000… VideoSrc --> MirrorPort 13000…
+                \-> Encoder -> PreviewPort 14000…
 
-                             /-> Encoder -> PreviewPort 22000
-                /-> AudioMix --> OutputPort 21000
+                              /-> Encoder -> PreviewPort 22000
+                 /-> AudioMix --> OutputPort 21000
+                /             \-> StreamBlanker -> StreamOutputPort 21001
 20000… AudioSrc --> MirrorPort 23000…
                 \-> Encoder -> PreviewPort 24000…
 ````
