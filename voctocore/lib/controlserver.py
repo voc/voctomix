@@ -90,20 +90,15 @@ class ControlServer():
 			return False, 'unknown command %s' % command
 
 
-		try:
-			# fetch the function-pointer
-			f = getattr(self.commands, command)
+		# fetch the function-pointer
+		f = getattr(self.commands, command)
 
-			# call the function
-			ret = f(*args)
+		# call the function
+		ret = f(*args)
 
-			# if it returned an iterable, probably (Success, Message), pass that on
-			if hasattr(ret, '__iter__'):
-				return ret
-			else:
-				# otherwise construct a tuple
-				return (ret, None)
-
-		except Exception as e:
-			# In case of an Exception, return that
-			return False, str(e)
+		# if it returned an iterable, probably (Success, Message), pass that on
+		if hasattr(ret, '__iter__'):
+			return ret
+		else:
+			# otherwise construct a tuple
+			return (ret, None)

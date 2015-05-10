@@ -2,6 +2,7 @@
 import logging
 
 from lib.config import Config
+from lib.video.mix import CompositeModes
 
 class ControlServerCommands():
 	log = logging.getLogger('ControlServerCommands')
@@ -35,5 +36,6 @@ class ControlServerCommands():
 		return True
 
 	def set_composite_mode(self, composite_mode):
-		self.pipeline.vmixer.set_composite_mode(src_name_or_id)
+		mode = CompositeModes[composite_mode]
+		self.pipeline.vmixer.setCompositeMode(mode)
 		return True
