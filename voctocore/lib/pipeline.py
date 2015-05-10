@@ -2,9 +2,6 @@
 import logging
 from gi.repository import Gst
 
-# import controlserver annotation
-from lib.controlserver import controlServerEntrypoint
-
 # import library components
 from lib.config import Config
 from lib.video.src import VideoSrc
@@ -22,7 +19,10 @@ class Pipeline(object):
 	vmixerout = None
 
 	def __init__(self):
+		self.log.debug('creating Video-Pipeline')
 		self.initVideo()
+
+		self.log.debug('creating Control-Server')
 
 	def initVideo(self):
 		caps = Config.get('mix', 'videocaps')
@@ -47,7 +47,7 @@ class Pipeline(object):
 			self.vmirrors.append(mirror)
 
 		self.log.debug('Creating Video-Mixer')
-		self.videomixer = VideoMix()
+		self.vmixer = VideoMix()
 
 		port = 11000
 		self.log.debug('Creating Video-Mixer-Output at tcp-port %u', port)
