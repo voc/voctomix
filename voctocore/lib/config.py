@@ -1,5 +1,6 @@
 import os.path
 from configparser import SafeConfigParser
+from lib.args import Args
 
 __all__ = ['Config']
 
@@ -8,9 +9,14 @@ def getlist(self, section, option):
 
 SafeConfigParser.getlist = getlist
 
-Config = SafeConfigParser()
-Config.read([
+files = [
 	'default-config.ini',
 	'/etc/voctomix.ini',
-	os.path.expanduser('~/.voctomix.ini')
-])
+	os.path.expanduser('~/.voctomix.ini'),
+]
+
+if Args.ini_file is not None:
+	files.append(Args.ini_file)
+
+Config = SafeConfigParser()
+Config.read(files)
