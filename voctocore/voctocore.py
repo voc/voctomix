@@ -3,7 +3,7 @@ import gi, signal, logging, sys
 
 # import GStreamer and GLib-Helper classes
 gi.require_version('Gst', '1.0')
-from gi.repository import GLib, Gst, GObject
+from gi.repository import Gtk, Gdk, Gst, GObject, GdkX11, GstVideo
 
 # check min-version
 minGst = (1, 4)
@@ -16,16 +16,19 @@ if sys.version_info < minPy:
 	raise Exception("Python version", sys.version_info, 'is too old, at least', minPy, 'is required')
 
 
-# init GObject before importing local classes
+# init GObject & Co. before importing local classes
 GObject.threads_init()
-Gst.init(None)
+Gdk.init([])
+Gtk.init([])
+Gst.init([])
 
 # import local classes
+from lib.args import Args
 from lib.pipeline import Pipeline
 from lib.controlserver import ControlServer
 
 # main class
-class Voctocore:
+class Voctocore(object):
 	log = logging.getLogger('Voctocore')
 
 	def __init__(self):
@@ -33,41 +36,30 @@ class Voctocore:
 		self.mainloop = GObject.MainLoop()
 
 		# initialize subsystem
-		self.log.debug('creating Video-Pipeline')
+		self.log.debug('creating A/V-Pipeline')
 		self.pipeline = Pipeline()
 
 		self.log.debug('creating ControlServer')
 		self.controlserver = ControlServer(self.pipeline)
-	
-	def run(self):
-		self.log.info('running Video-Pipeline')
-		self.pipeline.run()
 
+	def run(self):
 		self.log.info('running GObject-MainLoop')
 		self.mainloop.run()
 
-	def kill(self):
-		self.log.info('quitting Video-Pipeline')
-		self.pipeline.quit()
-
+	def quit(self):
 		self.log.info('quitting GObject-MainLoop')
+
 		self.mainloop.quit()
-
-	def on_eos(self, bus, msg):
-		self.log.warning('received EOS-Signal on the Video-Bus from Element %s. This shouldn\'t happen if the program is not terminating right now', msg.src)
-		self.kill()
-
-	def on_error(self, bus, msg):
-		err = msg.parse_error()
-		self.log.error('received Error-Signal on the Video-Bus from Element %s: %s', msg.src, err[1])
-		self.kill()
 
 
 # run mainclass
-def main(argv):
+def main():
 	# configure logging
-	logging.basicConfig(level=logging.DEBUG,
-		format='%(levelname)8s %(name)s: %(message)s')
+	docolor = (Args.color == 'always') or (Args.color == 'auto' and sys.stderr.isatty())
+
+	logging.basicConfig(
+		level=logging.DEBUG if Args.verbose else logging.WARNING,
+		format='\x1b[33m%(levelname)8s\x1b[0m \x1b[32m%(name)s\x1b[0m: %(message)s' if docolor else '%(levelname)8s %(name)s: %(message)s')
 
 	# make killable by ctrl-c
 	logging.debug('setting SIGINT handler')
@@ -81,4 +73,4 @@ def main(argv):
 	voctocore.run()
 
 if __name__ == '__main__':
-	main(sys.argv)
+	main()

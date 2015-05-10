@@ -4,7 +4,7 @@ from gi.repository import GLib, Gst
 
 from lib.config import Config
 
-class VideoMix(Gst.Bin):
+class VideoMix(object):
 	log = logging.getLogger('VideoMix')
 	mixerpads = []
 
