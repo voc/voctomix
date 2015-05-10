@@ -13,11 +13,39 @@ Gst.init(None)
 class Example:
 	def __init__(self):
 		self.mainloop = GObject.MainLoop()
-		self.vsink   = Gst.parse_launch('intervideosrc channel=video ! video/x-raw,height=600,width=800,format=I420,framerate=25/1 ! timeoverlay ! videoconvert ! ximagesink')
+		#self.vsink   = Gst.parse_launch('intervideosrc channel=video ! video/x-raw,height=600,width=800,format=I420,framerate=25/1 ! timeoverlay ! videoconvert ! ximagesink')
 		self.vsource = None
 
-		self.asink   = Gst.parse_launch('interaudiosrc channel=audio ! audio/x-raw,format=S16LE,layout=interleaved,rate=48000,channels=2 ! autoaudiosink')
+		#self.asink   = Gst.parse_launch('interaudiosrc channel=audio ! audio/x-raw,format=S16LE,layout=interleaved,rate=48000,channels=2 ! autoaudiosink')
 		self.asource = None
+
+		self.sink   = Gst.parse_launch("""
+			intervideosrc channel=video !
+				queue !
+				video/x-raw,height=600,width=800,format=I420,framerate=25/1 !
+				timeoverlay !
+				tee name=vtee !
+				queue !
+				videoconvert !
+				avenc_mpeg2video bitrate=50000 max-key-interval=0 !
+				queue !
+				mux.
+
+			interaudiosrc blocksize=4096 channel=audio !
+				queue !
+				audio/x-raw,format=S16LE,layout=interleaved,rate=48000,channels=2 !
+				tee name=atee !
+				queue !
+				avenc_mp2 bitrate=192000 !
+				queue !
+				mux.
+
+			mpegtsmux name=mux !
+				filesink location=foo.ts
+
+			vtee. ! queue ! videoconvert ! xvimagesink
+			atee. ! queue ! audioconvert ! alsasink
+		""")
 
 
 		# Create the server, binding to localhost on port 5000
@@ -27,12 +55,8 @@ class Example:
 		vsock.bind(('::', 5000))
 		vsock.listen(1)
 
-		# register socket for callback inside the GTK-Mainloop
-		GObject.io_add_watch(vsock, GObject.IO_IN, self.connection_handler_video)
 
-
-
-		# Create the server, binding to localhost on port 6000
+		# Create the server, binding to localhost on port 5000
 		asock = socket.socket(socket.AF_INET6)
 		asock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		asock.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, False)
@@ -40,11 +64,11 @@ class Example:
 		asock.listen(1)
 
 		# register socket for callback inside the GTK-Mainloop
-		GObject.io_add_watch(asock, GObject.IO_IN, self.connection_handler_audio)
+		GObject.io_add_watch(vsock, GObject.IO_IN, self.video_connect)
+		GObject.io_add_watch(asock, GObject.IO_IN, self.audio_connect)
 
 
-
-	def connection_handler_video(self, sock, *args):
+	def video_connect(self, sock, *args):
 		'''Asynchronous connection listener. Starts a handler for each connection.'''
 		if self.vsource:
 			return False
@@ -52,30 +76,24 @@ class Example:
 		conn, addr = sock.accept()
 		print("Connection from", addr)
 
-		self.vsource = Gst.parse_launch('appsrc name=a ! gdpdepay ! video/x-raw,height=600,width=800,format=I420,framerate=25/1 ! timeoverlay halignment=right ! intervideosink channel=video')
+		self.vsource = Gst.parse_launch('fdsrc name=a fd=%u ! gdpdepay ! video/x-raw,height=600,width=800,format=I420,framerate=25/1 ! timeoverlay halignment=right ! intervideosink channel=video' % conn.fileno())
+
+		self.vsource.bus.add_signal_watch()
+		self.vsource.bus.connect("message::eos", self.video_disconnect)
+
 		self.vsource.set_state(Gst.State.PLAYING)
 
-		# register data-received handler inside the GTK-Mainloop
-		GObject.io_add_watch(conn, GObject.IO_IN, self.data_handler_video)
+		self.vconn = conn
 		return True
 
-	def data_handler_video(self, conn, *args):
-		'''Asynchronous data handler. Processes data-blocks line from the socket.'''
-		blob = conn.recv(10000000) # >1920x1080x3
-		if not len(blob):
-			print("Connection closed.")
-			self.vsource.set_state(Gst.State.NULL)
-			self.vsource = None
-			return False
-
-		print("Video-Blob of %u bytes" % len(blob))
-		buf = Gst.Buffer.new_wrapped(blob)
-		self.vsource.get_by_name('a').emit('push-buffer', buf)
+	def video_disconnect(self, bus, message):
+		self.vsource.set_state(Gst.State.NULL)
+		self.vsource = None
+		self.vconn = None
 		return True
 
 
-
-	def connection_handler_audio(self, sock, *args):
+	def audio_connect(self, sock, *args):
 		'''Asynchronous connection listener. Starts a handler for each connection.'''
 		if self.asource:
 			return False
@@ -83,46 +101,30 @@ class Example:
 		conn, addr = sock.accept()
 		print("Connection from", addr)
 
-		self.asource = Gst.parse_launch('appsrc name=a ! gdpdepay ! audio/x-raw,format=S16LE,layout=interleaved,rate=48000,channels=2 ! interaudiosink channel=audio')
+		self.asource = Gst.parse_launch('fdsrc name=a fd=%u ! gdpdepay ! audio/x-raw,format=S16LE,layout=interleaved,rate=48000,channels=2 ! interaudiosink channel=audio' % conn.fileno())
+
+		self.asource.bus.add_signal_watch()
+		self.asource.bus.connect("message::eos", self.audio_disconnect)
+
 		self.asource.set_state(Gst.State.PLAYING)
 
-		# register data-received handler inside the GTK-Mainloop
-		GObject.io_add_watch(conn, GObject.IO_IN, self.data_handler_audio)
+		self.aconn = conn
 		return True
 
-	def data_handler_audio(self, conn, *args):
-		'''Asynchronous data handler. Processes data-blocks line from the socket.'''
-		blob = conn.recv(10000000) # >1920x1080x3
-		if not len(blob):
-			print("Connection closed.")
-			self.asource.set_state(Gst.State.NULL)
-			self.asource = None
-			return False
-
-		print("Audio-Blob of %u bytes" % len(blob))
-		buf = Gst.Buffer.new_wrapped(blob)
-		self.asource.get_by_name('a').emit('push-buffer', buf)
+	def audio_disconnect(self, bus, message):
+		self.asource.set_state(Gst.State.NULL)
+		self.asource = None
+		self.aconn = None
 		return True
-
 
 
 	def run(self):
-		self.vsink.set_state(Gst.State.PLAYING)
-		self.asink.set_state(Gst.State.PLAYING)
+		self.sink.set_state(Gst.State.PLAYING)
 		self.mainloop.run()
 
 	def kill(self):
-		self.vsink.set_state(Gst.State.NULL)
-		self.asink.set_state(Gst.State.NULL)
+		self.sink.set_state(Gst.State.NULL)
 		self.mainloop.quit()
-
-	def on_eos(self, bus, msg):
-		print('on_eos()')
-		#self.kill()
-
-	def on_error(self, bus, msg):
-		print('on_error():', msg.parse_error())
-		#self.kill()
 
 example = Example()
 example.run()
