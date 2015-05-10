@@ -18,12 +18,21 @@ class Pipeline(object):
 	vsources = []
 	vmirrors = []
 	vpreviews = []
+	vmixer = None
+	vmixerout = None
 
 	def __init__(self):
+		self.initVideo()
+
+	def initVideo(self):
 		caps = Config.get('mix', 'videocaps')
 		self.log.info('Video-Caps configured to: %s', caps)
 
-		for idx, name in enumerate(Config.getlist('sources', 'video')):
+		names = Config.getlist('sources', 'video')
+		if len(names) < 1:
+			raise RuntimeException("At least one Video-Source must be configured!")
+
+		for idx, name in enumerate(names):
 			port = 10000 + idx
 			self.log.info('Creating Video-Source %s at tcp-port %u', name, port)
 
@@ -37,9 +46,9 @@ class Pipeline(object):
 			mirror = VideoRawOutput('video_%s_mirror' % name, port, caps)
 			self.vmirrors.append(mirror)
 
-		# self.log.debug('Creating Video-Mixer')
-		# self.videomixer = VideoMix()
+		self.log.debug('Creating Video-Mixer')
+		self.videomixer = VideoMix()
 
-		# port = 11000
-		# self.log.debug('Creating Video-Mixer-Output at tcp-port %u', port)
-		# mirror = VideoRawOutput('video_mix', port, caps)
+		port = 11000
+		self.log.debug('Creating Video-Mixer-Output at tcp-port %u', port)
+		self.vmixerout = VideoRawOutput('video_mix', port, caps)

@@ -40,7 +40,7 @@ class VideoRawOutput(object):
 		pipeline = """
 			intervideosrc channel={channel} !
 			{caps} !
-			textoverlay text={channel} halignment=left valignment=top ypad=125 !
+			textoverlay text={channel} halignment=left valignment=top ypad=225 !
 			gdppay !
 			fdsink fd={fd}
 		""".format(

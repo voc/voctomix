@@ -66,7 +66,7 @@ class VideoSrc(object):
 			fdsrc fd={fd} !
 			gdpdepay !
 			{caps} !
-			textoverlay text=video_{name}_fd halignment=left valignment=top ypad=175 !
+			textoverlay text=video_{name}_fd halignment=left valignment=top ypad=125 !
 			intervideosink channel=video_{name}_in
 		""".format(
 			fd=conn.fileno(),
