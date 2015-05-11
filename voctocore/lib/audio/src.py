@@ -11,7 +11,6 @@ class AudioSrc(object):
 	port = None
 	caps = None
 
-	distributionPipeline = None
 	receiverPipeline = None
 
 	boundSocket = None
@@ -23,24 +22,6 @@ class AudioSrc(object):
 		self.name = name
 		self.port = port
 		self.caps = caps
-
-		pipeline = """
-			interaudiosrc channel=audio_{name}_in !
-			{caps} !
-			queue !
-			tee name=tee
-
-			tee. ! queue ! interaudiosink channel=audio_{name}_mirror
-			tee. ! queue ! interaudiosink channel=audio_{name}_preview
-			tee. ! queue ! interaudiosink channel=audio_{name}_mixer
-		""".format(
-			name=self.name,
-			caps=self.caps
-		)
-
-		self.log.debug('Launching Source-Distribution-Pipeline:\n%s', pipeline)
-		self.distributionPipeline = Gst.parse_launch(pipeline)
-		self.distributionPipeline.set_state(Gst.State.PLAYING)
 
 		self.log.debug('Binding to Source-Socket on [::]:%u', port)
 		self.boundSocket = socket.socket(socket.AF_INET6)
@@ -64,7 +45,11 @@ class AudioSrc(object):
 			fdsrc fd={fd} !
 			gdpdepay !
 			{caps} !
-			interaudiosink channel=audio_{name}_in
+			queue !
+			tee name=tee
+
+			tee. ! queue ! interaudiosink channel=audio_{name}_mixer
+			tee. ! queue ! interaudiosink channel=audio_{name}_mirror
 		""".format(
 			fd=conn.fileno(),
 			name=self.name,
