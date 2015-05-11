@@ -1,2 +1,2 @@
 #!/bin/sh
-echo set_composite_mode side-by-side-equal | nc localhost 9999
+echo set_composite_mode side_by_side_equal | nc localhost 9999
