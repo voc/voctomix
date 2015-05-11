@@ -44,11 +44,13 @@ class Voctocore(object):
 
 	def run(self):
 		self.log.info('running GObject-MainLoop')
-		self.mainloop.run()
+		try:
+			self.mainloop.run()
+		except KeyboardInterrupt:
+			self.log.info('Terminated via Ctrl-C')
 
 	def quit(self):
 		self.log.info('quitting GObject-MainLoop')
-
 		self.mainloop.quit()
 
 
