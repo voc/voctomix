@@ -12,8 +12,8 @@ class AudioRawOutput(object):
 	caps = None
 
 	boundSocket = None
+	receiverPipeline = None
 
-	receiverPipelines = []
 	currentConnections = []
 
 	def __init__(self, channel, port, caps):
@@ -22,6 +22,20 @@ class AudioRawOutput(object):
 		self.channel = channel
 		self.port = port
 		self.caps = caps
+
+		pipeline = """
+			interaudiosrc channel={channel} !
+			{caps} !
+			gdppay !
+			multifdsink resend-streamheader=false name=fd
+		""".format(
+			channel=self.channel,
+			caps=self.caps
+		)
+		self.log.debug('Launching Pipeline:\n%s', pipeline)
+		self.receiverPipeline = Gst.parse_launch(pipeline)
+		self.receiverPipeline.bus.add_signal_watch()
+		self.receiverPipeline.set_state(Gst.State.PLAYING)
 
 		self.log.debug('Binding to Mirror-Socket on [::]:%u', port)
 		self.boundSocket = socket.socket(socket.AF_INET6)
@@ -37,47 +51,14 @@ class AudioRawOutput(object):
 		conn, addr = sock.accept()
 		self.log.info("Incomming Connection from %s", addr)
 
-		pipeline = """
-			interaudiosrc channel={channel} !
-			{caps} !
-			gdppay !
-			fdsink fd={fd}
-		""".format(
-			fd=conn.fileno(),
-			channel=self.channel,
-			caps=self.caps
-		)
-		self.log.debug('Launching Pipeline:\n%s', pipeline)
-		receiverPipeline = Gst.parse_launch(pipeline)
+		self.log.info('Adding fd %u to multifdsink', conn.fileno())
+		self.receiverPipeline.get_by_name('fd').emit('add', conn.fileno())
 
-		def on_eos(bus, message):
-			self.log.info('Received End-of-Stream-Signal on Source-Receiver-Pipeline')
-			self.disconnect(receiverPipeline, conn)
-
-		def on_error(bus, message):
-			self.log.info('Received Error-Signal on Source-Receiver-Pipeline')
-
-			(error, debug) = message.parse_error()
-			self.log.debug('Error-Message %s\n%s', error.message, debug)
-
-			self.disconnect(receiverPipeline, conn)
-
-		self.log.debug('Binding End-of-Stream-Signal on Pipeline')
-		receiverPipeline.bus.add_signal_watch()
-		receiverPipeline.bus.connect("message::eos", on_eos)
-		receiverPipeline.bus.connect("message::error", on_error)
-
-		receiverPipeline.set_state(Gst.State.PLAYING)
-
-		self.receiverPipelines.append(receiverPipeline)
 		self.currentConnections.append(conn)
-
 		self.log.info('Now %u Receiver connected', len(self.currentConnections))
 
 		return True
 
 	def disconnect(self, receiverPipeline, currentConnection):
-		receiverPipeline.set_state(Gst.State.NULL)
-		self.receiverPipelines.remove(receiverPipeline)
 		self.currentConnections.remove(currentConnection)
 		self.log.info('Disconnected Receiver, now %u Receiver connected', len(self.currentConnections))
