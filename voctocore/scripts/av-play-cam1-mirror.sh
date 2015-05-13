@@ -1,9 +1,12 @@
 #!/bin/sh
 gst-launch-1.0 \
 	tcpclientsrc host=localhost port=13000 !\
-	gdpdepay !\
-	xvimagesink \
+	matroskademux name=demux \
 	\
-	tcpclientsrc host=localhost port=23000 !\
-	gdpdepay !\
-	alsasink sync=false
+	demux. !\
+	queue !\
+	xvimagesink ts-offset=1000000000 \
+	\
+	demux. !\
+	queue !\
+	alsasink provide-clock=false ts-offset=1000000000

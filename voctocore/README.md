@@ -1,16 +1,16 @@
 # Server-Pipeline Structure
 ````
-                              /-> Encoder -> PreviewPort 12000
-                 /-> VideoMix --> OutputPort 11000
-                /             \-> StreamBlanker -> StreamOutputPort 11001
-10000… VideoSrc --> MirrorPort 13000…
+                       /-> VideoMix
+                      /             \
+                     /               \    /-> StreamBlanker -> StreamOutputPort 11001
+                    /                 ------> OutputPort 11000
+                   /                 /    \-> Encoder -> PreviewPort 14000…
+                  /                 /
+                 /----- -> AudioMix
+                /
+10000… AVSource --> MirrorPort 13000…
                 \-> Encoder -> PreviewPort 14000…
 
-                              /-> Encoder -> PreviewPort 22000
-                 /-> AudioMix --> OutputPort 21000
-                /             \-> StreamBlanker -> StreamOutputPort 21001
-20000… AudioSrc --> MirrorPort 23000…
-                \-> Encoder -> PreviewPort 24000…
 ````
 
 # Control Protocol
@@ -22,7 +22,7 @@ TCP-Port 9999
 < set_composite_mode side_by_side_equal
 > ok
 
-< get_video_output_port
+< get_output_port
 > ok 11000
 
 < get_video_a

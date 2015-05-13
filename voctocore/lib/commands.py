@@ -2,7 +2,7 @@
 import logging
 
 from lib.config import Config
-from lib.video.mix import CompositeModes
+from lib.videomix import CompositeModes
 
 class ControlServerCommands():
 	log = logging.getLogger('ControlServerCommands')
@@ -12,26 +12,26 @@ class ControlServerCommands():
 
 	def __init__(self, pipeline):
 		self.pipeline = pipeline
-		self.vnames = Config.getlist('sources', 'video')
+		self.sources = Config.getlist('mix', 'sources')
 
-	def decodeVideoSrcName(self, src_name_or_id):
+	def decodeSourceName(self, src_name_or_id):
 		if isinstance(src_name_or_id, str):
 			try:
-				return self.vnames.index(src_name_or_id)
+				return self.sources.index(src_name_or_id)
 			except Exception as e:
-				raise IndexError("video-source %s unknown" % src_name_or_id)
+				raise IndexError("source %s unknown" % src_name_or_id)
 
-		if src_name_or_id < 0 or src_name_or_id >= len(self.vnames):
-			raise IndexError("video-source %s unknown" % src_name_or_id)
+		if src_name_or_id < 0 or src_name_or_id >= len(self.sources):
+			raise IndexError("source %s unknown" % src_name_or_id)
 
 
 	def set_video_a(self, src_name_or_id):
-		src_id = self.decodeVideoSrcName(src_name_or_id)
+		src_id = self.decodeSourceName(src_name_or_id)
 		self.pipeline.vmixer.setVideoA(src_id)
 		return True
 
 	def set_video_b(self, src_name_or_id):
-		src_id = self.decodeVideoSrcName(src_name_or_id)
+		src_id = self.decodeSourceName(src_name_or_id)
 		self.pipeline.vmixer.setVideoB(src_id)
 		return True
 

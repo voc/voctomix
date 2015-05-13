@@ -4,8 +4,8 @@ from gi.repository import GObject, Gst
 
 from lib.config import Config
 
-class AudioSrc(object):
-	log = logging.getLogger('AudioSrc')
+class AVSource(object):
+	log = logging.getLogger('AVSource')
 
 	name = None
 	port = None
@@ -16,12 +16,11 @@ class AudioSrc(object):
 	boundSocket = None
 	currentConnection = None
 
-	def __init__(self, name, port, caps):
-		self.log = logging.getLogger('AudioSrc['+name+']')
+	def __init__(self, name, port):
+		self.log = logging.getLogger('AVSource['+name+']')
 
 		self.name = name
 		self.port = port
-		self.caps = caps
 
 		self.log.debug('Binding to Source-Socket on [::]:%u', port)
 		self.boundSocket = socket.socket(socket.AF_INET6)
@@ -43,22 +42,35 @@ class AudioSrc(object):
 
 		pipeline = """
 			fdsrc fd={fd} !
-			gdpdepay !
-			{caps} !
-			queue !
-			tee name=tee
+			matroskademux name=demux
 
-			tee. ! queue ! interaudiosink channel=audio_{name}_mixer
-			tee. ! queue ! interaudiosink channel=audio_{name}_mirror
+			demux. ! 
+			{acaps} !
+			queue !
+			tee name=atee
+
+			atee. ! queue ! interaudiosink channel=audio_{name}_mixer
+			atee. ! queue ! interaudiosink channel=audio_{name}_mirror
+
+			demux. ! 
+			{vcaps} !
+			textoverlay halignment=left valignment=top ypad=25 text=AVSource !
+			timeoverlay halignment=left valignment=top ypad=25 xpad=400 !
+			queue !
+			tee name=vtee
+
+			vtee. ! queue ! intervideosink channel=video_{name}_mixer
+			vtee. ! queue ! intervideosink channel=video_{name}_mirror
 		""".format(
 			fd=conn.fileno(),
 			name=self.name,
-			caps=self.caps
+			acaps=Config.get('mix', 'audiocaps'),
+			vcaps=Config.get('mix', 'videocaps')
 		)
-		self.log.debug('Launching Source-Receiver-Pipeline:\n%s', pipeline)
+		self.log.debug('Launching Source-Pipeline:\n%s', pipeline)
 		self.receiverPipeline = Gst.parse_launch(pipeline)
 
-		self.log.debug('Binding End-of-Stream-Signal on Source-Receiver-Pipeline')
+		self.log.debug('Binding End-of-Stream-Signal on Source-Pipeline')
 		self.receiverPipeline.bus.add_signal_watch()
 		self.receiverPipeline.bus.connect("message::eos", self.on_eos)
 		self.receiverPipeline.bus.connect("message::error", self.on_error)
@@ -69,12 +81,12 @@ class AudioSrc(object):
 		return True
 
 	def on_eos(self, bus, message):
-		self.log.info('Received End-of-Stream-Signal on Source-Receiver-Pipeline')
+		self.log.info('Received End-of-Stream-Signal on Source-Pipeline')
 		if self.currentConnection is not None:
 			self.disconnect()
 
 	def on_error(self, bus, message):
-		self.log.info('Received Error-Signal on Source-Receiver-Pipeline')
+		self.log.info('Received Error-Signal on Source-Pipeline')
 		(code, debug) = message.parse_error()
 		self.log.debug('Error-Details: #%u: %s', code, debug)
 
