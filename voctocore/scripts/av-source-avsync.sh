@@ -21,4 +21,4 @@ gst-launch-1.0 -vm \
 		mux. \
 	\
 	matroskamux name=mux !\
-	tcpclientsrc host=localhost port=10000
+	tcpclientsink host=localhost port=10001
