@@ -47,7 +47,7 @@ class ControlServer(TCPMultiConnection):
 			return False
 
 		# process the received line
-		success, msg = self.processLine(line)
+		success, msg = self.processLine(conn, line)
 
 		# success = False -> error 
 		if success == False:
@@ -72,13 +72,13 @@ class ControlServer(TCPMultiConnection):
 
 		return True
 
-	def processLine(self, line):
+	def processLine(self, conn, line):
 		# split line into command and optional args
 		command, argstring = (line+' ').split(' ', 1)
 		args = argstring.strip().split()
 
 		# log function-call as parsed
-		self.log.info("Read Function-Call from Socket: %s( %s )", command, args)
+		self.log.info("Read Function-Call from %s: %s( %s )", conn.getpeername(), command, args)
 
 		# check that the function-call is a known Command
 		if not hasattr(self.commands, command):
@@ -92,6 +92,9 @@ class ControlServer(TCPMultiConnection):
 			# call the function
 			ret = f(*args)
 
+			# signal method call to all other connected clients
+			self.signal(conn, command, args)
+
 			# if it returned an iterable, probably (Success, Message), pass that on
 			if hasattr(ret, '__iter__'):
 				return ret
@@ -101,7 +104,20 @@ class ControlServer(TCPMultiConnection):
 
 		except Exception as e:
 			self.log.error("Trapped Exception in Remote-Communication: %s", e)
-			traceback.print_exc()
 
 			# In case of an Exception, return that
 			return False, str(e)
+
+	def signal(self, origin_conn, command, args):
+		for conn in self.currentConnections:
+			if conn == origin_conn:
+				continue
+
+			self.log.debug(
+				'signaling connection %s the successful '
+				'execution of the command %s',
+				conn.getpeername(), command)
+
+			conn.makefile('w').write(
+				"signal %s %s\n" % (command, ' '.join(args))
+			)
