@@ -81,19 +81,20 @@ class AVSource(object):
 		return True
 
 	def on_eos(self, bus, message):
-		self.log.info('Received End-of-Stream-Signal on Source-Pipeline')
+		self.log.debug('Received End-of-Stream-Signal on Source-Pipeline')
 		if self.currentConnection is not None:
 			self.disconnect()
 
 	def on_error(self, bus, message):
-		self.log.info('Received Error-Signal on Source-Pipeline')
-		(code, debug) = message.parse_error()
-		self.log.debug('Error-Details: #%u: %s', code, debug)
+		self.log.debug('Received Error-Signal on Source-Pipeline')
+		(error, debug) = message.parse_error()
+		self.log.debug('Error-Details: #%u: %s', error.code, debug)
 
 		if self.currentConnection is not None:
 			self.disconnect()
 
 	def disconnect(self):
+		self.log.info('Connection closed')
 		self.receiverPipeline.set_state(Gst.State.NULL)
 		self.receiverPipeline = None
 		self.currentConnection = None

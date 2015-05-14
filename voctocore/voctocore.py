@@ -59,9 +59,19 @@ def main():
 	# configure logging
 	docolor = (Args.color == 'always') or (Args.color == 'auto' and sys.stderr.isatty())
 
-	logging.basicConfig(
-		level=logging.DEBUG if Args.verbose else logging.WARNING,
-		format='\x1b[33m%(levelname)8s\x1b[0m \x1b[32m%(name)s\x1b[0m: %(message)s' if docolor else '%(levelname)8s %(name)s: %(message)s')
+	if Args.verbose == 2:
+		level = logging.DEBUG
+	elif Args.verbose == 1:
+		level = logging.INFO
+	else:
+		level = logging.WARNING
+
+	if docolor:
+		format = '\x1b[33m%(levelname)8s\x1b[0m \x1b[32m%(name)s\x1b[0m: %(message)s'
+	else:
+		format = '%(levelname)8s %(name)s: %(message)s'
+
+	logging.basicConfig(level=level, format=format)
 
 	# make killable by ctrl-c
 	logging.debug('setting SIGINT handler')

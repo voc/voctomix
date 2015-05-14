@@ -71,7 +71,8 @@ class AVRawOutput(object):
 				self.log.debug('fd %u removed from multifdsink', fileno)
 
 				self.currentConnections.remove(conn)
-				self.log.info('Disconnected Receiver %s, now %u Receiver connected', addr, len(self.currentConnections))
+				self.log.info('Disconnected Receiver %s', addr)
+				self.log.info('Now %u Receiver connected', len(self.currentConnections))
 
 		self.log.debug('Adding fd %u to multifdsink', conn.fileno())
 		fdsink = self.receiverPipeline.get_by_name('fd')
