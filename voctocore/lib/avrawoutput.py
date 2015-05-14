@@ -50,7 +50,6 @@ class AVRawOutput(object):
 		)
 		self.log.debug('Launching Output-Pipeline:\n%s', pipeline)
 		self.receiverPipeline = Gst.parse_launch(pipeline)
-		self.receiverPipeline.bus.add_signal_watch()
 		self.receiverPipeline.set_state(Gst.State.PLAYING)
 
 		self.log.debug('Binding to Output-Socket on [::]:%u', port)
@@ -67,15 +66,19 @@ class AVRawOutput(object):
 		conn, addr = sock.accept()
 		self.log.info("Incomming Connection from %s", addr)
 
-		self.log.info('Adding fd %u to multifdsink', conn.fileno())
-		self.receiverPipeline.get_by_name('fd').emit('add', conn.fileno())
+		def on_disconnect(multifdsink, fileno):
+			if fileno == conn.fileno():
+				self.log.debug('fd %u removed from multifdsink', fileno)
+
+				self.currentConnections.remove(conn)
+				self.log.info('Disconnected Receiver %s, now %u Receiver connected', addr, len(self.currentConnections))
+
+		self.log.debug('Adding fd %u to multifdsink', conn.fileno())
+		fdsink = self.receiverPipeline.get_by_name('fd')
+		fdsink.emit('add', conn.fileno())
+		fdsink.connect('client-fd-removed', on_disconnect)
 
 		self.currentConnections.append(conn)
 		self.log.info('Now %u Receiver connected', len(self.currentConnections))
 
 		return True
-
-	# FIXME handle disconnects
-	def disconnect(self, receiverPipeline, currentConnection):
-		self.currentConnections.remove(currentConnection)
-		self.log.info('Disconnected Receiver, now %u Receiver connected', len(self.currentConnections))
