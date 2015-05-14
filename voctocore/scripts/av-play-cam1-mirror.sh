@@ -5,8 +5,8 @@ gst-launch-1.0 \
 	\
 	demux. !\
 	queue !\
-	xvimagesink ts-offset=1000000000 \
+	xvimagesink ts-offset=300000000 \
 	\
 	demux. !\
 	queue !\
-	alsasink provide-clock=false ts-offset=1000000000
+	alsasink provide-clock=false ts-offset=300000000
