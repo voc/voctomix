@@ -6,6 +6,7 @@ from gi.repository import Gst
 from lib.config import Config
 from lib.avsource import AVSource
 from lib.avrawoutput import AVRawOutput
+from lib.avpreviewoutput import AVPreviewOutput
 from lib.videomix import VideoMix
 from lib.audiomix import AudioMix
 
@@ -14,9 +15,12 @@ class Pipeline(object):
 	log = logging.getLogger('Pipeline')
 
 	sources = []
-	outputs = []
+	mirrors = []
+	previews = []
+
 	vmix = None
 	amix = None
+	mixout = None
 
 	def __init__(self):
 		self.log.info('Video-Caps configured to: %s', Config.get('mix', 'videocaps'))
@@ -39,7 +43,15 @@ class Pipeline(object):
 			self.log.info('Creating Mirror-Output for AVSource %s at tcp-port %u', name, port)
 
 			mirror = AVRawOutput('%s_mirror' % name, port)
-			self.outputs.append(mirror)
+			self.mirrors.append(mirror)
+
+
+			if Config.getboolean('previews', 'enabled'):
+				port = 14000 + idx
+				self.log.info('Creating Preview-Output for AVSource %s at tcp-port %u', name, port)
+
+				preview = AVPreviewOutput('%s_preview' % name, port)
+				self.previews.append(preview)
 
 
 		self.log.info('Creating Videmixer')
@@ -50,6 +62,10 @@ class Pipeline(object):
 
 		port = 11000
 		self.log.info('Creating Mixer-Output at tcp-port %u', port)
+		self.mixout = AVRawOutput('mix_out', port)
 
-		output = AVRawOutput('mix', port)
-		self.outputs.append(output)
+		if Config.getboolean('previews', 'enabled'):
+			port = 12000
+			self.log.info('Creating Preview-Output for AVSource %s at tcp-port %u', name, port)
+
+			self.mixpreview = AVPreviewOutput('mix_preview', port)

@@ -30,12 +30,20 @@ class VideoMix(object):
 		pipeline = """
 			videomixer name=mix !
 			{caps} !
-			textoverlay halignment=left valignment=top ypad=175 text=VideoMix !
-			timeoverlay halignment=left valignment=top ypad=175 xpad=400 !
-			intervideosink channel=video_mix
+			textoverlay halignment=left valignment=top ypad=125 text=VideoMix !
+			timeoverlay halignment=left valignment=top ypad=125 xpad=400 !
+			queue !
+			tee name=tee
+
+			tee. ! queue ! intervideosink channel=video_mix_out
 		""".format(
 			caps=self.caps
 		)
+
+		if Config.getboolean('previews', 'enabled'):
+			pipeline += """
+				tee. ! queue ! intervideosink channel=video_mix_preview
+			"""
 
 		for idx, name in enumerate(self.names):
 			pipeline += """

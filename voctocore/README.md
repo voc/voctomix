@@ -2,15 +2,16 @@
 ````
                        /-> VideoMix
                       /             \
-                     /               \    /-> StreamBlanker -> StreamOutputPort 11001
+                     /               \    /-> StreamBlanker -> StreamOutputPort 15000
                     /                 ------> OutputPort 11000
-                   /                 /    \-> Encoder -> PreviewPort 14000…
+                   /                 /    \-> Encoder* -> PreviewPort* 12000
                   /                 /
                  /----- -> AudioMix
                 /
 10000… AVSource --> MirrorPort 13000…
-                \-> Encoder -> PreviewPort 14000…
+                \-> Encoder* -> PreviewPort* 14000…
 
+*) only when encode_previews=true is configured
 ````
 
 # Control Protocol

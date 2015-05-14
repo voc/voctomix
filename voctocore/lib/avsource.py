@@ -51,7 +51,20 @@ class AVSource(object):
 
 			atee. ! queue ! interaudiosink channel=audio_{name}_mixer
 			atee. ! queue ! interaudiosink channel=audio_{name}_mirror
+		""".format(
+			fd=conn.fileno(),
+			name=self.name,
+			acaps=Config.get('mix', 'audiocaps')
+		)
 
+		if Config.getboolean('previews', 'enabled'):
+			pipeline += """
+				atee. ! queue ! interaudiosink channel=audio_{name}_preview
+			""".format(
+				name=self.name
+			)
+
+		pipeline += """
 			demux. ! 
 			{vcaps} !
 			textoverlay halignment=left valignment=top ypad=25 text=AVSource !
@@ -64,9 +77,16 @@ class AVSource(object):
 		""".format(
 			fd=conn.fileno(),
 			name=self.name,
-			acaps=Config.get('mix', 'audiocaps'),
 			vcaps=Config.get('mix', 'videocaps')
 		)
+
+		if Config.getboolean('previews', 'enabled'):
+			pipeline += """
+				vtee. ! queue ! intervideosink channel=video_{name}_preview
+			""".format(
+				name=self.name
+			)
+
 		self.log.debug('Launching Source-Pipeline:\n%s', pipeline)
 		self.receiverPipeline = Gst.parse_launch(pipeline)
 

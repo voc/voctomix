@@ -24,10 +24,18 @@ class AudioMix(object):
 		pipeline = """
 			audiomixer name=mix !
 			{caps} !
-			interaudiosink channel=audio_mix
+			queue !
+			tee name=tee
+
+			tee. ! queue ! interaudiosink channel=audio_mix_out
 		""".format(
 			caps=self.caps
 		)
+
+		if Config.getboolean('previews', 'enabled'):
+			pipeline += """
+				tee. ! queue ! interaudiosink channel=audio_mix_preview
+			"""
 
 		for idx, name in enumerate(self.names):
 			pipeline += """
