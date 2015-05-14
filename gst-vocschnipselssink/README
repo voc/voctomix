@@ -1,8 +1,0 @@
-= build & install =
-
-./autogen.sh
-make
-export GST_PLUGIN_PATH=`pwd`/src
-gst-inspect-1.0 | grep schnip
-gst-inspect-1.0 vocschnipselsink
-gst-launch-1.0 uridecodebin uri=http://video.blendertestbuilds.de/download.blender.org/ED/ED_1280.avi ! videoconvert ! videorate ! video/x-raw, framerate=25/1 ! avenc_mpeg2video ! mpegtsmux ! vocschnipselsink location="H1-%Y-%m-%d_%H-%M-%S.ts"
