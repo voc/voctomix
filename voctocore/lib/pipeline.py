@@ -6,13 +6,17 @@ from gi.repository import Gst
 from lib.config import Config
 from lib.avsource import AVSource
 from lib.avrawoutput import AVRawOutput
+from lib.videomix import VideoMix
+from lib.audiomix import AudioMix
 
 class Pipeline(object):
 	"""mixing, streaming and encoding pipeline constuction and control"""
 	log = logging.getLogger('Pipeline')
 
 	sources = []
-	mirrors = []
+	outputs = []
+	vmix = None
+	amix = None
 
 	def __init__(self):
 		self.log.info('Video-Caps configured to: %s', Config.get('mix', 'videocaps'))
@@ -35,4 +39,17 @@ class Pipeline(object):
 			self.log.info('Creating Mirror-Output for AVSource %s at tcp-port %u', name, port)
 
 			mirror = AVRawOutput('%s_mirror' % name, port)
-			self.mirrors.append(mirror)
+			self.outputs.append(mirror)
+
+
+		self.log.info('Creating Videmixer')
+		self.vmix = VideoMix()
+
+		self.log.info('Creating Videmixer')
+		self.amix = AudioMix()
+
+		port = 11000
+		self.log.info('Creating Mixer-Output at tcp-port %u', port)
+
+		output = AVRawOutput('mix', port)
+		self.outputs.append(output)

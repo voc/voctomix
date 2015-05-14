@@ -24,13 +24,14 @@ class VideoMix(object):
 	def __init__(self):
 		self.caps = Config.get('mix', 'videocaps')
 
-		self.names = Config.getlist('sources', 'video')
+		self.names = Config.getlist('mix', 'sources')
 		self.log.info('Configuring Mixer for %u Sources', len(self.names))
 
 		pipeline = """
 			videomixer name=mix !
 			{caps} !
-			textoverlay text=mixer halignment=left valignment=top ypad=175 !
+			textoverlay halignment=left valignment=top ypad=175 text=VideoMix !
+			timeoverlay halignment=left valignment=top ypad=175 xpad=400 !
 			intervideosink channel=video_mix
 		""".format(
 			caps=self.caps
@@ -55,7 +56,7 @@ class VideoMix(object):
 		self.log.debug('Initializing Mixer-State')
 		self.updateMixerState()
 
-		self.log.debug('Launching Mixing-Pipeline:\n%s', pipeline)
+		self.log.debug('Launching Mixing-Pipeline')
 		self.mixingPipeline.set_state(Gst.State.PLAYING)
 
 	def updateMixerState(self):

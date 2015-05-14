@@ -27,12 +27,12 @@ class ControlServerCommands():
 
 	def set_video_a(self, src_name_or_id):
 		src_id = self.decodeSourceName(src_name_or_id)
-		self.pipeline.vmixer.setVideoA(src_id)
+		self.pipeline.vmix.setVideoA(src_id)
 		return True
 
 	def set_video_b(self, src_name_or_id):
 		src_id = self.decodeSourceName(src_name_or_id)
-		self.pipeline.vmixer.setVideoB(src_id)
+		self.pipeline.vmix.setVideoB(src_id)
 		return True
 
 	def set_composite_mode(self, composite_mode):
@@ -41,5 +41,5 @@ class ControlServerCommands():
 		except KeyError as e:
 			raise KeyError("composite-mode %s unknown" % composite_mode)
 
-		self.pipeline.vmixer.setCompositeMode(mode)
+		self.pipeline.vmix.setCompositeMode(mode)
 		return True
