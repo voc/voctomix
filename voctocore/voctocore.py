@@ -67,6 +67,9 @@ def main():
 	logging.debug('setting SIGINT handler')
 	signal.signal(signal.SIGINT, signal.SIG_DFL)
 
+	logging.info('Python Version: %s', sys.version_info)
+	logging.info('GStreamer Version: %s', Gst.version())
+
 	# init main-class and main-loop
 	logging.debug('initializing Voctocore')
 	voctocore = Voctocore()
