@@ -3,35 +3,24 @@ import socket, logging, traceback
 from gi.repository import GObject
 
 from lib.commands import ControlServerCommands
+from lib.tcpmulticonnection import TCPMultiConnection
 
-class ControlServer():
+class ControlServer(TCPMultiConnection):
 	log = logging.getLogger('ControlServer')
 
 	boundSocket = None
 
 	def __init__(self, pipeline):
 		'''Initialize server and start listening.'''
+		super().__init__(port=9999)
+
 		self.commands = ControlServerCommands(pipeline)
 
-		port = 9999
-		self.log.debug('Binding to Command-Socket on [::]:%u', port)
-		self.boundSocket = socket.socket(socket.AF_INET6)
-		self.boundSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-		self.boundSocket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, False)
-		self.boundSocket.bind(('::', port))
-		self.boundSocket.listen(1)
-
-		self.log.debug('Setting GObject io-watch on Socket')
-		GObject.io_add_watch(self.boundSocket, GObject.IO_IN, self.on_connect)
-
-	def on_connect(self, sock, *args):
+	def on_accepted(self, conn, addr):
 		'''Asynchronous connection listener. Starts a handler for each connection.'''
-		conn, addr = sock.accept()
-		self.log.info("Incomming Connection from %s", addr)
 
 		self.log.debug('Setting GObject io-watch on Connection')
 		GObject.io_add_watch(conn, GObject.IO_IN, self.on_data)
-		return True
 
 	def on_data(self, conn, *args):
 		'''Asynchronous connection handler. Processes each line from the socket.'''
@@ -40,16 +29,21 @@ class ControlServer():
 		filelike = conn.makefile('rw')
 
 		# read a line from the socket
-		line = filelike.readline().strip()
+		line = ''
+		try:
+			line = filelike.readline().strip()
+		except Exception as e:
+			self.log.warn("Can't read from socket: %s", e)
 
 		# no data = remote closed connection
 		if len(line) == 0:
-			self.log.info("Connection closed.")
+			self.close_connection(conn)
 			return False
 
 		# 'quit' = remote wants us to close the connection
 		if line == 'quit':
 			self.log.info("Client asked us to close the Connection")
+			self.close_connection(conn)
 			return False
 
 		# process the received line
@@ -75,6 +69,7 @@ class ControlServer():
 		else:
 			# respond with the returned message
 			filelike.write('ok '+msg+'\n')
+
 		return True
 
 	def processLine(self, line):

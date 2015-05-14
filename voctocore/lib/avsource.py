@@ -1,45 +1,25 @@
 #!/usr/bin/python3
-import logging, socket
-from gi.repository import GObject, Gst
+import logging
+from gi.repository import Gst
 
 from lib.config import Config
+from lib.tcpsingleconnection import TCPSingleConnection
 
-class AVSource(object):
+class AVSource(TCPSingleConnection):
 	log = logging.getLogger('AVSource')
 
 	name = None
-	port = None
 	caps = None
 
 	receiverPipeline = None
 
-	boundSocket = None
-	currentConnection = None
-
 	def __init__(self, name, port):
 		self.log = logging.getLogger('AVSource['+name+']')
+		super().__init__(port)
 
 		self.name = name
-		self.port = port
 
-		self.log.debug('Binding to Source-Socket on [::]:%u', port)
-		self.boundSocket = socket.socket(socket.AF_INET6)
-		self.boundSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-		self.boundSocket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, False)
-		self.boundSocket.bind(('::', port))
-		self.boundSocket.listen(1)
-
-		self.log.debug('Setting GObject io-watch on Socket')
-		GObject.io_add_watch(self.boundSocket, GObject.IO_IN, self.on_connect)
-
-	def on_connect(self, sock, *args):
-		conn, addr = sock.accept()
-		self.log.info("Incomming Connection from %s", addr)
-
-		if self.currentConnection is not None:
-			self.log.warn("Another Source is already connected")
-			return True
-
+	def on_accepted(self, conn, addr):
 		pipeline = """
 			fdsrc fd={fd} !
 			matroskademux name=demux
@@ -97,8 +77,6 @@ class AVSource(object):
 
 		self.receiverPipeline.set_state(Gst.State.PLAYING)
 
-		self.currentConnection = conn
-		return True
 
 	def on_eos(self, bus, message):
 		self.log.debug('Received End-of-Stream-Signal on Source-Pipeline')
@@ -114,7 +92,6 @@ class AVSource(object):
 			self.disconnect()
 
 	def disconnect(self):
-		self.log.info('Connection closed')
 		self.receiverPipeline.set_state(Gst.State.NULL)
 		self.receiverPipeline = None
-		self.currentConnection = None
+		self.close_connection()
