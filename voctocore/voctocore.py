@@ -6,7 +6,7 @@ gi.require_version('Gst', '1.0')
 from gi.repository import Gtk, Gdk, Gst, GObject, GdkX11, GstVideo
 
 # check min-version
-minGst = (1, 4)
+minGst = (1, 5)
 minPy = (3, 0)
 
 if Gst.version() < minGst:
