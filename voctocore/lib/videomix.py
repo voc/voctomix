@@ -147,7 +147,7 @@ class VideoMix(object):
 			capsfilter = self.mixingPipeline.get_by_name('caps_%u' % idx)
 			capsfilter.set_property('caps', caps)
 
-	def setVideoA(self, source):
+	def setVideoSourceA(self, source):
 		# swap if required
 		if self.sourceB == source:
 			self.sourceB = self.sourceA
@@ -155,7 +155,7 @@ class VideoMix(object):
 		self.sourceA = source
 		self.updateMixerState()
 
-	def setVideoB(self, source):
+	def setVideoSourceB(self, source):
 		# swap if required
 		if self.sourceA == source:
 			self.sourceA = self.sourceB

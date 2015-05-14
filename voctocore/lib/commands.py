@@ -27,12 +27,17 @@ class ControlServerCommands():
 
 	def set_video_a(self, src_name_or_id):
 		src_id = self.decodeSourceName(src_name_or_id)
-		self.pipeline.vmix.setVideoA(src_id)
+		self.pipeline.vmix.setVideoSourceA(src_id)
 		return True
 
 	def set_video_b(self, src_name_or_id):
 		src_id = self.decodeSourceName(src_name_or_id)
-		self.pipeline.vmix.setVideoB(src_id)
+		self.pipeline.vmix.setVideoSourceB(src_id)
+		return True
+
+	def set_audio(self, src_name_or_id):
+		src_id = self.decodeSourceName(src_name_or_id)
+		self.pipeline.amix.setAudioSource(src_id)
 		return True
 
 	def set_composite_mode(self, composite_mode):
