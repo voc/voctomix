@@ -1,5 +1,5 @@
 #!/bin/sh
-gst-launch-1.0 -vm \
+gst-launch-1.0 \
 	uridecodebin \
 		uri=http://c3voc.mazdermind.de/avsync.mp4 \
 		name=src \

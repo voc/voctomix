@@ -1,5 +1,5 @@
 #!/bin/sh
-gst-launch-1.0 -vm \
+gst-launch-1.0 \
 	filesrc location=$HOME/eevblog.mp4 !\
 	decodebin name=src \
 	\
