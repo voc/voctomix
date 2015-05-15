@@ -37,6 +37,7 @@ TCP-Port 9999
 
 …
 
-> signal video_a cam1
+> signal set_video_a cam1
+> signal set_composite_mode side_by_side_equal
 
 ````
