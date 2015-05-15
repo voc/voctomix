@@ -29,9 +29,8 @@ from lib.controlserver import ControlServer
 
 # main class
 class Voctocore(object):
-	log = logging.getLogger('Voctocore')
-
 	def __init__(self):
+		self.log = logging.getLogger('Voctocore')
 		self.log.debug('creating GObject-MainLoop')
 		self.mainloop = GObject.MainLoop()
 

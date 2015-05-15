@@ -5,12 +5,9 @@ from lib.config import Config
 from lib.videomix import CompositeModes
 
 class ControlServerCommands():
-	log = logging.getLogger('ControlServerCommands')
-
-	pipeline = None
-	vnames = []
-
 	def __init__(self, pipeline):
+		self.log = logging.getLogger('ControlServerCommands')
+
 		self.pipeline = pipeline
 		self.sources = Config.getlist('mix', 'sources')
 

@@ -7,12 +7,10 @@ from lib.config import Config
 class TCPSingleConnection(object):
 	log = logging.getLogger('TCPSingleConnection')
 
-	port = None
-
-	boundSocket = None
-	currentConnection = None
-
 	def __init__(self, port):
+		if not hasattr(self, 'log'):
+			self.log = logging.getLogger('TCPMultiConnection')
+
 		self.port = port
 
 		self.log.debug('Binding to Source-Socket on [::]:%u', port)
@@ -21,6 +19,8 @@ class TCPSingleConnection(object):
 		self.boundSocket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, False)
 		self.boundSocket.bind(('::', port))
 		self.boundSocket.listen(1)
+
+		self.currentConnection = None
 
 		self.log.debug('Setting GObject io-watch on Socket')
 		GObject.io_add_watch(self.boundSocket, GObject.IO_IN, self.on_connect)

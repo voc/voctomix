@@ -6,13 +6,6 @@ from lib.config import Config
 from lib.tcpsingleconnection import TCPSingleConnection
 
 class AVSource(TCPSingleConnection):
-	log = logging.getLogger('AVSource')
-
-	name = None
-	caps = None
-
-	receiverPipeline = None
-
 	def __init__(self, name, port):
 		self.log = logging.getLogger('AVSource['+name+']')
 		super().__init__(port)

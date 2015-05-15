@@ -6,13 +6,6 @@ from lib.config import Config
 from lib.tcpmulticonnection import TCPMultiConnection
 
 class AVPreviewOutput(TCPMultiConnection):
-	log = logging.getLogger('AVPreviewOutput')
-
-	name = None
-	caps = None
-
-	receiverPipeline = None
-
 	def __init__(self, channel, port):
 		self.log = logging.getLogger('AVPreviewOutput['+channel+']')
 		super().__init__(port)

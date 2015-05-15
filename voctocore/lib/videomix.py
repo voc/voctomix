@@ -12,15 +12,6 @@ class CompositeModes(Enum):
 class VideoMix(object):
 	log = logging.getLogger('VideoMix')
 
-	mixingPipeline = None
-
-	caps = None
-	names = []
-
-	compositeMode = CompositeModes.fullscreen
-	sourceA = 0
-	sourceB = 1
-
 	def __init__(self):
 		self.caps = Config.get('mix', 'videocaps')
 
@@ -62,6 +53,10 @@ class VideoMix(object):
 		self.mixingPipeline = Gst.parse_launch(pipeline)
 
 		self.log.debug('Initializing Mixer-State')
+
+		self.compositeMode = CompositeModes.fullscreen
+		self.sourceA = 0
+		self.sourceB = 1
 		self.updateMixerState()
 
 		self.log.debug('Launching Mixing-Pipeline')

@@ -12,23 +12,19 @@ from lib.audiomix import AudioMix
 
 class Pipeline(object):
 	"""mixing, streaming and encoding pipeline constuction and control"""
-	log = logging.getLogger('Pipeline')
-
-	sources = []
-	mirrors = []
-	previews = []
-
-	vmix = None
-	amix = None
-	mixout = None
 
 	def __init__(self):
+		self.log = logging.getLogger('Pipeline')
 		self.log.info('Video-Caps configured to: %s', Config.get('mix', 'videocaps'))
 		self.log.info('Audio-Caps configured to: %s', Config.get('mix', 'audiocaps'))
 
 		names = Config.getlist('mix', 'sources')
 		if len(names) < 1:
 			raise RuntimeException("At least one AVSource must be configured!")
+
+		self.sources = []
+		self.mirrors = []
+		self.previews = []
 
 		self.log.info('Creating %u Creating AVSources: %s', len(names), names)
 		for idx, name in enumerate(names):

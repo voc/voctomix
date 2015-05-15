@@ -6,13 +6,6 @@ from lib.config import Config
 from lib.tcpmulticonnection import TCPMultiConnection
 
 class AVRawOutput(TCPMultiConnection):
-	log = logging.getLogger('AVRawOutput')
-
-	name = None
-	caps = None
-
-	receiverPipeline = None
-
 	def __init__(self, channel, port):
 		self.log = logging.getLogger('AVRawOutput['+channel+']')
 		super().__init__(port)

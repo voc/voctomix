@@ -6,12 +6,9 @@ from lib.commands import ControlServerCommands
 from lib.tcpmulticonnection import TCPMultiConnection
 
 class ControlServer(TCPMultiConnection):
-	log = logging.getLogger('ControlServer')
-
-	boundSocket = None
-
 	def __init__(self, pipeline):
 		'''Initialize server and start listening.'''
+		self.log = logging.getLogger('ControlServer')
 		super().__init__(port=9999)
 
 		self.commands = ControlServerCommands(pipeline)

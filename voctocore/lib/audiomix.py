@@ -6,18 +6,12 @@ from enum import Enum
 from lib.config import Config
 
 class AudioMix(object):
-	log = logging.getLogger('AudioMix')
-
-	mixingPipeline = None
-
-	caps = None
-	names = []
-
-	selectedSource = 0
-
 	def __init__(self):
-		self.caps = Config.get('mix', 'audiocaps')
+		self.log = logging.getLogger('AudioMix')
 
+		self.selectedSource = 0
+
+		self.caps = Config.get('mix', 'audiocaps')
 		self.names = Config.getlist('mix', 'sources')
 		self.log.info('Configuring Mixer for %u Sources', len(self.names))
 

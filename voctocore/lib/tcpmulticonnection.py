@@ -5,16 +5,15 @@ from gi.repository import GObject
 from lib.config import Config
 
 class TCPMultiConnection(object):
-	log = logging.getLogger('TCPMultiConnection')
-
-	port = None
-
-	boundSocket = None
-	currentConnections = []
-
-
 	def __init__(self, port):
+		if not hasattr(self, 'log'):
+			self.log = logging.getLogger('TCPMultiConnection')
+
 		self.port = port
+		self.port = None
+
+		self.boundSocket = None
+		self.currentConnections = []
 
 		self.log.debug('Binding to Source-Socket on [::]:%u', port)
 		self.boundSocket = socket.socket(socket.AF_INET6)
