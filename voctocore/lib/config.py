@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import os.path
 from configparser import SafeConfigParser
 from lib.args import Args
