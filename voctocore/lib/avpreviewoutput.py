@@ -26,7 +26,7 @@ class AVPreviewOutput(TCPMultiConnection):
 			intervideosrc channel=video_{channel} !
 			{vcaps_in} !
 			videorate !
-			videoscale !
+			videoscale method=nearest-neighbour !
 			{vcaps_out} !
 			jpegenc !
 			queue !
