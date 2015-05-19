@@ -3,7 +3,7 @@ import gi, signal, logging, sys
 
 # import GStreamer and GLib-Helper classes
 gi.require_version('Gst', '1.0')
-from gi.repository import Gtk, Gdk, Gst, GObject, GdkX11, GstVideo
+from gi.repository import Gst, GObject
 
 # check min-version
 minGst = (1, 5)
@@ -18,8 +18,6 @@ if sys.version_info < minPy:
 
 # init GObject & Co. before importing local classes
 GObject.threads_init()
-Gdk.init([])
-Gtk.init([])
 Gst.init([])
 
 # import local classes
