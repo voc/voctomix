@@ -1,2 +1,2 @@
 #!/bin/sh
-echo set_composite_mode pip | nc localhost 9999
+echo set_composite_mode pip | nc -q0 localhost 9999

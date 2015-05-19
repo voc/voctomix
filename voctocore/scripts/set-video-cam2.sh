@@ -1,2 +1,2 @@
 #!/bin/sh
-echo set_video_a cam2 | nc localhost 9999
+echo set_video_a cam2 | nc -q0 localhost 9999
