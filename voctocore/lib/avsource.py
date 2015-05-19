@@ -40,8 +40,6 @@ class AVSource(TCPSingleConnection):
 		pipeline += """
 			demux. ! 
 			{vcaps} !
-			textoverlay halignment=left valignment=top ypad=25 text=AVSource !
-			timeoverlay halignment=left valignment=top ypad=25 xpad=400 !
 			queue !
 			tee name=vtee
 

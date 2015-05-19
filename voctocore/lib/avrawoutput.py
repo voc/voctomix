@@ -20,8 +20,6 @@ class AVRawOutput(TCPMultiConnection):
 
 			intervideosrc channel=video_{channel} !
 			{vcaps} !
-			textoverlay halignment=left valignment=top ypad=75 text=AVRawOutput !
-			timeoverlay halignment=left valignment=top ypad=75 xpad=400 !
 			queue !
 			mux.
 

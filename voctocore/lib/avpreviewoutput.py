@@ -25,8 +25,6 @@ class AVPreviewOutput(TCPMultiConnection):
 
 			intervideosrc channel=video_{channel} !
 			{vcaps_in} !
-			textoverlay halignment=left valignment=top ypad=75 text=AVPreviewOutput !
-			timeoverlay halignment=left valignment=top ypad=75 xpad=400 !
 			videorate !
 			videoscale !
 			{vcaps_out} !

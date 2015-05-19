@@ -21,8 +21,6 @@ class VideoMix(object):
 		pipeline = """
 			videomixer name=mix !
 			{caps} !
-			textoverlay halignment=left valignment=top ypad=125 text=VideoMix !
-			timeoverlay halignment=left valignment=top ypad=125 xpad=400 !
 			queue !
 			tee name=tee
 
