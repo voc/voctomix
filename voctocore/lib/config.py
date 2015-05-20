@@ -11,7 +11,7 @@ def getlist(self, section, option):
 SafeConfigParser.getlist = getlist
 
 files = [
-	'default-config.ini',
+	os.path.join(os.path.dirname(os.path.realpath(__file__)), '../default-config.ini'),
 	'/etc/voctomix.ini',
 	os.path.expanduser('~/.voctomix.ini'),
 ]
