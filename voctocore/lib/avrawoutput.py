@@ -36,13 +36,20 @@ class AVRawOutput(TCPMultiConnection):
 			acaps=Config.get('mix', 'audiocaps'),
 			vcaps=Config.get('mix', 'videocaps')
 		)
-		self.log.debug('Launching Output-Pipeline:\n%s', pipeline)
-		self.receiverPipeline = Gst.parse_launch(pipeline)
-		self.receiverPipeline.set_state(Gst.State.PLAYING)
+		self.log.debug('Creating Output-Pipeline:\n%s', pipeline)
+		self.outputPipeline = Gst.parse_launch(pipeline)
+
+		self.log.debug('Binding Error & End-of-Stream-Signal on Output-Pipeline')
+		self.outputPipeline.bus.add_signal_watch()
+		self.outputPipeline.bus.connect("message::eos", self.on_eos)
+		self.outputPipeline.bus.connect("message::error", self.on_error)
+
+		self.log.debug('Launching Output-Pipeline')
+		self.outputPipeline.set_state(Gst.State.PLAYING)
 
 	def on_accepted(self, conn, addr):
 		self.log.debug('Adding fd %u to multifdsink', conn.fileno())
-		fdsink = self.receiverPipeline.get_by_name('fd')
+		fdsink = self.outputPipeline.get_by_name('fd')
 		fdsink.emit('add', conn.fileno())
 
 		def on_disconnect(multifdsink, fileno):
@@ -51,3 +58,11 @@ class AVRawOutput(TCPMultiConnection):
 				self.close_connection(conn)
 
 		fdsink.connect('client-fd-removed', on_disconnect)
+
+	def on_eos(self, bus, message):
+		self.log.debug('Received End-of-Stream-Signal on Output-Pipeline')
+
+	def on_error(self, bus, message):
+		self.log.debug('Received Error-Signal on Output-Pipeline')
+		(error, debug) = message.parse_error()
+		self.log.debug('Error-Details: #%u: %s', error.code, debug)

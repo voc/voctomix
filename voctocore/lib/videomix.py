@@ -50,8 +50,12 @@ class VideoMix(object):
 		self.log.debug('Creating Mixing-Pipeline:\n%s', pipeline)
 		self.mixingPipeline = Gst.parse_launch(pipeline)
 
-		self.log.debug('Initializing Mixer-State')
+		self.log.debug('Binding Error & End-of-Stream-Signal on Mixing-Pipeline')
+		self.mixingPipeline.bus.add_signal_watch()
+		self.mixingPipeline.bus.connect("message::eos", self.on_eos)
+		self.mixingPipeline.bus.connect("message::error", self.on_error)
 
+		self.log.debug('Initializing Mixer-State')
 		self.compositeMode = CompositeModes.fullscreen
 		self.sourceA = 0
 		self.sourceB = 1
@@ -167,3 +171,11 @@ class VideoMix(object):
 	def setCompositeMode(self, mode):
 		self.compositeMode = mode
 		self.updateMixerState()
+
+	def on_eos(self, bus, message):
+		self.log.debug('Received End-of-Stream-Signal on Mixing-Pipeline')
+
+	def on_error(self, bus, message):
+		self.log.debug('Received Error-Signal on Mixing-Pipeline')
+		(error, debug) = message.parse_error()
+		self.log.debug('Error-Details: #%u: %s', error.code, debug)
