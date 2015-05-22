@@ -5,8 +5,6 @@ from gi.repository import GObject
 from lib.config import Config
 
 class TCPSingleConnection(object):
-	log = logging.getLogger('TCPSingleConnection')
-
 	def __init__(self, port):
 		if not hasattr(self, 'log'):
 			self.log = logging.getLogger('TCPMultiConnection')
