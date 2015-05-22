@@ -36,10 +36,6 @@ class TCPMultiConnection(object):
 
 		return True
 
-	def close_connection(self, conn, addr=None):
-		if addr is None:
-			addr = conn.getpeername()
-
+	def close_connection(self, conn):
 		self.currentConnections.remove(conn)
-		self.log.info('Disconnected Receiver %s', addr)
 		self.log.info('Now %u Receiver connected', len(self.currentConnections))

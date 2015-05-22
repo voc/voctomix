@@ -48,6 +48,6 @@ class AVRawOutput(TCPMultiConnection):
 		def on_disconnect(multifdsink, fileno):
 			if fileno == conn.fileno():
 				self.log.debug('fd %u removed from multifdsink', fileno)
-				self.close_connection(conn, addr)
+				self.close_connection(conn)
 
 		fdsink.connect('client-fd-removed', on_disconnect)

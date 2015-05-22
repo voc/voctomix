@@ -51,7 +51,7 @@ class AVPreviewOutput(TCPMultiConnection):
 		self.receiverPipeline = Gst.parse_launch(pipeline)
 		self.receiverPipeline.set_state(Gst.State.PLAYING)
 
-	def on_accepted(self, conn, addr):
+	def on_accepted(self, conn):
 		self.log.debug('Adding fd %u to multifdsink', conn.fileno())
 		fdsink = self.receiverPipeline.get_by_name('fd')
 		fdsink.emit('add', conn.fileno())
@@ -59,6 +59,6 @@ class AVPreviewOutput(TCPMultiConnection):
 		def on_disconnect(multifdsink, fileno):
 			if fileno == conn.fileno():
 				self.log.debug('fd %u removed from multifdsink', fileno)
-				self.close_connection(conn, addr)
+				self.close_connection(conn)
 
 		fdsink.connect('client-fd-removed', on_disconnect)
