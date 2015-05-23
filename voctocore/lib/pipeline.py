@@ -7,6 +7,7 @@ from lib.config import Config
 from lib.avsource import AVSource
 from lib.avrawoutput import AVRawOutput
 from lib.avpreviewoutput import AVPreviewOutput
+from lib.backgroundsource import BackgroundSource
 from lib.videomix import VideoMix
 from lib.audiomix import AudioMix
 
@@ -55,6 +56,9 @@ class Pipeline(object):
 
 		self.log.info('Creating Videmixer')
 		self.amix = AudioMix()
+
+		port = 16000
+		self.bgsrc = BackgroundSource(port)
 
 		port = 11000
 		self.log.info('Creating Mixer-Output at tcp-port %u', port)

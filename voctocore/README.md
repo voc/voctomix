@@ -1,6 +1,8 @@
 # Server-Pipeline Structure
 ````
-                       /-> VideoMix
+16000 BackgroundSource
+                      \
+                       --> VideoMix
                       /             \
                      /               \    /-> StreamBlanker -> StreamOutputPort 15000
                     /                 ------> OutputPort 11000

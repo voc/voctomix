@@ -26,6 +26,10 @@ class VideoMix(object):
 			queue !
 			tee name=tee
 
+			intervideosrc channel=mixer_background !
+			{caps} !
+			mix.
+
 			tee. ! queue ! intervideosink channel=video_mix_out
 		""".format(
 			caps=self.caps
@@ -63,6 +67,9 @@ class VideoMix(object):
 		self.sourceB = 1
 		self.updateMixerState()
 
+		bgMixerpad = self.mixingPipeline.get_by_name('mix').get_static_pad('sink_0')
+		bgMixerpad.set_property('zorder', 0)
+
 		self.log.debug('Launching Mixing-Pipeline')
 		self.mixingPipeline.set_state(Gst.State.PLAYING)
 
@@ -87,6 +94,12 @@ class VideoMix(object):
 		elif self.compositeMode == CompositeModes.picture_in_picture:
 			self.updateMixerStatePictureInPicture()
 
+	def getMixerpadAndCapsfilter(self, idx):
+		# mixerpad 0 = background
+		mixerpad = self.mixingPipeline.get_by_name('mix').get_static_pad('sink_%u' % (idx+1))
+		capsfilter = self.mixingPipeline.get_by_name('caps_%u' % idx)
+		return mixerpad, capsfilter
+
 	def updateMixerStateFullscreen(self):
 		self.log.info('Updating Mixer-State for Fullscreen-Composition')
 
@@ -94,15 +107,15 @@ class VideoMix(object):
 
 		for idx, name in enumerate(self.names):
 			alpha = int(idx == self.sourceA)
+			mixerpad, capsfilter = self.getMixerpadAndCapsfilter(idx)
 
-			self.log.debug('Setting Mixerpad %u to x/y=0 and alpha=%0.2f', idx, alpha)
-			mixerpad = self.mixingPipeline.get_by_name('mix').get_static_pad('sink_%u' % idx)
-			mixerpad.set_property('alpha', alpha )
+			self.log.debug('Setting Mixerpad %u to x/y=0 and alpha=%0.2f, zorder=%u', idx, alpha, 1)
+			mixerpad.set_property('alpha', alpha)
 			mixerpad.set_property('xpos', 0)
 			mixerpad.set_property('ypos', 0)
+			mixerpad.set_property('zorder', 1)
 
 			self.log.debug('Resetting Scaler %u to non-scaling', idx)
-			capsfilter = self.mixingPipeline.get_by_name('caps_%u' % idx)
 			capsfilter.set_property('caps', noScaleCaps)
 
 	def updateMixerStateSideBySideEqual(self):
@@ -129,25 +142,26 @@ class VideoMix(object):
 		noScaleCaps = Gst.Caps.from_string('video/x-raw')
 
 		for idx, name in enumerate(self.names):
-			mixerpad = self.mixingPipeline.get_by_name('mix').get_static_pad('sink_%u' % idx)
-			capsfilter = self.mixingPipeline.get_by_name('caps_%u' % idx)
+			mixerpad, capsfilter = self.getMixerpadAndCapsfilter(idx)
 
 			if idx == self.sourceA:
 				mixerpad.set_property('alpha', 1)
 				mixerpad.set_property('xpos', xa)
 				mixerpad.set_property('ypos', y)
+				mixerpad.set_property('zorder', 1)
 				capsfilter.set_property('caps', scaleCaps)
 
-				self.log.debug('Setting Mixerpad %u to x/y=%u/%u and alpha=%0.2f', idx, xa, y, 1)
+				self.log.debug('Setting Mixerpad %u to x/y=%u/%u and alpha=%0.2f, zorder=%u', idx, xa, y, 1, 1)
 				self.log.debug('Setting Scaler %u to %u/%u', idx, targetWidth, targetHeight)
 
 			elif idx == self.sourceB:
 				mixerpad.set_property('alpha', 1)
 				mixerpad.set_property('xpos', xb)
 				mixerpad.set_property('ypos', y)
+				mixerpad.set_property('zorder', 1)
 				capsfilter.set_property('caps', scaleCaps)
 
-				self.log.debug('Setting Mixerpad %u to x/y=%u/%u and alpha=%0.2f', idx, xb, y, 1)
+				self.log.debug('Setting Mixerpad %u to x/y=%u/%u and alpha=%0.2f, zorder=%u', idx, xb, y, 1, 1)
 				self.log.debug('Setting Scaler %u to %u/%u', idx, targetWidth, targetHeight)
 
 			else:
@@ -210,27 +224,26 @@ class VideoMix(object):
 		noScaleCaps = Gst.Caps.from_string('video/x-raw')
 
 		for idx, name in enumerate(self.names):
-			mixerpad = self.mixingPipeline.get_by_name('mix').get_static_pad('sink_%u' % idx)
-			capsfilter = self.mixingPipeline.get_by_name('caps_%u' % idx)
+			mixerpad, capsfilter = self.getMixerpadAndCapsfilter(idx)
 
 			if idx == self.sourceA:
 				mixerpad.set_property('alpha', 1)
 				mixerpad.set_property('xpos', apos[1])
 				mixerpad.set_property('ypos', apos[1])
-				mixerpad.set_property('zorder', 0)
+				mixerpad.set_property('zorder', 1)
 				capsfilter.set_property('caps', aCaps)
 
-				self.log.debug('Setting Mixerpad %u to x/y=%u/%u and alpha=%0.2f, zorder=%u', idx, apos[0], apos[1], 1, 0)
+				self.log.debug('Setting Mixerpad %u to x/y=%u/%u and alpha=%0.2f, zorder=%u', idx, apos[0], apos[1], 1, 1)
 				self.log.debug('Setting Scaler %u to %u/%u', idx, asize[0], asize[1])
 
 			elif idx == self.sourceB:
 				mixerpad.set_property('alpha', 1)
 				mixerpad.set_property('xpos', bpos[0])
 				mixerpad.set_property('ypos', bpos[1])
-				mixerpad.set_property('zorder', 1)
+				mixerpad.set_property('zorder', 2)
 				capsfilter.set_property('caps', bCaps)
 
-				self.log.debug('Setting Mixerpad %u to x/y=%u/%u, alpha=%0.2f, zorder=%u', idx, bpos[0], bpos[1], 1, 1)
+				self.log.debug('Setting Mixerpad %u to x/y=%u/%u, alpha=%0.2f, zorder=%u', idx, bpos[0], bpos[1], 1, 2)
 				self.log.debug('Setting Scaler %u to %u/%u', idx, bsize[0], bsize[1])
 
 			else:
@@ -272,27 +285,26 @@ class VideoMix(object):
 		noScaleCaps = Gst.Caps.from_string('video/x-raw')
 
 		for idx, name in enumerate(self.names):
-			mixerpad = self.mixingPipeline.get_by_name('mix').get_static_pad('sink_%u' % idx)
-			capsfilter = self.mixingPipeline.get_by_name('caps_%u' % idx)
+			mixerpad, capsfilter = self.getMixerpadAndCapsfilter(idx)
 
 			if idx == self.sourceA:
 				mixerpad.set_property('alpha', 1)
 				mixerpad.set_property('xpos', 0)
 				mixerpad.set_property('ypos', 0)
-				mixerpad.set_property('zorder', 0)
+				mixerpad.set_property('zorder', 1)
 				capsfilter.set_property('caps', noScaleCaps)
 
-				self.log.debug('Setting Mixerpad %u to x/y=%u/%u and alpha=%0.2f, zorder=%u', idx, 0, 0, 1, 0)
+				self.log.debug('Setting Mixerpad %u to x/y=%u/%u and alpha=%0.2f, zorder=%u', idx, 0, 0, 1, 1)
 				self.log.debug('Resetting Scaler %u to non-scaling', idx)
 
 			elif idx == self.sourceB:
 				mixerpad.set_property('alpha', 1)
 				mixerpad.set_property('xpos', pippos[0])
 				mixerpad.set_property('ypos', pippos[1])
-				mixerpad.set_property('zorder', 1)
+				mixerpad.set_property('zorder', 2)
 				capsfilter.set_property('caps', scaleCaps)
 
-				self.log.debug('Setting Mixerpad %u to x/y=%u/%u, alpha=%0.2f, zorder=%u', idx, pippos[0], pippos[1], 1, 1)
+				self.log.debug('Setting Mixerpad %u to x/y=%u/%u, alpha=%0.2f, zorder=%u', idx, pippos[0], pippos[1], 1, 2)
 				self.log.debug('Setting Scaler %u to %u/%u', idx, pipsize[0], pipsize[1])
 
 			else:
