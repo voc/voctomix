@@ -64,6 +64,14 @@ class VideoMix(object):
 		self.log.debug('Launching Mixing-Pipeline')
 		self.mixingPipeline.set_state(Gst.State.PLAYING)
 
+	def getInputVideoSize(self):
+		caps = Gst.Caps.from_string(self.caps)
+		struct = caps.get_structure(0)
+		_, width = struct.get_int('width')
+		_, height = struct.get_int('height')
+
+		return width, height
+
 	def updateMixerState(self):
 		if self.compositeMode == CompositeModes.fullscreen:
 			self.updateMixerStateFullscreen()
@@ -89,14 +97,6 @@ class VideoMix(object):
 			capsfilter = self.mixingPipeline.get_by_name('caps_%u' % idx)
 			capsfilter.set_property('caps', noScaleCaps)
 
-	def getInputVideoSize(self):
-		caps = Gst.Caps.from_string(self.caps)
-		struct = caps.get_structure(0)
-		_, width = struct.get_int('width')
-		_, height = struct.get_int('height')
-
-		return width, height
-
 	def updateMixerStateSideBySideEqual(self):
 		self.log.info('Updating Mixer-State for Side-by-side-Equal-Composition')
 
@@ -108,7 +108,7 @@ class VideoMix(object):
 		targetWidth = int((width - gutter) / 2)
 		targetHeight = int(targetWidth / width * height)
 
-		ycenter = (height - targetHeight) / 2
+		y = (height - targetHeight) / 2
 		xa = 0
 		xb = width - targetWidth
 
@@ -117,40 +117,34 @@ class VideoMix(object):
 
 		for idx, name in enumerate(self.names):
 			mixerpad = self.mixingPipeline.get_by_name('mix').get_static_pad('sink_%u' % idx)
+			capsfilter = self.mixingPipeline.get_by_name('caps_%u' % idx)
 
 			if idx == self.sourceA:
-				x = xa
-				y = ycenter
-				caps = scaleCaps
-				alpha = 1
+				mixerpad.set_property('alpha', 1)
+				mixerpad.set_property('xpos', xa)
+				mixerpad.set_property('ypos', y)
+				capsfilter.set_property('caps', scaleCaps)
 
-				self.log.debug('Setting Mixerpad %u to x/y=%u/%u and alpha=%0.2f', idx, x, y, alpha)
+				self.log.debug('Setting Mixerpad %u to x/y=%u/%u and alpha=%0.2f', idx, xa, y, 1)
 				self.log.debug('Setting Scaler %u to %u/%u', idx, targetWidth, targetHeight)
 
 			elif idx == self.sourceB:
-				x = xb
-				y = ycenter
-				caps = scaleCaps
-				alpha = 1
+				mixerpad.set_property('alpha', 1)
+				mixerpad.set_property('xpos', xb)
+				mixerpad.set_property('ypos', y)
+				capsfilter.set_property('caps', scaleCaps)
 
-				self.log.debug('Setting Mixerpad %u to x/y=%u/%u and alpha=%0.2f', idx, x, y, alpha)
+				self.log.debug('Setting Mixerpad %u to x/y=%u/%u and alpha=%0.2f', idx, xb, y, 1)
 				self.log.debug('Setting Scaler %u to %u/%u', idx, targetWidth, targetHeight)
 
 			else:
-				x = 0
-				y = 0
-				caps = noScaleCaps
-				alpha = 0
+				mixerpad.set_property('alpha', 0)
+				mixerpad.set_property('xpos', 0)
+				mixerpad.set_property('ypos', 0)
+				capsfilter.set_property('caps', noScaleCaps)
 
-				self.log.debug('Setting Mixerpad %u to x/y=%u/%u and alpha=%0.2f', idx, x, y, alpha)
+				self.log.debug('Setting Mixerpad %u to x/y=%u/%u and alpha=%0.2f', idx, 0, 0, 0)
 				self.log.debug('Resetting Scaler %u to non-scaling', idx)
-
-			mixerpad.set_property('alpha', alpha)
-			mixerpad.set_property('xpos', x)
-			mixerpad.set_property('ypos', y)
-
-			capsfilter = self.mixingPipeline.get_by_name('caps_%u' % idx)
-			capsfilter.set_property('caps', caps)
 
 	def setVideoSourceA(self, source):
 		# swap if required
