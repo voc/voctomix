@@ -1,4 +1,7 @@
 while true; do
+	./set-composite-side-by-side-preview.sh
+	sleep 10
+	./set-video-cam2.sh
 	sleep 10
 	./set-composite-side-by-side-equal.sh
 	sleep 10

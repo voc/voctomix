@@ -8,6 +8,7 @@ from lib.config import Config
 class CompositeModes(Enum):
 	fullscreen = 0
 	side_by_side_equal = 1
+	side_by_side_preview = 2
 
 class VideoMix(object):
 	log = logging.getLogger('VideoMix')
@@ -76,8 +77,11 @@ class VideoMix(object):
 		if self.compositeMode == CompositeModes.fullscreen:
 			self.updateMixerStateFullscreen()
 
-		if self.compositeMode == CompositeModes.side_by_side_equal:
+		elif self.compositeMode == CompositeModes.side_by_side_equal:
 			self.updateMixerStateSideBySideEqual()
+
+		elif self.compositeMode == CompositeModes.side_by_side_preview:
+			self.updateMixerStateSideBySidePreview()
 
 	def updateMixerStateFullscreen(self):
 		self.log.info('Updating Mixer-State for Fullscreen-Composition')
@@ -141,6 +145,89 @@ class VideoMix(object):
 
 				self.log.debug('Setting Mixerpad %u to x/y=%u/%u and alpha=%0.2f', idx, xb, y, 1)
 				self.log.debug('Setting Scaler %u to %u/%u', idx, targetWidth, targetHeight)
+
+			else:
+				mixerpad.set_property('alpha', 0)
+				mixerpad.set_property('xpos', 0)
+				mixerpad.set_property('ypos', 0)
+				capsfilter.set_property('caps', noScaleCaps)
+
+				self.log.debug('Setting Mixerpad %u to x/y=%u/%u and alpha=%0.2f', idx, 0, 0, 0)
+				self.log.debug('Resetting Scaler %u to non-scaling', idx)
+
+	def updateMixerStateSideBySidePreview(self):
+		self.log.info('Updating Mixer-State for Side-by-side-Preview-Composition')
+
+		width, height = self.getInputVideoSize()
+		self.log.debug('Video-Size parsed as %ux%u', width, height)
+
+		try:
+			asize = [int(i) for i in Config.get('side-by-side-preview', 'asize').split('x', 1)]
+			self.log.debug('A-Video-Size configured to %ux%u', asize[0], asize[1])
+		except:
+			asize = [
+				int(width / 1.25), # 80%
+				int(height / 1.25) # 80%
+			]
+			self.log.debug('A-Video-Size calculated to %ux%u', asize[0], asize[1])
+
+		try:
+			apos = [int(i) for i in Config.get('side-by-side-preview', 'apos').split('/', 1)]
+			self.log.debug('B-Video-Position configured to %u/%u', apos[0], apos[1])
+		except:
+			apos = [
+				int(width / 100), # 1%
+				int(width / 100)  # 1%
+			]
+			self.log.debug('B-Video-Position calculated to %u/%u', apos[0], apos[1])
+
+		try:
+			bsize = [int(i) for i in Config.get('side-by-side-preview', 'bsize').split('x', 1)]
+			self.log.debug('B-Video-Size configured to %ux%u', bsize[0], bsize[1])
+		except:
+			bsize = [
+				int(width / 4), # 25%
+				int(height / 4) # 25%
+			]
+			self.log.debug('B-Video-Size calculated to %ux%u', bsize[0], bsize[1])
+
+		try:
+			bpos = [int(i) for i in Config.get('side-by-side-preview', 'bpos').split('/', 1)]
+			self.log.debug('B-Video-Position configured to %u/%u', bpos[0], bpos[1])
+		except:
+			bpos = [
+				width - int(width / 100) - bsize[0],
+				height - int(width / 100) - bsize[1]  # 1%
+			]
+			self.log.debug('B-Video-Position calculated to %u/%u', bpos[0], bpos[1])
+
+		aCaps = Gst.Caps.from_string('video/x-raw,width=%u,height=%u' % tuple(asize))
+		bCaps = Gst.Caps.from_string('video/x-raw,width=%u,height=%u' % tuple(bsize))
+		noScaleCaps = Gst.Caps.from_string('video/x-raw')
+
+		for idx, name in enumerate(self.names):
+			mixerpad = self.mixingPipeline.get_by_name('mix').get_static_pad('sink_%u' % idx)
+			capsfilter = self.mixingPipeline.get_by_name('caps_%u' % idx)
+
+			if idx == self.sourceA:
+				mixerpad.set_property('alpha', 1)
+				mixerpad.set_property('xpos', apos[1])
+				mixerpad.set_property('ypos', apos[1])
+				mixerpad.set_property('zorder', 0)
+				capsfilter.set_property('caps', aCaps)
+
+				self.log.debug('Setting Mixerpad %u to x/y=%u/%u and alpha=%0.2f, zorder=%u', idx, apos[0], apos[1], 1, 1)
+				self.log.debug('Setting Scaler %u to %u/%u', idx, asize[0], asize[1])
+
+			elif idx == self.sourceB:
+				mixerpad.set_property('alpha', 1)
+				mixerpad.set_property('xpos', bpos[0])
+				mixerpad.set_property('ypos', bpos[1])
+				mixerpad.set_property('zorder', 1)
+				capsfilter.set_property('caps', bCaps)
+
+				self.log.debug('Setting Mixerpad %u to x/y=%u/%u, alpha=%0.2f, zorder=%u', idx, bpos[0], bpos[1], 1, 0)
+				self.log.debug('Setting Scaler %u to %u/%u', idx, bsize[0], bsize[1])
 
 			else:
 				mixerpad.set_property('alpha', 0)
