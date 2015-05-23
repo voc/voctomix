@@ -9,6 +9,7 @@ class CompositeModes(Enum):
 	fullscreen = 0
 	side_by_side_equal = 1
 	side_by_side_preview = 2
+	picture_in_picture = 3
 
 class VideoMix(object):
 	log = logging.getLogger('VideoMix')
@@ -82,6 +83,9 @@ class VideoMix(object):
 
 		elif self.compositeMode == CompositeModes.side_by_side_preview:
 			self.updateMixerStateSideBySidePreview()
+
+		elif self.compositeMode == CompositeModes.picture_in_picture:
+			self.updateMixerStatePictureInPicture()
 
 	def updateMixerStateFullscreen(self):
 		self.log.info('Updating Mixer-State for Fullscreen-Composition')
@@ -228,6 +232,68 @@ class VideoMix(object):
 
 				self.log.debug('Setting Mixerpad %u to x/y=%u/%u, alpha=%0.2f, zorder=%u', idx, bpos[0], bpos[1], 1, 0)
 				self.log.debug('Setting Scaler %u to %u/%u', idx, bsize[0], bsize[1])
+
+			else:
+				mixerpad.set_property('alpha', 0)
+				mixerpad.set_property('xpos', 0)
+				mixerpad.set_property('ypos', 0)
+				capsfilter.set_property('caps', noScaleCaps)
+
+				self.log.debug('Setting Mixerpad %u to x/y=%u/%u and alpha=%0.2f', idx, 0, 0, 0)
+				self.log.debug('Resetting Scaler %u to non-scaling', idx)
+
+	def updateMixerStatePictureInPicture(self):
+		self.log.info('Updating Mixer-State for Picture-in-Picture-Composition')
+
+		width, height = self.getInputVideoSize()
+		self.log.debug('Video-Size parsed as %ux%u', width, height)
+
+		try:
+			pipsize = [int(i) for i in Config.get('picture-in-picture', 'pipsize').split('x', 1)]
+			self.log.debug('PIP-Size configured to %ux%u', pipsize[0], pipsize[1])
+		except:
+			pipsize = [
+				int(width / 4), # 25%
+				int(height / 4) # 25%
+			]
+			self.log.debug('PIP-Size calculated to %ux%u', pipsize[0], pipsize[1])
+
+		try:
+			pippos = [int(i) for i in Config.get('picture-in-picture', 'pippos').split('/', 1)]
+			self.log.debug('PIP-Position configured to %u/%u', pippos[0], pippos[1])
+		except:
+			pippos = [
+				width - pipsize[0] - int(width / 100), # 1%
+				height - pipsize[1] -int(width / 100)  # 1%
+			]
+			self.log.debug('PIP-Position calculated to %u/%u', pippos[0], pippos[1])
+
+		scaleCaps = Gst.Caps.from_string('video/x-raw,width=%u,height=%u' % tuple(pipsize))
+		noScaleCaps = Gst.Caps.from_string('video/x-raw')
+
+		for idx, name in enumerate(self.names):
+			mixerpad = self.mixingPipeline.get_by_name('mix').get_static_pad('sink_%u' % idx)
+			capsfilter = self.mixingPipeline.get_by_name('caps_%u' % idx)
+
+			if idx == self.sourceA:
+				mixerpad.set_property('alpha', 1)
+				mixerpad.set_property('xpos', 0)
+				mixerpad.set_property('ypos', 0)
+				mixerpad.set_property('zorder', 0)
+				capsfilter.set_property('caps', noScaleCaps)
+
+				self.log.debug('Setting Mixerpad %u to x/y=%u/%u and alpha=%0.2f, zorder=%u', idx, 0, 0, 1, 0)
+				self.log.debug('Resetting Scaler %u to non-scaling', idx)
+
+			elif idx == self.sourceB:
+				mixerpad.set_property('alpha', 1)
+				mixerpad.set_property('xpos', pippos[0])
+				mixerpad.set_property('ypos', pippos[1])
+				mixerpad.set_property('zorder', 1)
+				capsfilter.set_property('caps', scaleCaps)
+
+				self.log.debug('Setting Mixerpad %u to x/y=%u/%u, alpha=%0.2f, zorder=%u', idx, pippos[0], pippos[1], 1, 1)
+				self.log.debug('Setting Scaler %u to %u/%u', idx, pipsize[0], pipsize[1])
 
 			else:
 				mixerpad.set_property('alpha', 0)
