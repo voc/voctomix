@@ -220,7 +220,7 @@ class VideoMix(object):
 				mixerpad.set_property('zorder', 0)
 				capsfilter.set_property('caps', aCaps)
 
-				self.log.debug('Setting Mixerpad %u to x/y=%u/%u and alpha=%0.2f, zorder=%u', idx, apos[0], apos[1], 1, 1)
+				self.log.debug('Setting Mixerpad %u to x/y=%u/%u and alpha=%0.2f, zorder=%u', idx, apos[0], apos[1], 1, 0)
 				self.log.debug('Setting Scaler %u to %u/%u', idx, asize[0], asize[1])
 
 			elif idx == self.sourceB:
@@ -230,7 +230,7 @@ class VideoMix(object):
 				mixerpad.set_property('zorder', 1)
 				capsfilter.set_property('caps', bCaps)
 
-				self.log.debug('Setting Mixerpad %u to x/y=%u/%u, alpha=%0.2f, zorder=%u', idx, bpos[0], bpos[1], 1, 0)
+				self.log.debug('Setting Mixerpad %u to x/y=%u/%u, alpha=%0.2f, zorder=%u', idx, bpos[0], bpos[1], 1, 1)
 				self.log.debug('Setting Scaler %u to %u/%u', idx, bsize[0], bsize[1])
 
 			else:
