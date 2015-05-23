@@ -101,9 +101,14 @@ class VideoMix(object):
 		self.log.info('Updating Mixer-State for Side-by-side-Equal-Composition')
 
 		width, height = self.getInputVideoSize()
-		gutter = int(width / 100)
+		self.log.debug('Video-Size parsed as %ux%u', width, height)
 
-		self.log.debug('Video-Size parsed as %u/%u, Gutter calculated to %upx', width, height, gutter)
+		try:
+			gutter = Config.getint('side-by-side-equal', 'gutter')
+			self.log.debug('Gutter configured to %u', gutter)
+		except:
+			gutter = int(width / 100)
+			self.log.debug('Gutter calculated to %u', gutter)
 
 		targetWidth = int((width - gutter) / 2)
 		targetHeight = int(targetWidth / width * height)
