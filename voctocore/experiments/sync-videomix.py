@@ -40,8 +40,22 @@ class Example:
 		)
 
 		self.pipeline = Gst.parse_launch(pipeline)
-		sig = self.pipeline.get_by_name('sig')
-		sig.connect('handoff', self.handoff)
+
+		# with sync=False changes to videomixer & scaler are performed
+		# from the main thread. In the frame-images it becomes clear, that
+		# sometimes not all changes are applied before a frame is pushed
+		# through the mixer, and so there are "half modified" frames where
+		# some pieces are missing, the zorder or the size of one video is
+		# incorrect
+		# with sync=True all changes are made from the streaming-thread
+		# that drives the videomixer and the following elements, so they
+		# are always completed before the mixer processes the next frame
+		sync = True
+		if sync:
+			sig = self.pipeline.get_by_name('sig')
+			sig.connect('handoff', self.reconfigure)
+		else:
+			GLib.timeout_add(1/25 * 1000, self.reconfigure, 0, 0)
 
 		self.pad0 = self.pipeline.get_by_name('mix').get_static_pad('sink_0')
 		self.pad1 = self.pipeline.get_by_name('mix').get_static_pad('sink_1')
@@ -51,8 +65,8 @@ class Example:
 
 		self.state = False
 
-	def handoff(self, object, buffer):
-
+	def reconfigure(self, object, buffer):
+		print("reconfigure!")
 		if self.state:
 			padA = self.pad0
 			padB = self.pad1
@@ -68,15 +82,16 @@ class Example:
 		padA.set_property('ypos', 10)
 		padA.set_property('alpha', 1.0)
 		padA.set_property('zorder', 1)
-		capsA.set_property('caps', Gst.Caps.from_string('video/x-raw,width=400,height=225'))
+		capsA.set_property('caps', Gst.Caps.from_string('video/x-raw,width=320,height=180'))
 
-		padB.set_property('xpos', 390)
-		padB.set_property('ypos', 215)
+		padB.set_property('xpos', 310)
+		padB.set_property('ypos', 170)
 		padB.set_property('alpha', 1.0)
 		padB.set_property('zorder', 2)
-		capsB.set_property('caps', Gst.Caps.from_string('video/x-raw,width=400,height=225'))
+		capsB.set_property('caps', Gst.Caps.from_string('video/x-raw,width=480,height=270'))
 
 		self.state = not self.state
+		return True
 
 	def run(self):
 		self.pipeline.set_state(Gst.State.PLAYING)
