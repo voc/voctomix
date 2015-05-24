@@ -11,6 +11,19 @@ class CompositeModes(Enum):
 	side_by_side_preview = 2
 	picture_in_picture = 3
 
+class PadState(object):
+	noScaleCaps = Gst.Caps.from_string('video/x-raw')
+
+	def __init__(self):
+		self.reset()
+
+	def reset(self):
+		self.alpha = 1.0
+		self.xpos = 0
+		self.ypos = 0
+		self.zorder = 1
+		self.scaleCaps = PadState.noScaleCaps
+
 class VideoMix(object):
 	log = logging.getLogger('VideoMix')
 
@@ -23,6 +36,7 @@ class VideoMix(object):
 		pipeline = """
 			videomixer name=mix !
 			{caps} !
+			identity name=sig !
 			queue !
 			tee name=tee
 
@@ -61,11 +75,21 @@ class VideoMix(object):
 		self.mixingPipeline.bus.connect("message::eos", self.on_eos)
 		self.mixingPipeline.bus.connect("message::error", self.on_error)
 
+		self.log.debug('Binding Handoff-Handler for Synchronus mixer manipulation')
+		sig = self.mixingPipeline.get_by_name('sig')
+		sig.connect('handoff', self.on_handoff)
+
+		self.padStateDirty = False
+		self.padState = list()
+		for idx, name in enumerate(self.names):
+			self.padState.append(PadState())
+
 		self.log.debug('Initializing Mixer-State')
 		self.compositeMode = CompositeModes.fullscreen
 		self.sourceA = 0
 		self.sourceB = 1
-		self.updateMixerState()
+		self.recalculateMixerState()
+		self.applyMixerState()
 
 		bgMixerpad = self.mixingPipeline.get_by_name('mix').get_static_pad('sink_0')
 		bgMixerpad.set_property('zorder', 0)
@@ -81,44 +105,32 @@ class VideoMix(object):
 
 		return width, height
 
-	def updateMixerState(self):
+	def recalculateMixerState(self):
 		if self.compositeMode == CompositeModes.fullscreen:
-			self.updateMixerStateFullscreen()
+			self.recalculateMixerStateFullscreen()
 
 		elif self.compositeMode == CompositeModes.side_by_side_equal:
-			self.updateMixerStateSideBySideEqual()
+			self.recalculateMixerStateSideBySideEqual()
 
 		elif self.compositeMode == CompositeModes.side_by_side_preview:
-			self.updateMixerStateSideBySidePreview()
+			self.recalculateMixerStateSideBySidePreview()
 
 		elif self.compositeMode == CompositeModes.picture_in_picture:
-			self.updateMixerStatePictureInPicture()
+			self.recalculateMixerStatePictureInPicture()
 
-	def getMixerpadAndCapsfilter(self, idx):
-		# mixerpad 0 = background
-		mixerpad = self.mixingPipeline.get_by_name('mix').get_static_pad('sink_%u' % (idx+1))
-		capsfilter = self.mixingPipeline.get_by_name('caps_%u' % idx)
-		return mixerpad, capsfilter
+		self.log.debug('Marking Pad-State as Dirty')
+		self.padStateDirty = True
 
-	def updateMixerStateFullscreen(self):
+	def recalculateMixerStateFullscreen(self):
 		self.log.info('Updating Mixer-State for Fullscreen-Composition')
 
-		noScaleCaps = Gst.Caps.from_string('video/x-raw')
-
 		for idx, name in enumerate(self.names):
-			alpha = int(idx == self.sourceA)
-			mixerpad, capsfilter = self.getMixerpadAndCapsfilter(idx)
+			pad = self.padState[idx]
 
-			self.log.debug('Setting Mixerpad %u to x/y=0 and alpha=%0.2f, zorder=%u', idx, alpha, 1)
-			mixerpad.set_property('alpha', alpha)
-			mixerpad.set_property('xpos', 0)
-			mixerpad.set_property('ypos', 0)
-			mixerpad.set_property('zorder', 1)
+			pad.reset()
+			pad.alpha = float(idx == self.sourceA)
 
-			self.log.debug('Resetting Scaler %u to non-scaling', idx)
-			capsfilter.set_property('caps', noScaleCaps)
-
-	def updateMixerStateSideBySideEqual(self):
+	def recalculateMixerStateSideBySideEqual(self):
 		self.log.info('Updating Mixer-State for Side-by-side-Equal-Composition')
 
 		width, height = self.getInputVideoSize()
@@ -139,41 +151,27 @@ class VideoMix(object):
 		xb = width - targetWidth
 
 		scaleCaps = Gst.Caps.from_string('video/x-raw,width=%u,height=%u' % (targetWidth, targetHeight))
-		noScaleCaps = Gst.Caps.from_string('video/x-raw')
 
 		for idx, name in enumerate(self.names):
-			mixerpad, capsfilter = self.getMixerpadAndCapsfilter(idx)
+			pad = self.padState[idx]
+			pad.reset()
 
 			if idx == self.sourceA:
-				mixerpad.set_property('alpha', 1)
-				mixerpad.set_property('xpos', xa)
-				mixerpad.set_property('ypos', y)
-				mixerpad.set_property('zorder', 1)
-				capsfilter.set_property('caps', scaleCaps)
-
-				self.log.debug('Setting Mixerpad %u to x/y=%u/%u and alpha=%0.2f, zorder=%u', idx, xa, y, 1, 1)
-				self.log.debug('Setting Scaler %u to %u/%u', idx, targetWidth, targetHeight)
+				pad.xpos = xa
+				pad.ypos = y
+				pad.zorder = 1
+				pad.scaleCaps = scaleCaps
 
 			elif idx == self.sourceB:
-				mixerpad.set_property('alpha', 1)
-				mixerpad.set_property('xpos', xb)
-				mixerpad.set_property('ypos', y)
-				mixerpad.set_property('zorder', 1)
-				capsfilter.set_property('caps', scaleCaps)
-
-				self.log.debug('Setting Mixerpad %u to x/y=%u/%u and alpha=%0.2f, zorder=%u', idx, xb, y, 1, 1)
-				self.log.debug('Setting Scaler %u to %u/%u', idx, targetWidth, targetHeight)
+				pad.xpos = xb
+				pad.ypos = y
+				pad.zorder = 2
+				pad.scaleCaps = scaleCaps
 
 			else:
-				mixerpad.set_property('alpha', 0)
-				mixerpad.set_property('xpos', 0)
-				mixerpad.set_property('ypos', 0)
-				capsfilter.set_property('caps', noScaleCaps)
+				pad.alpha = 0
 
-				self.log.debug('Setting Mixerpad %u to x/y=%u/%u and alpha=%0.2f', idx, 0, 0, 0)
-				self.log.debug('Resetting Scaler %u to non-scaling', idx)
-
-	def updateMixerStateSideBySidePreview(self):
+	def recalculateMixerStateSideBySidePreview(self):
 		self.log.info('Updating Mixer-State for Side-by-side-Preview-Composition')
 
 		width, height = self.getInputVideoSize()
@@ -221,41 +219,25 @@ class VideoMix(object):
 
 		aCaps = Gst.Caps.from_string('video/x-raw,width=%u,height=%u' % tuple(asize))
 		bCaps = Gst.Caps.from_string('video/x-raw,width=%u,height=%u' % tuple(bsize))
-		noScaleCaps = Gst.Caps.from_string('video/x-raw')
 
 		for idx, name in enumerate(self.names):
-			mixerpad, capsfilter = self.getMixerpadAndCapsfilter(idx)
+			pad = self.padState[idx]
+			pad.reset()
 
 			if idx == self.sourceA:
-				mixerpad.set_property('alpha', 1)
-				mixerpad.set_property('xpos', apos[1])
-				mixerpad.set_property('ypos', apos[1])
-				mixerpad.set_property('zorder', 1)
-				capsfilter.set_property('caps', aCaps)
-
-				self.log.debug('Setting Mixerpad %u to x/y=%u/%u and alpha=%0.2f, zorder=%u', idx, apos[0], apos[1], 1, 1)
-				self.log.debug('Setting Scaler %u to %u/%u', idx, asize[0], asize[1])
+				pad.xpos, pad.ypos = apos
+				pad.zorder = 1
+				pad.scaleCaps = aCaps
 
 			elif idx == self.sourceB:
-				mixerpad.set_property('alpha', 1)
-				mixerpad.set_property('xpos', bpos[0])
-				mixerpad.set_property('ypos', bpos[1])
-				mixerpad.set_property('zorder', 2)
-				capsfilter.set_property('caps', bCaps)
-
-				self.log.debug('Setting Mixerpad %u to x/y=%u/%u, alpha=%0.2f, zorder=%u', idx, bpos[0], bpos[1], 1, 2)
-				self.log.debug('Setting Scaler %u to %u/%u', idx, bsize[0], bsize[1])
+				pad.xpos, pad.ypos = bpos
+				pad.zorder = 2
+				pad.scaleCaps = bCaps
 
 			else:
-				mixerpad.set_property('alpha', 0)
-				mixerpad.set_property('xpos', 0)
-				mixerpad.set_property('ypos', 0)
-				capsfilter.set_property('caps', noScaleCaps)
+				pad.alpha = 0
 
-				self.log.debug('Setting Mixerpad %u to x/y=%u/%u and alpha=%0.2f', idx, 0, 0, 0)
-				self.log.debug('Resetting Scaler %u to non-scaling', idx)
-
-	def updateMixerStatePictureInPicture(self):
+	def recalculateMixerStatePictureInPicture(self):
 		self.log.info('Updating Mixer-State for Picture-in-Picture-Composition')
 
 		width, height = self.getInputVideoSize()
@@ -285,56 +267,41 @@ class VideoMix(object):
 		noScaleCaps = Gst.Caps.from_string('video/x-raw')
 
 		for idx, name in enumerate(self.names):
-			mixerpad, capsfilter = self.getMixerpadAndCapsfilter(idx)
+			pad = self.padState[idx]
+			pad.reset()
 
 			if idx == self.sourceA:
-				mixerpad.set_property('alpha', 1)
-				mixerpad.set_property('xpos', 0)
-				mixerpad.set_property('ypos', 0)
-				mixerpad.set_property('zorder', 1)
-				capsfilter.set_property('caps', noScaleCaps)
-
-				self.log.debug('Setting Mixerpad %u to x/y=%u/%u and alpha=%0.2f, zorder=%u', idx, 0, 0, 1, 1)
-				self.log.debug('Resetting Scaler %u to non-scaling', idx)
-
+				pass
 			elif idx == self.sourceB:
-				mixerpad.set_property('alpha', 1)
-				mixerpad.set_property('xpos', pippos[0])
-				mixerpad.set_property('ypos', pippos[1])
-				mixerpad.set_property('zorder', 2)
-				capsfilter.set_property('caps', scaleCaps)
-
-				self.log.debug('Setting Mixerpad %u to x/y=%u/%u, alpha=%0.2f, zorder=%u', idx, pippos[0], pippos[1], 1, 2)
-				self.log.debug('Setting Scaler %u to %u/%u', idx, pipsize[0], pipsize[1])
+				pad.xpos, pad.ypos = pippos
+				pad.zorder = 2
+				pad.scaleCaps = scaleCaps
 
 			else:
-				mixerpad.set_property('alpha', 0)
-				mixerpad.set_property('xpos', 0)
-				mixerpad.set_property('ypos', 0)
-				capsfilter.set_property('caps', noScaleCaps)
+				pad.alpha = 0
 
-				self.log.debug('Setting Mixerpad %u to x/y=%u/%u and alpha=%0.2f', idx, 0, 0, 0)
-				self.log.debug('Resetting Scaler %u to non-scaling', idx)
+	def getMixerpadAndCapsfilter(self, idx):
+		# mixerpad 0 = background
+		mixerpad = self.mixingPipeline.get_by_name('mix').get_static_pad('sink_%u' % (idx+1))
+		capsfilter = self.mixingPipeline.get_by_name('caps_%u' % idx)
+		return mixerpad, capsfilter
 
-	def setVideoSourceA(self, source):
-		# swap if required
-		if self.sourceB == source:
-			self.sourceB = self.sourceA
+	def applyMixerState(self):
+		for idx, state in enumerate(self.padState):
+			mixerpad, capsfilter = self.getMixerpadAndCapsfilter(idx)
+			self.log.debug('Reconfiguring Mixerpad %u to x/y=%u/%u, alpha=%0.2f, zorder=%u', idx, state.xpos, state.ypos, state.alpha, state.zorder)
+			self.log.debug('Reconfiguring Capsfilter %u to %s', idx, state.scaleCaps.to_string())
+			mixerpad.set_property('xpos', state.xpos)
+			mixerpad.set_property('ypos', state.ypos)
+			mixerpad.set_property('alpha', state.alpha)
+			mixerpad.set_property('zorder', state.zorder)
+			capsfilter.set_property('caps', state.scaleCaps)
 
-		self.sourceA = source
-		self.updateMixerState()
-
-	def setVideoSourceB(self, source):
-		# swap if required
-		if self.sourceA == source:
-			self.sourceA = self.sourceB
-
-		self.sourceB = source
-		self.updateMixerState()
-
-	def setCompositeMode(self, mode):
-		self.compositeMode = mode
-		self.updateMixerState()
+	def on_handoff(self, object, buffer):
+		if self.padStateDirty:
+			self.padStateDirty = False
+			self.log.debug('[Streaming-Thread]: Pad-State is Dirty, applying new Mixer-State')
+			self.applyMixerState()
 
 	def on_eos(self, bus, message):
 		self.log.debug('Received End-of-Stream-Signal on Mixing-Pipeline')
@@ -343,3 +310,24 @@ class VideoMix(object):
 		self.log.debug('Received Error-Signal on Mixing-Pipeline')
 		(error, debug) = message.parse_error()
 		self.log.debug('Error-Details: #%u: %s', error.code, debug)
+
+
+	def setVideoSourceA(self, source):
+		# swap if required
+		if self.sourceB == source:
+			self.sourceB = self.sourceA
+
+		self.sourceA = source
+		self.recalculateMixerState()
+
+	def setVideoSourceB(self, source):
+		# swap if required
+		if self.sourceA == source:
+			self.sourceA = self.sourceB
+
+		self.sourceB = source
+		self.recalculateMixerState()
+
+	def setCompositeMode(self, mode):
+		self.compositeMode = mode
+		self.recalculateMixerState()
