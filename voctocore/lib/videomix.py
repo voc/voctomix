@@ -143,15 +143,15 @@ class VideoMix(object):
 			gutter = int(width / 100)
 			self.log.debug('Gutter calculated to %u', gutter)
 
+		targetWidth = int((width - gutter) / 2)
+		targetHeight = int(targetWidth / width * height)
+
 		try:
 			y = Config.getint('side-by-side-equal', 'ypos')
 			self.log.debug('Y-Pos configured to %u', y)
 		except:
 			y = (height - targetHeight) / 2
 			self.log.debug('Y-Pos calculated to %u', y)
-
-		targetWidth = int((width - gutter) / 2)
-		targetHeight = int(targetWidth / width * height)
 
 		xa = 0
 		xb = width - targetWidth
