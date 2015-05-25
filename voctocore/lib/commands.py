@@ -22,6 +22,9 @@ class ControlServerCommands():
 			raise IndexError("source %s unknown" % src_name_or_id)
 
 
+	def message(self, *args):
+		return True
+
 	def set_video_a(self, src_name_or_id):
 		src_id = self.decodeSourceName(src_name_or_id)
 		self.pipeline.vmix.setVideoSourceA(src_id)
