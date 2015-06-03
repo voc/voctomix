@@ -11,8 +11,8 @@ Gst.init([])
 class LoopSource(object):
 	def __init__(self):
 		pipeline = """
-			video/x-raw,format=I420,width=1920,height=1080,framerate=25/1,pixel-aspect-ratio=1/1 !
 			uridecodebin name=src uri=http://c3voc.mazdermind.de/bg.ts !
+			video/x-raw,format=I420,width=1900,height=1080,framerate=25/1,pixel-aspect-ratio=1/1 !
 			matroskamux !
 			tcpclientsink host=localhost port=16000
 		"""
