@@ -34,7 +34,7 @@ class VideoMix(object):
 		self.log.info('Configuring Mixer for %u Sources', len(self.names))
 
 		pipeline = """
-			videomixer name=mix !
+			compositor name=mix !
 			{caps} !
 			identity name=sig !
 			queue !
