@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import logging, socket
+import logging, socket, time
 from gi.repository import GObject
 
 from lib.config import Config
@@ -28,8 +28,9 @@ class TCPSingleConnection(object):
 		self.log.info("Incomming Connection from %s", addr)
 
 		if self.currentConnection is not None:
-			self.log.warn("Another Source is already connected")
-			return True
+			self.log.warn("Another Source is already connected, closing existing pipeline")
+			self.disconnect()
+			time.sleep(1)
 
 		self.on_accepted(conn, addr)
 		self.currentConnection = conn
