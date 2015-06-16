@@ -10,6 +10,7 @@ class ControlServerCommands():
 
 		self.pipeline = pipeline
 		self.sources = Config.getlist('mix', 'sources')
+		self.blankersources = Config.getlist('stream-blanker', 'sources')
 
 	def decodeSourceName(self, src_name_or_id):
 		if isinstance(src_name_or_id, str):
@@ -19,6 +20,16 @@ class ControlServerCommands():
 				raise IndexError("source %s unknown" % src_name_or_id)
 
 		if src_name_or_id < 0 or src_name_or_id >= len(self.sources):
+			raise IndexError("source %s unknown" % src_name_or_id)
+
+	def decodeBlankerSourceName(self, src_name_or_id):
+		if isinstance(src_name_or_id, str):
+			try:
+				return self.blankersources.index(src_name_or_id)
+			except Exception as e:
+				raise IndexError("source %s unknown" % src_name_or_id)
+
+		if src_name_or_id < 0 or src_name_or_id >= len(self.blankersources):
 			raise IndexError("source %s unknown" % src_name_or_id)
 
 
@@ -47,4 +58,13 @@ class ControlServerCommands():
 			raise KeyError("composite-mode %s unknown" % composite_mode)
 
 		self.pipeline.vmix.setCompositeMode(mode)
+		return True
+
+	def set_stream_blank(self, src_name_or_id):
+		src_id = self.decodeBlankerSourceName(src_name_or_id)
+		self.pipeline.streamblanker.setBlankSource(src_id)
+		return True
+
+	def set_stream_live(self):
+		self.pipeline.streamblanker.setBlankSource(None)
 		return True

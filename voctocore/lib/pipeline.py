@@ -11,6 +11,7 @@ from lib.avrawoutput import AVRawOutput
 from lib.avpreviewoutput import AVPreviewOutput
 from lib.videomix import VideoMix
 from lib.audiomix import AudioMix
+from lib.streamblanker import StreamBlanker
 
 class Pipeline(object):
 	"""mixing, streaming and encoding pipeline constuction and control"""
@@ -27,6 +28,7 @@ class Pipeline(object):
 		self.sources = []
 		self.mirrors = []
 		self.previews = []
+		self.sbsources = []
 
 		self.log.info('Creating %u Creating AVSources: %s', len(names), names)
 		for idx, name in enumerate(names):
@@ -59,16 +61,41 @@ class Pipeline(object):
 		self.amix = AudioMix()
 
 		port = 16000
-		self.log.info('Videomixer Background-Source-Port at tcp-port %u', port)
+		self.log.info('Creating Mixer-Background VSource at tcp-port %u', port)
 		self.bgsrc = VSource('background', port)
-
 
 		port = 11000
 		self.log.info('Creating Mixer-Output at tcp-port %u', port)
 		self.mixout = AVRawOutput('mix_out', port)
+
 
 		if Config.getboolean('previews', 'enabled'):
 			port = 12000
 			self.log.info('Creating Preview-Output for AVSource %s at tcp-port %u', name, port)
 
 			self.mixpreview = AVPreviewOutput('mix_preview', port)
+
+		if Config.getboolean('stream-blanker', 'enabled'):
+			names = Config.getlist('stream-blanker', 'sources')
+			if len(names) < 1:
+				raise RuntimeException("At least one StreamBlanker-Source must be configured or the StreamBlanker disabled!")
+			for idx, name in enumerate(names):
+				port = 17000 + idx
+				self.log.info('Creating StreamBlanker VSource %s at tcp-port %u', name, port)
+
+				source = VSource('%s_streamblanker' % name, port)
+				self.sbsources.append(source)
+
+			port = 18000
+			self.log.info('Creating StreamBlanker ASource at tcp-port %u', port)
+
+			source = ASource('streamblanker', port)
+			self.sbsources.append(source)
+
+
+		self.log.info('Creating StreamBlanker')
+		self.streamblanker = StreamBlanker()
+
+		port = 15000
+		self.log.info('Creating StreamBlanker-Output at tcp-port %u', port)
+		self.streamout = AVRawOutput('streamblanker_out', port)

@@ -54,6 +54,11 @@ class VideoMix(object):
 				tee. ! queue ! intervideosink channel=video_mix_preview
 			"""
 
+		if Config.getboolean('stream-blanker', 'enabled'):
+			pipeline += """
+				tee. ! queue ! intervideosink channel=video_mix_streamblanker
+			"""
+
 		for idx, name in enumerate(self.names):
 			pipeline += """
 				intervideosrc channel=video_{name}_mixer !
