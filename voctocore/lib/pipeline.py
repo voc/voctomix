@@ -55,11 +55,13 @@ class Pipeline(object):
 		self.log.info('Creating Videmixer')
 		self.vmix = VideoMix()
 
-		self.log.info('Creating Videmixer')
+		self.log.info('Creating Audiomixer')
 		self.amix = AudioMix()
 
 		port = 16000
+		self.log.info('Videomixer Background-Source-Port at tcp-port %u', port)
 		self.bgsrc = VSource('background', port)
+
 
 		port = 11000
 		self.log.info('Creating Mixer-Output at tcp-port %u', port)
