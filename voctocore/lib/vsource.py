@@ -5,19 +5,22 @@ from gi.repository import Gst
 from lib.config import Config
 from lib.tcpsingleconnection import TCPSingleConnection
 
-class BackgroundSource(TCPSingleConnection):
-	def __init__(self, port):
-		self.log = logging.getLogger('BackgroundSource')
+class VSource(TCPSingleConnection):
+	def __init__(self, name, port):
+		self.log = logging.getLogger('VSource['+name+']')
 		super().__init__(port)
+
+		self.name = name
 
 	def on_accepted(self, conn, addr):
 		pipeline = """
 			fdsrc fd={fd} !
 			matroskademux !
 			{vcaps} !
-			intervideosink channel=mixer_background
+			intervideosink channel=video_{name}
 		""".format(
 			fd=conn.fileno(),
+			name=self.name,
 			vcaps=Config.get('mix', 'videocaps')
 		)
 

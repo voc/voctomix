@@ -5,9 +5,10 @@ from gi.repository import Gst
 # import library components
 from lib.config import Config
 from lib.avsource import AVSource
+from lib.asource import ASource
+from lib.vsource import VSource
 from lib.avrawoutput import AVRawOutput
 from lib.avpreviewoutput import AVPreviewOutput
-from lib.backgroundsource import BackgroundSource
 from lib.videomix import VideoMix
 from lib.audiomix import AudioMix
 
@@ -58,7 +59,7 @@ class Pipeline(object):
 		self.amix = AudioMix()
 
 		port = 16000
-		self.bgsrc = BackgroundSource(port)
+		self.bgsrc = VSource('background', port)
 
 		port = 11000
 		self.log.info('Creating Mixer-Output at tcp-port %u', port)

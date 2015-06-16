@@ -40,7 +40,7 @@ class VideoMix(object):
 			queue !
 			tee name=tee
 
-			intervideosrc channel=mixer_background !
+			intervideosrc channel=video_background !
 			{caps} !
 			mix.
 
