@@ -160,12 +160,10 @@
             <property name="can_focus">False</property>
             <child>
               <object class="GtkBox" id="box_left">
+                <property name="width_request">320</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="orientation">vertical</property>
-                <child>
-                  <placeholder/>
-                </child>
                 <child>
                   <object class="GtkBox" id="box_audio">
                     <property name="visible">True</property>
@@ -177,8 +175,9 @@
                         <property name="label" translatable="yes">Audio</property>
                       </object>
                       <packing>
-                        <property name="expand">True</property>
+                        <property name="expand">False</property>
                         <property name="fill">True</property>
+                        <property name="padding">5</property>
                         <property name="position">0</property>
                       </packing>
                     </child>
@@ -188,17 +187,18 @@
                         <property name="sensitive">False</property>
                         <property name="can_focus">False</property>
                         <property name="model">liststore_audio</property>
+                        <property name="id_column">0</property>
                         <child>
                           <object class="GtkCellRendererText" id="cellrenderertext"/>
                           <attributes>
-                            <attribute name="height">0</attribute>
                             <attribute name="text">0</attribute>
                           </attributes>
                         </child>
                       </object>
                       <packing>
-                        <property name="expand">False</property>
+                        <property name="expand">True</property>
                         <property name="fill">True</property>
+                        <property name="padding">5</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
@@ -207,7 +207,8 @@
                     <property name="expand">False</property>
                     <property name="fill">True</property>
                     <property name="padding">5</property>
-                    <property name="position">3</property>
+                    <property name="pack_type">end</property>
+                    <property name="position">0</property>
                   </packing>
                 </child>
               </object>

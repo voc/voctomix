@@ -30,14 +30,11 @@ from lib.uibuilder import UiBuilder
 class Voctogui(object):
 	def __init__(self):
 		self.log = logging.getLogger('Voctogui')
-		
-		# Instanciate GTK-Builder
-		self.builder = UiBuilder()
 
 		# Uf a UI-File was specified on the Command-Line, load it
 		if Args.ui_file:
 			self.log.info('loading ui-file from file specified on command-line: %s', self.options.ui_file)
-			self.builder.add_from_file(Args.ui_file)
+			self.builder = UiBuilder(Args.ui_file)
 
 		else:
 			# Paths to look for the gst-switch UI-File
@@ -52,8 +49,11 @@ class Voctogui(object):
 
 				if os.path.isfile(path):
 					self.log.info('loading ui-file from file %s', path)
-					self.builder.add_from_file(path)
+					self.builder = UiBuilder(path)
 					break
+
+		if self.builder is None:
+			raise Exception("Can't find any .ui-Files to use (searched %s)" % (', '.join(paths)))
 
 		self.builder.setup()
 
