@@ -31,7 +31,7 @@ class Ui(UiBuilder):
 
 	def configure_video_previews(self):
 		sources = ['cam1', 'cam2', 'grabber']
-		box = self.get_check_widget('box_left')
+		box = self.find_widget_recursive(self.win, 'box_left')
 
 		for idx, source in enumerate(sources):
 			preview = self.get_check_widget('widget_preview', clone=True)
@@ -47,9 +47,10 @@ class Ui(UiBuilder):
 			self.previews[source] = preview
 
 	def configure_audio_selector(self):
-		combo = self.get_check_widget('combo_audio')
+		combo = self.find_widget_recursive(self.win, 'combo_audio')
 		combo.set_sensitive(True)
 
+		# FIXME access via combo_audio?
 		liststore = self.get_check_widget('liststore_audio')
 		liststore.clear()
 
