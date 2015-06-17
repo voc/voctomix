@@ -15,13 +15,13 @@ class UiBuilder(object):
 	def find_widget_recursive(self, widget, name):
 		widget = self._find_widget_recursive(widget, name)
 		if not widget:
-			self.log.error('could find required widget "%s" by name (not ID!) inside the parent %s', name, str(widget))
+			self.log.error('could find required widget "%s" by ID inside the parent %s', name, str(widget))
 			raise Exception('Widget not found in parent')
 
 		return widget
 
 	def _find_widget_recursive(self, widget, name):
-		if widget.get_name() == name:
+		if Gtk.Buildable.get_name(widget) == name:
 			return widget
 
 		if hasattr(widget, 'get_children'):
