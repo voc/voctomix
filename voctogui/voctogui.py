@@ -24,7 +24,7 @@ Gst.init([])
 
 # import local classes
 from lib.args import Args
-from lib.uibuilder import UiBuilder
+from lib.ui import Ui
 
 # main class
 class Voctogui(object):
@@ -34,7 +34,7 @@ class Voctogui(object):
 		# Uf a UI-File was specified on the Command-Line, load it
 		if Args.ui_file:
 			self.log.info('loading ui-file from file specified on command-line: %s', self.options.ui_file)
-			self.builder = UiBuilder(Args.ui_file)
+			self.ui = Ui(Args.ui_file)
 
 		else:
 			# Paths to look for the gst-switch UI-File
@@ -49,18 +49,18 @@ class Voctogui(object):
 
 				if os.path.isfile(path):
 					self.log.info('loading ui-file from file %s', path)
-					self.builder = UiBuilder(path)
+					self.ui = Ui(path)
 					break
 
-		if self.builder is None:
+		if self.ui is None:
 			raise Exception("Can't find any .ui-Files to use (searched %s)" % (', '.join(paths)))
 
-		self.builder.setup()
+		self.ui.setup()
 
 
 	def run(self):
 		self.log.info('setting UI visible')
-		self.builder.show()
+		self.ui.show()
 
 		try:
 			self.log.info('running Gtk-MainLoop')
