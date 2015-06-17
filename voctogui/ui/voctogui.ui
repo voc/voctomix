@@ -309,22 +309,26 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="btn_a">
-                    <property name="label" translatable="yes">a</property>
+                  <object class="GtkToggleButton" id="btn_a">
+                    <property name="label" translatable="yes">A</property>
+                    <property name="width_request">40</property>
+                    <property name="height_request">40</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="margin_right">5</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="padding">5</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="btn_b">
-                    <property name="label" translatable="yes">b</property>
+                  <object class="GtkToggleButton" id="btn_b">
+                    <property name="label" translatable="yes">B</property>
+                    <property name="width_request">40</property>
+                    <property name="height_request">40</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -332,7 +336,6 @@
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="padding">5</property>
                     <property name="position">2</property>
                   </packing>
                 </child>
