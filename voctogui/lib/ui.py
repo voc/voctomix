@@ -16,6 +16,8 @@ class Ui(UiBuilder):
 		# Connect Close-Handler
 		self.win.connect('delete-event', Gtk.main_quit)
 
+		self.previews = {}
+
 		self.configure_video_previews()
 		self.configure_audio_selector()
 
@@ -25,11 +27,11 @@ class Ui(UiBuilder):
 
 		for source in sources:
 			preview = self.get_check_widget('widget_preview', clone=True)
-			#box.add(preview)
 			box.pack_start(preview, fill=False, expand=False, padding=0)
 
 			# http://stackoverflow.com/questions/3489520/python-gtk-widget-name
 			self.find_widget_recursive(preview, "label").set_label(source)
+			self.previews[source] = preview
 
 	def configure_audio_selector(self):
 		combo = self.get_check_widget('combo_audio')
