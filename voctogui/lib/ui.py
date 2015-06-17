@@ -3,6 +3,7 @@ import gi, logging
 from gi.repository import Gtk, Gst
 
 from lib.uibuilder import UiBuilder
+from lib.videodisplay import VideoDisplay
 
 class Ui(UiBuilder):
 	def __init__(self, uifile):
@@ -17,20 +18,32 @@ class Ui(UiBuilder):
 		self.win.connect('delete-event', Gtk.main_quit)
 
 		self.previews = {}
+		self.preview_players = {}
 
+		self.configure_video_main()
 		self.configure_video_previews()
 		self.configure_audio_selector()
+
+	def configure_video_main(self):
+		video = self.find_widget_recursive(self.win, 'video_main')
+		self.video_main_player = VideoDisplay(11000, video)
+		pass
 
 	def configure_video_previews(self):
 		sources = ['cam1', 'cam2', 'grabber']
 		box = self.get_check_widget('box_left')
 
-		for source in sources:
+		for idx, source in enumerate(sources):
 			preview = self.get_check_widget('widget_preview', clone=True)
 			box.pack_start(preview, fill=False, expand=False, padding=0)
 
 			# http://stackoverflow.com/questions/3489520/python-gtk-widget-name
-			self.find_widget_recursive(preview, "label").set_label(source)
+			self.find_widget_recursive(preview, 'label').set_label(source)
+
+			video = self.find_widget_recursive(preview, 'video')
+			player = VideoDisplay(13000 + idx, video)
+
+			self.preview_players[source] = player
 			self.previews[source] = preview
 
 	def configure_audio_selector(self):
@@ -49,4 +62,8 @@ class Ui(UiBuilder):
 		combo.set_active_id('moofar')
 
 	def show(self):
+		self.video_main_player.run()
+		for name, player in self.preview_players.items():
+			player.run()
+
 		self.win.show_all()
