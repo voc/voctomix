@@ -28,7 +28,8 @@ class Ui(UiBuilder):
 	def configure_video_main(self):
 		video = self.find_widget_recursive(self.win, 'video_main')
 		audiolevel = self.find_widget_recursive(self.win, 'audiolevel_main')
-		self.video_main_player = VideoDisplay(11000, video, audiolevel, playaudio=True)
+		self.video_main_player = VideoDisplay(11000, video, audiolevel,
+			playaudio=Config.getboolean('mainvideo', 'playaudio'))
 
 	def configure_video_previews(self):
 		sources = ['cam1', 'cam2', 'grabber']
