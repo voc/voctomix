@@ -26,8 +26,8 @@ class Ui(UiBuilder):
 
 	def configure_video_main(self):
 		video = self.find_widget_recursive(self.win, 'video_main')
-		self.video_main_player = VideoDisplay(11000, video)
-		pass
+		audiolevel = self.find_widget_recursive(self.win, 'audiolevel_main')
+		self.video_main_player = VideoDisplay(11000, video, audiolevel, playaudio=True)
 
 	def configure_video_previews(self):
 		sources = ['cam1', 'cam2', 'grabber']
@@ -35,12 +35,15 @@ class Ui(UiBuilder):
 
 		for idx, source in enumerate(sources):
 			preview = self.get_check_widget('widget_preview', clone=True)
+			video = self.find_widget_recursive(preview, 'video')
+
+			# video.set_size_request(160, 90)
+
 			box.pack_start(preview, fill=False, expand=False, padding=0)
 
 			# http://stackoverflow.com/questions/3489520/python-gtk-widget-name
 			self.find_widget_recursive(preview, 'label').set_label(source)
 
-			video = self.find_widget_recursive(preview, 'video')
 			player = VideoDisplay(13000 + idx, video)
 
 			self.preview_players[source] = player
