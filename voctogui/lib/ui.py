@@ -2,6 +2,7 @@
 import gi, logging
 from gi.repository import Gtk, Gst
 
+from lib.config import Config
 from lib.uibuilder import UiBuilder
 from lib.videodisplay import VideoDisplay
 
@@ -37,7 +38,17 @@ class Ui(UiBuilder):
 			preview = self.get_check_widget('widget_preview', clone=True)
 			video = self.find_widget_recursive(preview, 'video')
 
-			# video.set_size_request(160, 90)
+			try:
+				width = Config.getint('previews', 'width')
+			except:
+				width = 320
+
+			try:
+				height = Config.getint('previews', 'height')
+			except:
+				height = width*9/16
+
+			video.set_size_request(width, height)
 
 			box.pack_start(preview, fill=False, expand=False, padding=0)
 
