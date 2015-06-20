@@ -2,6 +2,31 @@
 <!-- Generated with glade 3.18.3 -->
 <interface>
   <requires lib="gtk+" version="3.12"/>
+  <object class="GtkImage" id="img-blank-stream">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">blank-stream.svg</property>
+  </object>
+  <object class="GtkImage" id="img-composite-fullscreen">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">composite-fullscreen.svg</property>
+  </object>
+  <object class="GtkImage" id="img-composite-picture-in-picture">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">composite-picture-in-picture.svg</property>
+  </object>
+  <object class="GtkImage" id="img-composite-side-by-side-equal">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">composite-side-by-side-equal.svg</property>
+  </object>
+  <object class="GtkImage" id="img-composite-side-by-side-preview">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">composite-side-by-side-preview.svg</property>
+  </object>
   <object class="GtkListStore" id="liststore_audio">
     <columns>
       <!-- column-name name -->
@@ -31,12 +56,15 @@
             <property name="can_focus">False</property>
             <property name="opacity">0.98999999999999999</property>
             <property name="hexpand">True</property>
+            <property name="toolbar_style">both</property>
             <child>
-              <object class="GtkToolButton" id="composite-fullscreen">
+              <object class="GtkToggleToolButton" id="composite-fullscreen">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Fullscreen</property>
                 <property name="use_underline">True</property>
+                <property name="icon_widget">img-composite-fullscreen</property>
+                <accelerator key="F1" signal="clicked"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -44,11 +72,13 @@
               </packing>
             </child>
             <child>
-              <object class="GtkToolButton" id="composite-picture-in-picture">
+              <object class="GtkToggleToolButton" id="composite-picture-in-picture">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Picture in Picture</property>
                 <property name="use_underline">True</property>
+                <property name="icon_widget">img-composite-picture-in-picture</property>
+                <accelerator key="F2" signal="clicked"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -56,11 +86,13 @@
               </packing>
             </child>
             <child>
-              <object class="GtkToolButton" id="composite-side-by-side-equal">
+              <object class="GtkToggleToolButton" id="composite-side-by-side-equal">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Side-by-side Equal</property>
                 <property name="use_underline">True</property>
+                <property name="icon_widget">img-composite-side-by-side-equal</property>
+                <accelerator key="F3" signal="clicked"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -68,11 +100,13 @@
               </packing>
             </child>
             <child>
-              <object class="GtkToolButton" id="composite-side-by-side-preview">
+              <object class="GtkToggleToolButton" id="composite-side-by-side-preview">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Side-by-side Preview</property>
                 <property name="use_underline">True</property>
+                <property name="icon_widget">img-composite-side-by-side-preview</property>
+                <accelerator key="F4" signal="clicked"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -95,18 +129,7 @@
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Blank Stream</property>
                 <property name="use_underline">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToolButton" id="enable_stream">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Enable Stream</property>
-                <property name="use_underline">True</property>
+                <property name="icon_widget">img-blank-stream</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -129,6 +152,7 @@
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Fullscreen Preview</property>
                 <property name="use_underline">True</property>
+                <accelerator key="f" signal="clicked" modifiers="GDK_CONTROL_MASK"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -141,6 +165,7 @@
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Freeze Preview</property>
                 <property name="use_underline">True</property>
+                <accelerator key="g" signal="clicked" modifiers="GDK_CONTROL_MASK"/>
               </object>
               <packing>
                 <property name="expand">False</property>
