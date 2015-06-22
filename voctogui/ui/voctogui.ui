@@ -2,11 +2,6 @@
 <!-- Generated with glade 3.18.3 -->
 <interface>
   <requires lib="gtk+" version="3.12"/>
-  <object class="GtkImage" id="img-blank-stream">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">blank-stream.svg</property>
-  </object>
   <object class="GtkImage" id="img-composite-fullscreen">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -26,6 +21,16 @@
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="pixbuf">composite-side-by-side-preview.svg</property>
+  </object>
+  <object class="GtkImage" id="img-blank-stream">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">blank-stream.svg</property>
+  </object>
+  <object class="GtkImage" id="img-stream-live">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">stream-live.svg</property>
   </object>
   <object class="GtkListStore" id="liststore_audio">
     <columns>
@@ -58,7 +63,7 @@
             <property name="hexpand">True</property>
             <property name="toolbar_style">both</property>
             <child>
-              <object class="GtkToggleToolButton" id="composite-fullscreen">
+              <object class="GtkRadioToolButton" id="composite-fullscreen">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Fullscreen</property>
@@ -72,12 +77,13 @@
               </packing>
             </child>
             <child>
-              <object class="GtkToggleToolButton" id="composite-picture-in-picture">
+              <object class="GtkRadioToolButton" id="composite-picture-in-picture">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Picture in Picture</property>
                 <property name="use_underline">True</property>
                 <property name="icon_widget">img-composite-picture-in-picture</property>
+                <property name="group">composite-fullscreen</property>
                 <accelerator key="F2" signal="clicked"/>
               </object>
               <packing>
@@ -86,12 +92,13 @@
               </packing>
             </child>
             <child>
-              <object class="GtkToggleToolButton" id="composite-side-by-side-equal">
+              <object class="GtkRadioToolButton" id="composite-side-by-side-equal">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Side-by-side Equal</property>
                 <property name="use_underline">True</property>
                 <property name="icon_widget">img-composite-side-by-side-equal</property>
+                <property name="group">composite-fullscreen</property>
                 <accelerator key="F3" signal="clicked"/>
               </object>
               <packing>
@@ -100,12 +107,13 @@
               </packing>
             </child>
             <child>
-              <object class="GtkToggleToolButton" id="composite-side-by-side-preview">
+              <object class="GtkRadioToolButton" id="composite-side-by-side-preview">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Side-by-side Preview</property>
                 <property name="use_underline">True</property>
                 <property name="icon_widget">img-composite-side-by-side-preview</property>
+                <property name="group">composite-fullscreen</property>
                 <accelerator key="F4" signal="clicked"/>
               </object>
               <packing>
@@ -124,12 +132,27 @@
               </packing>
             </child>
             <child>
-              <object class="GtkMenuToolButton" id="stream_blank">
+              <object class="GtkRadioToolButton" id="stream_live">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Stream Live</property>
+                <property name="use_underline">True</property>
+                <property name="icon_widget">img-stream-live</property>
+                <property name="active">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkRadioToolButton" id="stream_blank">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Blank Stream</property>
                 <property name="use_underline">True</property>
                 <property name="icon_widget">img-blank-stream</property>
+                <property name="group">stream_live</property>
               </object>
               <packing>
                 <property name="expand">False</property>

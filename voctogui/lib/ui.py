@@ -26,6 +26,7 @@ class Ui(UiBuilder):
 		self.configure_video_main()
 		self.configure_video_previews()
 		self.configure_audio_selector()
+		self.configure_streamblank_selector()
 
 	def configure_video_main(self):
 		self.log.info('Initializing Main Video and Main Audio-Level View')
@@ -108,6 +109,23 @@ class Ui(UiBuilder):
 		liststore.set(row, [0], ['moofar'])
 
 		combo.set_active_id('moofar')
+
+	def configure_streamblank_selector(self):
+		livebtn = self.get_check_widget('stream_live')
+		blankbtn = self.get_check_widget('stream_blank')
+		toolbar = blankbtn.get_parent()
+		pos = toolbar.get_item_index(blankbtn)
+
+		for idx, name in enumerate(['pause', 'nostream']):
+			if idx == 0:
+				new_btn = blankbtn
+			else:
+				new_icon = Gtk.Image.new_from_pixbuf(blankbtn.get_icon_widget().get_pixbuf())
+				new_btn = Gtk.RadioToolButton(group=livebtn)
+				new_btn.set_icon_widget(new_icon)
+				toolbar.insert(new_btn, pos+1)
+
+			new_btn.set_label("Stream %s" % name)
 
 	def show(self):
 		self.log.info('Running Video-Playback Pipelines')
