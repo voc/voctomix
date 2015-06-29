@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 import gi, logging
-from gi.repository import Gtk, Gst
+from gi.repository import Gtk, Gst, Gdk, GLib
 
 from lib.config import Config
 from lib.uibuilder import UiBuilder
@@ -116,6 +116,14 @@ class Ui(UiBuilder):
 		toolbar = blankbtn.get_parent()
 		pos = toolbar.get_item_index(blankbtn)
 
+		self.blink_btn = None
+		self.blink_btn_state = False
+
+		livebtn.connect('toggled', self.streamblank_button_toggled)
+		livebtn.set_name('live')
+
+		GLib.timeout_add_seconds(1, self.blink_streamblank_button)
+
 		for idx, name in enumerate(['pause', 'nostream']):
 			if idx == 0:
 				new_btn = blankbtn
@@ -126,6 +134,31 @@ class Ui(UiBuilder):
 				toolbar.insert(new_btn, pos+1)
 
 			new_btn.set_label("Stream %s" % name)
+			new_btn.connect('toggled', self.streamblank_button_toggled)
+			new_btn.set_name(name)
+
+	def blink_streamblank_button(self):
+		self.blink_btn_state = not self.blink_btn_state
+		if self.blink_btn:
+			self.blink_btn.get_icon_widget().override_background_color(
+				Gtk.StateType.NORMAL,
+				Gdk.RGBA(1.0, 0.0, 0.0, 1.0 if self.blink_btn_state else 0.0))
+
+		return True
+
+	def streamblank_button_toggled(self, btn):
+		btn.get_icon_widget().override_background_color(
+			Gtk.StateType.NORMAL,
+			Gdk.RGBA(1.0, 0.0, 0.0, 0.0))
+
+		if not btn.get_active():
+			return
+
+		if btn.get_name() != 'live':
+			self.blink_btn = btn
+			self.blink_btn_state = False
+		else:
+			self.blink_btn = None
 
 	def show(self):
 		self.log.info('Running Video-Playback Pipelines')
