@@ -23,10 +23,38 @@ class Ui(UiBuilder):
 		self.previews = {}
 		self.preview_players = {}
 
+
+		self.configure_toolbar_accelerators()
 		self.configure_video_main()
 		self.configure_video_previews()
 		self.configure_audio_selector()
 		self.configure_streamblank_selector()
+
+	def configure_toolbar_accelerators(self):
+		accelerators = Gtk.AccelGroup()
+		self.win.add_accel_group(accelerators)
+
+		composites = [
+			'composite-fullscreen',
+			'composite-picture-in-picture',
+			'composite-side-by-side-equal',
+			'composite-side-by-side-preview'
+		]
+
+		for idx, name in enumerate(composites):
+			key, mod = Gtk.accelerator_parse('F%u' % (idx+1))
+			btn = self.find_widget_recursive(self.win, name)
+			btn.set_name(name)
+
+			# Thanks to http://stackoverflow.com/a/19739855/1659732
+			btn.get_child().add_accelerator('clicked', accelerators, key, mod, Gtk.AccelFlags.VISIBLE)
+			btn.connect('toggled', self.toolbar_btn_toggled)
+
+	def toolbar_btn_toggled(self, btn):
+		if not btn.get_active():
+			return
+
+		print("btn toggled", btn.get_name())
 
 	def configure_video_main(self):
 		self.log.info('Initializing Main Video and Main Audio-Level View')
