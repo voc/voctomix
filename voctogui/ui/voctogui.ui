@@ -59,7 +59,6 @@
           <object class="GtkToolbar" id="toolbar">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="opacity">0.98999999999999999</property>
             <property name="hexpand">True</property>
             <property name="toolbar_style">both</property>
             <child>
