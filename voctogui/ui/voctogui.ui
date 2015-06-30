@@ -68,7 +68,6 @@
                 <property name="label" translatable="yes">Fullscreen</property>
                 <property name="use_underline">True</property>
                 <property name="icon_widget">img-composite-fullscreen</property>
-                <accelerator key="F1" signal="clicked"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -83,7 +82,6 @@
                 <property name="use_underline">True</property>
                 <property name="icon_widget">img-composite-picture-in-picture</property>
                 <property name="group">composite-fullscreen</property>
-                <accelerator key="F2" signal="clicked"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -98,7 +96,6 @@
                 <property name="use_underline">True</property>
                 <property name="icon_widget">img-composite-side-by-side-equal</property>
                 <property name="group">composite-fullscreen</property>
-                <accelerator key="F3" signal="clicked"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -113,7 +110,6 @@
                 <property name="use_underline">True</property>
                 <property name="icon_widget">img-composite-side-by-side-preview</property>
                 <property name="group">composite-fullscreen</property>
-                <accelerator key="F4" signal="clicked"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -174,7 +170,6 @@
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Fullscreen Preview</property>
                 <property name="use_underline">True</property>
-                <accelerator key="f" signal="clicked" modifiers="GDK_CONTROL_MASK"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -187,7 +182,6 @@
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Freeze Preview</property>
                 <property name="use_underline">True</property>
-                <accelerator key="g" signal="clicked" modifiers="GDK_CONTROL_MASK"/>
               </object>
               <packing>
                 <property name="expand">False</property>
