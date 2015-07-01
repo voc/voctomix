@@ -353,7 +353,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkToggleButton" id="btn_a">
+                  <object class="GtkRadioButton" id="btn_a">
                     <property name="label" translatable="yes">A</property>
                     <property name="width_request">40</property>
                     <property name="height_request">40</property>
@@ -361,6 +361,7 @@
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="margin_right">5</property>
+                    <property name="draw-indicator">False</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -369,7 +370,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkToggleButton" id="btn_b">
+                  <object class="GtkRadioButton" id="btn_b">
                     <property name="label" translatable="yes">B</property>
                     <property name="width_request">40</property>
                     <property name="height_request">40</property>
@@ -377,6 +378,7 @@
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="margin_right">5</property>
+                    <property name="draw-indicator">False</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>

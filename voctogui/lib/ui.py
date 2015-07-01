@@ -89,6 +89,9 @@ class Ui(UiBuilder):
 		accelerators = Gtk.AccelGroup()
 		self.win.add_accel_group(accelerators)
 
+		group_a = None
+		group_b = None
+
 		for idx, source in enumerate(sources):
 			self.log.info('Initializing Video Preview %s', source)
 
@@ -104,6 +107,20 @@ class Ui(UiBuilder):
 			btn_a = self.find_widget_recursive(preview, 'btn_a')
 			btn_b = self.find_widget_recursive(preview, 'btn_b')
 
+			btn_a.set_name("%c %u" % ('a', idx))
+			btn_b.set_name("%c %u" % ('b', idx))
+
+			if not group_a:
+				group_a = btn_a
+			else:
+				btn_a.join_group(group_a)
+
+
+			if not group_b:
+				group_b = btn_b
+			else:
+				btn_b.join_group(group_b)
+
 			btn_a.connect('toggled', self.preview_btn_toggled)
 			btn_b.connect('toggled', self.preview_btn_toggled)
 
@@ -116,9 +133,11 @@ class Ui(UiBuilder):
 			self.preview_players[source] = player
 			self.previews[source] = preview
 
-
 	def preview_btn_toggled(self, btn):
-		self.log.info('preview_btn_toggled')
+		if not btn.get_active():
+			return
+
+		self.log.info('preview_btn_toggled: %s', btn.get_name())
 
 	def configure_audio_selector(self):
 		self.log.info('Initializing Audio Selector')
