@@ -48,13 +48,13 @@ class Ui(UiBuilder):
 
 			# Thanks to http://stackoverflow.com/a/19739855/1659732
 			btn.get_child().add_accelerator('clicked', accelerators, key, mod, Gtk.AccelFlags.VISIBLE)
-			btn.connect('toggled', self.toolbar_btn_toggled)
+			btn.connect('toggled', self.composite_btn_toggled)
 
-	def toolbar_btn_toggled(self, btn):
+	def composite_btn_toggled(self, btn):
 		if not btn.get_active():
 			return
 
-		print("btn toggled", btn.get_name())
+		self.log.info("composite_btn_toggled: %s", btn.get_name())
 
 	def configure_video_main(self):
 		self.log.info('Initializing Main Video and Main Audio-Level View')
