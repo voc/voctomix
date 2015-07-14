@@ -64,8 +64,20 @@ Ports that will provide JPEG Frames and Raw S16LE Audio in a Matroska container 
 Port 9999 will Accept Control Protocol Connections.
 
 ## Control Protocol
-To Control operation of the Video-Mixer, a simple line-based TCP-Protocol is used. TCP-Port 9999 // FIXME
+To Control operation of the Video-Mixer, a simple line-based TCP-Protocol is used. The Video-Mixer accepts connection on TCP-Port 9999. The Control-Protocol is currently unstable and may change in any way at any given time. Regarding available Commands and their Reponses, the Code is the Documentation. There are 3 kinds of Messages:
 
+### 1. Commands from Client to Server
+The Client may send Commands listed in the [Commands-File](./voctocore/lib/commands.py). Each Command takes a number of Arguments which are separated by Space. There is currently no way to escape Spaces or Linebreaks in Arguments. A Command ends with a Unix-Linebreak. A Client may not send multiple Commands on the same Socket without waiting for the response but it is possible to send multiple Commands to multiple Connections to the Control-Server in Parallel.
+
+### 2. Server Responses to Commands
+The Server either responds with `ok` followed by one ore more Arguments, or with `error` followed by a Human Readable error message. A Machine-Readable error code is currently not available. The Response always ends with a Unix Linebreak.
+
+There are two Kinds of Commands: `set` and `get`. `set`-Commands change the Mixer state and are only acknowledged with a single `ok`. `get`-Commands retrieve Information about the Mixers state and respond with an `ok` followed by Arguments.
+
+### 3. Server Signals
+When another Client issues a Command and the Server executed it successfully, the Server will signal this with a Line starting with `signal` followed by the Command and all Parameters received. Only `set`-Commands trigger a `signal`.
+
+### Example Communication:
 ````
 < set_video_a cam1
 > ok
@@ -98,10 +110,11 @@ To Control operation of the Video-Mixer, a simple line-based TCP-Protocol is use
 
 ````
 
-## Messages
-Messages are Client-to-Client information that don't touch the server, while being distributed on its control-socket:
+### Messages
+Messages are Client-to-Client information that don't change the Mixers state, while being distributed throuh its Control-Socket.
+
 ````
-< message foo bar moo
+< message cut bar moo
 > ok
 
 … on a nother connection
@@ -109,4 +122,16 @@ Messages are Client-to-Client information that don't touch the server, while bei
 > signal message foo bar moo
 ````
 
+They can be used to Implement Features like a "Cut-Button" in the GUI. When Clicked the GUI would emit a message to the Server which would distribute it to all Control-Clients. A recording Script may receive the notification and rotate its output-File.
+
 ## Configuration
+On Startup the Video-Mixer reads the following Configuration-Files:
+ - <install-dir>/default-config.ini
+ - <install-dir>/config.ini
+ - /etc/voctomix.ini
+ - <homedir>/.voctomix.ini
+ - <File specified on Command-Line via --ini-file>
+
+From top to bottom the individual Settings override previous Settings. `default-config.ini` should not be edited, because a missing Setting will result in an Exception.
+
+All Settings configured in the Server are available via the `get_setting` Call on the Control-Port and will be used by the Clients, so there will be no need to duplicate Configuration options between Server and Clients.
