@@ -15,7 +15,7 @@ When a source is not connected, its video and audio stream must be substituted w
 
 If enabled in Config, the core process offers two formats for most outputs: Raw-Frames in mkv as described above, which should be used to feed recording or streaming processes running on the same machine. For the GUI which usually runs on a different computer, they are not suited because of the bandwidth requirements (1920×1080 I420 @25fps = 791 MBit/s). For this reason the Servers offers Preview-Ports for each Input and the Main-Mix, which serves the same content, but the video frames there are jpeg compressed, combined with uncompressed S16LE audio and encapsulated in mkv.
 
-Also, if enabled in Config, another Building-Block is chained after the Main-Mix: the StreamBlanker. It is used in Cases when there should be no Stream, for example in Breaks between 
+Also, if enabled in Config, another Building-Block is chained after the Main-Mix: the StreamBlanker. It is used in Cases when there should be no Stream, for example in Breaks between Talks. It is sourced from one ASource which usually accepts a Stream of Music-Loop and one or more VSources which usually accepts a "There is currently no Talk"-Loop. Because multiple VSources can be configured, one can additionally source a "We are not allowed to Stream this Talk" or any other Loop. All Video-Loops are combined with the Audio-Loop and can be selected from the GUI.
 
 ## Block-Level Diagram
 ````
@@ -47,7 +47,7 @@ Ports that will accept Raw I420 Frames and Raw S16LE Audio in a Matroska contain
 
 Ports that will accept Raw I420 Frames without Audio in a Matroska container:
  - 16000 Mixer – Background Loop
- - 17000, 17001, … – Stream-Blanker Video-Input, depending on the number of configured Sources
+ - 17000, 17001, … – Stream-Blanker Video-Input, depending on the number of configured Stream-Blanker-Sources
 
 Ports that will accept Raw S16LE Audio wihout Video in a Matroska container:
  - 18000 – Stream-Blanker Audio-Input
