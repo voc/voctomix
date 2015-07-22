@@ -4,17 +4,26 @@ from gi.repository import Gst, Gtk
 class VideoDisplay:
 	""" Displays a Voctomix-Video-Stream into a GtkWidget """
 
-	def __init__(self, port, videowidget, audiolevelwidget=None, playaudio=False):
+	def __init__(self, port, videowidget, audiolevelwidget=None, playaudio=False, allowoverlay=False):
 		self.log = logging.getLogger('VideoDisplay[%u]' % port)
 
 		pipeline = """
 			videotestsrc !
 			timeoverlay !
 			video/x-raw,width=1920,height=1080 !
-			xvimagesink name=v
 		""".format(
 			port=port
 		)
+		if allowoverlay:
+			pipeline += """
+				videoconvert !
+				cairooverlay name=overlay !
+				videoconvert !
+			"""
+
+		pipeline += """
+			xvimagesink name=v
+		"""
 
 		if audiolevelwidget or playaudio:
 			pipeline += """
@@ -45,6 +54,8 @@ class VideoDisplay:
 
 		bus.connect('message::error', self.on_error)
 		bus.connect("sync-message::element", self.on_syncmsg)
+
+		self.draw_callback = None
 
 		if audiolevelwidget:
 			self.levelrms = [0, 0]
