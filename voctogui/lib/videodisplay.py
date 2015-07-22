@@ -55,13 +55,22 @@ class VideoDisplay:
 	def run(self):
 		self.pipeline.set_state(Gst.State.PLAYING)
 
+	def set_overlay_callback(self, callback):
+		if callback:
+			if not self.draw_callback:
+				self.draw_callback = self.pipeline.get_by_name('overlay').connect('draw', callback)
+		else:
+			print('disconnect')
+			self.pipeline.get_by_name('overlay').disconnect(self.draw_callback)
+			self.draw_callback = None
+
 	def on_syncmsg(self, bus, msg):
 		if msg.get_structure().get_name() == "prepare-window-handle":
 				self.log.info('setting xvimagesink window-handle to %s', self.xid)
 				msg.src.set_window_handle(self.xid)
 
 	def on_error(self, bus, msg):
-		self.log.error('on_error():', msg.parse_error())
+		self.log.error('on_error(): %s', msg.parse_error())
 
 	def on_level_draw(self, widget, cr):
 		cr.set_source_rgb(1, 1, 1)
