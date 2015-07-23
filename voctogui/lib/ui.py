@@ -62,7 +62,8 @@ class Ui(UiBuilder):
 		video = self.find_widget_recursive(self.win, 'video_main')
 		audiolevel = self.find_widget_recursive(self.win, 'audiolevel_main')
 		self.video_main_player = VideoDisplay(11000, video, audiolevel,
-			playaudio=Config.getboolean('mainvideo', 'playaudio'))
+			playaudio=Config.getboolean('mainvideo', 'playaudio'),
+			allowoverlay=True)
 
 	def configure_video_previews(self):
 		self.log.info('Initializing Video Previews')
@@ -204,8 +205,22 @@ class Ui(UiBuilder):
 		if btn.get_name() != 'live':
 			self.blink_btn = btn
 			self.blink_btn_state = False
+			self.streamblank_mode = btn.get_name()
+			self.video_main_player.set_overlay_callback(self.draw_streamblank_warning)
 		else:
 			self.blink_btn = None
+			self.video_main_player.set_overlay_callback(None)
+
+	def draw_streamblank_warning(self, cairooverlay, cairo, timestamp, duration):
+		cairo.set_source_rgba(1.0, 0.0, 0.0, 0.5)
+		cairo.rectangle(0, 0, 1920, 1080)
+		cairo.fill()
+
+		cairo.move_to(0, 1080/2)
+		cairo.set_font_size(100)
+		cairo.set_source_rgba(1.0, 1.0, 1.0, 1.0)
+		cairo.show_text("Stream is Blanked: {}".format(self.streamblank_mode))
+
 
 	def show(self):
 		self.log.info('Running Video-Playback Pipelines')
