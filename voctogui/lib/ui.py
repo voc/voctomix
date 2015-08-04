@@ -187,18 +187,9 @@ class Ui(UiBuilder):
 
 	def blink_streamblank_button(self):
 		self.blink_btn_state = not self.blink_btn_state
-		if self.blink_btn:
-			self.blink_btn.get_icon_widget().override_background_color(
-				Gtk.StateType.NORMAL,
-				Gdk.RGBA(1.0, 0.0, 0.0, 1.0 if self.blink_btn_state else 0.0))
-
 		return True
 
 	def streamblank_button_toggled(self, btn):
-		btn.get_icon_widget().override_background_color(
-			Gtk.StateType.NORMAL,
-			Gdk.RGBA(1.0, 0.0, 0.0, 0.0))
-
 		if not btn.get_active():
 			return
 
@@ -211,15 +202,26 @@ class Ui(UiBuilder):
 			self.blink_btn = None
 			self.video_main_player.set_overlay_callback(None)
 
-	def draw_streamblank_warning(self, cairooverlay, cairo, timestamp, duration):
-		cairo.set_source_rgba(1.0, 0.0, 0.0, 0.5)
-		cairo.rectangle(0, 0, 1920, 1080)
-		cairo.fill()
+	def draw_streamblank_warning(self, cairooverlay, cr, timestamp, duration):
+		h = 1080/20
+		w = 1920
 
-		cairo.move_to(0, 1080/2)
-		cairo.set_font_size(100)
-		cairo.set_source_rgba(1.0, 1.0, 1.0, 1.0)
-		cairo.show_text("Stream is Blanked: {}".format(self.streamblank_mode))
+		if self.blink_btn_state:
+			cr.set_source_rgba(1.0, 0.0, 0.0, 0.8)
+		else:
+			cr.set_source_rgba(1.0, 0.5, 0.0, 0.8)
+
+		cr.rectangle(0, 0, w, h)
+		cr.fill()
+
+		text = "Stream is Blanked: {}".format(self.streamblank_mode)
+
+		cr.set_font_size(h*0.75)
+		xbearing, ybearing, txtwidth, txtheight, xadvance, yadvance = cr.text_extents(text)
+
+		cr.move_to(w/2 - txtwidth/2, h*0.75)
+		cr.set_source_rgba(1.0, 1.0, 1.0, 1.0)
+		cr.show_text(text)
 
 
 	def show(self):
