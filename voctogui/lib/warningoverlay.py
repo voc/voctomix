@@ -1,7 +1,7 @@
 import logging
 from gi.repository import GLib
 
-class VideoWarningOverlay:
+class VideoWarningOverlay(object):
 	""" Displays a Warning-Overlay above the Video-Feed of another VideoDisplay """
 
 	def __init__(self):

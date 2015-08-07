@@ -1,7 +1,7 @@
 import logging
 from gi.repository import Gst, Gtk
 
-class AudioLevelDisplay:
+class AudioLevelDisplay(object):
 	""" Displays a Level-Meter of another VideoDisplay into a GtkWidget """
 
 	def __init__(self, drawing_area):

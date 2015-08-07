@@ -1,7 +1,7 @@
 import logging
 from gi.repository import Gst
 
-class VideoDisplay:
+class VideoDisplay(object):
 	""" Displays a Voctomix-Video-Stream into a GtkWidget """
 
 	def __init__(self, drawing_area, port, play_audio=False, draw_callback=None, level_callback=None):
