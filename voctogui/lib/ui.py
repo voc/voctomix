@@ -13,7 +13,7 @@ from lib.videopreviews import VideoPreviewsController
 from lib.audioselector import AudioSelectorController
 
 from lib.toolbar.composition import CompositionToolbarController
-# from lib.toolbar.streamblank import StreamblankToolbarController
+from lib.toolbar.streamblank import StreamblankToolbarController
 # from lib.toolbar.specialfunctions import SpecialFunctionsToolbarController
 
 class Ui(UiBuilder):
@@ -67,8 +67,10 @@ class Ui(UiBuilder):
 			win=self.win,
 			uibuilder=self)
 
-		# self.streamblank_toolbar_controller = StreamblankToolbarController(toolbar,
-		# 	warning_overlay=self.video_warning_overlay)
+		self.streamblank_toolbar_controller = StreamblankToolbarController(toolbar,
+			win=self.win,
+			uibuilder=self,
+			warning_overlay=self.video_warning_overlay)
 
 		# self.special_functions_toolbar_controller = SpecialFunctionsToolbarController(toolbar,
 		# 	video_display=self.main_video_display)
