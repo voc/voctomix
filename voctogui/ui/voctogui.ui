@@ -32,20 +32,6 @@
     <property name="can_focus">False</property>
     <property name="pixbuf">stream-live.svg</property>
   </object>
-  <object class="GtkListStore" id="liststore_audio">
-    <columns>
-      <!-- column-name name -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">cam1</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">cam2</col>
-      </row>
-    </data>
-  </object>
   <object class="GtkWindow" id="window">
     <property name="can_focus">False</property>
     <property name="default_width">1280</property>
@@ -226,21 +212,23 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkComboBox" id="combo_audio">
+                      <object class="GtkEventBox" id="combo_audio_events">
                         <property name="visible">True</property>
-                        <property name="sensitive">False</property>
                         <property name="can_focus">False</property>
-                        <property name="margin_left">5</property>
-                        <property name="margin_right">5</property>
-                        <property name="margin_top">5</property>
-                        <property name="margin_bottom">5</property>
-                        <property name="model">liststore_audio</property>
-                        <property name="id_column">0</property>
+                        <property name="events">GDK_BUTTON_PRESS_MASK | GDK_STRUCTURE_MASK</property>
                         <child>
-                          <object class="GtkCellRendererText" id="cellrenderertext"/>
-                          <attributes>
-                            <attribute name="text">0</attribute>
-                          </attributes>
+                          <object class="GtkComboBoxText" id="combo_audio">
+                            <property name="visible">True</property>
+                            <property name="sensitive">False</property>
+                            <property name="can_focus">False</property>
+                            <property name="events">GDK_BUTTON_PRESS_MASK | GDK_STRUCTURE_MASK</property>
+                            <property name="margin_top">5</property>
+                            <property name="margin_bottom">5</property>
+                            <items>
+                              <item translatable="yes">Foo</item>
+                              <item translatable="yes">Bar</item>
+                            </items>
+                          </object>
                         </child>
                       </object>
                       <packing>

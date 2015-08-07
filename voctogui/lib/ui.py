@@ -9,10 +9,10 @@ from lib.videodisplay import VideoDisplay
 from lib.audioleveldisplay import AudioLevelDisplay
 from lib.warningoverlay import VideoWarningOverlay
 
-# from lib.videopreviews import VideoPreviewsController
-# from lib.audioselector import AudioSelectorController
+from lib.videopreviews import VideoPreviewsController
+from lib.audioselector import AudioSelectorController
 
-# from lib.toolbar.composition import CompositionToolbarController
+from lib.toolbar.composition import CompositionToolbarController
 # from lib.toolbar.streamblank import StreamblankToolbarController
 # from lib.toolbar.specialfunctions import SpecialFunctionsToolbarController
 
@@ -50,16 +50,22 @@ class Ui(UiBuilder):
 
 
 		# Setup Preview Controller
-		# drawing_area = self.find_widget_recursive(self.win, 'box_left')
-		# self.video_previews_controller = VideoPreviewsController(drawing_area)
+		drawing_area = self.find_widget_recursive(self.win, 'box_left')
+		self.video_previews_controller = VideoPreviewsController(drawing_area,
+			win=self.win,
+			uibuilder=self)
 
-		# drawing_area = self.find_widget_recursive(self.win, 'combo_audio')
-		# self.audio_selector_controller = AudioSelectorController(drawing_area)#
+		drawing_area = self.find_widget_recursive(self.win, 'combo_audio')
+		self.audio_selector_controller = AudioSelectorController(drawing_area,
+			win=self.win,
+			uibuilder=self)
 
 
-		# # Setup Toolbar Controllers
-		# toolbar = self.find_widget_recursive(self.win, 'toolbar')
-		# self.composition_toolbar_controller = CompositionToolbarController(toolbar)
+		# Setup Toolbar Controllers
+		toolbar = self.find_widget_recursive(self.win, 'toolbar')
+		self.composition_toolbar_controller = CompositionToolbarController(toolbar,
+			win=self.win,
+			uibuilder=self)
 
 		# self.streamblank_toolbar_controller = StreamblankToolbarController(toolbar,
 		# 	warning_overlay=self.video_warning_overlay)
