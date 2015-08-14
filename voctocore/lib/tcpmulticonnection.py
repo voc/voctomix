@@ -9,9 +9,6 @@ class TCPMultiConnection(object):
 		if not hasattr(self, 'log'):
 			self.log = logging.getLogger('TCPMultiConnection')
 
-		self.port = port
-		self.port = None
-
 		self.boundSocket = None
 		self.currentConnections = []
 

@@ -74,6 +74,9 @@ class AudioMix(object):
 		self.selectedSource = source
 		self.updateMixerState()
 
+	def getAudioSource(self):
+		return self.selectedSource
+
 	def on_eos(self, bus, message):
 		self.log.debug('Received End-of-Stream-Signal on Mixing-Pipeline')
 

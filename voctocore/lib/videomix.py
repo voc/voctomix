@@ -331,6 +331,9 @@ class VideoMix(object):
 		self.sourceA = source
 		self.recalculateMixerState()
 
+	def getVideoSourceA(self):
+		return self.sourceA
+
 	def setVideoSourceB(self, source):
 		# swap if required
 		if self.sourceA == source:
@@ -339,6 +342,12 @@ class VideoMix(object):
 		self.sourceB = source
 		self.recalculateMixerState()
 
+	def getVideoSourceB(self):
+		return self.sourceB
+
 	def setCompositeMode(self, mode):
 		self.compositeMode = mode
 		self.recalculateMixerState()
+
+	def getCompositeMode(self):
+		return self.compositeMode

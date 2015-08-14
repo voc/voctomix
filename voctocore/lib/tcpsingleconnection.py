@@ -9,8 +9,6 @@ class TCPSingleConnection(object):
 		if not hasattr(self, 'log'):
 			self.log = logging.getLogger('TCPMultiConnection')
 
-		self.port = port
-
 		self.log.debug('Binding to Source-Socket on [::]:%u', port)
 		self.boundSocket = socket.socket(socket.AF_INET6)
 		self.boundSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)

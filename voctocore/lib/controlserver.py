@@ -46,7 +46,7 @@ class ControlServer(TCPMultiConnection):
 		# process the received line
 		success, msg = self.processLine(conn, line)
 
-		# success = False -> error 
+		# success = False -> error
 		if success == False:
 			# on error-responses the message is mandatory
 			if msg is None:
@@ -71,8 +71,9 @@ class ControlServer(TCPMultiConnection):
 
 	def processLine(self, conn, line):
 		# split line into command and optional args
-		command, argstring = (line+' ').split(' ', 1)
-		args = argstring.strip().split()
+		words = line.split()
+		command = words[0]
+		args = words[1:]
 
 		# log function-call as parsed
 		self.log.info("Read Function-Call from %s: %s( %s )", conn.getpeername(), command, args)
@@ -90,7 +91,9 @@ class ControlServer(TCPMultiConnection):
 			ret = f(*args)
 
 			# signal method call to all other connected clients
-			self.signal(conn, command, args)
+			# only signal set_* commands
+			if command.split('_')[0] in ["set", "message"]:
+				self.signal(conn, command, args)
 
 			# if it returned an iterable, probably (Success, Message), pass that on
 			if hasattr(ret, '__iter__'):
