@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import logging, socket
+from queue import Queue
 from gi.repository import GObject
 
 from lib.config import Config
@@ -10,7 +11,7 @@ class TCPMultiConnection(object):
 			self.log = logging.getLogger('TCPMultiConnection')
 
 		self.boundSocket = None
-		self.currentConnections = []
+		self.currentConnections = dict()
 
 		self.log.debug('Binding to Source-Socket on [::]:%u', port)
 		self.boundSocket = socket.socket(socket.AF_INET6)
@@ -24,9 +25,11 @@ class TCPMultiConnection(object):
 
 	def on_connect(self, sock, *args):
 		conn, addr = sock.accept()
+		conn.setblocking(False)
+
 		self.log.info("Incomming Connection from %s", addr)
 
-		self.currentConnections.append(conn)
+		self.currentConnections[conn] = Queue()
 		self.log.info('Now %u Receiver connected', len(self.currentConnections))
 
 		self.on_accepted(conn, addr)
@@ -34,5 +37,5 @@ class TCPMultiConnection(object):
 		return True
 
 	def close_connection(self, conn):
-		self.currentConnections.remove(conn)
+		del(self.currentConnections[conn])
 		self.log.info('Now %u Receiver connected', len(self.currentConnections))

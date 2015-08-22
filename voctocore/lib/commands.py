@@ -46,75 +46,83 @@ class ControlServerCommands():
 		except Exception as e:
 			raise IndexError("source %s unknown" % src_id)
 
+	# Commands are defined below. Errors are sent to the clients by throwing
+	# exceptions, they will be turned into messages outside.
+
+	def fetch(self, command):
+		if command not in ['set', 'get', 'message', 'signal']:
+			raise Exception("unknown command")
+		return getattr(self, command)
 
 	def message(self, *args):
-		return True
+		return " ".join(args), True
 
-	def set_video_a(self, src_name_or_id):
+	def signal(self, *args):
+		return "", True
+
+	def get(self, subcommand, *args, signal=False):
+		return getattr(self, "_get_"+subcommand)(*args), signal
+
+	def set(self, subcommand, *args):
+		getattr(self, "_set_"+subcommand)(*args)
+		return self.get(subcommand, *args, signal=True)
+
+	def _get_video(self, target, _=None):
+		if target not in ['a', 'b']:
+			raise Exception("invalid video source name: 'a' or 'b' expected.")
+		cmd = "getVideoSource" + target.upper()
+		src_id = getattr(self.pipeline.vmix, cmd)()
+		return self.encodeSourceName(src_id)
+
+	def _set_video(self, target, src_name_or_id):
+		if target not in ['a', 'b']:
+			raise Exception("invalid video source name: 'a' or 'b' expected.")
 		src_id = self.decodeSourceName(src_name_or_id)
-		self.pipeline.vmix.setVideoSourceA(src_id)
-		return True
+		getattr(self.pipeline.vmix, 'setVideoSource' + target.upper())(src_id)
 
-	def get_video_a(self):
-		src_id = self.pipeline.vmix.getVideoSourceA()
-		return (True, self.encodeSourceName(src_id))
-
-	def set_video_b(self, src_name_or_id):
-		src_id = self.decodeSourceName(src_name_or_id)
-		self.pipeline.vmix.setVideoSourceB(src_id)
-		return True
-
-	def get_video_b(self):
-		src_id = self.pipeline.vmix.getVideoSourceB()
-		return (True, self.encodeSourceName(src_id))
-
-	def set_audio(self, src_name_or_id):
+	def _set_audio(self, src_name_or_id):
 		src_id = self.decodeSourceName(src_name_or_id)
 		self.pipeline.amix.setAudioSource(src_id)
-		return True
 
-	def get_audio(self):
+	def _get_audio(self, _=None):
 		src_id = self.pipeline.amix.getAudioSource()
-		return (True, self.encodeSourceName(src_id))
+		return self.encodeSourceName(src_id)
 
-	def set_composite_mode(self, composite_mode):
+	def _set_composite(self, composite_mode):
 		try:
 			mode = CompositeModes[composite_mode]
 		except KeyError as e:
 			raise KeyError("composite-mode %s unknown" % composite_mode)
 
 		self.pipeline.vmix.setCompositeMode(mode)
-		return True
 
-	def get_composite_mode(self):
+	def _get_composite(self, _=None):
 		try:
 			mode = self.pipeline.vmix.getCompositeMode()
-			return (True, mode.name)
+			return mode.name
 		except Exception as e:
 			raise KeyError("composite-mode %s unknown" % mode)
 
-	def set_stream_status(self, *args):
+	def _set_status(self, *args):
 		try:
 			if args[0] == "live":
 				self.pipeline.streamblanker.setBlankSource(None)
-				return True
 			elif args [0] == "blank":
 				src_id = self.decodeBlankerSourceName(args[1])
 				self.pipeline.streamblanker.setBlankSource(src_id)
-				return True
 			else:
-				return (False, "invocation: set_stream_status (live | blank <mode>)")
+				raise IndexError()
 		except IndexError as e:
-			return (False, "invocation: set_stream_status (live | blank <mode>)")
+			raise Exception("invocation: set_status (live | blank <mode>)")
 
-	def get_stream_status(self):
+	def _get_status(self, *args):
 		if self.pipeline.streamblanker.blankSource is None:
-			return (True, "live")
+			return "live"
 
 		name = self.encodeBlankerSourceName(self.pipeline.streamblanker.blankSource)
-		return (True, "blank " + name)
+		return "blank " + name
 
-	def get_config(self):
+	def _get_config(self):
 		confdict = {k: dict(v) for k, v in dict(Config).items()}
-		return (True, json.dumps(confdict))
+		return json.dumps(confdict)
 

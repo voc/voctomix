@@ -24,6 +24,7 @@ Gst.init([])
 from lib.args import Args
 from lib.pipeline import Pipeline
 from lib.controlserver import ControlServer
+from lib import notifications
 
 # main class
 class Voctocore(object):
@@ -80,6 +81,8 @@ def main():
 	# init main-class and main-loop
 	logging.debug('initializing Voctocore')
 	voctocore = Voctocore()
+
+	notifications.controlserver = voctocore.controlserver
 
 	logging.debug('running Voctocore')
 	voctocore.run()
