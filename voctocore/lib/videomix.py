@@ -64,7 +64,7 @@ class VideoMix(object):
 				intervideosrc channel=video_{name}_mixer !
 				{caps} !
 				videoscale !
-				capsfilter name=caps_{idx} !
+				capsfilter name=caps_{idx} caps=video/x-raw !
 				mix.
 			""".format(
 				name=name,
