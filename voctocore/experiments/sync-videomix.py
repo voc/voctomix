@@ -17,19 +17,13 @@ class Example:
 		pipeline = """
 			videotestsrc pattern=red !
 			{caps} !
-			videoscale !
-			capsfilter name=caps0 !
-			identity sync=true signal-handoffs=false !
 			mix.
 
 			videotestsrc pattern=green !
 			{caps} !
-			videoscale !
-			capsfilter name=caps1 !
-			identity sync=true signal-handoffs=false !
 			mix.
 
-			videomixer name=mix !
+			compositor name=mix !
 			{caps} !
 			identity name=sig !
 			videoconvert !
@@ -60,9 +54,6 @@ class Example:
 		self.pad0 = self.pipeline.get_by_name('mix').get_static_pad('sink_0')
 		self.pad1 = self.pipeline.get_by_name('mix').get_static_pad('sink_1')
 
-		self.caps0 = self.pipeline.get_by_name('caps0')
-		self.caps1 = self.pipeline.get_by_name('caps1')
-
 		self.state = False
 
 	def reconfigure(self, object, buffer):
@@ -70,25 +61,23 @@ class Example:
 		if self.state:
 			padA = self.pad0
 			padB = self.pad1
-			capsA = self.caps0
-			capsB = self.caps1
 		else:
 			padA = self.pad1
 			padB = self.pad0
-			capsA = self.caps1
-			capsB = self.caps0
 
 		padA.set_property('xpos', 10)
 		padA.set_property('ypos', 10)
 		padA.set_property('alpha', 1.0)
 		padA.set_property('zorder', 1)
-		capsA.set_property('caps', Gst.Caps.from_string('video/x-raw,width=320,height=180'))
+		padA.set_property('width', 0)
+		padA.set_property('height', 0)
 
 		padB.set_property('xpos', 310)
 		padB.set_property('ypos', 170)
 		padB.set_property('alpha', 1.0)
 		padB.set_property('zorder', 2)
-		capsB.set_property('caps', Gst.Caps.from_string('video/x-raw,width=480,height=270'))
+		padB.set_property('width', 480)
+		padB.set_property('height', 270)
 
 		self.state = not self.state
 		return True

@@ -12,8 +12,6 @@ class CompositeModes(Enum):
 	picture_in_picture = 3
 
 class PadState(object):
-	noScaleCaps = Gst.Caps.from_string('video/x-raw')
-
 	def __init__(self):
 		self.reset()
 
@@ -22,7 +20,8 @@ class PadState(object):
 		self.xpos = 0
 		self.ypos = 0
 		self.zorder = 1
-		self.scaleCaps = PadState.noScaleCaps
+		self.width = 0
+		self.height = 0
 
 class VideoMix(object):
 	log = logging.getLogger('VideoMix')
@@ -62,9 +61,6 @@ class VideoMix(object):
 		for idx, name in enumerate(self.names):
 			pipeline += """
 				intervideosrc channel=video_{name}_mixer !
-				{caps} !
-				videoscale !
-				capsfilter name=caps_{idx} caps=video/x-raw !
 				mix.
 			""".format(
 				name=name,
@@ -161,23 +157,21 @@ class VideoMix(object):
 		xa = 0
 		xb = width - targetWidth
 
-		scaleCaps = Gst.Caps.from_string('video/x-raw,width=%u,height=%u,pixel-aspect-ratio=1/1' % (targetWidth, targetHeight))
-
 		for idx, name in enumerate(self.names):
 			pad = self.padState[idx]
 			pad.reset()
 
+			pad.ypos = y
+			pad.width = targetWidth
+			pad.height = targetHeight
+
 			if idx == self.sourceA:
 				pad.xpos = xa
-				pad.ypos = y
 				pad.zorder = 1
-				pad.scaleCaps = scaleCaps
 
 			elif idx == self.sourceB:
 				pad.xpos = xb
-				pad.ypos = y
 				pad.zorder = 2
-				pad.scaleCaps = scaleCaps
 
 			else:
 				pad.alpha = 0
@@ -228,22 +222,19 @@ class VideoMix(object):
 			]
 			self.log.debug('B-Video-Position calculated to %u/%u', bpos[0], bpos[1])
 
-		aCaps = Gst.Caps.from_string('video/x-raw,width=%u,height=%u' % tuple(asize))
-		bCaps = Gst.Caps.from_string('video/x-raw,width=%u,height=%u' % tuple(bsize))
-
 		for idx, name in enumerate(self.names):
 			pad = self.padState[idx]
 			pad.reset()
 
 			if idx == self.sourceA:
 				pad.xpos, pad.ypos = apos
+				pad.width, pad.height = asize
 				pad.zorder = 1
-				pad.scaleCaps = aCaps
 
 			elif idx == self.sourceB:
 				pad.xpos, pad.ypos = bpos
+				pad.width, pad.height = bsize
 				pad.zorder = 2
-				pad.scaleCaps = bCaps
 
 			else:
 				pad.alpha = 0
@@ -274,8 +265,6 @@ class VideoMix(object):
 			]
 			self.log.debug('PIP-Position calculated to %u/%u', pippos[0], pippos[1])
 
-		scaleCaps = Gst.Caps.from_string('video/x-raw,width=%u,height=%u,pixel-aspect-ratio=1/1' % tuple(pipsize))
-
 		for idx, name in enumerate(self.names):
 			pad = self.padState[idx]
 			pad.reset()
@@ -284,28 +273,25 @@ class VideoMix(object):
 				pass
 			elif idx == self.sourceB:
 				pad.xpos, pad.ypos = pippos
+				pad.width, pad.height = pipsize
 				pad.zorder = 2
-				pad.scaleCaps = scaleCaps
 
 			else:
 				pad.alpha = 0
 
-	def getMixerpadAndCapsfilter(self, idx):
-		# mixerpad 0 = background
-		mixerpad = self.mixingPipeline.get_by_name('mix').get_static_pad('sink_%u' % (idx+1))
-		capsfilter = self.mixingPipeline.get_by_name('caps_%u' % idx)
-		return mixerpad, capsfilter
-
 	def applyMixerState(self):
 		for idx, state in enumerate(self.padState):
-			mixerpad, capsfilter = self.getMixerpadAndCapsfilter(idx)
-			self.log.debug('Reconfiguring Mixerpad %u to x/y=%u/%u, alpha=%0.2f, zorder=%u', idx, state.xpos, state.ypos, state.alpha, state.zorder)
-			self.log.debug('Reconfiguring Capsfilter %u to %s', idx, state.scaleCaps.to_string())
+			# mixerpad 0 = background
+			mixerpad = self.mixingPipeline.get_by_name('mix').get_static_pad('sink_%u' % (idx+1))
+
+			self.log.debug('Reconfiguring Mixerpad %u to x/y=%u/%u, w/h=%u/%u alpha=%0.2f, zorder=%u', \
+				idx, state.xpos, state.ypos, state.width, state.height, state.alpha, state.zorder)
 			mixerpad.set_property('xpos', state.xpos)
 			mixerpad.set_property('ypos', state.ypos)
+			mixerpad.set_property('width', state.width)
+			mixerpad.set_property('height', state.height)
 			mixerpad.set_property('alpha', state.alpha)
 			mixerpad.set_property('zorder', state.zorder)
-			capsfilter.set_property('caps', state.scaleCaps)
 
 	def on_handoff(self, object, buffer):
 		if self.padStateDirty:
