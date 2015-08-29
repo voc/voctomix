@@ -161,7 +161,7 @@ class VideoMix(object):
 		xa = 0
 		xb = width - targetWidth
 
-		scaleCaps = Gst.Caps.from_string('video/x-raw,width=%u,height=%u' % (targetWidth, targetHeight))
+		scaleCaps = Gst.Caps.from_string('video/x-raw,width=%u,height=%u,pixel-aspect-ratio=1/1' % (targetWidth, targetHeight))
 
 		for idx, name in enumerate(self.names):
 			pad = self.padState[idx]
@@ -274,8 +274,8 @@ class VideoMix(object):
 			]
 			self.log.debug('PIP-Position calculated to %u/%u', pippos[0], pippos[1])
 
-		scaleCaps = Gst.Caps.from_string('video/x-raw,width=%u,height=%u' % tuple(pipsize))
 		noScaleCaps = Gst.Caps.from_string('video/x-raw')
+		scaleCaps = Gst.Caps.from_string('video/x-raw,width=%u,height=%u,pixel-aspect-ratio=1/1' % tuple(pipsize))
 
 		for idx, name in enumerate(self.names):
 			pad = self.padState[idx]
