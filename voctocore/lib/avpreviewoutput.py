@@ -58,7 +58,7 @@ class AVPreviewOutput(TCPMultiConnection):
 		self.log.debug('Launching Output-Pipeline')
 		self.outputPipeline.set_state(Gst.State.PLAYING)
 
-	def on_accepted(self, conn):
+	def on_accepted(self, conn, addr):
 		self.log.debug('Adding fd %u to multifdsink', conn.fileno())
 		fdsink = self.outputPipeline.get_by_name('fd')
 		fdsink.emit('add', conn.fileno())
