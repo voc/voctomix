@@ -274,7 +274,6 @@ class VideoMix(object):
 			]
 			self.log.debug('PIP-Position calculated to %u/%u', pippos[0], pippos[1])
 
-		noScaleCaps = Gst.Caps.from_string('video/x-raw')
 		scaleCaps = Gst.Caps.from_string('video/x-raw,width=%u,height=%u,pixel-aspect-ratio=1/1' % tuple(pipsize))
 
 		for idx, name in enumerate(self.names):
