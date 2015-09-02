@@ -37,5 +37,6 @@ class TCPMultiConnection(object):
 		return True
 
 	def close_connection(self, conn):
-		del(self.currentConnections[conn])
+		if conn in self.currentConnections:
+			del(self.currentConnections[conn])
 		self.log.info('Now %u Receiver connected', len(self.currentConnections))

@@ -28,14 +28,17 @@ class ControlServer(TCPMultiConnection):
 	def on_data(self, conn, _, leftovers, *args):
 		'''Asynchronous connection handler. Pushes data from socket
 		into command queue linewise'''
+		close_after = False
 		try:
 			while True:
 				try:
 					leftovers.append(conn.recv(4096).decode(errors='replace'))
 					if len(leftovers[-1]) == 0:
 						self.log.info("Socket was closed")
-						self.close_connection(conn)
-						return False
+						leftovers.pop()
+						close_after = True
+						break
+
 				except UnicodeDecodeError as e:
 					continue
 		except BlockingIOError as e:
@@ -58,6 +61,10 @@ class ControlServer(TCPMultiConnection):
 
 			self.command_queue.put((line, conn))
 
+		if close_after:
+			self.close_connection(conn)
+			return False
+
 		self.log.debug("Remaining %r", lines[-1])
 		leftovers.append(lines[-1])
 		return True
@@ -70,6 +77,9 @@ class ControlServer(TCPMultiConnection):
 		line, requestor = self.command_queue.get()
 
 		words = line.split()
+		if len(words) < 1:
+			return True
+
 		command = words[0]
 		args = words[1:]
 
@@ -99,7 +109,8 @@ class ControlServer(TCPMultiConnection):
 				response = "%s\n" % str(responseObject)
 
 		finally:
-			self.currentConnections[requestor].put(response)
+			if requestor in self.currentConnections:
+				self.currentConnections[requestor].put(response)
 
 		return True
 
