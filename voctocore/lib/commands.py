@@ -61,7 +61,7 @@ class ControlServerCommands(object):
 	# exceptions, they will be turned into messages outside.
 
 	def message(self, *args):
-		return NotifyResponse('message', args)
+		return NotifyResponse('message', *args)
 
 
 	def _get_video_status(self):
@@ -71,21 +71,21 @@ class ControlServerCommands(object):
 
 	def get_video(self):
 		status = self._get_video_status()
-		return OkResponse('videoStatus', *status)
+		return OkResponse('video_status', *status)
 
 	def set_video_a(self, src_name_or_id):
 		src_id = decodeName(self.sources, src_name_or_id)
 		self.pipeline.vmix.setVideoSourceA(src_id)
 
 		status = self._get_video_status()
-		return NotifyResponse('videoStatus', *status)
+		return NotifyResponse('video_status', *status)
 
 	def set_video_b(self, src_name_or_id):
 		src_id = decodeName(self.sources, src_name_or_id)
 		self.pipeline.vmix.setVideoSourceB(src_id)
 
 		status = self._get_video_status()
-		return NotifyResponse('videoStatus', *status)
+		return NotifyResponse('video_status', *status)
 
 
 	def _get_audio_status(self):
@@ -94,14 +94,14 @@ class ControlServerCommands(object):
 
 	def get_audio(self):
 		status = self._get_audio_status()
-		return OkResponse('audioStatus', status)
+		return OkResponse('audio_status', status)
 
 	def set_audio(self, src_name_or_id):
 		src_id = decodeName(self.sources, src_name_or_id)
 		self.pipeline.amix.setAudioSource(src_id)
 
 		status = self._get_audio_status()
-		return NotifyResponse('audioStatus', status)
+		return NotifyResponse('audio_status', status)
 
 
 	def _get_composite_status(self):
@@ -110,36 +110,39 @@ class ControlServerCommands(object):
 
 	def get_composite(self):
 		status = self._get_composite_status()
-		return OkResponse('compositeMode', status)
+		return OkResponse('composite_mode', status)
 
 	def set_composite(self, mode_name_or_id):
 		mode = decodeEnumName(CompositeModes, mode_name_or_id)
 		self.pipeline.vmix.setCompositeMode(mode)
 
 		status = self._get_composite_status()
-		return NotifyResponse('compositeMode', status)
+		return NotifyResponse('composite_mode', status)
 
 
 	def _get_stream_status(self):
 		blankSource = self.pipeline.streamblanker.blankSource
-		return encodeName(self.blankerSources, blankSource)
+		if blankSource is None:
+			return ('live',)
+
+		return 'blank', encodeName(self.blankerSources, blankSource)
 
 	def get_stream_status(self):
 		status = self._get_stream_status()
-		return OkResponse('streamStatus', status)
+		return OkResponse('stream_status', *status)
 
 	def set_stream_blank(self, source_name_or_id):
 		src_id = decodeName(self.blankerSources, source_name_or_id)
 		self.pipeline.streamblanker.setBlankSource(src_id)
 
 		status = self._get_stream_status()
-		return NotifyResponse('streamStatus', status)
+		return NotifyResponse('stream_status', *status)
 
 	def set_stream_live(self):
 		self.pipeline.streamblanker.setBlankSource(None)
 
 		status = self._get_stream_status()
-		return NotifyResponse('streamStatus', status)
+		return NotifyResponse('stream_status', *status)
 
 
 	def get_config(self):
