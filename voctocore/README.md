@@ -79,34 +79,34 @@ When another Client issues a Command and the Server executed it successfully, th
 
 ### Example Communication:
 ````
-< set_video_a cam1
-> ok
+< set video a cam1
+> ok cam1
 
-< set_composite_mode side_by_side_equal
-> ok
-
-< get_output_port
-> ok 11000
-
-< get_video_a
-> ok 0 cam1
-
-< set_composite_mode
+< set composite side_by_side_equal
 > ok side_by_side_equal
 
-< set_video_a blafoo
+< get output port
+> ok 11000
+
+< get video a
+> ok cam1
+
+< get composite
+> ok side_by_side_equal
+
+< set video a blafoo
 > error "blafoo" is no known src
 
-< set_stream_blank pause
-> ok
+< set status blank pause
+> ok blank pause
 
-< set_stream_live
-> ok
+< set status live
+> ok live
 
 …
 
-> signal set_video_a cam1
-> signal set_composite_mode side_by_side_equal
+> signal set video a cam1
+> signal set composite side_by_side_equal
 
 ````
 

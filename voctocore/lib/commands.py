@@ -2,119 +2,146 @@
 import logging
 import json
 
-
 from lib.config import Config
 from lib.videomix import CompositeModes
+from lib.response import NotifyResponse, OkResponse
 
-class ControlServerCommands():
+def decodeName(items, name_or_id):
+	try:
+		name_or_id = int(name_or_id)
+		if name_or_id < 0 or name_or_id >= len(items):
+			raise IndexError("unknown index %d" % name_or_id)
+
+		return name_or_id
+
+	except ValueError as e:
+		try:
+			return items.index(name_or_id)
+
+		except ValueError as e:
+			raise IndexError("unknown name %s" % name_or_id)
+
+def decodeEnumName(enum, name_or_id):
+	try:
+		name_or_id = int(name_or_id)
+		if name_or_id < 0 or name_or_id >= len(enum):
+			raise IndexError("unknown index %d" % name_or_id)
+
+		return name_or_id
+
+	except ValueError as e:
+		try:
+			return enum[name_or_id]
+
+		except KeyError as e:
+			raise IndexError("unknown name %s" % name_or_id)
+
+def encodeName(items, id):
+	try:
+		return items[id]
+	except IndexError as e:
+		raise IndexError("unknown index %d" % id)
+
+def encodeEnumName(enum, id):
+	try:
+		return enum(id).name
+	except ValueError as e:
+		raise IndexError("unknown index %d" % id)
+
+class ControlServerCommands(object):
 	def __init__(self, pipeline):
 		self.log = logging.getLogger('ControlServerCommands')
 
 		self.pipeline = pipeline
+
 		self.sources = Config.getlist('mix', 'sources')
-		self.blankersources = Config.getlist('stream-blanker', 'sources')
+		self.blankerSources = Config.getlist('stream-blanker', 'sources')
 
-	def decodeSourceName(self, src_name_or_id):
-		if isinstance(src_name_or_id, str):
-			try:
-				return self.sources.index(src_name_or_id)
-			except Exception as e:
-				raise IndexError("source %s unknown" % src_name_or_id)
-
-		if src_name_or_id < 0 or src_name_or_id >= len(self.sources):
-			raise IndexError("source %s unknown" % src_name_or_id)
-
-	def encodeSourceName(self, src_id):
-		try:
-			return self.sources[src_id]
-		except Exception as e:
-			raise IndexError("source %s unknown" % src_id)
-
-	def decodeBlankerSourceName(self, src_name_or_id):
-		if isinstance(src_name_or_id, str):
-			try:
-				return self.blankersources.index(src_name_or_id)
-			except Exception as e:
-				raise IndexError("source %s unknown" % src_name_or_id)
-
-		if src_name_or_id < 0 or src_name_or_id >= len(self.blankersources):
-			raise IndexError("source %s unknown" % src_name_or_id)
-
-	def encodeBlankerSourceName(self, src_id):
-		try:
-			return self.blankersources[src_id]
-		except Exception as e:
-			raise IndexError("source %s unknown" % src_id)
-
+	# Commands are defined below. Errors are sent to the clients by throwing
+	# exceptions, they will be turned into messages outside.
 
 	def message(self, *args):
-		return True
+		return NotifyResponse('message', args)
+
+
+	def _get_video_status(self):
+		a = encodeName( self.sources, self.pipeline.vmix.getVideoSourceA() )
+		b = encodeName( self.sources, self.pipeline.vmix.getVideoSourceB() )
+		return [a, b]
+
+	def get_video(self):
+		status = self._get_video_status()
+		return OkResponse('videoStatus', *status)
 
 	def set_video_a(self, src_name_or_id):
-		src_id = self.decodeSourceName(src_name_or_id)
+		src_id = decodeName(self.sources, src_name_or_id)
 		self.pipeline.vmix.setVideoSourceA(src_id)
-		return True
 
-	def get_video_a(self):
-		src_id = self.pipeline.vmix.getVideoSourceA()
-		return (True, self.encodeSourceName(src_id))
+		status = self._get_video_status()
+		return NotifyResponse('videoStatus', *status)
 
 	def set_video_b(self, src_name_or_id):
-		src_id = self.decodeSourceName(src_name_or_id)
+		src_id = decodeName(self.sources, src_name_or_id)
 		self.pipeline.vmix.setVideoSourceB(src_id)
-		return True
 
-	def get_video_b(self):
-		src_id = self.pipeline.vmix.getVideoSourceB()
-		return (True, self.encodeSourceName(src_id))
+		status = self._get_video_status()
+		return NotifyResponse('videoStatus', *status)
 
-	def set_audio(self, src_name_or_id):
-		src_id = self.decodeSourceName(src_name_or_id)
-		self.pipeline.amix.setAudioSource(src_id)
-		return True
+
+	def _get_audio_status(self):
+		src_id = self.pipeline.amix.getAudioSource()
+		return encodeName(self.sources, src_id)
 
 	def get_audio(self):
-		src_id = self.pipeline.amix.getAudioSource()
-		return (True, self.encodeSourceName(src_id))
+		status = self._get_audio_status()
+		return OkResponse('audioStatus', status)
 
-	def set_composite_mode(self, composite_mode):
-		try:
-			mode = CompositeModes[composite_mode]
-		except KeyError as e:
-			raise KeyError("composite-mode %s unknown" % composite_mode)
+	def set_audio(self, src_name_or_id):
+		src_id = decodeName(self.sources, src_name_or_id)
+		self.pipeline.amix.setAudioSource(src_id)
 
+		status = self._get_audio_status()
+		return NotifyResponse('audioStatus', status)
+
+
+	def _get_composite_status(self):
+		mode = self.pipeline.vmix.getCompositeMode()
+		return encodeEnumName(CompositeModes, mode)
+
+	def get_composite(self):
+		status = self._get_composite_status()
+		return OkResponse('compositeMode', status)
+
+	def set_composite(self, mode_name_or_id):
+		mode = decodeEnumName(CompositeModes, mode_name_or_id)
 		self.pipeline.vmix.setCompositeMode(mode)
-		return True
 
-	def get_composite_mode(self):
-		try:
-			mode = self.pipeline.vmix.getCompositeMode()
-			return (True, mode.name)
-		except Exception as e:
-			raise KeyError("composite-mode %s unknown" % mode)
+		status = self._get_composite_status()
+		return NotifyResponse('compositeMode', status)
 
-	def set_stream_status(self, *args):
-		try:
-			if args[0] == "live":
-				self.pipeline.streamblanker.setBlankSource(None)
-				return True
-			elif args [0] == "blank":
-				src_id = self.decodeBlankerSourceName(args[1])
-				self.pipeline.streamblanker.setBlankSource(src_id)
-				return True
-			else:
-				return (False, "invocation: set_stream_status (live | blank <mode>)")
-		except IndexError as e:
-			return (False, "invocation: set_stream_status (live | blank <mode>)")
+
+	def _get_stream_status(self):
+		blankSource = self.pipeline.streamblanker.blankSource
+		return encodeName(self.blankerSources, blankSource)
 
 	def get_stream_status(self):
-		if self.pipeline.streamblanker.blankSource is None:
-			return (True, "live")
+		status = self._get_stream_status()
+		return OkResponse('streamStatus', status)
 
-		name = self.encodeBlankerSourceName(self.pipeline.streamblanker.blankSource)
-		return (True, "blank " + name)
+	def set_stream_blank(self, source_name_or_id):
+		src_id = decodeName(self.blankerSources, source_name_or_id)
+		self.pipeline.streamblanker.setBlankSource(src_id)
+
+		status = self._get_stream_status()
+		return NotifyResponse('streamStatus', status)
+
+	def set_stream_live(self):
+		self.pipeline.streamblanker.setBlankSource(None)
+
+		status = self._get_stream_status()
+		return NotifyResponse('streamStatus', status)
+
 
 	def get_config(self):
-		confdict = {k: dict(v) for k, v in dict(Config).items()}
-		return (True, json.dumps(confdict))
-
+		confdict = {header: dict(section) for header, section in dict(Config).items()}
+		return json.dumps(confdict)

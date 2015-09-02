@@ -24,7 +24,10 @@ Gst.init([])
 
 # import local classes
 from lib.args import Args
+from lib.config import Config
 from lib.ui import Ui
+
+import lib.connection as Connection
 
 # main class
 class Voctogui(object):
@@ -99,6 +102,13 @@ def main():
 
 	logging.info('Python Version: %s', sys.version_info)
 	logging.info('GStreamer Version: %s', Gst.version())
+
+	# connect to server
+	Connection.establish(
+		Config.get('server', 'host'))
+
+	# fetch serverconfig from server
+	Config.fetchRemoteConfig()
 
 	# init main-class and main-loop
 	logging.debug('initializing Voctogui')
