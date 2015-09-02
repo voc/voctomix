@@ -1,10 +1,11 @@
 #!/usr/bin/python3
 import logging
 from gi.repository import Gst
-from enum import Enum
+from enum import Enum, unique
 
 from lib.config import Config
 
+@unique
 class CompositeModes(Enum):
 	fullscreen = 0
 	side_by_side_equal = 1
