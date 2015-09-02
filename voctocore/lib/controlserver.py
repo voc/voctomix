@@ -5,6 +5,7 @@ from gi.repository import GObject
 
 from lib.commands import ControlServerCommands
 from lib.tcpmulticonnection import TCPMultiConnection
+from lib.response import NotifyResponse, OkResponse
 
 class ControlServer(TCPMultiConnection):
 	def __init__(self, pipeline):
@@ -73,21 +74,29 @@ class ControlServer(TCPMultiConnection):
 		args = words[1:]
 
 		try:
-			f = self.commands.fetch(command)
-			message, send_signals = f(*args)
-			response = "ok %s\n" % message
+			command_function = self.commands.__class__.__dict__[command]
 
-		except Exception as e:
-			message = str(e) or "<no message>"
-			response = "error %s\n" % message
+		except KeyError as e:
+			response = "error unknown command %s\n" % command
 
 		else:
-			if send_signals:
-				signal = "signal %s\n" % line
-				for conn, queue in self.currentConnections.items():
-					if conn == requestor:
-						continue
-					queue.put(signal)
+			try:
+				responseObject = command_function(self.commands, *args)
+
+			except Exception as e:
+				message = str(e) or "<no message>"
+				response = "error %s\n" % message
+
+			else:
+				if isinstance(responseObject, NotifyResponse):
+					signal = "%s\n" % str(responseObject)
+					for conn, queue in self.currentConnections.items():
+						if conn == requestor:
+							continue
+
+						queue.put(signal)
+
+				response = "%s\n" % str(responseObject)
 
 		finally:
 			self.currentConnections[requestor].put(response)

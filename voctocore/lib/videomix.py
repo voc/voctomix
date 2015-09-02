@@ -4,7 +4,6 @@ from gi.repository import Gst
 from enum import Enum
 
 from lib.config import Config
-from lib.notifications import notify_all
 
 class CompositeModes(Enum):
 	fullscreen = 0
@@ -313,7 +312,6 @@ class VideoMix(object):
 		# swap if required
 		if self.sourceB == source:
 			self.sourceB = self.sourceA
-			notify_all("signal set video b %s\n" % self.sourceB)
 
 		self.sourceA = source
 		self.recalculateMixerState()
@@ -325,7 +323,6 @@ class VideoMix(object):
 		# swap if required
 		if self.sourceA == source:
 			self.sourceA = self.sourceB
-			notify_all("signal set video b %s\n" % self.sourceA)
 
 		self.sourceB = source
 		self.recalculateMixerState()
