@@ -83,6 +83,8 @@ class ControlServer(TCPMultiConnection):
 		command = words[0]
 		args = words[1:]
 
+		self.log.debug("Processing Command %r with args %s", command, args)
+
 		try:
 			command_function = self.commands.__class__.__dict__[command]
 
@@ -124,7 +126,8 @@ class ControlServer(TCPMultiConnection):
 			return False
 
 		if queue.empty():
-				return True
+			return True
+
 		message = queue.get()
 		try:
 			conn.send(message.encode())
