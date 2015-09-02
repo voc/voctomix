@@ -79,34 +79,44 @@ When another Client issues a Command and the Server executed it successfully, th
 
 ### Example Communication:
 ````
-< set video a cam1
-> ok cam1
+< set_video_a cam1
+> video_status cam1 cam2
 
-< set composite side_by_side_equal
-> ok side_by_side_equal
+< set_video_b 0
+> video_status cam2 cam1
 
-< get output port
-> ok 11000
+< set_composite side_by_side_equal
+> composite_mode side_by_side_equal
 
-< get video a
-> ok cam1
+< set_composite 0
+> composite_mode fullscreen
 
-< get composite
-> ok side_by_side_equal
+< get_video
+> video_status cam2 cam1
 
-< set video a blafoo
-> error "blafoo" is no known src
+< get_composite
+> composite_mode fullscreen
 
-< set status blank pause
-> ok blank pause
+< set_video_a blafoo
+> error unknown name foo
 
-< set status live
-> ok live
+< get_stream_status
+> stream_status live
 
-…
+< set_stream_blank pause
+> stream_status blank pause
 
-> signal set video a cam1
-> signal set composite side_by_side_equal
+< set_stream_live
+> stream_status live
+
+… meanwhile in another control-server connection
+
+> video_status cam1 cam2
+> video_status cam2 cam1
+> composite_mode side_by_side_equal
+> composite_mode fullscreen
+> stream_status blank pause
+> stream_status live
 
 ````
 
@@ -115,11 +125,11 @@ Messages are Client-to-Client information that don't change the Mixers state, wh
 
 ````
 < message cut bar moo
-> ok
+> message cut bar moo
 
-… on a nother connection
+… meanwhile in another control-server connection
 
-> signal message foo bar moo
+> message cut bar moo
 ````
 
 They can be used to Implement Features like a "Cut-Button" in the GUI. When Clicked the GUI would emit a message to the Server which would distribute it to all Control-Clients. A recording Script may receive the notification and rotate its output-File.
