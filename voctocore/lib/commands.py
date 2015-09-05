@@ -147,4 +147,4 @@ class ControlServerCommands(object):
 
 	def get_config(self):
 		confdict = {header: dict(section) for header, section in dict(Config).items()}
-		return json.dumps(confdict)
+		return OkResponse('server_config', json.dumps(confdict))
