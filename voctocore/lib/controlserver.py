@@ -83,12 +83,13 @@ class ControlServer(TCPMultiConnection):
 		command = words[0]
 		args = words[1:]
 
-		self.log.debug("processing command %r with args %s", command, args)
+		self.log.info("processing command %r with args %s", command, args)
 
 		try:
 			command_function = self.commands.__class__.__dict__[command]
 
 		except KeyError as e:
+			self.log.info("received unknown command %s", command)
 			response = "error unknown command %s\n" % command
 
 		else:
