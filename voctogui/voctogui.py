@@ -107,8 +107,9 @@ def main():
 	Connection.establish(
 		Config.get('server', 'host'))
 
-	# fetch serverconfig from server
-	Config.fetchRemoteConfig()
+	# fetch config from server
+	Config.fetchServerConfig()
+	Connection.enterNonblockingMode()
 
 	# init main-class and main-loop
 	logging.debug('initializing Voctogui')

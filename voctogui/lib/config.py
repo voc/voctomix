@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import logging
+import json
 import os.path
 from configparser import SafeConfigParser
 from lib.args import Args
@@ -10,13 +11,17 @@ __all__ = ['Config']
 def getlist(self, section, option):
 	return [x.strip() for x in self.get(section, option).split(',')]
 
-def fetchRemoteConfig(self):
+def fetchServerConfig(self):
 	log = logging.getLogger('Config')
 	log.info("reading server-config %s", Connection)
-	Connection.ask('config')
+
+	server_config = Connection.fetchServerConfig()
+
+	log.info("merging server-config %s", server_config)
+	self.read_dict(server_config)
 
 SafeConfigParser.getlist = getlist
-SafeConfigParser.fetchRemoteConfig = fetchRemoteConfig
+SafeConfigParser.fetchServerConfig = fetchServerConfig
 
 files = [
 	os.path.join(os.path.dirname(os.path.realpath(__file__)), '../default-config.ini'),
