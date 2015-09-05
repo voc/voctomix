@@ -21,7 +21,7 @@ class ControlServer(TCPMultiConnection):
 
 	def on_accepted(self, conn, addr):
 		'''Asynchronous connection listener. Starts a handler for each connection.'''
-		self.log.debug('Setting GObject io-watch on Connection')
+		self.log.debug('setting gobject io-watch on connection')
 		GObject.io_add_watch(conn, GObject.IO_IN, self.on_data, [''])
 		GObject.io_add_watch(conn, GObject.IO_OUT, self.on_write)
 
@@ -49,7 +49,7 @@ class ControlServer(TCPMultiConnection):
 
 		lines = data.split('\n')
 		for line in lines[:-1]:
-			self.log.debug("Got line: %r", line)
+			self.log.debug("got line: %r", line)
 
 			line = line.strip()
 			# TODO: move quit to on_loop
@@ -65,7 +65,7 @@ class ControlServer(TCPMultiConnection):
 			self.close_connection(conn)
 			return False
 
-		self.log.debug("Remaining %r", lines[-1])
+		self.log.debug("remaining %r", lines[-1])
 		leftovers.append(lines[-1])
 		return True
 
@@ -83,7 +83,7 @@ class ControlServer(TCPMultiConnection):
 		command = words[0]
 		args = words[1:]
 
-		self.log.debug("Processing Command %r with args %s", command, args)
+		self.log.debug("processing command %r with args %s", command, args)
 
 		try:
 			command_function = self.commands.__class__.__dict__[command]
@@ -144,4 +144,4 @@ class ControlServer(TCPMultiConnection):
 			for queue in self.currentConnections.values():
 				queue.put(msg)
 		except Exception as e:
-			self.log.debug("Error during notify: %s", e)
+			self.log.debug("error during notify: %s", e)
