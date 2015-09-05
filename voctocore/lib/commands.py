@@ -108,11 +108,11 @@ class ControlServerCommands(object):
 		mode = self.pipeline.vmix.getCompositeMode()
 		return encodeEnumName(CompositeModes, mode)
 
-	def get_composite(self):
+	def get_composite_mode(self):
 		status = self._get_composite_status()
 		return OkResponse('composite_mode', status)
 
-	def set_composite(self, mode_name_or_id):
+	def set_composite_mode(self, mode_name_or_id):
 		mode = decodeEnumName(CompositeModes, mode_name_or_id)
 		self.pipeline.vmix.setCompositeMode(mode)
 
