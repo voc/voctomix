@@ -44,7 +44,7 @@ class Ui(UiBuilder):
 		drawing_area = self.find_widget_recursive(self.win, 'video_main')
 		self.main_video_display = VideoDisplay(drawing_area,
 			port=11000,
-			play_audio=True,
+			play_audio=Config.getboolean('mainvideo', 'playaudio'),
 			draw_callback=self.video_warning_overlay.draw_callback,
 			level_callback=self.audio_level_display.level_callback)
 
