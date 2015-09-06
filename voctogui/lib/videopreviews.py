@@ -1,6 +1,7 @@
 import logging
 from gi.repository import Gst, Gtk
 
+from lib.config import Config
 from lib.videodisplay import VideoDisplay
 
 class VideoPreviewsController(object):
@@ -12,7 +13,7 @@ class VideoPreviewsController(object):
 		self.drawing_area = drawing_area
 		self.win = win
 
-		self.sources = ['cam1', 'cam2', 'grabber']
+		self.sources = Config.getlist('mix', 'sources')
 		self.preview_players = {}
 		self.previews = {}
 
