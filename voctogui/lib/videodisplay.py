@@ -1,6 +1,8 @@
 import logging
 from gi.repository import Gst
 
+from lib.config import Config
+
 class VideoDisplay(object):
 	""" Displays a Voctomix-Video-Stream into a GtkWidget """
 
@@ -11,14 +13,41 @@ class VideoDisplay(object):
 		self.draw_callback = draw_callback
 		self.level_callback = level_callback
 
+		caps = Config.get('mix', 'videocaps')
+		use_previews = Config.getboolean('previews', 'enabled') and Config.getboolean('previews', 'use')
+
+		# Preview-Ports are Raw-Ports + 1000
+		if use_previews:
+			self.log.info('using jpeg-previews instead of raw-video for gui')
+			port += 1000
+		else:
+			self.log.info('using raw-video instead of jpeg-previews for gui')
+
 		# Setup Server-Connection, Demuxing and Decoding
 		pipeline = """
-			videotestsrc !
-			timeoverlay !
-			video/x-raw,width=1920,height=1080,framerate=25/1 !
-		""".format(
-			port=port
-		)
+			tcpclientsrc host={host} port={port} !
+			queue !
+			matroskademux name=demux
+		"""
+
+		if use_previews:
+			pipeline += """
+				demux. !
+				image/jpeg !
+				jpegdec !
+				{previewcaps} !
+				videoscale method=nearest-neighbour !
+				videorate !
+				{vcaps} !
+				queue !
+			"""
+
+		else:
+			pipeline += """
+				demux. !
+				{vcaps} !
+				queue !
+			"""
 
 		# If an overlay is required, add an cairooverlay-Element into the Video-Path
 		if self.draw_callback:
@@ -37,15 +66,17 @@ class VideoDisplay(object):
 		# If an Audio-Path is required, add an Audio-Path through a level-Element
 		if self.level_callback or play_audio:
 			pipeline += """
-				audiotestsrc wave=blue-noise !
-				audio/x-raw !
+				demux. !
+				{acaps} !
+				queue !
 				level name=lvl interval=50000000 !
 			"""
 
 			# If Playback is requested, push fo alsa
 			if play_audio:
+				# ts-offset=1000000000 (1s) - should keep audio & video in sync but delay by 1s
 				pipeline += """
-					alsasink
+					alsasink sync=False
 				"""
 
 			# Otherwise just trash the Audio
@@ -53,6 +84,14 @@ class VideoDisplay(object):
 				pipeline += """
 					fakesink
 				"""
+
+		pipeline = pipeline.format(
+			acaps=Config.get('mix', 'audiocaps'),
+			vcaps=Config.get('mix', 'videocaps'),
+			previewcaps=Config.get('previews', 'videocaps'),
+			host=Config.get('server', 'host'),
+			port=port,
+		)
 
 		self.log.debug('Creating Display-Pipeline:\n%s', pipeline)
 		self.pipeline = Gst.parse_launch(pipeline)
