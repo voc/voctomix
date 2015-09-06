@@ -1,6 +1,8 @@
 import logging
 from gi.repository import Gst, Gdk, GLib
 
+from lib.config import Config
+
 class AudioSelectorController(object):
 	""" Displays a Level-Meter of another VideoDisplay into a GtkWidget """
 
@@ -21,10 +23,10 @@ class AudioSelectorController(object):
 		self.eventbox = eventbox
 
 		combo.remove_all()
-		combo.append('moobar', 'Moo Bar')
-		combo.append('moofar', 'Moo Far')
+		for name in Config.getlist('mix', 'sources'):
+			combo.append(name, name)
 
-		combo.set_active_id('moobar')
+		#combo.set_active_id(name)
 
 		self.timer_iteration = 0
 
