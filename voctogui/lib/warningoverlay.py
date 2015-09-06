@@ -1,5 +1,7 @@
 import logging
-from gi.repository import GLib
+from gi.repository import GLib, Gst
+
+from lib.config import Config
 
 class VideoWarningOverlay(object):
 	""" Displays a Warning-Overlay above the Video-Feed of another VideoDisplay """
@@ -12,6 +14,15 @@ class VideoWarningOverlay(object):
 		self.blink_state = False
 
 		GLib.timeout_add_seconds(1, self.on_blink_callback)
+
+		caps_string = Config.get('mix', 'videocaps')
+		self.log.debug('parsing video-caps: %s', caps_string)
+		caps = Gst.Caps.from_string(caps_string)
+		struct = caps.get_structure(0)
+		_, self.width = struct.get_int('width')
+		_, self.height = struct.get_int('height')
+
+		self.log.debug('configuring size to %ux%u', self.width, self.height)
 
 
 	def on_blink_callback(self):
@@ -32,8 +43,8 @@ class VideoWarningOverlay(object):
 		if not self.enabled:
 			return
 
-		w = 1920
-		h = 1080/20
+		w = self.width
+		h = self.height / 20
 
 		if self.blink_state:
 			cr.set_source_rgba(1.0, 0.0, 0.0, 0.8)
