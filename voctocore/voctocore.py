@@ -9,6 +9,7 @@ from gi.repository import Gst, GObject
 minGst = (1, 5)
 minPy = (3, 0)
 
+Gst.init([])
 if Gst.version() < minGst:
 	raise Exception("GStreamer version", Gst.version(), 'is too old, at least', minGst, 'is required')
 
@@ -18,7 +19,6 @@ if sys.version_info < minPy:
 
 # init GObject & Co. before importing local classes
 GObject.threads_init()
-Gst.init([])
 
 # import local classes
 from lib.args import Args
