@@ -26,9 +26,14 @@ class AudioSelectorController(object):
 		for name in Config.getlist('mix', 'sources'):
 			combo.append(name, name)
 
-		#combo.set_active_id(name)
+		# connect event-handler and request initial state
+		Connection.on('audio_status', self.on_audio_status)
+		Connection.send('get_audio')
 
 		self.timer_iteration = 0
+
+	def on_audio_status(self, source)
+		self.combo.set_active_id(name)
 
 	def on_button_press_event(self, combo, event):
 		if event.type != Gdk.EventType.DOUBLE_BUTTON_PRESS:
