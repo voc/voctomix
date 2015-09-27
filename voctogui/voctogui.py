@@ -103,18 +103,22 @@ def main():
 	logging.info('Python Version: %s', sys.version_info)
 	logging.info('GStreamer Version: %s', Gst.version())
 
-	# connect to server
+	# establish a synchronus connection to server
 	Connection.establish(
 		Config.get('server', 'host'))
 
 	# fetch config from server
 	Config.fetchServerConfig()
+
+	# switch connection to nonblocking, event-driven mode
 	Connection.enterNonblockingMode()
 
 	# init main-class and main-loop
+	# (this binds all event-hander on the Connection)
 	logging.debug('initializing Voctogui')
 	voctogui = Voctogui()
 
+	# start the Mainloop and show the Window
 	logging.debug('running Voctogui')
 	voctogui.run()
 
