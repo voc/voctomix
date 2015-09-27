@@ -9,6 +9,7 @@ from gi.repository import Gtk, Gdk, Gst, GObject, GdkX11, GstVideo
 minGst = (1, 5)
 minPy = (3, 0)
 
+Gst.init([])
 if Gst.version() < minGst:
 	raise Exception("GStreamer version", Gst.version(), 'is too old, at least', minGst, 'is required')
 
@@ -20,7 +21,6 @@ if sys.version_info < minPy:
 GObject.threads_init()
 Gdk.init([])
 Gtk.init([])
-Gst.init([])
 
 # import local classes
 from lib.args import Args
