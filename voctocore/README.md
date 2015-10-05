@@ -94,7 +94,7 @@ When another Client issues a Command and the Server executed it successfully, th
 < get_video
 > video_status cam2 cam1
 
-< get_composite
+< get_composite_mode
 > composite_mode fullscreen
 
 < set_video_a blafoo
