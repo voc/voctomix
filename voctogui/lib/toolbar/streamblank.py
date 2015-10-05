@@ -1,6 +1,8 @@
 import logging
 from gi.repository import Gtk
 
+import lib.connection as Connection
+
 class StreamblankToolbarController(object):
 	""" Manages Accelerators and Clicks on the Composition Toolbar-Buttons """
 
@@ -10,7 +12,7 @@ class StreamblankToolbarController(object):
 		self.warning_overlay = warning_overlay
 
 		blank_sources = ['pause', 'nostream']
-
+		self.status_btns = {}
 
 		livebtn = uibuilder.find_widget_recursive(drawing_area, 'stream_live')
 		blankbtn = uibuilder.find_widget_recursive(drawing_area, 'stream_blank')
@@ -19,6 +21,9 @@ class StreamblankToolbarController(object):
 
 		livebtn.connect('toggled', self.on_btn_toggled)
 		livebtn.set_name('live')
+
+		self.livebtn = livebtn
+		self.blank_btns = {}
 
 		for idx, name in enumerate(blank_sources):
 			if idx == 0:
@@ -33,13 +38,33 @@ class StreamblankToolbarController(object):
 			new_btn.connect('toggled', self.on_btn_toggled)
 			new_btn.set_name(name)
 
+			self.blank_btns[name] = new_btn
+
+		# connect event-handler and request initial state
+		Connection.on('stream_status', self.on_stream_status)
+		Connection.send('get_stream_status')
+
 	def on_btn_toggled(self, btn):
 		if not btn.get_active():
 			return
 
-		self.log.info("on_btn_toggled: %s", btn.get_name())
-		if btn.get_name() == 'live':
+		btn_name = btn.get_name()
+		self.log.info('stream-status activated: %s', btn_name)
+		if btn_name == 'live':
 			self.warning_overlay.disable()
 
 		else:
-			self.warning_overlay.enable(btn.get_name())
+			self.warning_overlay.enable(btn_name)
+
+		if btn_name == 'live':
+			Connection.send('set_stream_live')
+		else:
+			Connection.send('set_stream_blank', btn_name)
+
+	def on_stream_status(self, status, source = None):
+		self.log.info('on_stream_status callback w/ status %s and source %s', status, source)
+
+		if status == 'live':
+			self.livebtn.set_active(True)
+		else:
+			self.blank_btns[source].set_active(True)
