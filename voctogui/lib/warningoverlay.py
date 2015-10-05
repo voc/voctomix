@@ -1,5 +1,5 @@
 import logging
-from gi.repository import GLib, Gst
+from gi.repository import GLib, Gst, cairo
 
 from lib.config import Config
 
@@ -45,6 +45,12 @@ class VideoWarningOverlay(object):
 
 		w = self.width
 		h = self.height / 20
+
+		# during startup, cr is sometimes another kind of context,
+		# which does not expose set_source_rgba and other methods.
+		# this check avoids the exceptions that would be thrown then.
+		if isinstance(cr, cairo.Context):
+			return
 
 		if self.blink_state:
 			cr.set_source_rgba(1.0, 0.0, 0.0, 0.8)
