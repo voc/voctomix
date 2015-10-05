@@ -1,6 +1,7 @@
 import logging
 from gi.repository import Gtk
 
+from lib.config import Config
 import lib.connection as Connection
 
 class StreamblankToolbarController(object):
@@ -11,13 +12,22 @@ class StreamblankToolbarController(object):
 
 		self.warning_overlay = warning_overlay
 
-		blank_sources = ['pause', 'nostream']
-		self.status_btns = {}
-
 		livebtn = uibuilder.find_widget_recursive(drawing_area, 'stream_live')
 		blankbtn = uibuilder.find_widget_recursive(drawing_area, 'stream_blank')
 
 		blankbtn_pos = drawing_area.get_item_index(blankbtn)
+
+		if not Config.getboolean('stream-blanker', 'enabled'):
+			self.log.info('disabling stream-blanker features because the server does not support them: %s', Config.getboolean('stream-blanker', 'enabled'))
+			stream_blank_separator = uibuilder.find_widget_recursive(drawing_area, 'stream_blank_separator')
+
+			drawing_area.remove(livebtn)
+			drawing_area.remove(blankbtn)
+			drawing_area.remove(stream_blank_separator)
+			return
+
+		blank_sources = Config.getlist('stream-blanker', 'sources')
+		self.status_btns = {}
 
 		livebtn.connect('toggled', self.on_btn_toggled)
 		livebtn.set_name('live')

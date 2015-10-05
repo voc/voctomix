@@ -141,7 +141,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkSeparatorToolItem" id="s2">
+              <object class="GtkSeparatorToolItem" id="stream_blank_separator">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
               </object>
