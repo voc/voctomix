@@ -10,6 +10,7 @@ log = logging.getLogger('Connection')
 conn = None
 port = 9999
 command_queue = Queue()
+signal_handlers = {}
 
 def establish(host):
 	global conn, port, log
@@ -101,15 +102,36 @@ def on_loop():
 	args = words[1:]
 
 	log.info('received signal %s, dispatching', signal)
+	if signal not in signal_handlers:
+		return True
 
-def send(command):
+	for handler in signal_handlers[signal]:
+		cb = handler['cb']
+		if 'one' in handler and handler['one']:
+			log.debug('removing one-time handler')
+			del signal_handlers[signal]
+
+		cb(*args)
+
+	return True
+
+def send(command, *args):
 	global conn, log
-	if isinstance(command, str):
-		command = command.encode('ascii')
-	conn.send(command)
+	if len(args) > 0:
+		command += ' '+(' '.join(args))
+
+	command += '\n'
+
+	conn.send(command.encode('ascii'))
 
 def on(signal, cb):
-	pass
+	if signal not in signal_handlers:
+		signal_handlers[signal] = []
+
+	signal_handlers[signal].append({'cb': cb})
 
 def one(signal, cb):
-	pass
+	if signal not in signal_handlers:
+		signal_handlers[signal] = []
+
+	signal_handlers[signal].append({'cb': cb, 'one': True})

@@ -34,7 +34,8 @@ class AudioSelectorController(object):
 		self.timer_iteration = 0
 
 	def on_audio_status(self, source):
-		self.combo.set_active_id(name)
+		self.log.info('on_audio_status callback w/ source: %s', source)
+		self.combo.set_active_id(source)
 
 	def on_button_press_event(self, combo, event):
 		if event.type != Gdk.EventType.DOUBLE_BUTTON_PRESS:
@@ -67,5 +68,6 @@ class AudioSelectorController(object):
 		self.timer_iteration += 1
 
 		value = combo.get_active_text()
-		self.log.debug('changed to %s', value)
+		self.log.info('changed to %s', value)
 		self.set_enabled(False)
+		Connection.send('set_audio', value)
