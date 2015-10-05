@@ -104,6 +104,8 @@ def on_loop():
 
 def send(command):
 	global conn, log
+	if isinstance(command, str):
+		command = command.encode('ascii')
 	conn.send(command)
 
 def on(signal, cb):
