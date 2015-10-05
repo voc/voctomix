@@ -2,6 +2,7 @@ import logging
 from gi.repository import Gst, Gdk, GLib
 
 from lib.config import Config
+import lib.connection as Connection
 
 class AudioSelectorController(object):
 	""" Displays a Level-Meter of another VideoDisplay into a GtkWidget """
