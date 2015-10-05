@@ -32,7 +32,7 @@ class AudioSelectorController(object):
 
 		self.timer_iteration = 0
 
-	def on_audio_status(self, source)
+	def on_audio_status(self, source):
 		self.combo.set_active_id(name)
 
 	def on_button_press_event(self, combo, event):
