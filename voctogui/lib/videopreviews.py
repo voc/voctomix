@@ -3,6 +3,7 @@ from gi.repository import Gst, Gtk
 
 from lib.config import Config
 from lib.videodisplay import VideoDisplay
+import lib.connection as Connection
 
 class VideoPreviewsController(object):
 	""" Displays Video-Previews and selection Buttons for them """
@@ -16,6 +17,8 @@ class VideoPreviewsController(object):
 		self.sources = Config.getlist('mix', 'sources')
 		self.preview_players = {}
 		self.previews = {}
+		self.a_btns = {}
+		self.b_btns = {}
 
 		try:
 			width = Config.getint('previews', 'width')
@@ -79,9 +82,30 @@ class VideoPreviewsController(object):
 
 			self.preview_players[source] = player
 			self.previews[source] = preview
+			self.a_btns[source] = btn_a
+			self.b_btns[source] = btn_b
+
+
+		# connect event-handler and request initial state
+		Connection.on('video_status', self.on_video_status)
+		Connection.send('get_video')
 
 	def btn_toggled(self, btn):
 		if not btn.get_active():
 			return
 
-		self.log.info('btn_toggled: %s', btn.get_name())
+		btn_name = btn.get_name()
+		self.log.debug('btn_toggled: %s', btn_name)
+
+		channel, idx = btn_name.split(' ')[:2]
+		source_name = self.sources[int(idx)]
+
+		self.log.debug(self.sources)
+		self.log.info('video-channel %s changed to %s', channel, source_name)
+		Connection.send('set_video_'+channel, source_name)
+
+	def on_video_status(self, source_a, source_b):
+		self.log.info('on_video_status callback w/ sources: %s and %s', source_a, source_b)
+
+		self.a_btns[source_a].set_active(True)
+		self.b_btns[source_b].set_active(True)
