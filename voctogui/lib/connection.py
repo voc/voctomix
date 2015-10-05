@@ -80,7 +80,9 @@ def on_data(conn, _, leftovers, *args):
 		line = line.strip()
 		command_queue.put((line, conn))
 
-	log.debug("remaining %r", lines[-1])
+	if lines[-1] != '':
+		log.debug("remaining %r", lines[-1])
+
 	leftovers.append(lines[-1])
 	return True
 

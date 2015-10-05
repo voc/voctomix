@@ -65,7 +65,9 @@ class ControlServer(TCPMultiConnection):
 			self.close_connection(conn)
 			return False
 
-		self.log.debug("remaining %r", lines[-1])
+		if lines[-1] != '':
+			self.log.debug("remaining %r", lines[-1])
+
 		leftovers.append(lines[-1])
 		return True
 
