@@ -29,10 +29,10 @@ class VideoPreviewsController(object):
 
 		try:
 			height = Config.getint('previews', 'height')
-			self.log.debug('Preview-Height configured to %u', width)
+			self.log.debug('Preview-Height configured to %u', height)
 		except:
 			height = width*9/16
-			self.log.debug('Preview-Height calculated to %u', width)
+			self.log.debug('Preview-Height calculated to %u', height)
 
 		# Accelerators
 		accelerators = Gtk.AccelGroup()
