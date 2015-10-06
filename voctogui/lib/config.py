@@ -13,7 +13,7 @@ def getlist(self, section, option):
 
 def fetchServerConfig(self):
 	log = logging.getLogger('Config')
-	log.info("reading server-config %s", Connection)
+	log.info("reading server-config")
 
 	server_config = Connection.fetchServerConfig()
 
