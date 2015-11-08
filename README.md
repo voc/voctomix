@@ -12,4 +12,5 @@ The main Goal of Voxtomix is to build a Videomixer that suites the C3Vocs requir
 Instead, you need something really speacial, you are encouraged to fork Voctomix and modify it to your needs. The code should be simple enough to do this and we will help you with that, if required.
 
 ## Contact
-To get in touch with us we'd ask to join #voc on the hackint IRC network.
+To get in touch with us we'd ask to join `#voc-lounge` on the hackint IRC network, mail to `voc AT c3voc DOT de` or meet us on one of the [many conferences](https://c3voc.de/eventkalender) we're at.
+You may also want to watch [a Presentation](https://media.ccc.de/v/froscon2015-1520-conference_recording_und_streaming#video) some of us gave about our Video-Infrastructure.
