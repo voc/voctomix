@@ -8,7 +8,8 @@ The Voctomix Project consists of three parts:
  - Voctotools (tbd.), a Collection of Tools and Examples on how to talk to the core-process, feeding and receiving video-streams
 
 ## Patch policy
-The main Goal of Voxtomix is to build a Videomixer that suites the C3Vocs requirements, which means it will not directly suite your Requirements. We are not planning to make it an all-purpose Tool. Instead, you are encouraged to fork Voctomix and modify it to your needs. The code should be simple enough to do this and we will help you deciding with that, if required. Because of this we probably won't accept Feature-Patches which add features the C3Voc doesn't need.
+The main Goal of Voxtomix is to build a Videomixer that suites the C3Vocs requirements, which means it may not directly suite your Requirements. Following the 'code over configuration' pattern we are not planning to make voctomix a general purpose video editing tool, so we may not accept feature-requests which contradict the C3Voc's requirements or introduce extra complexity without adding much value to the C3Voc's processes.
+Instead, you need something really speacial, you are encouraged to fork Voctomix and modify it to your needs. The code should be simple enough to do this and we will help you with that, if required.
 
 ## Contact
 To get in touch with us we'd ask to join #voc on the hackint IRC network.
