@@ -67,11 +67,11 @@ def on_data(conn, _, leftovers, *args):
 
 			except UnicodeDecodeError as e:
 				continue
-	except BlockingIOError as e:
+	except:
 		pass
 
 	data = "".join(leftovers)
-	leftovers.clear()
+	del leftovers[:]
 
 	lines = data.split('\n')
 	for line in lines[:-1]:
