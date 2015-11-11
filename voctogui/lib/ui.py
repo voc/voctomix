@@ -14,7 +14,6 @@ from lib.audioselector import AudioSelectorController
 
 from lib.toolbar.composition import CompositionToolbarController
 from lib.toolbar.streamblank import StreamblankToolbarController
-from lib.toolbar.specialfunctions import SpecialFunctionsToolbarController
 
 class Ui(UiBuilder):
 	def __init__(self, uifile):
@@ -71,11 +70,6 @@ class Ui(UiBuilder):
 			win=self.win,
 			uibuilder=self,
 			warning_overlay=self.video_warning_overlay)
-
-		self.special_functions_toolbar_controller = SpecialFunctionsToolbarController(toolbar,
-			win=self.win,
-			uibuilder=self,
-			video_display=self.main_video_display)
 
 
 	def show(self):
