@@ -82,7 +82,7 @@ def main():
 	# configure logging
 	docolor = (Args.color == 'always') or (Args.color == 'auto' and sys.stderr.isatty())
 
-	if Args.verbose == 2:
+	if Args.verbose >= 2:
 		level = logging.DEBUG
 	elif Args.verbose == 1:
 		level = logging.INFO
