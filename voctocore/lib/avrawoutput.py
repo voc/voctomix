@@ -58,7 +58,12 @@ class AVRawOutput(TCPMultiConnection):
 				self.log.debug('fd %u removed from multifdsink', fileno)
 				self.close_connection(conn)
 
+		def on_about_to_disconnect(multifdsink, fileno, status):
+			if fileno == conn.fileno() and status == 3: # Gst.MultiHandleSinkClientStatus.Slow
+				self.log.warning('about to remove fd %u from multifdsink because it is too slow!', fileno)
+
 		fdsink.connect('client-fd-removed', on_disconnect)
+		fdsink.connect('client-removed', on_about_to_disconnect)
 
 	def on_eos(self, bus, message):
 		self.log.debug('Received End-of-Stream-Signal on Output-Pipeline')
