@@ -80,6 +80,11 @@ class VideoPreviewsController(object):
 			key, mod = Gtk.accelerator_parse('<Ctrl>%u' % (idx+1))
 			btn_b.add_accelerator('activate', accelerators, key, mod, Gtk.AccelFlags.VISIBLE)
 
+			btn_fullscreen = uibuilder.find_widget_recursive(preview, 'btn_fullscreen')
+			btn_fullscreen.set_name("%c %u" % ('f', idx))
+
+			btn_fullscreen.connect('clicked', self.btn_fullscreen_clicked)
+
 			self.preview_players[source] = player
 			self.previews[source] = preview
 			self.a_btns[source] = btn_a
@@ -103,6 +108,16 @@ class VideoPreviewsController(object):
 		self.log.debug(self.sources)
 		self.log.info('video-channel %s changed to %s', channel, source_name)
 		Connection.send('set_video_'+channel, source_name)
+
+	def btn_fullscreen_clicked(self, btn):
+		btn_name = btn.get_name()
+		self.log.debug('btn_fullscreen_clicked: %s', btn_name)
+
+		channel, idx = btn_name.split(' ')[:2]
+		source_name = self.sources[int(idx)]
+
+		self.log.info('selcting video %s for fullscreen', source_name)
+		Connection.send('set_videos_and_composite', source_name, '*', 'fullscreen')
 
 	def on_video_status(self, source_a, source_b):
 		self.log.info('on_video_status callback w/ sources: %s and %s', source_a, source_b)
