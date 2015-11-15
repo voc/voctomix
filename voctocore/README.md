@@ -91,6 +91,10 @@ When another Client issues a Command and the Server executed it successfully, th
 < set_composite 0
 > composite_mode fullscreen
 
+< set_videos_and_composite grabber * fullscreen
+> video_status grabber cam1
+> composite_mode fullscreen
+
 < get_video
 > video_status cam2 cam1
 

@@ -119,6 +119,27 @@ class ControlServerCommands(object):
 		status = self._get_composite_status()
 		return NotifyResponse('composite_mode', status)
 
+	def set_videos_and_composite(self, src_a_name_or_id, src_b_name_or_id, mode_name_or_id):
+		if src_a_name_or_id != '*':
+			src_a_id = decodeName(self.sources, src_a_name_or_id)
+			self.pipeline.vmix.setVideoSourceA(src_a_id)
+
+		if src_b_name_or_id != '*':
+			src_b_id = decodeName(self.sources, src_b_name_or_id)
+			self.pipeline.vmix.setVideoSourceB(src_b_id)
+
+		if mode_name_or_id != '*':
+			mode = decodeEnumName(CompositeModes, mode_name_or_id)
+			self.pipeline.vmix.setCompositeMode(mode)
+
+		composite_status = self._get_composite_status()
+		video_status = self._get_video_status()
+
+		return [
+			NotifyResponse('composite_mode', composite_status),
+			NotifyResponse('video_status', *video_status)
+		]
+
 
 	def _get_stream_status(self):
 		blankSource = self.pipeline.streamblanker.blankSource
