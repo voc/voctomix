@@ -105,7 +105,6 @@ class VideoPreviewsController(object):
 		channel, idx = btn_name.split(' ')[:2]
 		source_name = self.sources[int(idx)]
 
-		self.log.debug(self.sources)
 		self.log.info('video-channel %s changed to %s', channel, source_name)
 		Connection.send('set_video_'+channel, source_name)
 
