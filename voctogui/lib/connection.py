@@ -4,7 +4,7 @@ import socket
 import json
 import sys
 from queue import Queue
-from gi.repository import GObject
+from gi.repository import Gtk, GObject
 
 log = logging.getLogger('Connection')
 conn = None
@@ -60,10 +60,12 @@ def on_data(conn, _, leftovers, *args):
 			try:
 				leftovers.append(conn.recv(4096).decode(errors='replace'))
 				if len(leftovers[-1]) == 0:
-					log.info("socket was closed")
+					log.info("Socket was closed")
 
 					# FIXME try to reconnect
-					sys.exit(1)
+					conn.close()
+					Gtk.main_quit()
+					return False
 
 			except UnicodeDecodeError as e:
 				continue
