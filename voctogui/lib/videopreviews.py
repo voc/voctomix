@@ -20,6 +20,8 @@ class VideoPreviewsController(object):
 		self.a_btns = {}
 		self.b_btns = {}
 
+		self.current_source = {'a': None, 'b': None}
+
 		try:
 			width = Config.getint('previews', 'width')
 			self.log.debug('Preview-Width configured to %u', width)
@@ -105,6 +107,10 @@ class VideoPreviewsController(object):
 		channel, idx = btn_name.split(' ')[:2]
 		source_name = self.sources[int(idx)]
 
+		if self.current_source[channel] == source_name:
+			self.log.info('video-channel %s already on %s', channel, source_name)
+			return
+
 		self.log.info('video-channel %s changed to %s', channel, source_name)
 		Connection.send('set_video_'+channel, source_name)
 
@@ -120,6 +126,9 @@ class VideoPreviewsController(object):
 
 	def on_video_status(self, source_a, source_b):
 		self.log.info('on_video_status callback w/ sources: %s and %s', source_a, source_b)
+
+		self.current_source['a'] = source_a
+		self.current_source['b'] = source_b
 
 		self.a_btns[source_a].set_active(True)
 		self.b_btns[source_b].set_active(True)

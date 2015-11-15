@@ -29,6 +29,8 @@ class StreamblankToolbarController(object):
 		blank_sources = Config.getlist('stream-blanker', 'sources')
 		self.status_btns = {}
 
+		self.current_status = None
+
 		livebtn.connect('toggled', self.on_btn_toggled)
 		livebtn.set_name('live')
 
@@ -59,13 +61,17 @@ class StreamblankToolbarController(object):
 			return
 
 		btn_name = btn.get_name()
-		self.log.info('stream-status activated: %s', btn_name)
 		if btn_name == 'live':
 			self.warning_overlay.disable()
 
 		else:
 			self.warning_overlay.enable(btn_name)
 
+		if self.current_status == btn_name:
+			self.log.info('stream-status already activate: %s', btn_name)
+			return
+
+		self.log.info('stream-status activated: %s', btn_name)
 		if btn_name == 'live':
 			Connection.send('set_stream_live')
 		else:
@@ -74,6 +80,7 @@ class StreamblankToolbarController(object):
 	def on_stream_status(self, status, source = None):
 		self.log.info('on_stream_status callback w/ status %s and source %s', status, source)
 
+		self.current_status = source if source is not None else status
 		if status == 'live':
 			self.livebtn.set_active(True)
 		else:

@@ -20,6 +20,7 @@ class CompositionToolbarController(object):
 		]
 
 		self.composite_btns = {}
+		self.current_composition = None
 
 		for idx, name in enumerate(composites):
 			key, mod = Gtk.accelerator_parse('F%u' % (idx+1))
@@ -42,9 +43,14 @@ class CompositionToolbarController(object):
 			return
 
 		btn_name = btn.get_name()
+		if self.current_composition == btn_name:
+			self.log.info('composition-mode already active: %s', btn_name)
+			return
+
 		self.log.info('composition-mode activated: %s', btn_name)
 		Connection.send('set_composite_mode', btn_name)
 
 	def on_composite_mode(self, mode):
 		self.log.info('on_composite_mode callback w/ mode %s', mode)
+		self.current_composition = mode
 		self.composite_btns[mode].set_active(True)
