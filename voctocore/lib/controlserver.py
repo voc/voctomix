@@ -87,6 +87,7 @@ class ControlServer(TCPMultiConnection):
 
 		self.log.info("processing command %r with args %s", command, args)
 
+		response = None
 		try:
 			command_function = self.commands.__class__.__dict__[command]
 
@@ -104,17 +105,19 @@ class ControlServer(TCPMultiConnection):
 
 			else:
 				if isinstance(responseObject, NotifyResponse):
-					signal = "%s\n" % str(responseObject)
-					for conn, queue in self.currentConnections.items():
-						if conn == requestor:
-							continue
+					responseObject = [ responseObject ]
 
-						queue.put(signal)
+				if isinstance(responseObject, list):
+					for obj in responseObject:
+						signal = "%s\n" % str(obj)
+						for conn, queue in self.currentConnections.items():
+							queue.put(signal)
 
-				response = "%s\n" % str(responseObject)
+				else:
+					response = "%s\n" % str(responseObject)
 
 		finally:
-			if requestor in self.currentConnections:
+			if response is not None and requestor in self.currentConnections:
 				self.currentConnections[requestor].put(response)
 
 		return True
