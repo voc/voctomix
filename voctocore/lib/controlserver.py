@@ -89,6 +89,11 @@ class ControlServer(TCPMultiConnection):
 
 		response = None
 		try:
+			# deny calling private methods
+			if command[0] == '_':
+				self.log.info('private methods are not callable')
+				raise KeyError()
+
 			command_function = self.commands.__class__.__dict__[command]
 
 		except KeyError as e:
