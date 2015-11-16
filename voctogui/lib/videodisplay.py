@@ -58,9 +58,17 @@ class VideoDisplay(object):
 			"""
 
 		# Video Display
-		pipeline += """
-			xvimagesink name=v
-		"""
+		if Config.getboolean('x11', 'xv'):
+			pipeline += """
+				xvimagesink name=v
+			"""
+		else:
+			pipeline += """
+				videoconvert !
+				videoscale !
+				ximagesink name=v
+			"""
+
 
 
 		# If an Audio-Path is required, add an Audio-Path through a level-Element
