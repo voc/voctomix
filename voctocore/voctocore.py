@@ -5,6 +5,9 @@ import gi, signal, logging, sys
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst, GObject
 
+from twisted.internet import gireactor
+gireactor.install()
+
 # check min-version
 minGst = (1, 5)
 minPy = (3, 0)
