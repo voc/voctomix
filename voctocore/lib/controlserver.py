@@ -77,9 +77,3 @@ class ControlServer(protocol.ServerFactory):
 		self.log = logging.getLogger('ControlServer')
 		self.commands = ControlServerCommands(pipeline)
 		self.currentConnections = set()
-
-		# Delay importing reactor so we are sure gireactor has
-		# been installed.
-		from twisted.internet import reactor
-		reactor.listenTCP(9999, self, interface="::")
-
