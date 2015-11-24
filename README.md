@@ -42,7 +42,7 @@ cd voctomix
 
 ## A word on CPU-Usage
 Voctomix requires a fair amount of CPU-Time to run in the default configuration of 1920×1080 at 25fps. Our Production-Systems have these CPUs: `Intel Core i7-3770 CPU 4x 3.40GHz` but we're also experimenting with newer ones like these: `Intel Core i7-6700K, 4x 4.00GHz`.
-For testing and development you may want to use a `config.ini` that reduces the resolution and also turns of the JPEG-Preview-Encoders, which take a huge amount of the required CPU-Power and are not required, as long as the GUI and the Core run on the same machine (or have a 10GE Link between them, FWIW).
+For testing and development you may want to use a `config.ini` that reduces the resolution and also turns off the JPEG-Preview-Encoders, which take a huge amount of the required CPU-Power and are not required, as long as the GUI and the Core run on the same machine (or have a 10GE Link between them, FWIW).
 
 Such a config.ini might look like this:
 ````
