@@ -67,15 +67,19 @@ Port 9999 will Accept Control Protocol Connections.
 To Control operation of the Video-Mixer, a simple line-based TCP-Protocol is used. The Video-Mixer accepts connection on TCP-Port 9999. The Control-Protocol is currently unstable and may change in any way at any given time. Regarding available Commands and their Reponses, the Code is the Documentation. There are 3 kinds of Messages:
 
 ### 1. Commands from Client to Server
-The Client may send Commands listed in the [Commands-File](./voctocore/lib/commands.py). Each Command takes a number of Arguments which are separated by Space. There is currently no way to escape Spaces or Linebreaks in Arguments. A Command ends with a Unix-Linebreak. A Client may not send multiple Commands on the same Socket without waiting for the response but it is possible to send multiple Commands to multiple Connections to the Control-Server in Parallel.
+The Client may send Commands listed in the [Commands-File](./voctocore/lib/commands.py). Each Command takes a number of Arguments which are separated by Space. There is currently no way to escape Spaces or Linebreaks in Arguments. A Command ends with a Unix-Linebreak.
 
-### 2. Server Responses to Commands
-The Server either responds with `ok` followed by one ore more Arguments, or with `error` followed by a Human Readable error message. A Machine-Readable error code is currently not available. The Response always ends with a Unix Linebreak.
+There are two Kinds of Commands: `set_*` and `get_*`. `set`-Commands change the Mixer state while `get`-Commands dont. Both kinds of Commands are answered with the same Response-Message.
 
-There are two Kinds of Commands: `set` and `get`. `set`-Commands change the Mixer state and are only acknowledged with a single `ok`. `get`-Commands retrieve Information about the Mixers state and respond with an `ok` followed by Arguments.
+For example a `set_video_a cam1` Command could be respnded to with a `video_status cam1 cam2` Response-Message. A `get_video` Command will be answered with exactly the same Message.
+
+### 2. Errors in response to Commands
+When a Command was invalid or had invalid Parameters, the Server responds with `error` followed by a Human Readable error message. A Machine-Readable error code is currently not available. The Error-Response always ends with a Unix Linebreak (The Message can not contain Linebreaks itself).
 
 ### 3. Server Signals
-When another Client issues a Command and the Server executed it successfully, the Server will signal this with a Line starting with `signal` followed by the Command and all Parameters received. Only `set`-Commands trigger a `signal`.
+When another Client issues a Command and the Server executed it successfully, the Server will signal this to all connected Clients. The Signal-Message format is identical to the Response-Format of the issued Command.
+
+For example if Client `A` issued Command `set_video_a cam1`, Client `A`and Client `B` will both receive the same `video_status cam1 cam2` Response-Message.
 
 ### Example Communication:
 ````
