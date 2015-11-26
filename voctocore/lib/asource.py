@@ -32,8 +32,23 @@ class ASource(TCPSingleConnection):
 		self.receiverPipeline.bus.connect("message::eos", self.on_eos)
 		self.receiverPipeline.bus.connect("message::error", self.on_error)
 
+		self.all_audio_caps = Gst.Caps.from_string('audio/x-raw')
+		self.audio_caps = Gst.Caps.from_string(Config.get('mix', 'audiocaps'))
+
+		demux = self.receiverPipeline.get_by_name('demux')
+		demux.connect('pad-added', self.on_pad_added)
+
 		self.receiverPipeline.set_state(Gst.State.PLAYING)
 
+	def on_pad_added(self, demux, src_pad):
+		caps = src_pad.query_caps(None)
+		self.log.debug('demuxer added pad w/ caps: %s', caps.to_string())
+		if caps.can_intersect(self.all_audio_caps):
+			self.log.debug('new demuxer-pad is a audio-pad, testing against configured audio-caps')
+			if not caps.can_intersect(self.audio_caps):
+				self.log.warning('the incoming connection presented a video-stream that is not compatible to the configured caps')
+				self.log.warning('   incoming caps:   %s', caps.to_string())
+				self.log.warning('   configured caps: %s', self.audio_caps.to_string())
 
 	def on_eos(self, bus, message):
 		self.log.debug('Received End-of-Stream-Signal on Source-Pipeline')
