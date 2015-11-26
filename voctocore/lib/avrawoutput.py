@@ -29,7 +29,7 @@ class AVRawOutput(TCPMultiConnection):
 				writing-app=Voctomix-AVRawOutput !
 
 			multifdsink
-				buffers-max=100
+				buffers-max=500
 				sync-method=next-keyframe
 				name=fd
 		""".format(
