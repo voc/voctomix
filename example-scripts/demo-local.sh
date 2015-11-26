@@ -1,6 +1,6 @@
 #!/bin/bash
 
-../voctocore.py -vv &
+../voctocore/voctocore.py -vv &
 PID=$!
 echo "PID=$PID"
 sleep 1
