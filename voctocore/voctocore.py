@@ -24,6 +24,7 @@ GObject.threads_init()
 from lib.args import Args
 from lib.pipeline import Pipeline
 from lib.controlserver import ControlServer
+from lib.loghandler import LogHandler
 
 # main class
 class Voctocore(object):
@@ -56,6 +57,9 @@ def main():
 	# configure logging
 	docolor = (Args.color == 'always') or (Args.color == 'auto' and sys.stderr.isatty())
 
+	handler = LogHandler(docolor)
+	logging.root.addHandler(handler)
+
 	if Args.verbose >= 2:
 		level = logging.DEBUG
 	elif Args.verbose == 1:
@@ -63,12 +67,7 @@ def main():
 	else:
 		level = logging.WARNING
 
-	if docolor:
-		format = '\x1b[33m%(levelname)8s\x1b[0m \x1b[32m%(name)s\x1b[0m: %(message)s'
-	else:
-		format = '%(levelname)8s %(name)s: %(message)s'
-
-	logging.basicConfig(level=level, format=format)
+	logging.root.setLevel(level)
 
 	# make killable by ctrl-c
 	logging.debug('setting SIGINT handler')
