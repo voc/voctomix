@@ -89,10 +89,10 @@ For example if Client `A` issued Command `set_video_a cam1`, Client `A`and Clien
 < set_video_b 0
 > video_status cam2 cam1
 
-< set_composite side_by_side_equal
+< set_composite_mode side_by_side_equal
 > composite_mode side_by_side_equal
 
-< set_composite 0
+< set_composite_mode 0
 > composite_mode fullscreen
 
 < set_videos_and_composite grabber * fullscreen
