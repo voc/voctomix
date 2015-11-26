@@ -6,57 +6,61 @@ from lib.config import Config
 from lib.tcpsingleconnection import TCPSingleConnection
 
 class AVSource(TCPSingleConnection):
-	def __init__(self, name, port):
+	def __init__(self, name, port, outputs=None, has_audio=True, has_video=True):
 		self.log = logging.getLogger('AVSource['+name+']')
 		super().__init__(port)
 
+		if outputs is None:
+			outputs = [name]
+
+		assert has_audio or has_video
+
 		self.name = name
+		self.has_audio = has_audio
+		self.has_video = has_video
+		self.outputs = outputs
 
 	def on_accepted(self, conn, addr):
 		pipeline = """
 			fdsrc fd={fd} !
 			matroskademux name=demux
-
-			demux. ! 
-			{acaps} !
-			queue !
-			tee name=atee
-
-			atee. ! queue ! interaudiosink channel=audio_{name}_mixer
-			atee. ! queue ! interaudiosink channel=audio_{name}_mirror
 		""".format(
-			fd=conn.fileno(),
-			name=self.name,
-			acaps=Config.get('mix', 'audiocaps')
+			fd=conn.fileno()
 		)
 
-		if Config.getboolean('previews', 'enabled'):
+		if self.has_audio:
 			pipeline += """
-				atee. ! queue ! interaudiosink channel=audio_{name}_preview
+				demux. !
+				{acaps} !
+				queue !
+				tee name=atee
 			""".format(
-				name=self.name
+				acaps=Config.get('mix', 'audiocaps')
 			)
 
-		pipeline += """
-			demux. ! 
-			{vcaps} !
-			queue !
-			tee name=vtee
+			for output in self.outputs:
+				pipeline += """
+					atee. ! queue ! interaudiosink channel=audio_{output}
+				""".format(
+					output=output
+				)
 
-			vtee. ! queue ! intervideosink channel=video_{name}_mixer
-			vtee. ! queue ! intervideosink channel=video_{name}_mirror
-		""".format(
-			fd=conn.fileno(),
-			name=self.name,
-			vcaps=Config.get('mix', 'videocaps')
-		)
-
-		if Config.getboolean('previews', 'enabled'):
+		if self.has_video:
 			pipeline += """
-				vtee. ! queue ! intervideosink channel=video_{name}_preview
+				demux. !
+				{vcaps} !
+				queue !
+				tee name=vtee
 			""".format(
-				name=self.name
+				vcaps=Config.get('mix', 'videocaps')
 			)
+
+			for output in self.outputs:
+				pipeline += """
+					vtee. ! queue ! intervideosink channel=video_{output}
+				""".format(
+					output=output
+				)
 
 		self.log.debug('Launching Source-Pipeline:\n%s', pipeline)
 		self.receiverPipeline = Gst.parse_launch(pipeline)

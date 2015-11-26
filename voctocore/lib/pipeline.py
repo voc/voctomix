@@ -5,8 +5,6 @@ from gi.repository import Gst
 # import library components
 from lib.config import Config
 from lib.avsource import AVSource
-from lib.asource import ASource
-from lib.vsource import VSource
 from lib.avrawoutput import AVRawOutput
 from lib.avpreviewoutput import AVPreviewOutput
 from lib.videomix import VideoMix
@@ -35,7 +33,11 @@ class Pipeline(object):
 			port = 10000 + idx
 			self.log.info('Creating AVSource %s at tcp-port %u', name, port)
 
-			source = AVSource(name, port)
+			outputs = [name+'_mixer', name+'_mirror']
+			if Config.getboolean('previews', 'enabled'):
+				outputs.append(name+'_preview')
+
+			source = AVSource(name, port, outputs=outputs)
 			self.sources.append(source)
 
 
@@ -62,7 +64,7 @@ class Pipeline(object):
 
 		port = 16000
 		self.log.info('Creating Mixer-Background VSource at tcp-port %u', port)
-		self.bgsrc = VSource('background', port)
+		self.bgsrc = AVSource('background', port, has_audio=False)
 
 		port = 11000
 		self.log.info('Creating Mixer-Output at tcp-port %u', port)
@@ -83,13 +85,13 @@ class Pipeline(object):
 				port = 17000 + idx
 				self.log.info('Creating StreamBlanker VSource %s at tcp-port %u', name, port)
 
-				source = VSource('%s_streamblanker' % name, port)
+				source = AVSource('%s_streamblanker' % name, port, has_audio=False)
 				self.sbsources.append(source)
 
 			port = 18000
 			self.log.info('Creating StreamBlanker ASource at tcp-port %u', port)
 
-			source = ASource('streamblanker', port)
+			source = AVSource('streamblanker', port, has_video=False)
 			self.sbsources.append(source)
 
 
