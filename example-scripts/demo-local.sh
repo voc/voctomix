@@ -6,7 +6,7 @@ echo "PID=$PID"
 sleep 1
 ./av-source-cam1.sh &
 ./av-source-cam2.sh &
-./av-source-background-loop.py &
+./av-source-background-loop.sh &
 ./av-record-output-ffmpeg.sh &
 #./av-stream-hd.sh &
 ./demo-cycle-modes.sh &
