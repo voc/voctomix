@@ -35,9 +35,6 @@ class VideoDisplay(object):
 				image/jpeg !
 				jpegdec !
 				{previewcaps} !
-				videoscale method=nearest-neighbour !
-				videorate !
-				{vcaps} !
 				queue !
 			"""
 
@@ -49,18 +46,11 @@ class VideoDisplay(object):
 			"""
 
 		# Video Display
-		if Config.getboolean('x11', 'xv'):
-			pipeline += """
-				xvimagesink name=v
-			"""
-		else:
-			pipeline += """
-				videoconvert !
-				videoscale !
-				ximagesink name=v
-			"""
-
-
+		pipeline += """
+			glupload !
+			glcolorconvert !
+			glimagesinkelement
+		"""
 
 		# If an Audio-Path is required, add an Audio-Path through a level-Element
 		if self.level_callback or play_audio:
@@ -115,7 +105,7 @@ class VideoDisplay(object):
 
 	def on_syncmsg(self, bus, msg):
 		if msg.get_structure().get_name() == "prepare-window-handle":
-				self.log.info('Setting xvimagesink window-handle to %s', self.xid)
+				self.log.info('Setting imagesink window-handle to %s', self.xid)
 				msg.src.set_window_handle(self.xid)
 
 	def on_error(self, bus, message):

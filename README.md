@@ -55,11 +55,8 @@ videocaps=video/x-raw,width=320,height=180,framerate=25/1
 ````
 
 ## A word on running in a VM
-While the Core runs fine inside a VM (like [VirtualBox](https://www.virtualbox.org/)), the GUI usually uses the [X11-Xv-Extension](https://en.wikipedia.org/wiki/X_video_extension) to play back video into the X11-Server. This Extension is not supported on most VMs, so to run inside such a VM you'll need to tell the GUI to fall back to using traditional X-Images by using a `config.ini` on the GUI with this option:
-````
-[x11]
-xv=false
-````
+While the Core runs fine inside any VM, the GUI uses OpenGL to display the Video-Streams. Don't forget to enable 3D Acceleration in your VM to support this.
+
 
 ## Contact
 To get in touch with us we'd ask to join `#voc-lounge` on the hackint IRC network, mail to `voc AT c3voc DOT de` or meet us on one of the [many conferences](https://c3voc.de/eventkalender) we're at.
