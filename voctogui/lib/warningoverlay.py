@@ -6,51 +6,40 @@ from lib.config import Config
 class VideoWarningOverlay(object):
 	""" Displays a Warning-Overlay above the Video-Feed of another VideoDisplay """
 
-	def __init__(self):
+	def __init__(self, drawing_area):
 		self.log = logging.getLogger('VideoWarningOverlay')
 
+		self.drawing_area = drawing_area
+		self.drawing_area.connect("draw", self.draw_callback)
+
 		self.text = None
-		self.enabled = False
 		self.blink_state = False
 
 		GLib.timeout_add_seconds(1, self.on_blink_callback)
 
-		caps_string = Config.get('mix', 'videocaps')
-		self.log.debug('parsing video-caps: %s', caps_string)
-		caps = Gst.Caps.from_string(caps_string)
-		struct = caps.get_structure(0)
-		_, self.width = struct.get_int('width')
-		_, self.height = struct.get_int('height')
-
-		self.log.debug('configuring size to %ux%u', self.width, self.height)
-
-
 	def on_blink_callback(self):
 		self.blink_state = not self.blink_state
+		self.drawing_area.queue_draw()
 		return True
 
 	def enable(self, text=None):
 		self.text = text
-		self.enabled = True
+		self.drawing_area.show()
+		self.drawing_area.queue_draw()
 
 	def set_text(self, text=None):
 		self.text = text
+		self.drawing_area.queue_draw()
 
 	def disable(self):
-		self.enabled = False
+		self.drawing_area.hide()
+		self.drawing_area.queue_draw()
 
-	def draw_callback(self, cr, timestamp, duration):
-		if not self.enabled:
-			return
+	def draw_callback(self, area, cr):
+		w = self.drawing_area.get_allocated_width();
+		h = self.drawing_area.get_allocated_height();
 
-		w = self.width
-		h = self.height / 20
-
-		# during startup, cr is sometimes another kind of context,
-		# which does not expose set_source_rgba and other methods.
-		# this check avoids the exceptions that would be thrown then.
-		if isinstance(cr, cairo.Context):
-			return
+		self.log.debug('draw_callback: w/h=%u/%u, blink_state=%u', w, h, self.blink_state)
 
 		if self.blink_state:
 			cr.set_source_rgba(1.0, 0.0, 0.0, 0.8)

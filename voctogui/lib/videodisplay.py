@@ -6,11 +6,10 @@ from lib.config import Config
 class VideoDisplay(object):
 	""" Displays a Voctomix-Video-Stream into a GtkWidget """
 
-	def __init__(self, drawing_area, port, play_audio=False, draw_callback=None, level_callback=None):
+	def __init__(self, drawing_area, port, play_audio=False, level_callback=None):
 		self.log = logging.getLogger('VideoDisplay[%s]' % drawing_area.get_name())
 
 		self.drawing_area = drawing_area
-		self.draw_callback = draw_callback
 		self.level_callback = level_callback
 
 		caps = Config.get('mix', 'videocaps')
@@ -47,14 +46,6 @@ class VideoDisplay(object):
 				demux. !
 				{vcaps} !
 				queue !
-			"""
-
-		# If an overlay is required, add an cairooverlay-Element into the Video-Path
-		if self.draw_callback:
-			pipeline += """
-				videoconvert !
-				cairooverlay name=overlay !
-				videoconvert !
 			"""
 
 		# Video Display
@@ -118,9 +109,6 @@ class VideoDisplay(object):
 		if self.level_callback:
 			bus.connect("message::element", self.on_level)
 
-		if self.draw_callback:
-			self.pipeline.get_by_name('overlay').connect('draw', self.on_draw)
-
 		self.log.debug('Launching Display-Pipeline')
 		self.pipeline.set_state(Gst.State.PLAYING)
 
@@ -146,6 +134,3 @@ class VideoDisplay(object):
 		peaks = msg.get_structure().get_value('peak')
 		rms = msg.get_structure().get_value('rms')
 		self.level_callback(peaks, rms)
-
-	def on_draw(self, cairooverlay, cr, timestamp, duration):
-		self.draw_callback(cr, timestamp, duration)

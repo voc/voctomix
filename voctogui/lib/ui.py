@@ -36,7 +36,8 @@ class Ui(UiBuilder):
 
 
 		# Create Main-Video Overlay Controller
-		self.video_warning_overlay = VideoWarningOverlay()
+		drawing_area = self.find_widget_recursive(self.win, 'video_overlay_drawingarea')
+		self.video_warning_overlay = VideoWarningOverlay(drawing_area)
 
 
 		# Create Main-Video Display
@@ -44,7 +45,6 @@ class Ui(UiBuilder):
 		self.main_video_display = VideoDisplay(drawing_area,
 			port=11000,
 			play_audio=Config.getboolean('mainvideo', 'playaudio'),
-			draw_callback=self.video_warning_overlay.draw_callback,
 			level_callback=self.audio_level_display.level_callback)
 
 
