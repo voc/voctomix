@@ -1,10 +1,11 @@
 #!/bin/sh
 gst-launch-1.0 \
-	tcpclientsrc host=localhost port=13000 !\
+	tcpclientsrc host=localhost port=11000 !\
 	matroskademux name=demux \
 	\
 	demux. !\
 		queue !\
+		videoconvert !\
 		avenc_mpeg2video bitrate=5000000 max-key-interval=0 !\
 		queue !\
 		mux. \

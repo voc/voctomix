@@ -4,9 +4,10 @@ gst-launch-1.0 \
 	matroskademux name=demux \
 	\
 	demux. !\
-	queue !\
-	xvimagesink ts-offset=300000000 \
+		queue !\
+		glupload !\
+		glimagesink ts-offset=500000000 \
 	\
 	demux. !\
-	queue !\
-	alsasink provide-clock=false ts-offset=300000000
+		queue !\
+		alsasink provide-clock=false ts-offset=500000000
