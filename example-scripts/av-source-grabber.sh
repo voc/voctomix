@@ -6,5 +6,6 @@ ffmpeg -y \
 	-map "[a]" \
 	-c:a pcm_s16le \
 	-c:v rawvideo \
+	-pix_fmt uyvy422 \
 	-f matroska \
 	tcp://localhost:10002

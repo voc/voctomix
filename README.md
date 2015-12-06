@@ -47,7 +47,7 @@ For testing and development you may want to use a `config.ini` that reduces the 
 Such a config.ini might look like this:
 ````
 [mix]
-videocaps=video/x-raw,format=I420,width=320,height=180,framerate=25/1,pixel-aspect-ratio=1/1
+videocaps=video/x-raw,format=UYVY,width=320,height=180,framerate=25/1,pixel-aspect-ratio=1/1
 
 [previews]
 enabled=false
