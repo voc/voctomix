@@ -4,6 +4,6 @@ while true; do cat /tmp/bg.ts || exit 1; done |\
 	ffmpeg -re -i - \
 	-map 0:v \
 	-c:v rawvideo \
-	-pix_fmt uyvy422 \
+	-pix_fmt yuv420p \
 	-f matroska \
 	tcp://localhost:16000

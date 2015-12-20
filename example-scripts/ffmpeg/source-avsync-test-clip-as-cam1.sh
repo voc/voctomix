@@ -4,6 +4,6 @@ ffmpeg -y \
 	-vf scale=1920x1080 \
 	-c:v rawvideo \
 	-c:a pcm_s16le \
-	-pix_fmt uyvy422 \
+	-pix_fmt yuv420p \
 	-f matroska \
 	tcp://localhost:10000
