@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # WARNING: Using '%t' in the output filename requires a patched FFmpeg!
-# If this command fails with the messate 'Invalid segment filename template',
+# If this command fails with the message 'Invalid segment filename template',
 # you do not have such a FFmpeg version.
 
 ffmpeg \
