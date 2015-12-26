@@ -37,7 +37,7 @@ Now you should be able to clone the Git-Repository and run Voctomix or the GUI l
 git clone https://github.com/voc/voctomix.git
 cd voctomix
 ./voctocore/voctocore.py
-./voctocore/voctogui.py
+./voctogui/voctogui.py
 ````
 
 ## A word on CPU-Usage
