@@ -46,11 +46,31 @@ class VideoDisplay(object):
 			"""
 
 		# Video Display
-		pipeline += """
-			glupload !
-			glcolorconvert !
-			glimagesinkelement
-		"""
+		videosystem = Config.get('videodisplay', 'system')
+		self.log.debug('Configuring for Video-System %s', videosystem)
+		if videosystem == 'gl':
+			pipeline += """
+				glupload !
+				glcolorconvert !
+				glimagesinkelement
+			"""
+
+		elif videosystem == 'xv':
+			pipeline += """
+				xvimagesink
+			"""
+
+		elif videosystem == 'x':
+			pipeline += """
+				videoconvert !
+				videoscale !
+				ximagesink
+			"""
+
+		else:
+			raise Exception('Invalid Videodisplay-System configured: %s'. system)
+
+
 
 		# If an Audio-Path is required, add an Audio-Path through a level-Element
 		if self.level_callback or play_audio:
