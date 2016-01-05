@@ -5,6 +5,10 @@ import gi, signal, logging, sys
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst, GObject
 
+from twisted.internet import gireactor
+gireactor.install()
+from twisted.internet import reactor
+
 # check min-version
 minGst = (1, 5)
 minPy = (3, 0)
@@ -39,6 +43,8 @@ class Voctocore(object):
 
 		self.log.debug('creating ControlServer')
 		self.controlserver = ControlServer(self.pipeline)
+                reactor.listenTCP(9999, self.controlserver, interface="::")
+
 
 	def run(self):
 		self.log.info('running GObject-MainLoop')

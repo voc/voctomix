@@ -1,158 +1,79 @@
 #!/usr/bin/python3
-import socket, logging, traceback
-from queue import Queue
-from gi.repository import GObject
+import logging
+from twisted.internet import protocol
+from twisted.protocols.basic import LineOnlyReceiver
 
 from lib.commands import ControlServerCommands
-from lib.tcpmulticonnection import TCPMultiConnection
 from lib.response import NotifyResponse, OkResponse
 
-class ControlServer(TCPMultiConnection):
-	def __init__(self, pipeline):
-		'''Initialize server and start listening.'''
-		self.log = logging.getLogger('ControlServer')
-		super().__init__(port=9999)
 
-		self.command_queue = Queue()
+class ControlServerProtocol(LineOnlyReceiver):
 
-		self.commands = ControlServerCommands(pipeline)
+	delimiter = b'\n'
 
-		GObject.idle_add(self.on_loop)
+	def connectionMade(self):
+		self.commands = self.factory.commands
+		self.log = self.factory.log
+		self.factory.currentConnections.add(self)
 
-	def on_accepted(self, conn, addr):
-		'''Asynchronous connection listener. Starts a handler for each connection.'''
-		self.log.debug('setting gobject io-watch on connection')
-		GObject.io_add_watch(conn, GObject.IO_IN, self.on_data, [''])
-		GObject.io_add_watch(conn, GObject.IO_OUT, self.on_write)
+	def connectionLost(self, reason=protocol.connectionDone):
+		self.factory.currentConnections.remove(self)
 
-	def on_data(self, conn, _, leftovers, *args):
-		'''Asynchronous connection handler. Pushes data from socket
-		into command queue linewise'''
-		close_after = False
-		try:
-			while True:
-				try:
-					leftovers.append(conn.recv(4096).decode(errors='replace'))
-					if len(leftovers[-1]) == 0:
-						self.log.info("Socket was closed")
-						leftovers.pop()
-						close_after = True
-						break
+	def reply(self, line):
+		"""Send a reply to the client, encoded in UTF-8"""
+		self.sendLine(line.encode('utf-8'))
 
-				except UnicodeDecodeError as e:
-					continue
-		except:
-			pass
-
-		data = "".join(leftovers)
-		del leftovers[:]
-
-		lines = data.split('\n')
-		for line in lines[:-1]:
-			self.log.debug("got line: %r", line)
-
-			line = line.strip()
-			# TODO: move quit to on_loop
-			# 'quit' = remote wants us to close the connection
-			if line == 'quit':
-				self.log.info("Client asked us to close the Connection")
-				self.close_connection(conn)
-				return False
-
-			self.command_queue.put((line, conn))
-
-		if close_after:
-			self.close_connection(conn)
-			return False
-
-		if lines[-1] != '':
-			self.log.debug("remaining %r", lines[-1])
-
-		leftovers.append(lines[-1])
-		return True
-
-	def on_loop(self):
-		'''Command handler. Processes commands in the command queue whenever
-		nothing else is happening (registered as GObject idle callback)'''
-		if self.command_queue.empty():
-			return True
-		line, requestor = self.command_queue.get()
+	def lineReceived(self, line):
+		# Decode to text
+		line = line.decode(errors='replace')
 
 		words = line.split()
 		if len(words) < 1:
-			return True
+			return
 
 		command = words[0]
 		args = words[1:]
 
 		self.log.info("processing command %r with args %s", command, args)
 
+		if command == 'quit':
+			self.transport.loseConnection()
+			return
+
 		response = None
-		try:
-			# deny calling private methods
-			if command[0] == '_':
-				self.log.info('private methods are not callable')
-				raise KeyError()
+		command_function = self.commands.__class__.__dict__.get(command)
+		# deny calling private methods
+		if command.startswith('_'):
+			command_function = None
 
-			command_function = self.commands.__class__.__dict__[command]
-
-		except KeyError as e:
+		if command_function is None:
 			self.log.info("received unknown command %s", command)
-			response = "error unknown command %s\n" % command
+			self.reply("error unknown command %s" % command)
+			return
 
-		else:
-			try:
-				responseObject = command_function(self.commands, *args)
+		try:
+			responseObject = command_function(self.commands, *args)
+		except Exception as e:
+			message = str(e) or "<no message>"
+			self.reply("error %s" % message)
+			return
 
-			except Exception as e:
-				message = str(e) or "<no message>"
-				response = "error %s\n" % message
-
+		if not isinstance(responseObject, list):
+			responseObject = [responseObject]
+		for obj in responseObject:
+			if isinstance(obj, NotifyResponse):
+				for p in self.factory.currentConnections:
+					p.reply(str(obj))
 			else:
-				if isinstance(responseObject, NotifyResponse):
-					responseObject = [ responseObject ]
+				self.reply(str(obj))
 
-				if isinstance(responseObject, list):
-					for obj in responseObject:
-						signal = "%s\n" % str(obj)
-						for conn, queue in self.currentConnections.items():
-							queue.put(signal)
 
-				else:
-					response = "%s\n" % str(responseObject)
+class ControlServer(protocol.ServerFactory):
 
-		finally:
-			if response is not None and requestor in self.currentConnections:
-				self.currentConnections[requestor].put(response)
+	protocol = ControlServerProtocol
 
-		return True
-
-	def on_write(self, conn, *args):
-		# TODO: on_loop() is not called as soon as there is a writable socket
-		self.on_loop()
-
-		try:
-			queue = self.currentConnections[conn]
-		except KeyError:
-			return False
-
-		if queue.empty():
-			return True
-
-		message = queue.get()
-		try:
-			conn.send(message.encode())
-		except Exception as e:
-			self.log.warn(e)
-
-		return True
-
-	def notify_all(self, msg):
-		try:
-			words = msg.split()
-			words[-1] = self.commands.encodeSourceName(int(words[-1]))
-			msg = " ".join(words) + '\n'
-			for queue in self.currentConnections.values():
-				queue.put(msg)
-		except Exception as e:
-			self.log.debug("error during notify: %s", e)
+	def __init__(self, pipeline):
+		'''Initialize server and start listening.'''
+		self.log = logging.getLogger('ControlServer')
+		self.commands = ControlServerCommands(pipeline)
+		self.currentConnections = set()
