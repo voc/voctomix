@@ -11,9 +11,17 @@ class MiscToolbarController(object):
 		self.log = logging.getLogger('MiscToolbarController')
 
 		closebtn = uibuilder.find_widget_recursive(drawing_area, 'close')
+		closebtn.set_visible( Config.getboolean('misc', 'close') )
+		closebtn.connect('clicked', self.on_closebtn_clicked)
 
-		closebtn.connect('clicked', self.on_btn_clicked)
+		cutbtn = uibuilder.find_widget_recursive(drawing_area, 'cut')
+		cutbtn.set_visible( Config.getboolean('misc', 'cut') )
+		cutbtn.connect('clicked', self.on_cutbtn_clicked)
 
-	def on_btn_clicked(self, btn):
+	def on_closebtn_clicked(self, btn):
 		self.log.info('close-button clicked')
 		Gtk.main_quit()
+
+	def on_cutbtn_clicked(self, btn):
+		self.log.info('cut-button clicked')
+		Connection.send('message', 'cut')

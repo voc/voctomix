@@ -157,6 +157,21 @@
                 <property name="label" translatable="yes">Close</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-close</property>
+                <property name="no_show_all">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToolButton" id="cut">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Cut</property>
+                <property name="use_underline">True</property>
+                <property name="stock_id">gtk-cut</property>
+                <property name="no_show_all">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
