@@ -48,7 +48,6 @@ def enterNonblockingMode():
 	log.debug('entering nonblocking-mode')
 	conn.setblocking(False)
 	GObject.io_add_watch(conn, GObject.IO_IN, on_data, [''])
-	GObject.idle_add(on_loop)
 
 def on_data(conn, _, leftovers, *args):
 	global log
@@ -80,6 +79,10 @@ def on_data(conn, _, leftovers, *args):
 		log.debug("got line: %r", line)
 
 		line = line.strip()
+		if command_queue.empty():
+			log.debug('command_queue was empty, re-starting on_loop scheduling')
+			GObject.idle_add(on_loop)
+
 		command_queue.put((line, conn))
 
 	if lines[-1] != '':
@@ -89,18 +92,23 @@ def on_data(conn, _, leftovers, *args):
 	return True
 
 def on_loop():
-	global command_queue
-
 	'''Command handler. Processes commands in the command queue whenever
 	nothing else is happening (registered as GObject idle callback)'''
+
+	global command_queue
+
+	log.debug('on_loop called')
+
 	if command_queue.empty():
-		return True
+		log.debug('command_queue is empty again, stopping on_loop scheduling')
+		return False
 
 	line, requestor = command_queue.get()
 
 	words = line.split()
 	if len(words) < 1:
-		return True
+		log.debug('command_queue is empty again, stopping on_loop scheduling')
+		return False
 
 	signal = words[0]
 	args = words[1:]
