@@ -8,7 +8,7 @@ gst-launch-1.0 \
 		queue !\
 		videoconvert !\
 		videoscale !\
-		video/x-raw,format=UYVY,width=1920,height=1080,framerate=25/1,pixel-aspect-ratio=1/1 ! \
+		video/x-raw,format=I420,width=1920,height=1080,framerate=25/1,pixel-aspect-ratio=1/1 ! \
 		mux. \
 	\
 	src. !\
