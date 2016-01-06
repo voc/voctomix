@@ -27,7 +27,7 @@ class TCPMultiConnection(object):
 		conn, addr = sock.accept()
 		conn.setblocking(False)
 
-		self.log.info("Incomming Connection from %s", addr)
+		self.log.info("Incomming Connection from [%s]:%u (fd=%u)", addr[0], addr[1], conn.fileno())
 
 		self.currentConnections[conn] = Queue()
 		self.log.info('Now %u Receiver connected', len(self.currentConnections))
