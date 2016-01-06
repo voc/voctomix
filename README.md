@@ -8,21 +8,9 @@ The Voctomix Project consists of three parts:
  - Voctotools (tbd.), a Collection of Tools and Examples on how to talk to the core-process, feeding and receiving video-streams
 
 ## Installation
-Voctomix requires a fairly recent Version of GStreamer (at least 1.5, though we recommend 1.6 and later). Because we are using Debian Jessie as our production system, we are packaging the required Libraries in our own Debian Repository. The Packages inside this Repository are built against deb-multimedia.org, so to use them you should add the following lines to your `/etc/apt/sources.list`:
-````
-deb http://www.deb-multimedia.org jessie main non-free
-deb http://c3voc.de/voctomix jessie non-free
-````
+Voctomix requires a fairly recent Version of GStreamer (at least 1.5, though we recommend 1.6 and later). This is natively present on [Debian Sid](https://packages.debian.org/sid/libgstreamer1.0-0) and [Ubuntu Wily](http://packages.ubuntu.com/wily/libgstreamer1.0-0). On these Systems it should run out of the Box and we recommend using one of them.
 
-You'll then need install the GPG-Keys:
-````
-apt-get update
-apt-get install deb-multimedia-keyring
-curl https://c3voc.de/voctomix/gpg-key.asc | apt-key add -
-apt-get update
-````
-
-Before you can install the required Dependencies:
+Install the required Dependencies:
 ````
 apt-get install gstreamer1.0-libav gstreamer1.0-plugins-bad gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-ugly gstreamer1.0-tools libgstreamer1.0-0 python3 python3-gi gir1.2-gstreamer-1.0
 ````
@@ -36,9 +24,27 @@ Now you should be able to clone the Git-Repository and run Voctomix or the GUI l
 ````
 git clone https://github.com/voc/voctomix.git
 cd voctomix
-./voctocore/voctocore.py
-./voctogui/voctogui.py
+./voctocore/voctocore.py -vv
+./voctogui/voctogui.py -vv
 ````
+
+## Installation on Jessie
+Because we are using Debian Jessie as our production system (which only has [1.4 packaged](https://packages.debian.org/jessie/libgstreamer1.0-0)), we are packaging the required Libraries in our own Debian Repository. The Packages inside this Repository are built against deb-multimedia.org, so to use them you should add the following lines to your `/etc/apt/sources.list`:
+````
+deb http://www.deb-multimedia.org jessie main non-free
+deb http://c3voc.de/voctomix jessie non-free
+````
+
+You'll then need install the GPG-Keys:
+````
+apt-get update
+apt-get install deb-multimedia-keyring
+curl https://c3voc.de/voctomix/gpg-key.asc | apt-key add -
+apt-get update
+````
+
+Now proceed as described on unter [Installation](#installation).
+
 
 ## A word on CPU-Usage
 Voctomix requires a fair amount of CPU-Time to run in the default configuration of 1920×1080 at 25fps. Our Production-Systems have these CPUs: `Intel Core i7-3770 CPU 4x 3.40GHz` but we're also experimenting with newer ones like these: `Intel Core i7-6700K, 4x 4.00GHz`.
