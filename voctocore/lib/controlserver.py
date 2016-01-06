@@ -57,7 +57,9 @@ class ControlServer(TCPMultiConnection):
 				return False
 
 			if self.command_queue.empty():
+				self.log.debug('command_queue was empty, re-starting on_loop scheduling')
 				GObject.idle_add(self.on_loop)
+
 			self.command_queue.put((line, conn))
 
 		if close_after:
@@ -73,12 +75,18 @@ class ControlServer(TCPMultiConnection):
 	def on_loop(self):
 		'''Command handler. Processes commands in the command queue whenever
 		nothing else is happening (registered as GObject idle callback)'''
+
+		self.log.debug('on_loop called')
+
 		if self.command_queue.empty():
+			self.log.debug('command_queue is empty again, stopping on_loop scheduling')
 			return False
+
 		line, requestor = self.command_queue.get()
 
 		words = line.split()
 		if len(words) < 1:
+			self.log.debug('command_queue is empty again, stopping on_loop scheduling')
 			return False
 
 		command = words[0]
@@ -127,13 +135,17 @@ class ControlServer(TCPMultiConnection):
 
 	def _schedule_write(self, conn, message):
 		queue = self.currentConnections[conn]
+
 		if queue.empty():
+			self.log.debug('write_queue[%u] was empty, re-starting on_write scheduling', conn.fileno())
 			GObject.io_add_watch(conn, GObject.IO_OUT, self.on_write)
+
 		queue.put(message)
 
 	def on_write(self, conn, *args):
 		# TODO: on_loop() is not called as soon as there is a writable socket
 		self.on_loop()
+		self.log.debug('on_write[%u] called', conn.fileno())
 
 		try:
 			queue = self.currentConnections[conn]
@@ -141,6 +153,7 @@ class ControlServer(TCPMultiConnection):
 			return False
 
 		if queue.empty():
+			self.log.debug('write_queue[%u] is empty again, stopping on_write scheduling', conn.fileno())
 			return False
 
 		message = queue.get()
