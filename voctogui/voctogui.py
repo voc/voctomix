@@ -112,6 +112,19 @@ def main():
 	# fetch config from server
 	Config.fetchServerConfig()
 
+	# Warn when connecting to a non-local core without preview-encoders enabled
+	# the list-comparison is not complete (one could use a local hostname or the local system ip)
+	# but it's only here to warn that one might be making a mistake
+	use_previews = Config.getboolean('previews', 'enabled') and Config.getboolean('previews', 'use')
+	looks_like_localhost = Config.get('server', 'host') in ['::1', '127.0.0.1', 'localhost']
+	if not use_previews and not looks_like_localhost:
+		logging.warn(
+			'Connecting to `%s` (which looks like a remote host) might not work without enabeling '
+			'the preview encoders (set `[previews] enabled=true` on the core) or it might saturate '
+			'your ethernet link between the two machines.',
+			Config.get('server', 'host')
+		)
+
 	# switch connection to nonblocking, event-driven mode
 	Connection.enterNonblockingMode()
 
