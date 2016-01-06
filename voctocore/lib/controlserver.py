@@ -49,7 +49,6 @@ class ControlServer(TCPMultiConnection):
 			self.log.debug("got line: %r", line)
 
 			line = line.strip()
-			# TODO: move quit to on_loop
 			# 'quit' = remote wants us to close the connection
 			if line == 'quit':
 				self.log.info("Client asked us to close the Connection")
@@ -143,8 +142,6 @@ class ControlServer(TCPMultiConnection):
 		queue.put(message)
 
 	def on_write(self, conn, *args):
-		# TODO: on_loop() is not called as soon as there is a writable socket
-		self.on_loop()
 		self.log.debug('on_write[%u] called', conn.fileno())
 
 		try:
