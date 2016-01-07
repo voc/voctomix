@@ -7,7 +7,7 @@ class VideoDisplay(object):
 	""" Displays a Voctomix-Video-Stream into a GtkWidget """
 
 	def __init__(self, drawing_area, port, play_audio=False, level_callback=None):
-		self.log = logging.getLogger('VideoDisplay[%s]' % drawing_area.get_name())
+		self.log = logging.getLogger('VideoDisplay[%u]' % port)
 
 		self.drawing_area = drawing_area
 		self.level_callback = level_callback
