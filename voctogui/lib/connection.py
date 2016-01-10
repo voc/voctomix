@@ -108,7 +108,7 @@ def on_loop():
 	words = line.split()
 	if len(words) < 1:
 		log.debug('command_queue is empty again, stopping on_loop scheduling')
-		return False
+		return True
 
 	signal = words[0]
 	args = words[1:]

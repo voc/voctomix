@@ -86,7 +86,7 @@ class ControlServer(TCPMultiConnection):
 		words = line.split()
 		if len(words) < 1:
 			self.log.debug('command_queue is empty again, stopping on_loop scheduling')
-			return False
+			return True
 
 		command = words[0]
 		args = words[1:]
