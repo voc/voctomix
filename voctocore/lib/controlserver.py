@@ -55,9 +55,8 @@ class ControlServer(TCPMultiConnection):
 				self.close_connection(conn)
 				return False
 
-			if self.command_queue.empty():
-				self.log.debug('command_queue was empty, re-starting on_loop scheduling')
-				GObject.idle_add(self.on_loop)
+			self.log.debug('re-starting on_loop scheduling')
+			GObject.idle_add(self.on_loop)
 
 			self.command_queue.put((line, conn))
 
@@ -135,9 +134,8 @@ class ControlServer(TCPMultiConnection):
 	def _schedule_write(self, conn, message):
 		queue = self.currentConnections[conn]
 
-		if queue.empty():
-			self.log.debug('write_queue[%u] was empty, re-starting on_write scheduling', conn.fileno())
-			GObject.io_add_watch(conn, GObject.IO_OUT, self.on_write)
+		self.log.debug('re-starting on_write scheduling', conn.fileno())
+		GObject.io_add_watch(conn, GObject.IO_OUT, self.on_write)
 
 		queue.put(message)
 

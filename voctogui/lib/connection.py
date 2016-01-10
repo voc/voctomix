@@ -79,9 +79,8 @@ def on_data(conn, _, leftovers, *args):
 		log.debug("got line: %r", line)
 
 		line = line.strip()
-		if command_queue.empty():
-			log.debug('command_queue was empty, re-starting on_loop scheduling')
-			GObject.idle_add(on_loop)
+		log.debug('re-starting on_loop scheduling')
+		GObject.idle_add(on_loop)
 
 		command_queue.put((line, conn))
 
