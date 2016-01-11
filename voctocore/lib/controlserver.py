@@ -134,7 +134,7 @@ class ControlServer(TCPMultiConnection):
 	def _schedule_write(self, conn, message):
 		queue = self.currentConnections[conn]
 
-		self.log.debug('re-starting on_write scheduling', conn.fileno())
+		self.log.debug('re-starting on_write[%u] scheduling', conn.fileno())
 		GObject.io_add_watch(conn, GObject.IO_OUT, self.on_write)
 
 		queue.put(message)
