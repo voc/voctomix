@@ -21,7 +21,7 @@ class Pipeline(object):
 
 		names = Config.getlist('mix', 'sources')
 		if len(names) < 1:
-			raise RuntimeException("At least one AVSource must be configured!")
+			raise RuntimeError("At least one AVSource must be configured!")
 
 		self.sources = []
 		self.mirrors = []
@@ -80,7 +80,7 @@ class Pipeline(object):
 		if Config.getboolean('stream-blanker', 'enabled'):
 			names = Config.getlist('stream-blanker', 'sources')
 			if len(names) < 1:
-				raise RuntimeException("At least one StreamBlanker-Source must be configured or the StreamBlanker disabled!")
+				raise RuntimeError("At least one StreamBlanker-Source must be configured or the StreamBlanker disabled!")
 			for idx, name in enumerate(names):
 				port = 17000 + idx
 				self.log.info('Creating StreamBlanker VSource %s at tcp-port %u', name, port)
