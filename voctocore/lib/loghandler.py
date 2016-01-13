@@ -38,6 +38,6 @@ class LogFormatter(logging.Formatter):
 
 
 class LogHandler(logging.StreamHandler):
-	def __init__(self, docolor):
+	def __init__(self, docolor, timestamps):
 		super().__init__()
-		self.setFormatter(LogFormatter(docolor))
+		self.setFormatter(LogFormatter(docolor,timestamps))
