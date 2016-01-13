@@ -1,10 +1,11 @@
 #!/usr/bin/python3
-import logging
+import logging, time
 
 class LogFormatter(logging.Formatter):
-	def __init__(self, docolor):
+	def __init__(self, docolor, timestamps=False):
 		super().__init__()
 		self.docolor = docolor
+		self.timestamps = timestamps
 
 	def formatMessage(self, record):
 		if self.docolor:
@@ -21,11 +22,18 @@ class LogFormatter(logging.Formatter):
 				c_lvl = 31
 				c_mod = 31
 				c_msg = 31
-
-			fmt = '\x1b['+str(c_lvl)+'m%(levelname)8s\x1b[0m \x1b['+str(c_mod)+'m%(name)s\x1b['+str(c_msg)+'m: %(message)s\x1b[0m'
+			if self.timestamps:
+				fmt = '%(asctime)s \x1b['+str(c_lvl)+'m%(levelname)8s\x1b[0m \x1b['+str(c_mod)+'m%(name)s\x1b['+str(c_msg)+'m: %(message)s\x1b[0m'
+			else:
+				fmt = '\x1b['+str(c_lvl)+'m%(levelname)8s\x1b[0m \x1b['+str(c_mod)+'m%(name)s\x1b['+str(c_msg)+'m: %(message)s\x1b[0m'
 		else:
-			fmt = '%(levelname)8s %(name)s: %(message)s'
+			if self.timestamps:
+				fmt = '%(asctime)s %(levelname)8s %(name)s: %(message)s'
+			else:
+				fmt = '%(levelname)8s %(name)s: %(message)s'
 
+		if not 'asctime' in record.__dict__:
+			record.__dict__['asctime']=time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(record.__dict__['created']))
 		return fmt % record.__dict__
 
 
