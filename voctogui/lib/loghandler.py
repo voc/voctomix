@@ -1,10 +1,11 @@
 #!/usr/bin/python3
-import logging
+import logging, time
 
 class LogFormatter(logging.Formatter):
-	def __init__(self, docolor):
+	def __init__(self, docolor, timestamps=False):
 		super().__init__()
 		self.docolor = docolor
+		self.timestamps = timestamps
 
 	def formatMessage(self, record):
 		if self.docolor:
@@ -26,10 +27,16 @@ class LogFormatter(logging.Formatter):
 		else:
 			fmt = '%(levelname)8s %(name)s: %(message)s'
 
+		if self.timestamps:
+			fmt = '%(asctime)s '+fmt
+
+		if not 'asctime' in record.__dict__:
+			record.__dict__['asctime']=time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(record.__dict__['created']))
+
 		return fmt % record.__dict__
 
 
 class LogHandler(logging.StreamHandler):
-	def __init__(self, docolor):
+	def __init__(self, docolor, timestamps):
 		super().__init__()
-		self.setFormatter(LogFormatter(docolor))
+		self.setFormatter(LogFormatter(docolor,timestamps))
