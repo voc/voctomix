@@ -23,6 +23,7 @@ class AVSource(TCPSingleConnection):
 	def on_accepted(self, conn, addr):
 		pipeline = """
 			fdsrc fd={fd} !
+			queue !
 			matroskademux name=demux
 		""".format(
 			fd=conn.fileno()
