@@ -56,8 +56,9 @@ class Voctocore(object):
 def main():
 	# configure logging
 	docolor = (Args.color == 'always') or (Args.color == 'auto' and sys.stderr.isatty())
+	timestamp = Args.timestamp > 0
 
-	handler = LogHandler(docolor)
+	handler = LogHandler(docolor,timestamp)
 	logging.root.addHandler(handler)
 
 	if Args.verbose >= 2:
