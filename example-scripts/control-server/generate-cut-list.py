@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import socket
 import datetime
+import sys
 
 host = 'localhost'
 port = 9999
@@ -17,3 +18,4 @@ for line in fd:
 	if signal == 'message' and args[0] == 'cut':
 		ts = datetime.datetime.now().strftime("%Y-%m-%d/%H_%M_%S")
 		print(ts)
+		sys.stdout.flush()
