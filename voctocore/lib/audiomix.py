@@ -3,6 +3,7 @@ from gi.repository import Gst
 from enum import Enum
 
 from lib.config import Config
+from lib.clock import Clock
 
 class AudioMix(object):
 	def __init__(self):
@@ -47,6 +48,7 @@ class AudioMix(object):
 
 		self.log.debug('Creating Mixing-Pipeline:\n%s', pipeline)
 		self.mixingPipeline = Gst.parse_launch(pipeline)
+		self.mixingPipeline.use_clock(Clock)
 
 		self.log.debug('Binding Error & End-of-Stream-Signal on Mixing-Pipeline')
 		self.mixingPipeline.bus.add_signal_watch()
