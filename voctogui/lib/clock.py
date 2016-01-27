@@ -12,8 +12,8 @@ log.debug("Obtaining System-Clock")
 SystemClock = Gst.SystemClock.obtain()
 
 def obtainClock(host):
-	global log, Clock
+	global log, Clock, SystemClock
 
 	log.debug('obtaining NetClientClock from host %s', host)
-	Clock = GstNet.NetClientClock.new('voctocore', host, port, 0)
+	Clock = GstNet.NetClientClock.new('voctocore', host, port, SystemClock.get_time())
 	log.info('obtained NetClientClock from host %s: %s', host, Clock)
