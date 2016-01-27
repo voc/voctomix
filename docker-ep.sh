@@ -58,6 +58,7 @@ function usage() {
 	echo "core 			- starts voctomix gore"
 	echo "gui 			- starts the voctomix GUI"
 	echo "examples	 	- lists the example scripts"
+	echo "bash			- run interactive bash"
 	echo "scriptname.py - starts the example script named 'scriptname.py' "
 }
 
@@ -73,6 +74,10 @@ case $1 in
 		;;
 	core )
 		startCore
+		;;
+	bash )
+		shift 
+		bash $@
 		;;
 	* )
 		runExample $1
