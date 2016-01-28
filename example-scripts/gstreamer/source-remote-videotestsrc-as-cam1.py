@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import sys, gi, signal
+import argparse, socket
 
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst, GstNet, GObject
@@ -9,12 +10,12 @@ GObject.threads_init()
 Gst.init([])
 
 class Source(object):
-	def __init__(self):
+	def __init__(self, ip):
 		# it works much better with a local file
 		pipeline = """
 			videotestsrc pattern=ball foreground-color=0x00ff0000 background-color=0x00440000 !
 				timeoverlay !
-				video/x-raw,format=I420,width=1920,height=1080,framerate=25/1,pixel-aspect-ratio=1/1 !
+				video/x-raw,format=I420,width=1280,height=720,framerate=25/1,pixel-aspect-ratio=1/1 !
 				mux.
 
 			audiotestsrc freq=330 !
@@ -22,10 +23,12 @@ class Source(object):
 				mux.
 
 			matroskamux name=mux !
-				tcpclientsink host=127.0.0.1 port=10000
-		"""
+				tcpclientsink host={ip} port=10000
+		""".format(
+			ip=ip
+		)
 
-		self.clock = GstNet.NetClientClock.new('voctocore', '127.0.0.1', 9998, 0)
+		self.clock = GstNet.NetClientClock.new('voctocore', ip, 9998, 0)
 		print('obtained NetClientClock from host', self.clock)
 
 		print('waiting for NetClientClock to sync…')
@@ -58,8 +61,19 @@ class Source(object):
 def main():
 	signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-	src = Source()
+	parser = argparse.ArgumentParser(description='Voctocore Remote-Source')
+	parser.add_argument('host')
 
+	args = parser.parse_args()
+	print('Resolving hostname '+args.host)
+	addrs = [ str(i[4][0]) for i in socket.getaddrinfo(args.host, None) ]
+	if len(addrs) == 0:
+		print('Found no IPs')
+		sys.exit(1)
+
+	print('Using IP '+addrs[0])
+
+	src = Source(addrs[0])
 	mainloop = GObject.MainLoop()
 	try:
 		mainloop.run()
