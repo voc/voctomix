@@ -12,16 +12,16 @@ class Source(object):
 	def __init__(self):
 		# it works much better with a local file
 		pipeline = """
-			videotestsrc pattern=ball foreground-color=0x00ff0000 background-color=0x00440000 !\
+			videotestsrc pattern=ball foreground-color=0x00ff0000 background-color=0x00440000 !
 				timeoverlay !
-				video/x-raw,format=I420,width=192,height=108,framerate=25/1,pixel-aspect-ratio=1/1 !\
-				mux. \
-			\
-			audiotestsrc freq=330 !\
-				audio/x-raw,format=S16LE,channels=2,layout=interleaved,rate=48000 !\
-				mux. \
-			\
-			matroskamux name=mux !\
+				video/x-raw,format=I420,width=192,height=108,framerate=25/1,pixel-aspect-ratio=1/1 !
+				mux.
+
+			audiotestsrc freq=330 !
+				audio/x-raw,format=S16LE,channels=2,layout=interleaved,rate=48000 !
+				mux.
+
+			matroskamux name=mux !
 				tcpclientsink host=127.0.0.1 port=10000
 		"""
 
