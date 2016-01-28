@@ -14,7 +14,7 @@ class Source(object):
 		pipeline = """
 			videotestsrc pattern=ball foreground-color=0x00ff0000 background-color=0x00440000 !
 				timeoverlay !
-				video/x-raw,format=I420,width=192,height=108,framerate=25/1,pixel-aspect-ratio=1/1 !
+				video/x-raw,format=I420,width=1920,height=1080,framerate=25/1,pixel-aspect-ratio=1/1 !
 				mux.
 
 			audiotestsrc freq=330 !
