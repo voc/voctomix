@@ -25,10 +25,13 @@ class Source(object):
 				tcpclientsink host=127.0.0.1 port=10000
 		"""
 
-		clock = Gst.SystemClock.obtain()
-		self.clock = GstNet.NetClientClock.new('voctocore', '127.0.0.1', 9998, clock.get_time())
+		self.clock = GstNet.NetClientClock.new('voctocore', '127.0.0.1', 9998, 0)
 		print('obtained NetClientClock from host', self.clock)
 
+		print('waiting for NetClientClock to sync…')
+		self.clock.wait_for_sync(Gst.CLOCK_TIME_NONE)
+
+		print('starting pipeline')
 		self.senderPipeline = Gst.parse_launch(pipeline)
 		self.senderPipeline.use_clock(self.clock)
 		self.src = self.senderPipeline.get_by_name('src')
