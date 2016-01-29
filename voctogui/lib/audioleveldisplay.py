@@ -36,24 +36,40 @@ class AudioLevelDisplay(object):
 
 		cr.set_line_width(channel_width)
 		for y in range(0, height):
-			pct = y / height
+			pct = self.clamp(((y / height) - 0.6) / 0.42, 0, 1)
 
 			for channel in range(0, channels):
 				x = (channel * channel_width) + (channel * margin)
 
 				bright = 0.25
-				if y < rms_px[channel]:
+				if int(y - decay_px[channel]) in range(0, 2):
+					bright = 1.5
+				elif y < rms_px[channel]:
 					bright = 1
-				# elif abs(y - peak_px[channel]) < 3:
-				# 	bright = 1.5
-				elif y < decay_px[channel]:
+				elif y < peak_px[channel]:
 					bright = 0.75
 
-				cr.set_source_rgb(pct * bright, (1-pct) * bright, 0 * bright)
+				cr.set_source_rgb(pct * bright, (1-pct) * bright * 0.75, 0 * bright)
 
 				cr.move_to(x, height-y)
 				cr.line_to(x + channel_width, height-y)
 				cr.stroke()
+
+				cr.set_source_rgb(0,0,0)
+				cr.move_to(x + channel_width, height-y)
+				cr.line_to(x + channel_width + margin, height-y)
+				cr.stroke()
+
+		cr.set_source_rgb(1, 1, 1)
+		for db in [-40, -20, -10, -5, -4, -3, -2, -1]:
+			text = str(db)
+			xbearing, ybearing, textwidth, textheight, xadvance, yadvance = (
+				cr.text_extents(text))
+
+			y = self.normalize_db(db) * height
+			cr.move_to((width-textwidth) / 2, height - y - textheight)
+			cr.show_text(text)
+
 
 		return True
 
