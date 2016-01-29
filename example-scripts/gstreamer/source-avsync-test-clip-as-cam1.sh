@@ -1,4 +1,5 @@
 #!/bin/sh
+. `dirname "$0"`/../config.sh
 gst-launch-1.0 \
 	uridecodebin \
 		uri=http://c3voc.mazdermind.de/testfiles/avsync.mp4 \
@@ -8,7 +9,7 @@ gst-launch-1.0 \
 		queue !\
 		videoconvert !\
 		videoscale !\
-		video/x-raw,format=I420,width=1920,height=1080,framerate=25/1,pixel-aspect-ratio=1/1 ! \
+		video/x-raw,format=I420,width=$WIDTH,height=$HEIGHT,framerate=$FRAMERATE/1,pixel-aspect-ratio=1/1 ! \
 		mux. \
 	\
 	src. !\
@@ -16,7 +17,7 @@ gst-launch-1.0 \
 		audioconvert !\
 		audioresample !\
 		audiorate !\
-		audio/x-raw,format=S16LE,channels=2,layout=interleaved,rate=48000 !\
+		audio/x-raw,format=S16LE,channels=2,layout=interleaved,rate=$AUDIORATE !\
 		mux. \
 	\
 	matroskamux name=mux !\
