@@ -141,6 +141,7 @@ class VideoDisplay(object):
 		if msg.type != Gst.MessageType.ELEMENT:
 			return
 
-		peaks = msg.get_structure().get_value('peak')
 		rms = msg.get_structure().get_value('rms')
-		self.level_callback(peaks, rms)
+		peak = msg.get_structure().get_value('peak')
+		decay = msg.get_structure().get_value('decay')
+		self.level_callback(rms, peak, decay)
