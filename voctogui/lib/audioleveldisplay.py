@@ -63,8 +63,8 @@ class AudioLevelDisplay(object):
 		# -15db -> 0.50
 		#  -5db -> 0.25
 		#  -0db -> 0.00 (very loud)
-		logscale = math.log10(-0.15* (db) +1)
-		normalized = 1 - self.clamp(logscale, 0, 1)
+		logscale = 1 - math.log10(-0.15 * db + 1)
+		normalized = self.clamp(logscale, 0, 1)
 		return normalized
 
 	def clamp(self, value, min_value, max_value):
