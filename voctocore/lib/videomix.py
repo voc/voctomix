@@ -62,6 +62,7 @@ class VideoMix(object):
 		for idx, name in enumerate(self.names):
 			pipeline += """
 				intervideosrc channel=video_{name}_mixer !
+				{caps} !
 				mix.
 			""".format(
 				name=name,
