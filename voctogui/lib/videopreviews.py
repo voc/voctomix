@@ -52,7 +52,7 @@ class VideoPreviewsController(object):
 			video.set_size_request(width, height)
 			drawing_area.pack_start(preview, fill=False, expand=False, padding=0)
 
-			player = VideoDisplay(video, port=13000 + idx)
+			player = VideoDisplay(video, port=13000 + idx, width=width, height=height)
 
 			uibuilder.find_widget_recursive(preview, 'label').set_label(source)
 			btn_a = uibuilder.find_widget_recursive(preview, 'btn_a')

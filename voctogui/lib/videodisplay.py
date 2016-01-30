@@ -6,7 +6,7 @@ from lib.config import Config
 class VideoDisplay(object):
 	""" Displays a Voctomix-Video-Stream into a GtkWidget """
 
-	def __init__(self, drawing_area, port, play_audio=False, level_callback=None):
+	def __init__(self, drawing_area, port, width=None, height=None, play_audio=False, level_callback=None):
 		self.log = logging.getLogger('VideoDisplay[%u]' % port)
 
 		self.drawing_area = drawing_area
@@ -61,11 +61,18 @@ class VideoDisplay(object):
 			"""
 
 		elif videosystem == 'x':
+			prescale_caps = 'video/x-raw'
+			if width and height:
+				prescale_caps += ',width=%u,height=%u' % (width, height)
+
 			pipeline += """
 				videoconvert !
 				videoscale !
+				{prescale_caps} !
 				ximagesink
-			"""
+			""".format(
+				prescale_caps=prescale_caps
+			)
 
 		else:
 			raise Exception('Invalid Videodisplay-System configured: %s'. system)
