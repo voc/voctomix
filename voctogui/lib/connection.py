@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 import logging
 import socket
 import json

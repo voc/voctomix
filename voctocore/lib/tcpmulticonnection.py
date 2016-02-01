@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 import logging, socket
 from queue import Queue
 from gi.repository import GObject

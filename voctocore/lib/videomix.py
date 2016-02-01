@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 import logging
 from gi.repository import Gst
 from enum import Enum, unique

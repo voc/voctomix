@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 import argparse
 
 __all__ = ['Args']

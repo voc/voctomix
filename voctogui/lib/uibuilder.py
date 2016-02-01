@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 import gi, logging
 from gi.repository import Gtk, Gst
 
