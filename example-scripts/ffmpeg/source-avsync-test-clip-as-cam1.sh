@@ -1,6 +1,6 @@
 #!/bin/sh
 . `dirname "$0"`/../config.sh
-ffmpeg -y \
+ffmpeg -y -nostdin \
 	-i http://c3voc.mazdermind.de/testfiles/avsync.ts \
 	-filter_complex "
 		[0:v] scale=$WIDTH:$HEIGHT,fps=$FRAMERATE [v] ;

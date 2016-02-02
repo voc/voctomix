@@ -2,7 +2,7 @@
 . `dirname "$0"`/../config.sh
 wget -nc -O /tmp/machine_lullaby_1.ogg http://c3voc.mazdermind.de/testfiles/machine_lullaby_1.ogg
 while true; do
-	ffmpeg -y \
+	ffmpeg -y -nostdin \
 		-i "/tmp/machine_lullaby_1.ogg" \
 		-ac 2 \
 		-af aresample=$AUDIORATE \

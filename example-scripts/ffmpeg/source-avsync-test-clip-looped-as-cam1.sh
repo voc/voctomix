@@ -1,7 +1,7 @@
 #!/bin/sh
 . `dirname "$0"`/../config.sh
 wget -nc -O /tmp/avsync.ts http://c3voc.mazdermind.de/testfiles/avsync.ts
-(while true; do cat /tmp/avsync.ts || exit; done) | ffmpeg -y \
+(while true; do cat /tmp/avsync.ts || exit; done) | ffmpeg -y -nostdin \
 	-i - \
 	-filter_complex "
 		[0:v] scale=$WIDTH:$HEIGHT,fps=$FRAMERATE [v] ;

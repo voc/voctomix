@@ -1,5 +1,5 @@
 #!/bin/sh
-ffmpeg -y \
+ffmpeg -y -nostdin \
 	-f decklink \
 	-i 'DeckLink Mini Recorder (1)@10' \
 	-c:v rawvideo -c:a pcm_s16le \
