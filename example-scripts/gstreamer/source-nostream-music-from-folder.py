@@ -56,9 +56,9 @@ class LoopSource(object):
 
 	def next_track(self):
 		print("next_track")
-		self.src.set_state(Gst.State.READY)
+		self.pipeline.set_state(Gst.State.READY)
 		self.src.set_property('uri', 'file:///home/peter/Music/pieces/003 - Taio Cruz feat. Kylie Minogue - Higher.mp3');
-		self.src.set_state(Gst.State.PLAYING)
+		self.pipeline.set_state(Gst.State.PLAYING)
 		return False
 
 	def on_eos(self, bus, message):
