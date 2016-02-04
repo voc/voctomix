@@ -1,15 +1,79 @@
 #!/usr/bin/env python3
-import sys, gi, signal
+import os, sys, gi, signal
+import argparse, logging, pyinotify
 
 gi.require_version('Gst', '1.0')
-from gi.repository import Gst, GObject
+from gi.repository import Gst, GObject, GLib
 
 # init GObject & Co. before importing local classes
 GObject.threads_init()
 Gst.init([])
 
+class Directory(object):
+	def __init__(self, path):
+		self.log = logging.getLogger('Directory')
+		self.path = path
+		self.scheduled = False
+		self.rescan()
+
+		self.log.info('setting up inotify watch for %s', self.path)
+		wm = pyinotify.WatchManager()
+		notifier = pyinotify.Notifier(wm,
+			timeout=10,
+			default_proc_fun=self.inotify_callback)
+
+		wm.add_watch(
+			self.path,
+			#pyinotify.ALL_EVENTS,
+			pyinotify.IN_DELETE | pyinotify.IN_CREATE | pyinotify.IN_MODIFY,
+			rec=True)
+
+		GLib.io_add_watch(
+			notifier._fd,
+			GLib.IO_IN,
+			self.io_callback,
+			notifier)
+
+	def inotify_callback(self, notifier):
+		self.log.info('inotify callback %s: %s', notifier.maskname, notifier.pathname)
+		if not self.scheduled:
+			self.scheduled = True
+			GLib.timeout_add(100, self.rescan)
+		return True
+
+	def io_callback(self, source, condition, notifier):
+		notifier.process_events()
+		while notifier.check_events():
+			notifier.read_events()
+			notifier.process_events()
+
+		return True
+
+	def is_playable_file(self, filepath):
+		root, ext = os.path.splitext(filepath)
+		return ext in ['.mp3', '.ogg', '.oga', '.wav', '.m4a', '.flac', 'self.opus']
+
+	def rescan(self):
+		self.log.info('scanning directory %s', self.path)
+		self.scheduled = False
+
+		all_files = []
+
+		for root, dirs, files in os.walk(self.path):
+			files = filter(self.is_playable_file, files)
+			files = map(lambda f: os.path.join(root, f), files)
+			files = list(files)
+
+			self.log.debug('found directory %s: %u playable file(s)', root, len(files))
+			all_files.extend(files)
+
+		self.log.info('found %u playable files', len(all_files))
+		self.files = all_files
+
+
 class LoopSource(object):
-	def __init__(self):
+	def __init__(self, directory):
+		self.log = logging.getLogger('LoopSource')
 		pipeline = """
 			audioresample name=join !
 			audioconvert !
@@ -72,9 +136,20 @@ class LoopSource(object):
 		sys.exit(1)
 
 def main():
+	logging.basicConfig(
+		level=logging.DEBUG,
+		format='%(levelname)8s %(name)s: %(message)s')
+
 	signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-	src = LoopSource()
+	parser = argparse.ArgumentParser(description='Voctocore Music-Source')
+	parser.add_argument('directory')
+
+	args = parser.parse_args()
+	print('Playing from Directory '+args.directory)
+
+	directory = Directory(args.directory)
+	#src = LoopSource(directory)
 
 	mainloop = GObject.MainLoop()
 	try:
