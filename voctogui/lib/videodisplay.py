@@ -93,7 +93,7 @@ class VideoDisplay(object):
 			if play_audio:
 				# ts-offset=1000000000 (1s) - should keep audio & video in sync but delay by 1s
 				pipeline += """
-					alsasink sync=False
+					alsasink
 				"""
 
 			# Otherwise just trash the Audio
