@@ -32,6 +32,7 @@ from lib.ui import Ui
 from lib.loghandler import LogHandler
 
 import lib.connection as Connection
+import lib.clock as ClockManager
 
 # main class
 class Voctogui(object):
@@ -124,6 +125,9 @@ def main():
 			'your ethernet link between the two machines.',
 			Config.get('server', 'host')
 		)
+
+	# obtain network-clock
+	ClockManager.obtainClock(Connection.ip)
 
 	# switch connection to nonblocking, event-driven mode
 	Connection.enterNonblockingMode()

@@ -3,6 +3,7 @@ from gi.repository import Gst
 
 from lib.config import Config
 from lib.tcpsingleconnection import TCPSingleConnection
+from lib.clock import Clock
 
 class AVSource(TCPSingleConnection):
 	def __init__(self, name, port, outputs=None, has_audio=True, has_video=True):
@@ -64,6 +65,7 @@ class AVSource(TCPSingleConnection):
 
 		self.log.debug('Launching Source-Pipeline:\n%s', pipeline)
 		self.receiverPipeline = Gst.parse_launch(pipeline)
+		self.receiverPipeline.use_clock(Clock)
 
 		self.log.debug('Binding End-of-Stream-Signal on Source-Pipeline')
 		self.receiverPipeline.bus.add_signal_watch()

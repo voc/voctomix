@@ -3,6 +3,7 @@ from gi.repository import Gst
 
 from lib.config import Config
 from lib.tcpmulticonnection import TCPMultiConnection
+from lib.clock import Clock
 
 class AVRawOutput(TCPMultiConnection):
 	def __init__(self, channel, port):
@@ -38,6 +39,7 @@ class AVRawOutput(TCPMultiConnection):
 		)
 		self.log.debug('Creating Output-Pipeline:\n%s', pipeline)
 		self.outputPipeline = Gst.parse_launch(pipeline)
+		self.outputPipeline.use_clock(Clock)
 
 		self.log.debug('Binding Error & End-of-Stream-Signal on Output-Pipeline')
 		self.outputPipeline.bus.add_signal_watch()

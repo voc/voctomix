@@ -3,7 +3,7 @@ import gi, signal, logging, sys
 
 # import GStreamer and GLib-Helper classes
 gi.require_version('Gst', '1.0')
-from gi.repository import Gst, GObject
+from gi.repository import Gst, GstNet, GObject
 
 # check min-version
 minGst = (1, 5)

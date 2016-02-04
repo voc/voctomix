@@ -7,16 +7,20 @@ from gi.repository import Gtk, GObject
 
 log = logging.getLogger('Connection')
 conn = None
+ip = None
 port = 9999
 command_queue = Queue()
 signal_handlers = {}
 
 def establish(host):
-	global conn, port, log
+	global conn, port, log, ip
 
 	log.info('establishing Connection to %s', host)
 	conn = socket.create_connection( (host, port) )
 	log.debug('Connection successful \o/')
+
+	ip = conn.getpeername()[0]
+	log.debug('Remote-IP is %s', ip)
 
 def fetchServerConfig():
 	global conn, log

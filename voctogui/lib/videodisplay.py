@@ -2,6 +2,7 @@ import logging
 from gi.repository import Gst
 
 from lib.config import Config
+from lib.clock import Clock
 
 class VideoDisplay(object):
 	""" Displays a Voctomix-Video-Stream into a GtkWidget """
@@ -92,7 +93,7 @@ class VideoDisplay(object):
 			if play_audio:
 				# ts-offset=1000000000 (1s) - should keep audio & video in sync but delay by 1s
 				pipeline += """
-					alsasink sync=False
+					alsasink
 				"""
 
 			# Otherwise just trash the Audio
@@ -111,6 +112,7 @@ class VideoDisplay(object):
 
 		self.log.debug('Creating Display-Pipeline:\n%s', pipeline)
 		self.pipeline = Gst.parse_launch(pipeline)
+		self.pipeline.use_clock(Clock)
 
 		self.drawing_area.realize()
 		self.xid = self.drawing_area.get_property('window').get_xid()

@@ -36,6 +36,7 @@ Also, if enabled in Config, another Building-Block is chained after the Main-Mix
                 \-> Encoder* -> PreviewPort* 14000…
 
 9999 Control-Server
+9998 GstNetTimeProvider Network-Clock
 
 *)  only when [previews] enabled=true is configured
 **) only when [stream-blanker] enabled=true is configured
