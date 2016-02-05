@@ -10,6 +10,6 @@ wget -nc -O /tmp/avsync.ts http://c3voc.mazdermind.de/testfiles/avsync.ts
 	-map "[v]" -map "[a]" \
 	-c:v rawvideo \
 	-c:a pcm_s16le \
-	-pix_fmt yuv420p \
+	-pix_fmt uyvy422 \
 	-f matroska \
 	tcp://localhost:10000

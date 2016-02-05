@@ -8,7 +8,7 @@ ffmpeg -y -nostdin \
 		[0:a] aresample=$AUDIORATE [a]
 	" \
 	-map "[v]" -map "[a]" \
-	-pix_fmt yuv420p \
+	-pix_fmt uyvy422 \
 	-c:v rawvideo \
 	-c:a pcm_s16le \
 	-f matroska \

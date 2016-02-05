@@ -8,6 +8,6 @@ while true; do cat /tmp/pause.ts || exit 1; done |\
 	" \
 	-map '[v]' \
 	-c:v rawvideo \
-	-pix_fmt yuv420p \
+	-pix_fmt uyvy422 \
 	-f matroska \
 	tcp://localhost:17000

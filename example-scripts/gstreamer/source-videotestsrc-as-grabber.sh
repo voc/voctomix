@@ -2,7 +2,7 @@
 . `dirname "$0"`/../config.sh
 gst-launch-1.0 \
 	videotestsrc pattern=snow !\
-		video/x-raw,format=I420,width=$WIDTH,height=$HEIGHT,framerate=$FRAMERATE/1,pixel-aspect-ratio=1/1 ! \
+		video/x-raw,format=UYVY,width=$WIDTH,height=$HEIGHT,framerate=$FRAMERATE/1,pixel-aspect-ratio=1/1 ! \
 		mux. \
 	\
 	audiotestsrc !\

@@ -15,7 +15,7 @@ class LoopSource(object):
 			uridecodebin name=src uri=http://c3voc.mazdermind.de/testfiles/bg.ts !
 			videoscale !
 			videoconvert !
-			video/x-raw,format=I420,width={WIDTH},height={HEIGHT},framerate={FRAMERATE}/1,pixel-aspect-ratio=1/1 !
+			video/x-raw,format=UYVY,width={WIDTH},height={HEIGHT},framerate={FRAMERATE}/1,pixel-aspect-ratio=1/1 !
 			matroskamux !
 			tcpclientsink host=localhost port=16000
 		""".format_map(settings)
