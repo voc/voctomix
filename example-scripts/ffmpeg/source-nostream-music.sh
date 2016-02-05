@@ -9,4 +9,6 @@ while true; do
 		-c:a pcm_s16le \
 		-f matroska \
 		tcp://localhost:18000
+
+	sleep 1;
 done
