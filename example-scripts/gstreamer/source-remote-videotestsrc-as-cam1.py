@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import sys, gi, signal
+import os, sys, gi, signal
 import argparse, socket
 
 gi.require_version('Gst', '1.0')
@@ -10,7 +10,7 @@ GObject.threads_init()
 Gst.init([])
 
 class Source(object):
-	def __init__(self, ip):
+	def __init__(self, settings):
 		# it works much better with a local file
 		pipeline = """
 			videotestsrc pattern=ball foreground-color=0x00ff0000 background-color=0x00440000 !
@@ -23,18 +23,16 @@ class Source(object):
 				mux.
 
 			matroskamux name=mux !
-				tcpclientsink host={ip} port=10000
-		""".format(
-			ip=ip
-		)
+				tcpclientsink host={IP} port=10000
+		""".format_map(settings)
 
-		self.clock = GstNet.NetClientClock.new('voctocore', ip, 9998, 0)
+		self.clock = GstNet.NetClientClock.new('voctocore', settings['IP'], 9998, 0)
 		print('obtained NetClientClock from host', self.clock)
 
 		print('waiting for NetClientClock to sync…')
 		self.clock.wait_for_sync(Gst.CLOCK_TIME_NONE)
 
-		print('starting pipeline')
+		print('starting pipeline '+pipeline)
 		self.senderPipeline = Gst.parse_launch(pipeline)
 		self.senderPipeline.use_clock(self.clock)
 		self.src = self.senderPipeline.get_by_name('src')
@@ -73,7 +71,15 @@ def main():
 
 	print('Using IP '+addrs[0])
 
-	src = Source(addrs[0])
+	config = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../config.sh')
+	with open(config) as config:
+		lines = [ line.strip() for line in config if line[0] != '#' ]
+		pairs = [ line.split('=', 1) for line in lines ]
+		settings = { pair[0]: pair[1] for pair in pairs }
+
+	settings['IP'] = addrs[0]
+
+	src = Source(settings)
 	mainloop = GObject.MainLoop()
 	try:
 		mainloop.run()
