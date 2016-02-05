@@ -13,13 +13,13 @@ class AVRawOutput(TCPMultiConnection):
 		self.channel = channel
 
 		pipeline = """
-			interaudiosrc channel=audio_{channel} !
-			{acaps} !
+			intervideosrc channel=video_{channel} !
+			{vcaps} !
 			queue !
 			mux.
 
-			intervideosrc channel=video_{channel} !
-			{vcaps} !
+			interaudiosrc channel=audio_{channel} !
+			{acaps} !
 			queue !
 			mux.
 

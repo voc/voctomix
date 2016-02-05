@@ -18,17 +18,17 @@ class AVPreviewOutput(TCPMultiConnection):
 			vcaps_out = Config.get('mix', 'videocaps')
 
 		pipeline = """
-			interaudiosrc channel=audio_{channel} !
-			{acaps} !
-			queue !
-			mux.
-
 			intervideosrc channel=video_{channel} !
 			{vcaps_in} !
 			videorate !
 			videoscale method=nearest-neighbour !
 			{vcaps_out} !
 			jpegenc !
+			queue !
+			mux.
+
+			interaudiosrc channel=audio_{channel} !
+			{acaps} !
 			queue !
 			mux.
 
