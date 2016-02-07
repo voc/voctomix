@@ -12,7 +12,7 @@ ffmpeg -y -nostdin \
 	' \
 	-map '[out]' \
 	-maxrate:v:0 800k -bufsize:v:0 8192k -crf:0 18 \
-	-pix_fmt:0 uyvy422 -profile:v:0 main -g:v:0 25 \
+	-pix_fmt:0 yuv420p -profile:v:0 main -g:v:0 25 \
 	-preset:v:0 veryfast \
 	\
 	-ac 1 -c:a libfdk_aac -b:a 96k -ar 44100 \
