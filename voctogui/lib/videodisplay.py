@@ -89,11 +89,10 @@ class VideoDisplay(object):
 				level name=lvl interval=50000000 !
 			"""
 
-			# If Playback is requested, push fo alsa
+			# If Playback is requested, push fo pulseaudio
 			if play_audio:
-				# ts-offset=1000000000 (1s) - should keep audio & video in sync but delay by 1s
 				pipeline += """
-					alsasink
+					pulsesink
 				"""
 
 			# Otherwise just trash the Audio
