@@ -25,7 +25,7 @@ class VideoDisplay(object):
 
 		# Setup Server-Connection, Demuxing and Decoding
 		pipeline = """
-			tcpclientsrc host={host} port={port} !
+			tcpclientsrc host={host} port={port} blocksize=1048576 !
 			queue !
 			matroskademux name=demux
 		"""

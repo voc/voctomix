@@ -38,6 +38,7 @@ class AVPreviewOutput(TCPMultiConnection):
 				writing-app=Voctomix-AVPreviewOutput !
 
 			multifdsink
+				blocksize=1048576
 				buffers-max=500
 				sync-method=next-keyframe
 				name=fd
