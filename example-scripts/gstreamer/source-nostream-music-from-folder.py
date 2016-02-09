@@ -122,6 +122,12 @@ class LoopSource(object):
 			self.log.debug('unlinking with joinpad')
 			self.joinpad.unlink(self.joinpad.get_peer())
 
+		clock = self.pipeline.get_clock()
+		if clock:
+			runtime = clock.get_time() - self.pipeline.get_base_time()
+			self.log.debug('setting pad offset to pipeline runtime: %sns', runtime)
+			pad.set_offset(runtime)
+
 		self.log.debug('linking with joinpad')
 		pad.link(self.joinpad)
 
@@ -140,9 +146,9 @@ class LoopSource(object):
 		next_uri = self.directory.get_random_uri()
 		self.log.info('next track %s', next_uri)
 
-		self.pipeline.set_state(Gst.State.READY)
+		self.src.set_state(Gst.State.READY)
 		self.src.set_property('uri', next_uri);
-		self.pipeline.set_state(Gst.State.PLAYING)
+		self.src.set_state(Gst.State.PLAYING)
 		return False
 
 	def on_eos(self, bus, message):
