@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import os, sys, gi, signal
+import os, sys, gi, signal, random
 import argparse, logging, pyinotify
 
 gi.require_version('Gst', '1.0')
@@ -70,10 +70,18 @@ class Directory(object):
 		self.log.info('found %u playable files', len(all_files))
 		self.files = all_files
 
+	def get_random_file(self):
+		return random.choice(self.files)
+
+	def get_random_uri(self):
+		return 'file://'+self.get_random_file()
+
 
 class LoopSource(object):
 	def __init__(self, directory):
 		self.log = logging.getLogger('LoopSource')
+		self.directory = directory
+
 		pipeline = """
 			audioresample name=join !
 			audioconvert !
@@ -82,15 +90,21 @@ class LoopSource(object):
 			tcpclientsink host=localhost port=18000
 		"""
 
+		# Parsing Pipeline
+		self.log.debug('creating pipeline\n%s', pipeline)
 		self.pipeline = Gst.parse_launch(pipeline)
 
-		# https://c3voc.mazdermind.de/testfiles/music-snippets.tar
+		# Selecting inital URI
+		inital_uri = self.directory.get_random_uri()
+		self.log.info('starting with track %s', inital_uri)
 
+		# Create decoder-element
 		self.src = Gst.ElementFactory.make('uridecodebin', None)
-		self.src.set_property('uri', 'file:///home/peter/Music/pieces/001 - Bruno Mars - Grenade.mp3');
+		self.src.set_property('uri', inital_uri);
 		self.src.connect('pad-added', self.on_pad_added)
 		self.pipeline.add(self.src)
 
+		# Save pad on the Join-Element
 		self.joinpad = self.pipeline.get_by_name('join').get_static_pad('sink')
 
 		# Binding End-of-Stream-Signal on Source-Pipeline
@@ -98,41 +112,47 @@ class LoopSource(object):
 		self.pipeline.bus.connect("message::eos", self.on_eos)
 		self.pipeline.bus.connect("message::error", self.on_error)
 
-		print("playing")
+		self.log.info('setting pipeline to playing')
 		self.pipeline.set_state(Gst.State.PLAYING)
 
 	def on_pad_added(self, src, pad):
-		print('New Pad: '+str(pad))
+		self.log.debug('new pad on decoder, setting pad-probe')
 		pad.add_probe(Gst.PadProbeType.EVENT_DOWNSTREAM | Gst.PadProbeType.BLOCK, self.on_pad_event)
 		if self.joinpad.is_linked():
+			self.log.debug('unlinking with joinpad')
 			self.joinpad.unlink(self.joinpad.get_peer())
+
+		self.log.debug('linking with joinpad')
 		pad.link(self.joinpad)
 
 	def on_pad_event(self, pad, info):
 		event = info.get_event()
-		print('Pad Event: '+str(event.type)+' on Pad '+str(pad))
+		self.log.debug('event %s on pad %s', event.type, pad)
+
 		if event.type == Gst.EventType.EOS:
-			print('Is an EOS event, dropping & unlinking')
+			self.log.debug('scheduling next track and dropping EOS-Event')
 			GObject.idle_add(self.next_track)
 			return Gst.PadProbeReturn.DROP
 
 		return Gst.PadProbeReturn.PASS
 
 	def next_track(self):
-		print("next_track")
+		next_uri = self.directory.get_random_uri()
+		self.log.info('using next track %s', next_uri)
+
 		self.pipeline.set_state(Gst.State.READY)
-		self.src.set_property('uri', 'file:///home/peter/Music/pieces/003 - Taio Cruz feat. Kylie Minogue - Higher.mp3');
+		self.src.set_property('uri', next_uri);
 		self.pipeline.set_state(Gst.State.PLAYING)
 		return False
 
 	def on_eos(self, bus, message):
-		print('Received EOS-Signal')
+		self.log.info('received EOS-Event on bus, exiting')
 		sys.exit(1)
 
 	def on_error(self, bus, message):
-		print('Received Error-Signal')
+		self.log.warning('received Error-Event on bus, exiting')
 		(error, debug) = message.parse_error()
-		print('Error-Details: #%u: %s' % (error.code, debug))
+		self.log.warning('Error-Details: #%u: %s', error.code, debug)
 		sys.exit(1)
 
 def main():
@@ -149,7 +169,7 @@ def main():
 	print('Playing from Directory '+args.directory)
 
 	directory = Directory(args.directory)
-	#src = LoopSource(directory)
+	src = LoopSource(directory)
 
 	mainloop = GObject.MainLoop()
 	try:
