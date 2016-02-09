@@ -16,7 +16,7 @@ class Directory(object):
 		self.scheduled = False
 		self.rescan()
 
-		self.log.info('setting up inotify watch for %s', self.path)
+		self.log.debug('setting up inotify watch for %s', self.path)
 		wm = pyinotify.WatchManager()
 		notifier = pyinotify.Notifier(wm,
 			timeout=10,
@@ -96,7 +96,7 @@ class LoopSource(object):
 
 		# Selecting inital URI
 		inital_uri = self.directory.get_random_uri()
-		self.log.info('starting with track %s', inital_uri)
+		self.log.info('initial track %s', inital_uri)
 
 		# Create decoder-element
 		self.src = Gst.ElementFactory.make('uridecodebin', None)
@@ -112,7 +112,7 @@ class LoopSource(object):
 		self.pipeline.bus.connect("message::eos", self.on_eos)
 		self.pipeline.bus.connect("message::error", self.on_error)
 
-		self.log.info('setting pipeline to playing')
+		self.log.debug('setting pipeline to playing')
 		self.pipeline.set_state(Gst.State.PLAYING)
 
 	def on_pad_added(self, src, pad):
@@ -138,7 +138,7 @@ class LoopSource(object):
 
 	def next_track(self):
 		next_uri = self.directory.get_random_uri()
-		self.log.info('using next track %s', next_uri)
+		self.log.info('next track %s', next_uri)
 
 		self.pipeline.set_state(Gst.State.READY)
 		self.src.set_property('uri', next_uri);
@@ -156,17 +156,26 @@ class LoopSource(object):
 		sys.exit(1)
 
 def main():
-	logging.basicConfig(
-		level=logging.DEBUG,
-		format='%(levelname)8s %(name)s: %(message)s')
-
 	signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 	parser = argparse.ArgumentParser(description='Voctocore Music-Source')
 	parser.add_argument('directory')
 
+	parser.add_argument('-v|-vv', '--verbose', action='count', default=0,
+		help="Also print INFO and DEBUG messages.")
+
 	args = parser.parse_args()
-	print('Playing from Directory '+args.directory)
+
+	if args.verbose >= 2:
+		level = logging.DEBUG
+	elif args.verbose == 1:
+		level = logging.INFO
+	else:
+		level = logging.WARNING
+
+	logging.basicConfig(
+		level=level,
+		format='%(levelname)8s %(name)s: %(message)s')
 
 	directory = Directory(args.directory)
 	src = LoopSource(directory)
