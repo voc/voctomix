@@ -12,4 +12,4 @@ Clock = Gst.SystemClock.obtain()
 log.info("Using System-Clock for all Pipelines: %s", Clock)
 
 log.info("Starting NetTimeProvider on Port %u", port)
-NetTimeProvider = GstNet.NetTimeProvider.new(Clock, None, port)
+NetTimeProvider6 = GstNet.NetTimeProvider.new(Clock, '::', port)
