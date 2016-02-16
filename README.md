@@ -17,7 +17,7 @@ apt-get install gstreamer1.0-plugins-bad gstreamer1.0-plugins-base gstreamer1.0-
 
 For the GUI you'll -- additionally to a gnome-desktop -- need to install the following dependencies:
 ````
-apt-get install gstreamer1.0-alsa
+apt-get install gstreamer1.0-alsa python3-gi-cairo
 ````
 
 Now you should be able to clone the Git-Repository and run Voctomix or the GUI like this:
