@@ -2,16 +2,23 @@
 ##
 ## entrypoint for the docker images
 
-groupmod -g $gid voc
-usermod -u $uid -g $gid voc
+if [ ! -f /.dockerenv ] && [ ! -f /.dockerinit ]; then
+	echo "WARNING: this scrip should be only runed inside docker!!"
+	exit 1
+fi
 
-# check if homedir is mounted
-if grep -q '/home/voc' /proc/mounts; then
-	# homedir is mounted into the docker so don't touch the ownership of the files
-	true
-else
-	# fixup for changed uid and gid
-	chown -R voc:voc /home/voc
+if [ ! -z $gid ] && [ ! -z $uid ]; then
+	groupmod -g $gid voc
+	usermod -u $uid -g $gid voc
+
+	# check if homedir is mounted
+	if grep -q '/home/voc' /proc/mounts; then
+		# homedir is mounted into the docker so don't touch the ownership of the files
+		true
+	else
+		# fixup for changed uid and gid
+		chown -R voc:voc /home/voc
+	fi
 fi
 
 function startCore() {
@@ -61,6 +68,11 @@ function usage() {
 	echo "bash			- run interactive bash"
 	echo "scriptname.py - starts the example script named 'scriptname.py' "
 }
+
+if [ -z $1 ]; then
+	usage
+	exit
+fi
 
 case $1 in
 	help )
