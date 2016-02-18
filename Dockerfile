@@ -13,7 +13,7 @@
 #	-p 17000:17000 -p 17001:17001 -p 17002:17002 -p 18000:18000 --name=voctocore local/voctomix core
 #
 ## test sources 
-# docker run -it --rm --name=cam1 --link=voctocore:corehost local/voctomix ./gstreamer/source-videotestsrc-as-cam1.sh
+# docker run -it --rm --name=cam1 --link=voctocore:corehost local/voctomix gstreamer/source-videotestsrc-as-cam1.sh
 # docker run -it --rm --name=bg --link=voctocore:corehost local/voctomix gstreamer/source-videotestsrc-as-background-loop.sh#
 #
 ## gui
