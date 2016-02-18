@@ -22,6 +22,7 @@ if [ ! -z $gid ] && [ ! -z $uid ]; then
 fi
 
 function startCore() {
+	echo "Starting Voctomix CORE"
 	if [ -x /bin/gosu ]; then
 		gosu voc /opt/voctomix/voctocore/voctocore.py -v
 	else
@@ -35,8 +36,9 @@ function isVideoMounted() {
 }
 
 function startGui() {
+	echo "Starting Voctomix GUI..."
 	if [ -x /bin/gosu ]; then
-		gosu voc /opt/voctomix/voctocore/voctocore.py -v
+		gosu voc /opt/voctomix/voctogui/voctogui.py -v
 	else
 		echo "no gosu found..."
 		exec su -l -c "/opt/voctomix/voctogui/voctogui.py -v" voc
