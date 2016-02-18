@@ -3,7 +3,7 @@
 ## entrypoint for the docker images
 
 if [ ! -f /.dockerenv ] && [ ! -f /.dockerinit ]; then
-	echo "WARNING: this scrip should be only runed inside docker!!"
+	echo "WARNING: this script should be only run inside docker!!"
 	exit 1
 fi
 

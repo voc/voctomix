@@ -25,7 +25,7 @@ docker run --rm -it --name=voctocore local/voctomix core
 ```
 ### Source example scripts
 ```
-docker run -it --rm --name=cam1 --link=voctocore:corehost local/voctomix ./gstreamer/source-videotestsrc-as-cam1.sh
+docker run -it --rm --name=cam1 --link=voctocore:corehost local/voctomix gstreamer/source-videotestsrc-as-cam1.sh
 docker run -it --rm --name=bg --link=voctocore:corehost local/voctomix gstreamer/source-videotestsrc-as-background-loop.sh
 ```
 
