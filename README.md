@@ -8,7 +8,7 @@ The Voctomix Project consists of three parts:
  - Voctotools (tbd.), a Collection of Tools and Examples on how to talk to the core-process, feeding and receiving video-streams
 
 ## Installation
-Voctomix requires a fairly recent Version of GStreamer (at least 1.5, though we recommend 1.6 and later). This is natively present on [Debian Sid](https://packages.debian.org/sid/libgstreamer1.0-0) and [Ubuntu Wily](http://packages.ubuntu.com/wily/libgstreamer1.0-0). On these Systems it should run out of the Box and we recommend using one of them.
+Voctomix requires a fairly recent Version of GStreamer (at least 1.5, though we recommend 1.6 and later). This is natively present on [Debian Sid](https://packages.debian.org/sid/libgstreamer1.0-0) and [Ubuntu Wily](http://packages.ubuntu.com/wily/libgstreamer1.0-0). On these Systems it should run out of the Box and we recommend using one of them. A [Docker](http://www.docker.com) image that uses Ubuntu Wily as a base is bundled with Vocomix. Please refer to the seperate [readme](./README_DOCKER.md) how to use the Docker image.
 
 Install the required Dependencies:
 ````
