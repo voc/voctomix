@@ -153,4 +153,4 @@ On Startup the Video-Mixer reads the following Configuration-Files:
 
 From top to bottom the individual Settings override previous Settings. `default-config.ini` should not be edited, because a missing Setting will result in an Exception.
 
-All Settings configured in the Server are available via the `get_setting` Call on the Control-Port and will be used by the Clients, so there will be no need to duplicate Configuration options between Server and Clients.
+All Settings configured in the Server are available via the `get_config` Call on the Control-Port and will be used by the Clients, so there will be no need to duplicate Configuration options between Server and Clients.
