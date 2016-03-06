@@ -1,20 +1,7 @@
 #!/usr/bin/env python3
-"""
-Ryan Verner <ryan.verner@gmail.com>
-Voctomix ingest streams used for LCA2016, hacked up on the fly.
 
-PIPELINES:
- * dv
- * dvpulse
- * hdvpulse
- * hdmi2usb
- * blackmagichdmi
- * test
-
-Example intended uses (NOTE expected environment variables):
- * lca-videomix-ingest.py dvpulse 0
- * lca-videomix-ingest.py hdmi2usb 1
-""" 
+# ingest.py
+# source client for Voctomix
 
 import sys
 
