@@ -78,6 +78,7 @@ def mk_video_src(args, videocaps):
     elif args.video_source == 'ximage':
         video_src = """
             ximagesrc name=videosrc !
+                {monitor}
 		videoconvert !
                 videorate !
                 videoscale !
