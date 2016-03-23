@@ -19,6 +19,7 @@ from gi.repository import Gst, GstNet, GObject
 GObject.threads_init()
 Gst.init([])
 
+# this is kinda icky.
 sys.path.insert(0, '../..' )
 
 import voctogui.lib.connection as Connection
@@ -72,6 +73,14 @@ def mk_video_src(args, videocaps):
                 {monitor}
                 videoconvert !
                 videorate !
+            """
+
+    elif args.video_source == 'ximage':
+        video_src = """
+            ximagesrc name=videosrc !
+		videoconvert !
+                videorate !
+                videoscale !
             """
 
     elif args.video_source == 'blackmagichdmi':
@@ -154,7 +163,10 @@ def mk_pipeline(args, server_caps):
     mux = mk_mux(args)
     client = mk_client(args)
 
-    pipeline = video_src + "mux. \n" + audio_src + mux + client
+    pipeline = video_src + "mux.\n" + audio_src + mux + client
+
+    # remove blank lines to make it more human readable
+    pipeline = pipeline.replace("\n\n","\n")
 
     return pipeline
 
@@ -217,13 +229,16 @@ def run_pipeline(pipeline, args):
 
 def get_args():
 
-    parser = argparse.ArgumentParser(description='Vocto-ingesb')
+    parser = argparse.ArgumentParser(description='Vocto-ingest client')
     
     parser.add_argument('-v', '--verbose', action='count', default=0,
             help="Also print INFO and DEBUG messages.")
 
     parser.add_argument( '--video-source', action='store', 
-            choices=['dv', 'hdv', 'hdmi2usb', 'blackmagichdmi', 'test'], 
+            choices=[
+                'dv', 'hdv', 'hdmi2usb', 'blackmagichdmi', 
+                'ximage',
+                'test', ], 
             default='test',
             help="Where to get video from")
 
