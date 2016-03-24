@@ -77,12 +77,14 @@ def mk_video_src(args, videocaps):
 
     elif args.video_source == 'ximage':
         video_src = """
-            ximagesrc name=videosrc !
+            ximagesrc name=videosrc 
+                   use-damage=false !
                 {monitor}
 		videoconvert !
                 videorate !
                 videoscale !
             """
+                # startx=0 starty=0 endx=1919 endy=1079 !
 
     elif args.video_source == 'blackmagichdmi':
         video_src = """
