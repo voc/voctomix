@@ -21,6 +21,7 @@ Gst.init([])
 
 # this is kinda icky.
 sys.path.insert(0, '../..' )
+sys.path.insert(0, '.' )
 
 import voctogui.lib.connection as Connection
 # import lib.clock as ClockManager
@@ -53,7 +54,7 @@ def mk_video_src(args, videocaps):
     
     elif args.video_source == 'hdv':
         video_src = """
-            hdv1394src do-timestamp=true name=videosrc {video_device} !
+            hdv1394src {video_device} do-timestamp=true name=videosrc !
 		tsdemux name=demux!
 		queue !
 		decodebin !
@@ -66,7 +67,7 @@ def mk_video_src(args, videocaps):
 
     elif args.video_source == 'hdmi2usb':
         video_src = """
-            v4l2src device=%s name=videosrc !
+            v4l2src {video_device} name=videosrc !
                 queue !
 		image/jpeg,width=1280,height=720 !
                 jpegdec !
