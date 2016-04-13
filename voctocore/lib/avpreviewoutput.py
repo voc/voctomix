@@ -23,10 +23,10 @@ class AVPreviewOutput(TCPMultiConnection):
 			capssetter caps="video/x-raw,interlace-mode=interlaced" !
 			deinterlace !
 			video/x-raw,interlace-mode=progressive !
+			videoscale !
 			videorate !
-			videoscale method=nearest-neighbour !
 			{vcaps_out} !
-			jpegenc !
+			jpegenc quality=90 !
 			queue !
 			mux.
 
