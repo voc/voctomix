@@ -228,8 +228,11 @@ def run_pipeline(pipeline, args):
     except KeyboardInterrupt:
         print('Terminated via Ctrl-C')
 
+    print('Shutting down...')
+    senderPipeline.set_state(Gst.State.NULL)
+    print('Done.')
 
-
+    return
 
 def get_args():
 
