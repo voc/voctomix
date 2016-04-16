@@ -233,7 +233,11 @@ def run_pipeline(pipeline, args):
 
 def get_args():
 
-    parser = argparse.ArgumentParser(description='Vocto-ingest client')
+    parser = argparse.ArgumentParser(
+            description='''Vocto-ingest Client with Net-time support.
+            Gst caps are retrieved from the server.
+            Run without parameters: send test av to localhost:10000
+            ''')
     
     parser.add_argument('-v', '--verbose', action='count', default=0,
             help="Also print INFO and DEBUG messages.")
