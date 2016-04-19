@@ -1,16 +1,23 @@
 #!/usr/bin/env python3
 
 # ingest.py
-# source client for Voctomix
+"""
+Source client for Voctomix.
+Features:
+    Retrieves audio and video-caps config from core.
+    Uses core's clock.
+    Mix and match audio and video sources muxed into one streem.
+    Can display video locally, including frame count and fps.
+    Defaults to test audio and video sent to local core.
 
-import sys
-
-import gi
-import signal
-import os
-import socket
+"""
 
 import argparse
+import gi
+import os
+import signal
+import socket
+import sys
 
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst, GstNet, GObject
@@ -19,12 +26,11 @@ from gi.repository import Gst, GstNet, GObject
 GObject.threads_init()
 Gst.init([])
 
-# this is kinda icky.
+# this is to use the same code tha gui uses to get config from core
 sys.path.insert(0, '../..' )
 sys.path.insert(0, '.' )
 
 import voctogui.lib.connection as Connection
-# import lib.clock as ClockManager
 
 
 def mk_video_src(args, videocaps):
@@ -66,6 +72,8 @@ def mk_video_src(args, videocaps):
             """
 
     elif args.video_source == 'hdmi2usb':
+        # https://hdmi2usb.tv
+        # Note: this code works with 720p
         video_src = """
             v4l2src {video_device} name=videosrc !
                 queue !
@@ -183,10 +191,6 @@ def get_server_caps():
             'audiocaps': server_config['mix']['audiocaps']}
 
     return server_caps
-
-    # obtain network-clock
-    ClockManager.obtainClock(Connection.ip)
-
 
 def run_pipeline(pipeline, args):
 
