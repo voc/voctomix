@@ -29,6 +29,7 @@ Click twice on the Selection Combobox, the select your Source within 5 Seconds (
 On Startup the GUI reads the following Configuration-Files:
  - `<install-dir>/default-config.ini`
  - `<install-dir>/config.ini`
+ - `/etc/voctomix/voctogui.ini`
  - `/etc/voctogui.ini`
  - `<homedir>/.voctogui.ini`
  - `<File specified on Command-Line via --ini-file>`
