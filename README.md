@@ -12,12 +12,17 @@ Voctomix requires a fairly recent Version of GStreamer (at least 1.5, though we 
 
 Install the required Dependencies:
 ````
-apt-get install gstreamer1.0-plugins-bad gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-ugly gstreamer1.0-tools libgstreamer1.0-0 python3 python3-gi gir1.2-gstreamer-1.0
+# Requirements
+apt-get install gstreamer1.0-plugins-bad gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-ugly gstreamer1.0-tools libgstreamer1.0-0 python3 python3-gi gir1.2-gstreamer-1.0 gir1.2-gst-plugins-base-1.0
+
+# Optional for the Example-Scripts
+apt-get install python3-pyinotify gstreamer1.0-libav rlwrap fbset
 ````
+
 
 For the GUI you'll -- additionally to a gnome-desktop -- need to install the following dependencies:
 ````
-apt-get install gstreamer1.0-alsa python3-gi-cairo
+apt-get install gstreamer1.0-plugins-bad gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-ugly gstreamer1.0-alsa gstreamer1.0-tools libgstreamer1.0-0 python3 python3-gi python3-gi-cairo gir1.2-gstreamer-1.0 gir1.2-gst-plugins-base-1.0 gir1.2-gtk-3.0
 ````
 
 Now you should be able to clone the Git-Repository and run Voctomix or the GUI like this:
