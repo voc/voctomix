@@ -1,4 +1,4 @@
-# Voctogui - The gui-frontend for voctocore
+# Voctogui - The GUI frontend for Voctocore
 
 ![Screenshot of voctogui in action](voctomix.png)
 
@@ -23,16 +23,16 @@
 - `t` Cut
 
 ### Select an Audio-Source
-Click twice on the Selection Combobox, then select your Source within 5 Seconds (It will auto-lock again after 5 Seconds)
+Click twice on the selection combobox, then select your source within 5 Seconds. (It will auto-lock again after 5 seconds.)
 
 ## Configuration
-On Startup the GUI reads the following Configuration-Files:
+On startup the GUI reads the following configuration files:
  - `<install-dir>/default-config.ini`
  - `<install-dir>/config.ini`
  - `/etc/voctogui.ini`
  - `<homedir>/.voctogui.ini`
  - `<File specified on Command-Line via --ini-file>`
 
-From top to bottom the individual Settings override previous Settings. `default-config.ini` should not be edited, because a missing Setting will result in an Exception.
+From top to bottom the individual settings override previous settings. `default-config.ini` should not be edited, because a missing setting will result in a Python exception.
 
 On startup the GUI fetches all configuration settings from the core and merges them into the GUI config.
