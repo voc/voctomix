@@ -1,4 +1,4 @@
-# Voctocore - The gui-frontend for voctocore
+# Voctogui - The gui-frontend for voctocore
 
 ![Screenshot of voctogui in action](voctomix.png)
 
@@ -23,7 +23,7 @@
 - `t` Cut
 
 ### Select an Audio-Source
-Click twice on the Selection Combobox, the select your Source within 5 Seconds (It will auto-lock again after 5 Seconds)
+Click twice on the Selection Combobox, then select your Source within 5 Seconds (It will auto-lock again after 5 Seconds)
 
 ## Configuration
 On Startup the GUI reads the following Configuration-Files:
