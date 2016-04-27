@@ -12,8 +12,10 @@ SafeConfigParser.getlist = getlist
 files = [
 	os.path.join(os.path.dirname(os.path.realpath(__file__)), '../default-config.ini'),
 	os.path.join(os.path.dirname(os.path.realpath(__file__)), '../config.ini'),
-	'/etc/voctomix.ini',
-	os.path.expanduser('~/.voctomix.ini'),
+	'/etc/voctomix.ini', # deprecated
+	'/etc/voctocore.ini',
+	os.path.expanduser('~/.voctomix.ini'), # deprecated
+	os.path.expanduser('~/.voctocore.ini'),
 ]
 
 if Args.ini_file is not None:

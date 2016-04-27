@@ -147,8 +147,8 @@ They can be used to Implement Features like a "Cut-Button" in the GUI. When Clic
 On Startup the Video-Mixer reads the following Configuration-Files:
  - `<install-dir>/default-config.ini`
  - `<install-dir>/config.ini`
- - `/etc/voctomix.ini`
- - `<homedir>/.voctomix.ini`
+ - `/etc/voctocore.ini`
+ - `<homedir>/.voctocore.ini`
  - `<File specified on Command-Line via --ini-file>`
 
 From top to bottom the individual Settings override previous Settings. `default-config.ini` should not be edited, because a missing Setting will result in an Exception.
