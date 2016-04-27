@@ -138,6 +138,11 @@ def mk_audio_src(args, audiocaps):
                 pulsesrc {audio_device} name=audiosrc !
                 """.format(audio_device=audio_device)
 
+    elif args.audio_source == 'alsa':
+        audio_src = """
+                alsasrc {audio_device} name=audiosrc !
+                """.format(audio_device=audio_device)
+
     elif args.audio_source == 'blackmagichdmi':
         audio_src = """
             decklinkaudiosrc !
