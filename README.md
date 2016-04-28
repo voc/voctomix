@@ -5,7 +5,7 @@ The [C3Voc](https://c3voc.de/) creates Lecture Recordings from German Hacker/Ner
 The Voctomix Project consists of three parts:
  - [Voctocore](./voctocore/), the videomixer core-process that does the actual video- and audio crunching
  - [Voctogui](./voctogui/), a GUI implementation in GTK controlling the core's functionality and giving visual feedback of the mixed video
- - Voctotools (tbd.), a Collection of Tools and Examples on how to talk to the core-process, feeding and receiving video-streams
+ - Voctomix [Example Scripts](./example-scripts/), a Collection of Tools and Examples on how to talk to the core-process, feeding and receiving video-streams and controllign operations from scripts or command-line
 
 ## Installation
 Voctomix requires a fairly recent Version of GStreamer (at least 1.5, though we recommend 1.6 and later). This is natively present on [Debian Sid](https://packages.debian.org/sid/libgstreamer1.0-0) and [Ubuntu Wily](http://packages.ubuntu.com/wily/libgstreamer1.0-0). On these Systems it should run out of the Box and we recommend using one of them. A [Docker](http://www.docker.com) image that uses Ubuntu Wily as a base is bundled with Vocomix. Please refer to the seperate [readme](./README_DOCKER.md) how to use the Docker image.
