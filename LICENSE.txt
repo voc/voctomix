@@ -1,4 +1,4 @@
-Copyright (c) 2015 C3Voc <voc@c3voc.de>
+Copyright (c) 2014-2016 c3voc <voc@c3voc.de>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
