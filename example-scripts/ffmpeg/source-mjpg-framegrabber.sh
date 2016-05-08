@@ -1,7 +1,7 @@
 #!/bin/sh
 . `dirname "$0"`/../config.sh
 ffmpeg -y -nostdin -xerror \
-	-timeout 3000000 -i "http://10.73.5.2:1881/stream.mjpg" \
+	-use_wallclock_as_timestamps 1 -timeout 3000000 -f mjpeg -i "http://10.73.5.2:1881/stream.mjpg" \
 	-filter_complex "
 		[0:v] scale=$WIDTH:$HEIGHT,fps=$FRAMERATE [v] ;
 		anullsrc=r=$AUDIORATE:cl=stereo [a]
