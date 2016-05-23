@@ -1,5 +1,5 @@
 # Voctomix
-The [C3VOC](https://c3voc.de/) creates lecture Recordings from German hacker/tech conferences. In the past wwe have used [dvswitch](http://dvswitch.alioth.debian.org/wiki/) very successfully but it has some serious limitations. Therefore we started looking for a replacement in 2014. We tested [snowmix](http://sourceforge.net/projects/snowmix/) and [gst-switch](https://github.com/timvideos/gst-switch) and while both did some things we wanted right, we realised that no existing tool would be able to fulfil all our whishes. Furthermore both are a nightmare to extend. So we decided to build our own Implementation of a Live-Video-Mixer.
+The [C3VOC](https://c3voc.de/) creates lecture recordings from German hacker/tech conferences. In the past we have used [dvswitch](http://dvswitch.alioth.debian.org/wiki/) very successfully but it has some serious limitations. Therefore we started looking for a replacement in 2014. We tested [snowmix](http://sourceforge.net/projects/snowmix/) and [gst-switch](https://github.com/timvideos/gst-switch) and while both did some things we wanted right, we realised that no existing tool would be able to fulfil all our whishes. Furthermore both are a nightmare to extend. So we decided to build our own Implementation of a Live-Video-Mixer.
 
 ## Subprojects
 The Voctomix project consists of three parts:
