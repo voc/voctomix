@@ -1,16 +1,16 @@
 # Voctomix
-The [C3Voc](https://c3voc.de/) creates Lecture Recordings from German Hacker/Nerd Conferences. We have used [dvswitch](http://dvswitch.alioth.debian.org/wiki/) very successfully in the past but it has some serious limitations, which in 2014 we started looking for a replacement. We tested [snowmix](http://sourceforge.net/projects/snowmix/) and [gst-switch](https://github.com/timvideos/gst-switch) and while both did some things we wanted right, we realised that no existing tool would be able to fulfil all our whishes. Furthermore both are a nightmare to extend. So we decided to build our own Implementation of a Live-Video-Mixer.
+The [C3VOC](https://c3voc.de/) creates lecture Recordings from German hacker/tech conferences. In the past wwe have used [dvswitch](http://dvswitch.alioth.debian.org/wiki/) very successfully but it has some serious limitations. Therefore we started looking for a replacement in 2014. We tested [snowmix](http://sourceforge.net/projects/snowmix/) and [gst-switch](https://github.com/timvideos/gst-switch) and while both did some things we wanted right, we realised that no existing tool would be able to fulfil all our whishes. Furthermore both are a nightmare to extend. So we decided to build our own Implementation of a Live-Video-Mixer.
 
 ## Subprojects
-The Voctomix Project consists of three parts:
+The Voctomix project consists of three parts:
  - [Voctocore](./voctocore/), the videomixer core-process that does the actual video- and audio crunching
  - [Voctogui](./voctogui/), a GUI implementation in GTK controlling the core's functionality and giving visual feedback of the mixed video
  - Voctomix [Example Scripts](./example-scripts/), a collection of tools and examples for talking to the core-process, feeding and receiving video-streams and controlling operations from scripts or command-line.
 
 ## Installation
-Voctomix requires a fairly recent Version of GStreamer (at least 1.5, though we recommend 1.6 and later). This is natively present on [Debian Sid](https://packages.debian.org/sid/libgstreamer1.0-0) and [Ubuntu Wily](http://packages.ubuntu.com/wily/libgstreamer1.0-0). On these Systems it should run out of the Box and we recommend using one of them. A [Docker](http://www.docker.com) image that uses Ubuntu Wily as a base is bundled with Vocomix. Please refer to the seperate [readme](./README_DOCKER.md) how to use the Docker image.
+Voctomix requires a fairly recent Version of GStreamer (at least 1.5, though we recommend 1.6 and later). This is natively present on [Debian Sid](https://packages.debian.org/sid/libgstreamer1.0-0) and [Ubuntu Wily](http://packages.ubuntu.com/wily/libgstreamer1.0-0). On these systems it should run out of the box. We recommend using one of them. A [Docker](http://www.docker.com) image that uses Ubuntu Wily as a base is bundled with Vocomix. Please refer to the seperate [readme](./README_DOCKER.md) how to use the Docker image.
 
-Install the required Dependencies:
+Install the required dependencies:
 ````
 # Requirements
 apt-get install gstreamer1.0-plugins-bad gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-ugly gstreamer1.0-tools libgstreamer1.0-0 python3 python3-gi gir1.2-gstreamer-1.0 gir1.2-gst-plugins-base-1.0
@@ -25,7 +25,7 @@ For the GUI you'll -- additionally to a gnome-desktop -- need to install the fol
 apt-get install gstreamer1.0-plugins-bad gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-ugly gstreamer1.0-alsa gstreamer1.0-tools libgstreamer1.0-0 python3 python3-gi python3-gi-cairo gir1.2-gstreamer-1.0 gir1.2-gst-plugins-base-1.0 gir1.2-gtk-3.0
 ````
 
-Now you should be able to clone the Git-Repository and run Voctomix or the GUI like this:
+Now you should be able to clone the git-repository and run Voctomix or the GUI like this:
 ````
 git clone https://github.com/voc/voctomix.git
 cd voctomix
@@ -34,13 +34,13 @@ cd voctomix
 ````
 
 ## Installation on Jessie
-Because we are using Debian Jessie as our production system (which only has [1.4 packaged](https://packages.debian.org/jessie/libgstreamer1.0-0)), we are packaging the required Libraries in our own Debian Repository. The Packages inside this Repository are built against deb-multimedia.org, so to use them you should add the following lines to your `/etc/apt/sources.list`:
+Because we are using Debian Jessie as our production system (which only has [1.4 packaged](https://packages.debian.org/jessie/libgstreamer1.0-0)), we are packaging the required libraries in our own Debian repository. The packages inside this repository are built against deb-multimedia.org, so to use them you should add the following lines to your `/etc/apt/sources.list`:
 ````
 deb http://www.deb-multimedia.org jessie main non-free
 deb http://c3voc.de/voctomix jessie non-free
 ````
 
-You'll then need install the GPG-Keys:
+You'll then need install the GPG keys:
 ````
 apt-get update
 apt-get install deb-multimedia-keyring
@@ -73,9 +73,9 @@ docker run -it --rm c3voc/voctomix help
 docker run -it --rm c3voc/voctomix examples
 ```
 
-## A word on CPU-Usage
-Voctomix requires a fair amount of CPU-Time to run in the default configuration of 1920×1080 at 25fps. Our Production-Systems have these CPUs: `Intel Core i7-3770 CPU 4x 3.40GHz` but we're also experimenting with newer ones like these: `Intel Core i7-6700K, 4x 4.00GHz`.
-For testing and development you may want to use a `config.ini` that reduces the resolution and also turns off the JPEG-Preview-Encoders, which take a huge amount of the required CPU-Power and are not required, as long as the GUI and the Core run on the same machine (or have a 10GE Link between them, FWIW). Don't forget to modify your source-scripts to provide the correct resolution.
+## A word on CPU usage
+Voctomix requires a fair amount of CPU time to run in the default configuration of 1920×1080 at 25fps. Our production systems have these CPUs: `Intel Core i7-3770 CPU 4x 3.40GHz` but we're also experimenting with newer ones like these: `Intel Core i7-6700K, 4x 4.00GHz`.
+For testing and development you may want to use a `config.ini` that reduces the resolution and also turns off the JPEG preview encoders, which take a huge amount of the required CPU power and are not required, as long as the GUI and the Core run on the same machine (or have a 10GE Link between them, FWIW). Don't forget to modify your source scripts to provide the correct resolution.
 
 Such a config.ini might look like this:
 ````
@@ -88,9 +88,9 @@ videocaps=video/x-raw,width=320,height=180,framerate=25/1
 ````
 
 ## A word on running in a VM
-While the Core runs fine inside any VM, the GUI uses OpenGL to display the Video-Streams. Don't forget to enable 3D Acceleration in your VM to support this.
+While the Core runs fine inside any VM, the GUI uses OpenGL to display the video streams. Don't forget to enable 3D acceleration in your VM to support this.
 
 
 ## Contact
 To get in touch with us we'd ask to join `#voctomix` on the hackint IRC network, mail to `voc AT c3voc DOT de` or meet us on one of the [many conferences](https://c3voc.de/eventkalender) we're at.
-You may also want to watch [a Presentation](https://media.ccc.de/v/froscon2015-1520-conference_recording_und_streaming#video) some of us gave about our Video-Infrastructure.
+You may also want to watch [a presentation](https://media.ccc.de/v/froscon2015-1520-conference_recording_und_streaming#video) some of us gave about our video infrastructure.
