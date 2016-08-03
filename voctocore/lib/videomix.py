@@ -30,6 +30,8 @@ class VideoMix(object):
 	def __init__(self):
 		self.caps = Config.get('mix', 'videocaps')
 
+		self.defcompa = int(Config.get('mix', 'defcompa'))
+
 		self.names = Config.getlist('mix', 'sources')
 		self.log.info('Configuring Mixer for %u Sources', len(self.names))
 
@@ -334,6 +336,16 @@ class VideoMix(object):
 		return self.sourceB
 
 	def setCompositeMode(self, mode):
+
+		print(str(self.sourceA) + ' Source ID')
+		print(str(self.defcompa) + 'defcomp')
+		if self.defcompa != -1:
+			if self.sourceA != self.defcompa:
+				self.sourceB = self.sourceA
+				self.sourceA = self.defcompa
+				print(str(self.sourceA) + ' A ' + str(self.sourceB) + ' B')
+
+
 		self.compositeMode = mode
 		self.recalculateMixerState()
 
