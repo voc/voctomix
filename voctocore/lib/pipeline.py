@@ -17,7 +17,6 @@ class Pipeline(object):
 		self.log = logging.getLogger('Pipeline')
 		self.log.info('Video-Caps configured to: %s', Config.get('mix', 'videocaps'))
 		self.log.info('Audio-Caps configured to: %s', Config.get('mix', 'audiocaps'))
-		self.log.info('Default composit a source configured to: %s', Config.get('mix', 'defcompa'))
 
 		names = Config.getlist('mix', 'sources')
 		if len(names) < 1:
