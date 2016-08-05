@@ -296,6 +296,33 @@ class VideoMix(object):
 			mixerpad.set_property('alpha', state.alpha)
 			mixerpad.set_property('zorder', state.zorder)
 
+	def selectCompositeModeDefaultSources(self):
+		sectionNames = {
+			CompositeModes.fullscreen: 'fullscreen',
+			CompositeModes.side_by_side_equal: 'side-by-side-equal',
+			CompositeModes.side_by_side_preview: 'side-by-side-preview',
+			CompositeModes.picture_in_picture: 'picture-in-picture'
+		}
+
+		compositeModeName = self.compositeMode.name
+		sectionName = sectionNames[self.compositeMode]
+
+		try:
+			defSource = Config.get(sectionName, 'default-a')
+			self.setVideoSourceA(self.names.index(defSource))
+			self.log.info('Changing sourceA to default of Mode %s: %s', compositeModeName, defSource)
+		except Exception as e:
+			print(e)
+			pass
+
+		try:
+			defSource = Config.get(sectionName, 'default-b')
+			self.setVideoSourceB(self.names.index(defSource))
+			self.log.info('Changing sourceB to default of Mode %s: %s', compositeModeName, defSource)
+		except Exception as e:
+			print(e)
+			pass
+
 	def on_handoff(self, object, buffer):
 		if self.padStateDirty:
 			self.padStateDirty = False
@@ -335,6 +362,8 @@ class VideoMix(object):
 
 	def setCompositeMode(self, mode):
 		self.compositeMode = mode
+
+		self.selectCompositeModeDefaultSources()
 		self.recalculateMixerState()
 
 	def getCompositeMode(self):
