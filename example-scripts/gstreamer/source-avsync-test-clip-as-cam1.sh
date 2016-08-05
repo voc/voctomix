@@ -1,5 +1,10 @@
 #!/bin/sh
-. `dirname "$0"`/../config.sh
+confdir="`dirname "$0"`/../"
+. $confdir/default-config.sh
+if [ -f $confdir/config.sh ]; then
+	. $confdir/config.sh
+fi
+
 gst-launch-1.0 \
 	uridecodebin \
 		uri=http://c3voc.mazdermind.de/testfiles/avsync.mp4 \

@@ -1,5 +1,10 @@
 #!/bin/sh
-. `dirname "$0"`/../config.sh
+confdir="`dirname "$0"`/../"
+. $confdir/default-config.sh
+if [ -f $confdir/config.sh ]; then
+	. $confdir/config.sh
+fi
+
 ffmpeg -y -nostdin \
 	-i "http://ftp.uni-erlangen.de/cdn.media.ccc.de/broadcast/sendezentrum/h264-hd/31c3-sendezentrum-1013-de-Methodisch_inkorrekt_Die_falsche_42_hd.mp4" \
 	-ac 2 \

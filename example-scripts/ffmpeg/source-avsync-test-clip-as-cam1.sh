@@ -1,5 +1,10 @@
 #!/bin/sh
-. `dirname "$0"`/../config.sh
+confdir="`dirname "$0"`/../"
+. $confdir/default-config.sh
+if [ -f $confdir/config.sh ]; then
+	. $confdir/config.sh
+fi
+
 ffmpeg -y -nostdin \
 	-i http://c3voc.mazdermind.de/testfiles/avsync.ts \
 	-filter_complex "

@@ -1,5 +1,10 @@
 #!/bin/sh
-. `dirname "$0"`/../config.sh
+confdir="`dirname "$0"`/../"
+. $confdir/default-config.sh
+if [ -f $confdir/config.sh ]; then
+	. $confdir/config.sh
+fi
+
 wget -nc -O /tmp/pause.ts http://c3voc.mazdermind.de/testfiles/pause.ts
 while true; do cat /tmp/pause.ts || exit 1; done |\
 	ffmpeg -y -nostdin -re -i - \
