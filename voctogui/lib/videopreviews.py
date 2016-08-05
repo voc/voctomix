@@ -87,6 +87,9 @@ class VideoPreviewsController(object):
 
 			btn_fullscreen.connect('clicked', self.btn_fullscreen_clicked)
 
+			key, mod = Gtk.accelerator_parse('<Alt>%u' % (idx+1))
+			btn_fullscreen.add_accelerator('activate', accelerators, key, mod, Gtk.AccelFlags.VISIBLE)
+
 			self.preview_players[source] = player
 			self.previews[source] = preview
 			self.a_btns[source] = btn_a

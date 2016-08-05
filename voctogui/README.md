@@ -19,6 +19,11 @@
 - `Ctrl+2` Source Nr. 2
 - …
 
+### Set Fullscteen
+- `Alt+1` Source Nr. 1
+- `Alt+2` Source Nr. 2
+- …
+
 ### Other options
 - `t` Cut
 
