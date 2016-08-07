@@ -30,13 +30,17 @@ class AVRawOutput(TCPMultiConnection):
 
 			multifdsink
 				blocksize=1048576
-				buffers-max=500
+				buffers-max={buffers_max}
 				sync-method=next-keyframe
 				name=fd
 		""".format(
 			channel=self.channel,
 			acaps=Config.get('mix', 'audiocaps'),
-			vcaps=Config.get('mix', 'videocaps')
+			vcaps=Config.get('mix', 'videocaps'),
+			buffers_max=
+				Config.get('output-buffers', channel)
+					if Config.has_option('output-buffers', channel)
+					else 500,
 		)
 		self.log.debug('Creating Output-Pipeline:\n%s', pipeline)
 		self.outputPipeline = Gst.parse_launch(pipeline)
