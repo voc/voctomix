@@ -1,0 +1,14 @@
+[Unit]
+Description = voctomix test-video-source cam2
+After = voctomix-voctocore.service
+Requires = voctomix-voctocore.service
+
+[Service]
+Type = simple
+ExecStart = /usr/share/doc/voctomix/example-scripts/gstreamer/source-videotestsrc-as-cam2.sh
+Restart = always
+RestartSec = 1s
+StartLimitInterval = 0
+
+[Install]
+WantedBy = voctomix-voctocore.service

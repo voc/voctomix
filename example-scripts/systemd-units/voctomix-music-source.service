@@ -1,0 +1,14 @@
+[Unit]
+Description = voctomix music-source
+After = voctomix-voctocore.service
+Requires = voctomix-voctocore.service
+
+[Service]
+Type = simple
+ExecStart = /usr/share/doc/voctomix/example-scripts/ffmpeg/source-nostream-music.sh
+Restart = always
+RestartSec = 1s
+StartLimitInterval = 0
+
+[Install]
+WantedBy = voctomix-voctocore.service

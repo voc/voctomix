@@ -1,0 +1,13 @@
+[Unit]
+Description = voctomix core
+After=network.target
+
+[Service]
+Type = simple
+ExecStart = /usr/share/voctomix/voctocore/voctocore.py -vv
+Restart = always
+RestartSec = 1s
+StartLimitInterval = 0
+
+[Install]
+WantedBy = multi-user.target
