@@ -116,10 +116,15 @@ class ControlServerCommands(object):
 		return [a, b]
 
 	def get_video(self):
+		"""gets the current video-status, consisting of the name of
+		video-source A and video-source B"""
 		status = self._get_video_status()
 		return OkResponse('video_status', *status)
 
 	def set_video_a(self, src_name_or_id):
+		"""sets the video-source A to the supplied source-name or source-id,
+		swapping A and B if the supplied source is currently used as
+		video-source B"""
 		src_id = decodeName(self.sources, src_name_or_id)
 		self.pipeline.vmix.setVideoSourceA(src_id)
 
@@ -127,6 +132,9 @@ class ControlServerCommands(object):
 		return NotifyResponse('video_status', *status)
 
 	def set_video_b(self, src_name_or_id):
+		"""sets the video-source B to the supplied source-name or source-id,
+		swapping A and B if the supplied source is currently used as
+		video-source A"""
 		src_id = decodeName(self.sources, src_name_or_id)
 		self.pipeline.vmix.setVideoSourceB(src_id)
 
@@ -139,10 +147,12 @@ class ControlServerCommands(object):
 		return encodeName(self.sources, src_id)
 
 	def get_audio(self):
+		"""gets the name of the current audio-source"""
 		status = self._get_audio_status()
 		return OkResponse('audio_status', status)
 
 	def set_audio(self, src_name_or_id):
+		"""sets the audio-source to the supplied source-name or source-id"""
 		src_id = decodeName(self.sources, src_name_or_id)
 		self.pipeline.amix.setAudioSource(src_id)
 
@@ -155,10 +165,12 @@ class ControlServerCommands(object):
 		return encodeEnumName(CompositeModes, mode)
 
 	def get_composite_mode(self):
+		"""gets the name of the current composite-mode"""
 		status = self._get_composite_status()
 		return OkResponse('composite_mode', status)
 
 	def set_composite_mode(self, mode_name_or_id):
+		"""sets the name of the id of the composite-mode"""
 		mode = decodeEnumName(CompositeModes, mode_name_or_id)
 		self.pipeline.vmix.setCompositeMode(mode)
 
@@ -169,7 +181,10 @@ class ControlServerCommands(object):
 			NotifyResponse('video_status', *video_status)
 		]
 	
+
 	def set_videos_and_composite(self, src_a_name_or_id, src_b_name_or_id, mode_name_or_id):
+		"""sets the A- and the B-source synchronously with the composition-mode
+		all parametets can be set to "*" which will leave them unchanged."""
 		if src_a_name_or_id != '*':
 			src_a_id = decodeName(self.sources, src_a_name_or_id)
 			self.pipeline.vmix.setVideoSourceA(src_a_id)
@@ -199,10 +214,13 @@ class ControlServerCommands(object):
 		return 'blank', encodeName(self.blankerSources, blankSource)
 
 	def get_stream_status(self):
+		"""gets the current streamblanker-status"""
 		status = self._get_stream_status()
 		return OkResponse('stream_status', *status)
 
 	def set_stream_blank(self, source_name_or_id):
+		"""sets the streamblanker-status to blank with the specified
+		blanker-source-name or -id"""
 		src_id = decodeName(self.blankerSources, source_name_or_id)
 		self.pipeline.streamblanker.setBlankSource(src_id)
 
@@ -210,6 +228,7 @@ class ControlServerCommands(object):
 		return NotifyResponse('stream_status', *status)
 
 	def set_stream_live(self):
+		"""sets the streamblanker-status to live"""
 		self.pipeline.streamblanker.setBlankSource(None)
 
 		status = self._get_stream_status()
@@ -217,5 +236,6 @@ class ControlServerCommands(object):
 
 
 	def get_config(self):
+		"""returns the parsed server-config"""
 		confdict = {header: dict(section) for header, section in dict(Config).items()}
 		return OkResponse('server_config', json.dumps(confdict))
