@@ -23,13 +23,16 @@ GObject.threads_init()
 
 # import local classes
 from lib.args import Args
-from lib.pipeline import Pipeline
-from lib.controlserver import ControlServer
 from lib.loghandler import LogHandler
 
 # main class
 class Voctocore(object):
 	def __init__(self):
+		# import local which use the config or the logging system
+		# this is required, so that we can cnfigure logging, before reading the config
+		from lib.pipeline import Pipeline
+		from lib.controlserver import ControlServer
+
 		self.log = logging.getLogger('Voctocore')
 		self.log.debug('creating GObject-MainLoop')
 		self.mainloop = GObject.MainLoop()
