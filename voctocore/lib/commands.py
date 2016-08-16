@@ -1,5 +1,6 @@
 import logging
 import json
+import inspect
 
 from lib.config import Config
 from lib.videomix import CompositeModes
@@ -60,8 +61,54 @@ class ControlServerCommands(object):
 	# exceptions, they will be turned into messages outside.
 
 	def message(self, *args):
+		"""sends a message through the control-server, which can be received by
+		user-defined scripts. does not change the state of the voctocore."""
 		return NotifyResponse('message', *args)
 
+	def help(self):
+		helplines = []
+
+		helplines.append("Commands:")
+		for name, func in ControlServerCommands.__dict__.items():
+			if name[0] == '_':
+				continue
+
+			if not func.__code__:
+				continue
+
+			params = inspect.signature(func).parameters
+			params = [str(info) for name, info in params.items()]
+			params = ', '.join(params[1:])
+
+			command_sig = '\t' + name
+
+			if params:
+				command_sig += ': '+params
+
+			if func.__doc__:
+				command_sig += '\n'+'\n'.join(
+					['\t\t'+line.strip() for line in func.__doc__.splitlines()])+'\n'
+
+			helplines.append(command_sig)
+
+		helplines.append('\t'+'quit')
+
+		helplines.append("\n")
+		helplines.append("Source-Names:")
+		for source in self.sources:
+			helplines.append("\t"+source)
+
+		helplines.append("\n")
+		helplines.append("Stream-Blanker Sources-Names:")
+		for source in self.blankerSources:
+			helplines.append("\t"+source)
+
+		helplines.append("\n")
+		helplines.append("Composition-Modes:")
+		for mode in CompositeModes:
+			helplines.append("\t"+mode.name)
+
+		return OkResponse("\n".join(helplines))
 
 	def _get_video_status(self):
 		a = encodeName( self.sources, self.pipeline.vmix.getVideoSourceA() )
