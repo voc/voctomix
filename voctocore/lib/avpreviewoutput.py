@@ -20,9 +20,7 @@ class AVPreviewOutput(TCPMultiConnection):
 		pipeline = """
 			intervideosrc channel=video_{channel} !
 			{vcaps_in} !
-			capssetter caps="video/x-raw,interlace-mode=interlaced" !
-			deinterlace !
-			video/x-raw,interlace-mode=progressive !
+			deinterlace mode=interlaced !
 			videoscale !
 			videorate !
 			{vcaps_out} !
