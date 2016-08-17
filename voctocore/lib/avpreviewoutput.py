@@ -24,6 +24,7 @@ class AVPreviewOutput(TCPMultiConnection):
             deinterlace = "deinterlace mode=interlaced !"
 
 		venc = 'jpegenc quality=90'
+		if Config.has_option('previews', 'vaapi'):
 		try:
 			encoder = Config.get('previews', 'vaapi')
 			encoders = {
