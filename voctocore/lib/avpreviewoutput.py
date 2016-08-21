@@ -17,12 +17,14 @@ class AVPreviewOutput(TCPMultiConnection):
 		else:
 			vcaps_out = Config.get('mix', 'videocaps')
 
+		deinterlace = ""
+		if Config.getboolean('previews', 'deinterlace'):
+			deinterlace = "deinterlace mode=interlaced !"
+
 		pipeline = """
 			intervideosrc channel=video_{channel} !
 			{vcaps_in} !
-			capssetter caps="video/x-raw,interlace-mode=interlaced" !
-			deinterlace !
-			video/x-raw,interlace-mode=progressive !
+			{deinterlace}
 			videoscale !
 			videorate !
 			{vcaps_out} !
@@ -49,7 +51,8 @@ class AVPreviewOutput(TCPMultiConnection):
 			channel=self.channel,
 			acaps=Config.get('mix', 'audiocaps'),
 			vcaps_in=Config.get('mix', 'videocaps'),
-			vcaps_out=vcaps_out
+			vcaps_out=vcaps_out,
+			deinterlace=deinterlace
 		)
 
 		self.log.debug('Creating Output-Pipeline:\n%s', pipeline)

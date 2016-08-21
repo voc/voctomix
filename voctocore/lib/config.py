@@ -1,4 +1,5 @@
 import os.path
+import logging
 from configparser import SafeConfigParser
 from lib.args import Args
 
@@ -23,4 +24,10 @@ if Args.ini_file is not None:
 	files.append(Args.ini_file)
 
 Config = SafeConfigParser()
-Config.read(files)
+readfiles = Config.read(files)
+
+log = logging.getLogger('ConfigParser')
+log.debug('considered config-files: \n%s',
+	"\n".join(["\t\t"+os.path.normpath(file) for file in files]) )
+log.debug('successfully parsed config-files: \n%s',
+	"\n".join(["\t\t"+os.path.normpath(file) for file in readfiles]) )

@@ -325,7 +325,6 @@ class VideoMix(object):
 			self.setVideoSourceA(self.names.index(defSource))
 			self.log.info('Changing sourceA to default of Mode %s: %s', compositeModeName, defSource)
 		except Exception as e:
-			print(e)
 			pass
 
 		try:
@@ -333,7 +332,6 @@ class VideoMix(object):
 			self.setVideoSourceB(self.names.index(defSource))
 			self.log.info('Changing sourceB to default of Mode %s: %s', compositeModeName, defSource)
 		except Exception as e:
-			print(e)
 			pass
 
 	def on_handoff(self, object, buffer):
