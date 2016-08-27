@@ -76,7 +76,7 @@ class VideoDisplay(object):
 			)
 
 		else:
-			raise Exception('Invalid Videodisplay-System configured: %s'. system)
+			raise Exception('Invalid Videodisplay-System configured: %s' % videosystem)
 
 
 
