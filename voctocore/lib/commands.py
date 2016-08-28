@@ -91,7 +91,7 @@ class ControlServerCommands(object):
 
 			helplines.append(command_sig)
 
-		helplines.append('\t'+'quit')
+		helplines.append('\t'+'quit / exit')
 
 		helplines.append("\n")
 		helplines.append("Source-Names:")

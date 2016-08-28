@@ -49,7 +49,7 @@ class ControlServer(TCPMultiConnection):
 
 			line = line.strip()
 			# 'quit' = remote wants us to close the connection
-			if line == 'quit':
+			if line == 'quit' or line == 'exit':
 				self.log.info("Client asked us to close the Connection")
 				self.close_connection(conn)
 				return False
