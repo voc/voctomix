@@ -93,4 +93,4 @@ While the Core runs fine inside any VM, the GUI uses OpenGL to display the video
 
 ## Contact
 To get in touch with us we'd ask to join `#voctomix` on the hackint IRC network, mail to `voc AT c3voc DOT de` or meet us on one of the [many conferences](https://c3voc.de/eventkalender) we're at.
-You may also want to watch [a presentation](https://media.ccc.de/v/froscon2015-1520-conference_recording_und_streaming#video) some of us gave about our video infrastructure.
+You may also want to watch MaZderMinds [talk](https://media.ccc.de/v/froscon2016-1696-voctomix) about Voctomix and [a presentation](https://media.ccc.de/v/froscon2015-1520-conference_recording_und_streaming) some of us gave about C3VOCs video infrastructure.
