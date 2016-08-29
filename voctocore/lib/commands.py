@@ -3,7 +3,6 @@ import json
 import inspect
 
 from lib.config import Config
-from lib.videomix import CompositeModes
 from lib.response import NotifyResponse, OkResponse
 
 def decodeName(items, name_or_id):
@@ -103,43 +102,7 @@ class ControlServerCommands(object):
 		for source in self.blankerSources:
 			helplines.append("\t"+source)
 
-		helplines.append("\n")
-		helplines.append("Composition-Modes:")
-		for mode in CompositeModes:
-			helplines.append("\t"+mode.name)
-
 		return OkResponse("\n".join(helplines))
-
-	def _get_video_status(self):
-		a = encodeName( self.sources, self.pipeline.vmix.getVideoSourceA() )
-		b = encodeName( self.sources, self.pipeline.vmix.getVideoSourceB() )
-		return [a, b]
-
-	def get_video(self):
-		"""gets the current video-status, consisting of the name of
-		video-source A and video-source B"""
-		status = self._get_video_status()
-		return OkResponse('video_status', *status)
-
-	def set_video_a(self, src_name_or_id):
-		"""sets the video-source A to the supplied source-name or source-id,
-		swapping A and B if the supplied source is currently used as
-		video-source B"""
-		src_id = decodeName(self.sources, src_name_or_id)
-		self.pipeline.vmix.setVideoSourceA(src_id)
-
-		status = self._get_video_status()
-		return NotifyResponse('video_status', *status)
-
-	def set_video_b(self, src_name_or_id):
-		"""sets the video-source B to the supplied source-name or source-id,
-		swapping A and B if the supplied source is currently used as
-		video-source A"""
-		src_id = decodeName(self.sources, src_name_or_id)
-		self.pipeline.vmix.setVideoSourceB(src_id)
-
-		status = self._get_video_status()
-		return NotifyResponse('video_status', *status)
 
 
 	def _get_audio_status(self):
@@ -160,50 +123,17 @@ class ControlServerCommands(object):
 		return NotifyResponse('audio_status', status)
 
 
-	def _get_composite_status(self):
-		mode = self.pipeline.vmix.getCompositeMode()
-		return encodeEnumName(CompositeModes, mode)
+	def get_scene(self):
+		"""gets the name of the current scene"""
+		scene = self.pipeline.vmix.getScene()
+		return OkResponse('audio_scene', scene)
 
-	def get_composite_mode(self):
-		"""gets the name of the current composite-mode"""
-		status = self._get_composite_status()
-		return OkResponse('composite_mode', status)
+	def set_scene(self, scene_name):
+		"""sets the scene to the supplied scene-name"""
+		self.pipeline.vmix.setScene(scene_name)
 
-	def set_composite_mode(self, mode_name_or_id):
-		"""sets the name of the id of the composite-mode"""
-		mode = decodeEnumName(CompositeModes, mode_name_or_id)
-		self.pipeline.vmix.setCompositeMode(mode)
-
-		composite_status = self._get_composite_status()
-		video_status = self._get_video_status()
-		return [
-			NotifyResponse('composite_mode', composite_status),
-			NotifyResponse('video_status', *video_status)
-		]
-	
-
-	def set_videos_and_composite(self, src_a_name_or_id, src_b_name_or_id, mode_name_or_id):
-		"""sets the A- and the B-source synchronously with the composition-mode
-		all parametets can be set to "*" which will leave them unchanged."""
-		if src_a_name_or_id != '*':
-			src_a_id = decodeName(self.sources, src_a_name_or_id)
-			self.pipeline.vmix.setVideoSourceA(src_a_id)
-
-		if src_b_name_or_id != '*':
-			src_b_id = decodeName(self.sources, src_b_name_or_id)
-			self.pipeline.vmix.setVideoSourceB(src_b_id)
-
-		if mode_name_or_id != '*':
-			mode = decodeEnumName(CompositeModes, mode_name_or_id)
-			self.pipeline.vmix.setCompositeMode(mode)
-
-		composite_status = self._get_composite_status()
-		video_status = self._get_video_status()
-
-		return [
-			NotifyResponse('composite_mode', composite_status),
-			NotifyResponse('video_status', *video_status)
-		]
+		scene = self.pipeline.vmix.getScene()
+		return NotifyResponse('video_scene', scene)
 
 
 	def _get_stream_status(self):
