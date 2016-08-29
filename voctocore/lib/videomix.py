@@ -113,7 +113,7 @@ class VideoMix(object):
 			raise RuntimeError("Invalid scene: %s" % scene)
 
 		self.scene = scene
-
+		aspect = self.width / self.height
 
 		if Config.has_section('scenes'):
 			scope = {k: eval(v, {}, {}) for k, v in Config.items('scenes')}
@@ -121,6 +121,7 @@ class VideoMix(object):
 			scope = {}
 
 		scope['w'], scope['h'] = self.width, self.height
+		scope['aspect'] = aspect
 		self.log.debug('Evaluating Scene-Expressions in the following scope: %s', scope)
 
 		for idx, source in enumerate(self.names):
@@ -136,7 +137,6 @@ class VideoMix(object):
 				self.padState[idx].zorder = int(eval(zorder, {}, dict(scope)))
 
 
-			aspect = self.width / self.height
 			width, height = None, None
 			if Config.has_option(section, source+'.size'):
 				width, height = Config.get(section, source+'.size').split(',')
