@@ -115,13 +115,14 @@ class VideoMix(object):
 		self.scene = scene
 		aspect = self.width / self.height
 
-		if Config.has_section('scenes'):
-			scope = {k: eval(v, {}, {}) for k, v in Config.items('scenes')}
-		else:
-			scope = {}
-
-		scope['w'], scope['h'] = self.width, self.height
+		scope = {}
 		scope['aspect'] = aspect
+		scope['w'], scope['h'] = self.width, self.height
+
+		if Config.has_section('scenes'):
+			for k, v in Config.items('scenes'):
+				scope[k] = eval(v, {}, scope)
+
 		self.log.debug('Evaluating Scene-Expressions in the following scope: %s', scope)
 
 		for idx, source in enumerate(self.names):
