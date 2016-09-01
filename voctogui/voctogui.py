@@ -109,7 +109,7 @@ def main():
 
 	# establish a synchronus connection to server
 	Connection.establish(
-		Config.get('server', 'host'))
+		Args.host if Args.host else Config.get('server', 'host'))
 
 	# fetch config from server
 	Config.fetchServerConfig()

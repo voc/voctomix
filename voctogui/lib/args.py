@@ -18,5 +18,7 @@ parser.add_argument('-i', '--ini-file', action='store',
 parser.add_argument('-u', '--ui-file', action='store',
 	help="Load a custom .ui-File")
 
+parser.add_argument('-H', '--host', action='store',
+	help="Connect to this host instead of the configured one.")
 
 Args = parser.parse_args()

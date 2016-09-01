@@ -1,6 +1,7 @@
 import logging
 from gi.repository import Gst
 
+from lib.args import Args
 from lib.config import Config
 from lib.clock import Clock
 
@@ -105,7 +106,7 @@ class VideoDisplay(object):
 			acaps=Config.get('mix', 'audiocaps'),
 			vcaps=Config.get('mix', 'videocaps'),
 			previewcaps=Config.get('previews', 'videocaps'),
-			host=Config.get('server', 'host'),
+			host=Args.host if Args.host else Config.get('server', 'host'),
 			port=port,
 		)
 
