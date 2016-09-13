@@ -8,7 +8,17 @@ __all__ = ['Config']
 def getlist(self, section, option):
 	return [x.strip() for x in self.get(section, option).split(',')]
 
+def get_prefixed_sections(self, prefix):
+	return [x[len(prefix):] for x in self.sections() if x.startswith(prefix)]
+
+def has_any_option(self, section, options):
+	for option in options:
+		if self.has_option(section, option):
+			return True
+	return False
+
 SafeConfigParser.getlist = getlist
+SafeConfigParser.get_prefixed_sections = get_prefixed_sections
 
 files = [
 	os.path.join(os.path.dirname(os.path.realpath(__file__)), '../default-config.ini'),

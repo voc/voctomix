@@ -10,6 +10,9 @@ __all__ = ['Config']
 def getlist(self, section, option):
 	return [x.strip() for x in self.get(section, option).split(',')]
 
+def get_prefixed_sections(self, prefix):
+	return [x[len(prefix):] for x in self.sections() if x.startswith(prefix)]
+
 def fetchServerConfig(self):
 	log = logging.getLogger('Config')
 	log.info("reading server-config")
@@ -20,6 +23,7 @@ def fetchServerConfig(self):
 	self.read_dict(server_config)
 
 SafeConfigParser.getlist = getlist
+SafeConfigParser.get_prefixed_sections = get_prefixed_sections
 SafeConfigParser.fetchServerConfig = fetchServerConfig
 
 files = [

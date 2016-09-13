@@ -5,30 +5,34 @@ from enum import Enum, unique
 from lib.config import Config
 from lib.clock import Clock
 
-@unique
-class CompositeModes(Enum):
-	fullscreen = 0
-	side_by_side_equal = 1
-	side_by_side_preview = 2
-	picture_in_picture = 3
-
 class PadState(object):
 	def __init__(self):
 		self.reset()
 
 	def reset(self):
-		self.alpha = 1.0
-		self.xpos = 0
+		self.alpha = 0.0
+		self.xpos, self.ypos = 0, 0
 		self.ypos = 0
 		self.zorder = 1
-		self.width = 0
-		self.height = 0
+		self.width, self.height = VideoMix.getVideoSize()
 
 class VideoMix(object):
 	log = logging.getLogger('VideoMix')
 
+	def getVideoSize():
+		capsstr = Config.get('mix', 'videocaps')
+		caps = Gst.Caps.from_string(capsstr)
+		struct = caps.get_structure(0)
+		_, width = struct.get_int('width')
+		_, height = struct.get_int('height')
+
+		return width, height
+
 	def __init__(self):
 		self.caps = Config.get('mix', 'videocaps')
+
+		self.width, self.height = VideoMix.getVideoSize()
+		self.log.debug('Video-Size parsed as %ux%u', self.width, self.height)
 
 		self.names = Config.getlist('mix', 'sources')
 		self.log.info('Configuring Mixer for %u Sources', len(self.names))
@@ -88,12 +92,13 @@ class VideoMix(object):
 		for idx, name in enumerate(self.names):
 			self.padState.append(PadState())
 
-		self.log.debug('Initializing Mixer-State')
-		self.compositeMode = CompositeModes.fullscreen
-		self.sourceA = 0
-		self.sourceB = 1
-		self.recalculateMixerState()
-		self.applyMixerState()
+		self.scenes = Config.get_prefixed_sections('scene.')
+		if len(self.scenes) == 0:
+			raise RuntimeError("At least one Scene must be configured!")
+
+		self.log.info('Initializing Mixer-State to first scene "%s"', self.scenes[0])
+		self.scene = self.scenes[0]
+		self.setScene(self.scene)
 
 		bgMixerpad = self.mixingPipeline.get_by_name('mix').get_static_pad('sink_0')
 		bgMixerpad.set_property('zorder', 0)
@@ -101,199 +106,138 @@ class VideoMix(object):
 		self.log.debug('Launching Mixing-Pipeline')
 		self.mixingPipeline.set_state(Gst.State.PLAYING)
 
-	def getInputVideoSize(self):
-		caps = Gst.Caps.from_string(self.caps)
-		struct = caps.get_structure(0)
-		_, width = struct.get_int('width')
-		_, height = struct.get_int('height')
+	def setScene(self, scene):
+		section = 'scene.' + scene
+		print(section)
+		if not Config.has_section(section):
+			raise RuntimeError("Invalid scene: %s" % scene)
 
-		return width, height
+		self.scene = scene
+		aspect = self.width / self.height
 
-	def recalculateMixerState(self):
-		if self.compositeMode == CompositeModes.fullscreen:
-			self.recalculateMixerStateFullscreen()
+		scope = {}
+		scope['aspect'] = aspect
+		scope['w'], scope['h'] = self.width, self.height
 
-		elif self.compositeMode == CompositeModes.side_by_side_equal:
-			self.recalculateMixerStateSideBySideEqual()
+		if Config.has_section('scenes'):
+			for k, v in Config.items('scenes'):
+				scope[k] = eval(v, {}, scope)
 
-		elif self.compositeMode == CompositeModes.side_by_side_preview:
-			self.recalculateMixerStateSideBySidePreview()
+		self.log.debug('Evaluating Scene-Expressions in the following scope: %s', scope)
 
-		elif self.compositeMode == CompositeModes.picture_in_picture:
-			self.recalculateMixerStatePictureInPicture()
+		for idx, source in enumerate(self.names):
+			self.padState[idx].reset()
 
-		self.log.debug('Marking Pad-State as Dirty')
-		self.padStateDirty = True
+			if Config.has_option(section, source+'.alpha'):
+				alpha = Config.get(section, source+'.alpha')
 
-	def recalculateMixerStateFullscreen(self):
-		self.log.info('Updating Mixer-State for Fullscreen-Composition')
+				self.padState[idx].alpha = float(eval(alpha, {}, dict(scope)))
 
-		for idx, name in enumerate(self.names):
-			pad = self.padState[idx]
-
-			pad.reset()
-			pad.alpha = float(idx == self.sourceA)
-
-	def recalculateMixerStateSideBySideEqual(self):
-		self.log.info('Updating Mixer-State for Side-by-side-Equal-Composition')
-
-		width, height = self.getInputVideoSize()
-		self.log.debug('Video-Size parsed as %ux%u', width, height)
-
-		try:
-			gutter = Config.getint('side-by-side-equal', 'gutter')
-			self.log.debug('Gutter configured to %u', gutter)
-		except:
-			gutter = int(width / 100)
-			self.log.debug('Gutter calculated to %u', gutter)
-
-		targetWidth = int((width - gutter) / 2)
-		targetHeight = int(targetWidth / width * height)
-
-		self.log.debug('Video-Size calculated to %ux%u', targetWidth, targetHeight)
-
-		xa = 0
-		xb = width - targetWidth
-		y = (height - targetHeight) / 2
-
-		try:
-			ya = Config.getint('side-by-side-equal', 'atop')
-			self.log.debug('A-Video Y-Pos configured to %u', ya)
-		except:
-			ya = y
-			self.log.debug('A-Video Y-Pos calculated to %u', ya)
+			if Config.has_option(section, source+'.zorder'):
+				zorder = Config.get(section, source+'.zorder')
+				self.padState[idx].zorder = int(eval(zorder, {}, dict(scope)))
 
 
-		try:
-			yb = Config.getint('side-by-side-equal', 'btop')
-			self.log.debug('B-Video Y-Pos configured to %u', yb)
-		except:
-			yb = y
-			self.log.debug('B-Video Y-Pos calculated to %u', yb)
+			width, height = None, None
+			if Config.has_option(section, source+'.size'):
+				width, height = Config.get(section, source+'.size').split(',')
+
+			if Config.has_option(section, source+'.width'):
+				width = Config.get(section, source+'.width')
+
+			if Config.has_option(section, source+'.height'):
+				height = Config.get(section, source+'.height')
+
+			if width:
+				self.padState[idx].width = int(eval(width, {}, dict(scope)))
+
+				if not height:
+					self.padState[idx].height = self.padState[idx].width / aspect
+
+			if height:
+				self.padState[idx].height = int(eval(height, {}, dict(scope)))
+
+				if not width:
+					self.padState[idx].width = self.padState[idx].height * aspect
 
 
-		for idx, name in enumerate(self.names):
-			pad = self.padState[idx]
-			pad.reset()
+			left, top = None, None
+			if Config.has_option(section, source+'.topleft'):
+				top, left = Config.get(section, source+'.topleft').split(',')
 
-			pad.width = targetWidth
-			pad.height = targetHeight
+			if Config.has_option(section, source+'.left'):
+				left = Config.get(section, source+'.left')
 
-			if idx == self.sourceA:
-				pad.xpos = xa
-				pad.ypos = ya
-				pad.zorder = 1
+			if Config.has_option(section, source+'.top'):
+				top = Config.get(section, source+'.top')
 
-			elif idx == self.sourceB:
-				pad.xpos = xb
-				pad.ypos = yb
-				pad.zorder = 2
+			if left:
+				self.padState[idx].xpos = int(eval(left, {}, dict(scope)))
 
-			else:
-				pad.alpha = 0
+			if top:
+				self.padState[idx].ypos = int(eval(top, {}, dict(scope)))
 
-	def recalculateMixerStateSideBySidePreview(self):
-		self.log.info('Updating Mixer-State for Side-by-side-Preview-Composition')
 
-		width, height = self.getInputVideoSize()
-		self.log.debug('Video-Size parsed as %ux%u', width, height)
+			right, bottom = None, None
+			if Config.has_option(section, source+'.bottomright'):
+				bottom, right = Config.get(section, source+'.bottomright').split(',')
 
-		try:
-			asize = [int(i) for i in Config.get('side-by-side-preview', 'asize').split('x', 1)]
-			self.log.debug('A-Video-Size configured to %ux%u', asize[0], asize[1])
-		except:
-			asize = [
-				int(width / 1.25), # 80%
-				int(height / 1.25) # 80%
-			]
-			self.log.debug('A-Video-Size calculated to %ux%u', asize[0], asize[1])
+			if Config.has_option(section, source+'.right'):
+				right = Config.get(section, source+'.right')
 
-		try:
-			apos = [int(i) for i in Config.get('side-by-side-preview', 'apos').split('/', 1)]
-			self.log.debug('B-Video-Position configured to %u/%u', apos[0], apos[1])
-		except:
-			apos = [
-				int(width / 100), # 1%
-				int(width / 100)  # 1%
-			]
-			self.log.debug('B-Video-Position calculated to %u/%u', apos[0], apos[1])
+			if Config.has_option(section, source+'.bottom'):
+				bottom = Config.get(section, source+'.bottom')
 
-		try:
-			bsize = [int(i) for i in Config.get('side-by-side-preview', 'bsize').split('x', 1)]
-			self.log.debug('B-Video-Size configured to %ux%u', bsize[0], bsize[1])
-		except:
-			bsize = [
-				int(width / 4), # 25%
-				int(height / 4) # 25%
-			]
-			self.log.debug('B-Video-Size calculated to %ux%u', bsize[0], bsize[1])
+			if right:
+				right = int(eval(right, {}, dict(scope)))
+				if left:
+					if width:
+						# right, left & width. overspecified
+						self.log.warn('scene %s overspecified source %s xpos by providinf, left, width and right. ignoring right', scene, source)
+					else:
+						# right & left but no width. calculate width
+						self.padState[idx].width = self.width - right - self.padState[idx].xpos
+						self.log.debug('left & right specified, calculating width=%u', self.padState[idx].width)
 
-		try:
-			bpos = [int(i) for i in Config.get('side-by-side-preview', 'bpos').split('/', 1)]
-			self.log.debug('B-Video-Position configured to %u/%u', bpos[0], bpos[1])
-		except:
-			bpos = [
-				width - int(width / 100) - bsize[0],
-				height - int(width / 100) - bsize[1]  # 1%
-			]
-			self.log.debug('B-Video-Position calculated to %u/%u', bpos[0], bpos[1])
+						if not height:
+							self.padState[idx].height = self.padState[idx].width / aspect
+							self.log.debug('height not specified, calculating height=%u to fit aspect ratio', self.padState[idx].height)
 
-		for idx, name in enumerate(self.names):
-			pad = self.padState[idx]
-			pad.reset()
+				else:
+					# right no left. calulate xpos
+					self.padState[idx].xpos = self.width - self.padState[idx].width - right
+					self.log.debug('right and width specified, calculating xpos=%u', self.padState[idx].xpos)
 
-			if idx == self.sourceA:
-				pad.xpos, pad.ypos = apos
-				pad.width, pad.height = asize
-				pad.zorder = 1
 
-			elif idx == self.sourceB:
-				pad.xpos, pad.ypos = bpos
-				pad.width, pad.height = bsize
-				pad.zorder = 2
 
-			else:
-				pad.alpha = 0
+			if bottom:
+				bottom = int(eval(bottom, {}, dict(scope)))
+				if top:
+					if height:
+						# bottom, top & height. overspecified
+						self.log.warn('scene %s overspecified source %s ypos by providinf, top, height and bottom. ignoring bottom', scene, source)
+					else:
+						# bottom & top but no height. calculate height
+						self.padState[idx].height = self.height - bottom - self.padState[idx].ypos
+						self.log.debug('top & bottom specified, calculating height=%u', self.padState[idx].height)
 
-	def recalculateMixerStatePictureInPicture(self):
-		self.log.info('Updating Mixer-State for Picture-in-Picture-Composition')
+						if not width:
+							self.padState[idx].width = self.padState[idx].height * aspect
+							self.log.debug('width not specified, calculating width=%u to fit aspect ratio', self.padState[idx].width)
 
-		width, height = self.getInputVideoSize()
-		self.log.debug('Video-Size parsed as %ux%u', width, height)
+				else:
+					# bottom no top. calulate ypos
+					self.padState[idx].ypos = self.height - self.padState[idx].height - bottom
+					self.log.debug('bottom and height specified, calculating ypos=%u', self.padState[idx].ypos)
 
-		try:
-			pipsize = [int(i) for i in Config.get('picture-in-picture', 'pipsize').split('x', 1)]
-			self.log.debug('PIP-Size configured to %ux%u', pipsize[0], pipsize[1])
-		except:
-			pipsize = [
-				int(width / 4), # 25%
-				int(height / 4) # 25%
-			]
-			self.log.debug('PIP-Size calculated to %ux%u', pipsize[0], pipsize[1])
 
-		try:
-			pippos = [int(i) for i in Config.get('picture-in-picture', 'pippos').split('/', 1)]
-			self.log.debug('PIP-Position configured to %u/%u', pippos[0], pippos[1])
-		except:
-			pippos = [
-				width - pipsize[0] - int(width / 100), # 1%
-				height - pipsize[1] -int(width / 100)  # 1%
-			]
-			self.log.debug('PIP-Position calculated to %u/%u', pippos[0], pippos[1])
+		self.applyMixerState()
 
-		for idx, name in enumerate(self.names):
-			pad = self.padState[idx]
-			pad.reset()
 
-			if idx == self.sourceA:
-				pass
-			elif idx == self.sourceB:
-				pad.xpos, pad.ypos = pippos
-				pad.width, pad.height = pipsize
-				pad.zorder = 2
 
-			else:
-				pad.alpha = 0
+	def getScene(self):
+		return self.scene
+
 
 	def applyMixerState(self):
 		for idx, state in enumerate(self.padState):
@@ -309,31 +253,6 @@ class VideoMix(object):
 			mixerpad.set_property('alpha', state.alpha)
 			mixerpad.set_property('zorder', state.zorder)
 
-	def selectCompositeModeDefaultSources(self):
-		sectionNames = {
-			CompositeModes.fullscreen: 'fullscreen',
-			CompositeModes.side_by_side_equal: 'side-by-side-equal',
-			CompositeModes.side_by_side_preview: 'side-by-side-preview',
-			CompositeModes.picture_in_picture: 'picture-in-picture'
-		}
-
-		compositeModeName = self.compositeMode.name
-		sectionName = sectionNames[self.compositeMode]
-
-		try:
-			defSource = Config.get(sectionName, 'default-a')
-			self.setVideoSourceA(self.names.index(defSource))
-			self.log.info('Changing sourceA to default of Mode %s: %s', compositeModeName, defSource)
-		except Exception as e:
-			pass
-
-		try:
-			defSource = Config.get(sectionName, 'default-b')
-			self.setVideoSourceB(self.names.index(defSource))
-			self.log.info('Changing sourceB to default of Mode %s: %s', compositeModeName, defSource)
-		except Exception as e:
-			pass
-
 	def on_handoff(self, object, buffer):
 		if self.padStateDirty:
 			self.padStateDirty = False
@@ -347,35 +266,3 @@ class VideoMix(object):
 		self.log.debug('Received Error-Signal on Mixing-Pipeline')
 		(error, debug) = message.parse_error()
 		self.log.debug('Error-Details: #%u: %s', error.code, debug)
-
-
-	def setVideoSourceA(self, source):
-		# swap if required
-		if self.sourceB == source:
-			self.sourceB = self.sourceA
-
-		self.sourceA = source
-		self.recalculateMixerState()
-
-	def getVideoSourceA(self):
-		return self.sourceA
-
-	def setVideoSourceB(self, source):
-		# swap if required
-		if self.sourceA == source:
-			self.sourceA = self.sourceB
-
-		self.sourceB = source
-		self.recalculateMixerState()
-
-	def getVideoSourceB(self):
-		return self.sourceB
-
-	def setCompositeMode(self, mode):
-		self.compositeMode = mode
-
-		self.selectCompositeModeDefaultSources()
-		self.recalculateMixerState()
-
-	def getCompositeMode(self):
-		return self.compositeMode
