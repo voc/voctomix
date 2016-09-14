@@ -18,6 +18,7 @@ event_map = dict(map(lambda x: (int(x[0]), x[1]), Config.items("eventmap")))
 
 
 class MidiInputHandler(object):
+
     def __init__(self, port):
         self.port = port
 
