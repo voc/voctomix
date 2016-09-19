@@ -1,6 +1,7 @@
 import logging
 
 from lib.config import Config
+from lib.sources.decklinkavsource import DeckLinkAVSource
 from lib.sources.imgvsource import ImgVSource
 from lib.sources.tcpavsource import TCPAVSource
 
@@ -15,6 +16,10 @@ def spawn_source(name, port, outputs=None, has_audio=True, has_video=True):
 
     if kind == 'img':
         sources[name] = ImgVSource(name, outputs, has_audio, has_video)
+        return sources[name]
+
+    if kind == 'decklink':
+        sources[name] = DeckLinkAVSource(name, outputs, has_audio, has_video)
         return sources[name]
 
     if kind != 'tcp':
