@@ -22,3 +22,7 @@ def spawn_source(name, port, outputs=None, has_audio=True, has_video=True):
 
     sources[name] = TCPAVSource(name, port, outputs, has_audio, has_video)
     return sources[name]
+
+
+def restart_source(name):
+    sources[name].restart()

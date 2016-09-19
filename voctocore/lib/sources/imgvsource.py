@@ -36,3 +36,7 @@ class ImgVSource(AVSource):
         )
         self.build_pipeline(pipeline, velem='img')
         self.pipeline.set_state(Gst.State.PLAYING)
+
+    def restart(self):
+        self.pipeline.set_state(Gst.State.NULL)
+        self.launch_pipeline()

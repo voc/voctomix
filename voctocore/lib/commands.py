@@ -5,6 +5,7 @@ import inspect
 from lib.config import Config
 from lib.videomix import CompositeModes
 from lib.response import NotifyResponse, OkResponse
+from lib.sources import restart_source
 
 
 def decodeName(items, name_or_id):
@@ -238,3 +239,8 @@ class ControlServerCommands(object):
         confdict = {header: dict(section)
                     for header, section in dict(Config).items()}
         return OkResponse('server_config', json.dumps(confdict))
+
+    def restart_source(self, src_name):
+        """restarts the specified source"""
+        restart_source(src_name)
+        return OkResponse('source_restarted', src_name)

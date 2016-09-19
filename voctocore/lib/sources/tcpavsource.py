@@ -80,3 +80,7 @@ class TCPAVSource(AVSource, TCPSingleConnection):
         self.pipeline.set_state(Gst.State.NULL)
         self.pipeline = None
         self.close_connection()
+
+    def restart(self):
+        if self.currentConnection is not None:
+            self.disconnect()

@@ -1,5 +1,5 @@
 import logging
-from abc import ABCMeta
+from abc import ABCMeta, abstractmethod
 from gi.repository import Gst
 
 from lib.config import Config
@@ -81,3 +81,7 @@ class AVSource(object, metaclass=ABCMeta):
         self.log.warning('Received Error-Signal on Source-Pipeline')
         (error, debug) = message.parse_error()
         self.log.debug('Error-Details: #%u: %s', error.code, debug)
+
+    @abstractmethod
+    def restart(self):
+        raise NotImplementedError('Restarting not implemented for this source')
