@@ -109,7 +109,7 @@ class ControlServer(TCPMultiConnection):
 				responseObject = command_function(self.commands, *args)
 
 			except Exception as e:
-				message = str(e) or "<no message>"
+				message = str(traceback.format_exc()) or "<no message>"
 				response = "error %s\n" % message
 
 			else:
