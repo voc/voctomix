@@ -10,7 +10,7 @@ class TCPSingleConnection(object):
 
     def __init__(self, port):
         if not hasattr(self, 'log'):
-            self.log = logging.getLogger('TCPMultiConnection')
+            self.log = logging.getLogger('TCPSingleConnection')
 
         self.log.debug('Binding to Source-Socket on [::]:%u', port)
         self.boundSocket = socket.socket(socket.AF_INET6)
