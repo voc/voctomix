@@ -16,34 +16,34 @@ class VideoDisplay(object):
         self.drawing_area = drawing_area
         self.level_callback = level_callback
 
-		if Config.has_option('previews', 'videocaps'):
-			previewcaps = Config.get('previews', 'videocaps')
-		else:
-			previewcaps = Config.get('mix', 'videocaps')
+        if Config.has_option('previews', 'videocaps'):
+            previewcaps = Config.get('previews', 'videocaps')
+        else:
+            previewcaps = Config.get('mix', 'videocaps')
 
         use_previews = (Config.getboolean('previews', 'enabled') and
                         Config.getboolean('previews', 'use'))
 
         # Preview-Ports are Raw-Ports + 1000
         if use_previews:
-			self.log.info('using endoded previews instead of raw-video for gui')
+            self.log.info('using encoded previews instead of raw-video')
             port += 1000
 
-			vdec = 'image/jpeg ! jpegdec'
-			if Config.has_option('previews', 'vaapi'):
-				try:
-					decoder = Config.get('previews', 'vaapi')
-					decoders = {
-						'h264': 'video/x-h264 ! avdec_h264',
-						'jpeg': 'image/jpeg ! jpegdec',
-						'mpeg2': 'video/mpeg,mpegversion=2 ! mpeg2dec'
-					}
-					vdec = decoders[decoder]
-				except Exception as e:
-					self.log.error(e)
+            vdec = 'image/jpeg ! jpegdec'
+            if Config.has_option('previews', 'vaapi'):
+                try:
+                    decoder = Config.get('previews', 'vaapi')
+                    decoders = {
+                        'h264': 'video/x-h264 ! avdec_h264',
+                        'jpeg': 'image/jpeg ! jpegdec',
+                        'mpeg2': 'video/mpeg,mpegversion=2 ! mpeg2dec'
+                    }
+                    vdec = decoders[decoder]
+                except Exception as e:
+                    self.log.error(e)
 
         else:
-			self.log.info('using raw-video instead of endoded-previews for gui')
+            self.log.info('using raw-video instead of encoded-previews')
 
         # Setup Server-Connection, Demuxing and Decoding
         pipeline = """
@@ -55,7 +55,7 @@ class VideoDisplay(object):
         if use_previews:
             pipeline += """
                 demux. !
-				{vdec} !
+                {vdec} !
                 {previewcaps} !
                 queue !
             """
@@ -126,8 +126,8 @@ class VideoDisplay(object):
             vcaps=Config.get('mix', 'videocaps'),
             previewcaps=Config.get('previews', 'videocaps'),
             host=Args.host if Args.host else Config.get('server', 'host'),
-			vdec=vdec,
-			host=Config.get('server', 'host'),
+            vdec=vdec,
+            host=Config.get('server', 'host'),
             port=port,
         )
 
