@@ -27,12 +27,22 @@ class AVPreviewOutput(TCPMultiConnection):
         if Config.has_option('previews', 'vaapi'):
             try:
                 encoder = Config.get('previews', 'vaapi')
-                encoders = {
-                    'h264': 'vaapih264enc rate-control=cqp init-qp=23'
-                            'cabac=false max-bframes=0 keyframe-period=60',
-                    'jpeg': 'vaapijpegenc quality=90 keyframe-period=0',
-                    'mpeg2': 'vaapimpeg2enc keyframe-period=60',
-                }
+                if Gst.version() < (1, 8):
+                    encoders = {
+                        'h264': 'vaapiencode_h264 rate-control=cqp init-qp=23'
+                                'cabac=false max-bframes=0 keyframe-period=60',
+                        'jpeg': 'vaapiencode_jpeg quality=90'
+                                'keyframe-period=0',
+                        'mpeg2': 'vaapiencode_mpeg2 keyframe-period=60',
+                    }
+                else:
+                    encoders = {
+                        'h264': 'vaapih264enc rate-control=cqp init-qp=23'
+                                'cabac=false max-bframes=0 keyframe-period=60',
+                        'jpeg': 'vaapijpegenc quality=90'
+                                'keyframe-period=0',
+                        'mpeg2': 'vaapimpeg2enc keyframe-period=60',
+                    }
                 venc = encoders[encoder]
             except Exception as e:
                 self.log.error(e)
