@@ -23,6 +23,30 @@ class AVPreviewOutput(TCPMultiConnection):
         if Config.getboolean('previews', 'deinterlace'):
             deinterlace = "deinterlace mode=interlaced !"
 
+        venc = 'jpegenc quality=90'
+        if Config.has_option('previews', 'vaapi'):
+            try:
+                encoder = Config.get('previews', 'vaapi')
+                if Gst.version() < (1, 8):
+                    encoders = {
+                        'h264': 'vaapiencode_h264 rate-control=cqp init-qp=10 '
+                                'max-bframes=0 keyframe-period=60',
+                        'jpeg': 'vaapiencode_jpeg quality=90'
+                                'keyframe-period=0',
+                        'mpeg2': 'vaapiencode_mpeg2 keyframe-period=60',
+                    }
+                else:
+                    encoders = {
+                        'h264': 'vaapih264enc rate-control=cqp init-qp=10 '
+                                'max-bframes=0 keyframe-period=60',
+                        'jpeg': 'vaapijpegenc quality=90'
+                                'keyframe-period=0',
+                        'mpeg2': 'vaapimpeg2enc keyframe-period=60',
+                    }
+                venc = encoders[encoder]
+            except Exception as e:
+                self.log.error(e)
+
         pipeline = """
             intervideosrc channel=video_{channel} !
             {vcaps_in} !
@@ -30,7 +54,7 @@ class AVPreviewOutput(TCPMultiConnection):
             videoscale !
             videorate !
             {vcaps_out} !
-            jpegenc quality=90 !
+            {venc} !
             queue !
             mux.
 
@@ -54,7 +78,8 @@ class AVPreviewOutput(TCPMultiConnection):
             acaps=Config.get('mix', 'audiocaps'),
             vcaps_in=Config.get('mix', 'videocaps'),
             vcaps_out=vcaps_out,
-            deinterlace=deinterlace
+            deinterlace=deinterlace,
+            venc=venc
         )
 
         self.log.debug('Creating Output-Pipeline:\n%s', pipeline)
