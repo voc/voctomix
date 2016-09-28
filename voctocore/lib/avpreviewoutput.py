@@ -29,7 +29,7 @@ class AVPreviewOutput(TCPMultiConnection):
                 encoder = Config.get('previews', 'vaapi')
                 if Gst.version() < (1, 8):
                     encoders = {
-                        'h264': 'vaapiencode_h264 rate-control=cqp init-qp=23'
+                        'h264': 'vaapiencode_h264 rate-control=cqp init-qp=23 '
                                 'cabac=false max-bframes=0 keyframe-period=60',
                         'jpeg': 'vaapiencode_jpeg quality=90'
                                 'keyframe-period=0',
@@ -37,7 +37,7 @@ class AVPreviewOutput(TCPMultiConnection):
                     }
                 else:
                     encoders = {
-                        'h264': 'vaapih264enc rate-control=cqp init-qp=23'
+                        'h264': 'vaapih264enc rate-control=cqp init-qp=23 '
                                 'cabac=false max-bframes=0 keyframe-period=60',
                         'jpeg': 'vaapijpegenc quality=90'
                                 'keyframe-period=0',
