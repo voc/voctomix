@@ -127,7 +127,6 @@ class VideoDisplay(object):
             previewcaps=Config.get('previews', 'videocaps'),
             host=Args.host if Args.host else Config.get('server', 'host'),
             vdec=vdec,
-            host=Config.get('server', 'host'),
             port=port,
         )
 
