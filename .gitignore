@@ -47,4 +47,8 @@ target/
 *.mkv
 *.mp4
 
+#editor backups
 *~
+
+# this ain't an example anymore:
+example-scripts/config.sh
