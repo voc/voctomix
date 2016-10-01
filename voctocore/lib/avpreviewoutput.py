@@ -15,46 +15,14 @@ class AVPreviewOutput(TCPMultiConnection):
         self.channel = channel
 
         if Config.has_option('previews', 'videocaps'):
-            vcaps_out = Config.get('previews', 'videocaps')
+            target_caps = Config.get('previews', 'videocaps')
         else:
-            vcaps_out = Config.get('mix', 'videocaps')
-
-        deinterlace = ""
-        if Config.getboolean('previews', 'deinterlace'):
-            deinterlace = "deinterlace mode=interlaced !"
-
-        venc = 'jpegenc quality=90'
-        if Config.has_option('previews', 'vaapi'):
-            try:
-                encoder = Config.get('previews', 'vaapi')
-                if Gst.version() < (1, 8):
-                    encoders = {
-                        'h264': 'vaapiencode_h264 rate-control=cqp init-qp=10 '
-                                'max-bframes=0 keyframe-period=60',
-                        'jpeg': 'vaapiencode_jpeg quality=90'
-                                'keyframe-period=0',
-                        'mpeg2': 'vaapiencode_mpeg2 keyframe-period=60',
-                    }
-                else:
-                    encoders = {
-                        'h264': 'vaapih264enc rate-control=cqp init-qp=10 '
-                                'max-bframes=0 keyframe-period=60',
-                        'jpeg': 'vaapijpegenc quality=90'
-                                'keyframe-period=0',
-                        'mpeg2': 'vaapimpeg2enc keyframe-period=60',
-                    }
-                venc = encoders[encoder]
-            except Exception as e:
-                self.log.error(e)
+            target_caps = Config.get('mix', 'videocaps')
 
         pipeline = """
             intervideosrc channel=video_{channel} !
-            {vcaps_in} !
-            {deinterlace}
-            videoscale !
-            videorate !
-            {vcaps_out} !
-            {venc} !
+            {vcaps} !
+            {vpipeline} !
             queue !
             mux.
 
@@ -76,10 +44,8 @@ class AVPreviewOutput(TCPMultiConnection):
         """.format(
             channel=self.channel,
             acaps=Config.get('mix', 'audiocaps'),
-            vcaps_in=Config.get('mix', 'videocaps'),
-            vcaps_out=vcaps_out,
-            deinterlace=deinterlace,
-            venc=venc
+            vcaps=Config.get('mix', 'videocaps'),
+            vpipeline=self.construct_video_pipeline(target_caps)
         )
 
         self.log.debug('Creating Output-Pipeline:\n%s', pipeline)
@@ -94,6 +60,71 @@ class AVPreviewOutput(TCPMultiConnection):
 
         self.log.debug('Launching Output-Pipeline')
         self.outputPipeline.set_state(Gst.State.PLAYING)
+
+    def construct_video_pipeline(self, target_caps):
+        vaapi_enabled = Config.has_option('previews', 'vaapi')
+        if vaapi_enabled:
+            return self.construct_vaapi_video_pipeline(target_caps)
+
+        else:
+            return self.construct_native_video_pipeline(target_caps)
+
+    def construct_vaapi_video_pipeline(self, target_caps):
+        if Gst.version() < (1, 8):
+            vaapi_encoders = {
+                'h264': 'vaapiencode_h264',
+                'jpeg': 'vaapiencode_jpeg',
+                'mpeg2': 'vaapiencode_mpeg2',
+            }
+        else:
+            vaapi_encoders = {
+                'h264': 'vaapih264enc',
+                'jpeg': 'vaapijpegenc',
+                'mpeg2': 'vaapimpeg2enc',
+            }
+
+        vaapi_encoder_options = {
+            'h264': 'rate-control=cqp init-qp=10 '
+                    'max-bframes=0 keyframe-period=60',
+            'jpeg': 'vaapiencode_jpeg quality=90'
+                    'keyframe-period=0',
+            'mpeg2': 'keyframe-period=60',
+        }
+
+        encoder = Config.get('previews', 'vaapi')
+        do_deinterlace = Config.getboolean('previews', 'deinterlace')
+
+        caps = Gst.Caps.from_string(target_caps)
+        struct = caps.get_structure(0)
+        _, width = struct.get_int('width')
+        _, height = struct.get_int('height')
+
+
+        return '''
+            vaapipostproc
+                deinterlace-mode={imode}
+                deinterlace-method=motion-adaptive
+                width={width}
+                height={height} !
+            {encoder} {options}
+        '''.format(
+            imode='interlaced' if do_deinterlace else 'disabled',
+            width=width,
+            height=height,
+            encoder=vaapi_encoders[encoder],
+            options=vaapi_encoder_options[encoder],
+        )
+
+    def construct_native_video_pipeline(self, target_caps):
+        return '''
+            videoscale !
+            {target_caps} !
+            deinterlace mode={imode} !"
+            jpegenc quality=90
+        '''.format(
+            imode='interlaced' if do_deinterlace else 'disabled',
+            target_caps=target_caps,
+        )
 
     def on_accepted(self, conn, addr):
         self.log.debug('Adding fd %u to multifdsink', conn.fileno())
