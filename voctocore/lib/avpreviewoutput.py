@@ -124,12 +124,22 @@ class AVPreviewOutput(TCPMultiConnection):
     def construct_native_video_pipeline(self, target_caps):
         do_deinterlace = Config.getboolean('previews', 'deinterlace')
 
-        return '''
+        if do_deinterlace:
+            pipeline = '''
+                deinterlace mode={imode} !
+                videorate !
+            '''
+        else:
+            pipeline = ''
+
+
+        pipeline += '''
             videoscale !
             {target_caps} !
-            deinterlace mode={imode} !
             jpegenc quality=90
-        '''.format(
+        '''
+
+        return pipeline.format(
             imode='interlaced' if do_deinterlace else 'disabled',
             target_caps=target_caps,
         )
