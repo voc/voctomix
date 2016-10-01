@@ -98,14 +98,18 @@ class AVPreviewOutput(TCPMultiConnection):
         struct = caps.get_structure(0)
         _, width = struct.get_int('width')
         _, height = struct.get_int('height')
+        _, framerate_numerator, framerate_denominator = struct.get_fraction('framerate')
 
 
         return '''
+            capsfilter caps=video/x-raw,interlace-mode=progressive !
             vaapipostproc
+                format=i420
                 deinterlace-mode={imode}
                 deinterlace-method=motion-adaptive
                 width={width}
                 height={height} !
+            capssetter caps=video/x-raw,framerate={n}/{d} !
             {encoder} {options}
         '''.format(
             imode='interlaced' if do_deinterlace else 'disabled',
@@ -113,13 +117,17 @@ class AVPreviewOutput(TCPMultiConnection):
             height=height,
             encoder=vaapi_encoders[encoder],
             options=vaapi_encoder_options[encoder],
+            n=framerate_numerator,
+            d=framerate_denominator,
         )
 
     def construct_native_video_pipeline(self, target_caps):
+        do_deinterlace = Config.getboolean('previews', 'deinterlace')
+
         return '''
             videoscale !
             {target_caps} !
-            deinterlace mode={imode} !"
+            deinterlace mode={imode} !
             jpegenc quality=90
         '''.format(
             imode='interlaced' if do_deinterlace else 'disabled',
