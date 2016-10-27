@@ -124,7 +124,7 @@ class VideoDisplay(object):
         pipeline = pipeline.format(
             acaps=Config.get('mix', 'audiocaps'),
             vcaps=Config.get('mix', 'videocaps'),
-            previewcaps=Config.get('previews', 'videocaps'),
+            previewcaps=previewcaps,
             host=Args.host if Args.host else Config.get('server', 'host'),
             vdec=vdec,
             port=port,
