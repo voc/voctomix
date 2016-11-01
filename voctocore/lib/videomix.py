@@ -222,14 +222,14 @@ class VideoMix(object):
         try:
             apos = [int(i) for i in Config.get('side-by-side-preview',
                                                'apos').split('/', 1)]
-            self.log.debug('B-Video-Position configured to %u/%u',
+            self.log.debug('A-Video-Position configured to %u/%u',
                            apos[0], apos[1])
         except:
             apos = [
                 int(width / 100),  # 1%
                 int(width / 100)  # 1%
             ]
-            self.log.debug('B-Video-Position calculated to %u/%u',
+            self.log.debug('A-Video-Position calculated to %u/%u',
                            apos[0], apos[1])
 
         try:
