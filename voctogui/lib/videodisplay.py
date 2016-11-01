@@ -44,6 +44,7 @@ class VideoDisplay(object):
 
         else:
             self.log.info('using raw-video instead of encoded-previews')
+            vdec = None
 
         # Setup Server-Connection, Demuxing and Decoding
         pipeline = """
