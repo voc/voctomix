@@ -60,8 +60,14 @@ class Pipeline(object):
         self.log.info('Creating Videmixer')
         self.vmix = VideoMix()
 
+        # check if there is an audio source preconfigured
+        try:
+            audiosource = names.index(Config.get('mix', 'audiosource'))
+        except:
+            audiosource = 0
+
         self.log.info('Creating Audiomixer')
-        self.amix = AudioMix()
+        self.amix = AudioMix(audiosource)
 
         port = 16000
         self.log.info('Creating Mixer-Background VSource at tcp-port %u', port)

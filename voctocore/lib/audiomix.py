@@ -8,10 +8,10 @@ from lib.clock import Clock
 
 class AudioMix(object):
 
-    def __init__(self):
+    def __init__(self, source=0):
         self.log = logging.getLogger('AudioMix')
 
-        self.selectedSource = 0
+        self.selectedSource = source
 
         self.caps = Config.get('mix', 'audiocaps')
         self.names = Config.getlist('mix', 'sources')
