@@ -3,7 +3,7 @@ import sys
 import os
 import signal
 import logging
-#import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO
 
 # import things reused from voctogui
 # todo discuss if a libvocto would be usefull
@@ -19,7 +19,7 @@ class Voctolight(object):
     def __init__(self):
         self.log = logging.getLogger('Voctolight')
 
-        self.gpio = Config.get('light', 'gpio')
+        self.gpio = int(Config.get('light', 'gpio'))
         self.log.debug(self.gpio)
 
         self.cam = Config.get('light', 'cam')
@@ -35,11 +35,11 @@ class Voctolight(object):
         Connection.enterNonblockingMode()
 
     def led_on(self):
-        #GPIO.output(self.gpio, GPIO.HIGH)
+        GPIO.output(self.gpio, GPIO.HIGH)
         self.log.debug('Switching LED on')
 
     def led_off(self):
-        #GPIO.output(self.gpio, GPIO.LOW)
+        GPIO.output(self.gpio, GPIO.LOW)
         self.log.debug('Switching LED off')
 
     def led_status(self):
@@ -95,8 +95,9 @@ def main():
 
 
     # set LED GPIO
-#    GPIO.setmode(GPIO.BOARD)
-#    GPIO.setup(11, GPIO.OUT)
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setwarnings(False)
+    GPIO.setup(11, GPIO.OUT)
 
     # check if the core uses the same cam name
     if Config.get('light', 'cam') not in Config.get('mix', 'sources'):
