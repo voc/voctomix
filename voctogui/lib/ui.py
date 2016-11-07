@@ -58,12 +58,16 @@ class Ui(UiBuilder):
             uibuilder=self
         )
 
-        drawing_area = self.find_widget_recursive(self.win, 'combo_audio')
-        self.audio_selector_controller = AudioSelectorController(
-            drawing_area,
-            win=self.win,
-            uibuilder=self
-        )
+        # check if there is a fixed audio source configured.
+        # if so, remove the combo-box entirely instead of setting it up.
+        if Config.has_option('mix', 'audiosource'):
+            drawing_area.remove(self.find_widget_recursive(self.win, 'box_audio'))
+        else:
+            self.audio_selector_controller = AudioSelectorController(
+                drawing_area=self.find_widget_recursive(self.win, 'combo_audio'),
+                win=self.win,
+                uibuilder=self
+            )
 
         # Setup Toolbar Controllers
         toolbar = self.find_widget_recursive(self.win, 'toolbar')
