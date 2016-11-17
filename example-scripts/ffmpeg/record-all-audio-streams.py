@@ -52,8 +52,22 @@ try:
 except:
     output = 'output.ts'
 
+
+# example call:
+# -------------
+# ffmpeg
+#     -hide_banner
+#     -y -nostdin
+#     -i tcp://localhost:13000 -i tcp://localhost:13001 -i tcp://localhost:13002
+#     -ac 2 -channel_layout stereo
+#     -map 0:a -metadata:s:a:0 language=und -map 1:a -metadata:s:a:1 language=und -map 2:a -metadata:s:a:2 language=und
+#     -c:a mp2 -b:a 192k -ac:a 2 -ar:a 48000
+#     -flags +global_header -flags +ilme+ildct
+#     -f mpegts
+#     -vv
+
 cmd = """
-ffmpeg \
+ffmpeg
     -hide_banner
     -y -nostdin
     {}
