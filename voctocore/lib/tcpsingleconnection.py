@@ -41,5 +41,6 @@ class TCPSingleConnection(object):
         return True
 
     def close_connection(self):
+        self.currentConnection.close()
         self.currentConnection = None
         self.log.info('Connection closed')
