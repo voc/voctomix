@@ -68,7 +68,7 @@ Port 9999 will Accept Control Protocol Connections.
 To Control operation of the Video-Mixer, a simple line-based TCP-Protocol is used. The Video-Mixer accepts connection on TCP-Port 9999. The Control-Protocol is currently unstable and may change in any way at any given time. Regarding available Commands and their Reponses, the Code is the Documentation. There are 3 kinds of Messages:
 
 ### 1. Commands from Client to Server
-The Client may send Commands listed in the [Commands-File](./voctocore/lib/commands.py). Each Command takes a number of Arguments which are separated by Space. There is currently no way to escape Spaces or Linebreaks in Arguments. A Command ends with a Unix-Linebreak.
+The Client may send Commands listed in the [Commands-File](./lib/commands.py). Each Command takes a number of Arguments which are separated by Space. There is currently no way to escape Spaces or Linebreaks in Arguments. A Command ends with a Unix-Linebreak.
 
 There are two Kinds of Commands: `set_*` and `get_*`. `set`-Commands change the Mixer state while `get`-Commands dont. Both kinds of Commands are answered with the same Response-Message.
 
@@ -87,14 +87,8 @@ For example if Client `A` issued Command `set_video_a cam1`, Client `A`and Clien
 < set_video_a cam1
 > video_status cam1 cam2
 
-< set_video_b 0
-> video_status cam2 cam1
-
 < set_composite_mode side_by_side_equal
 > composite_mode side_by_side_equal
-
-< set_composite_mode 0
-> composite_mode fullscreen
 
 < set_videos_and_composite grabber * fullscreen
 > video_status grabber cam1
