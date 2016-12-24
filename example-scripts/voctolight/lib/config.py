@@ -12,11 +12,11 @@ def getlist(self, section, option):
     return [x.strip() for x in self.get(section, option).split(',')]
 
 
-def fetchServerConfig(self):
+def fetchServerConfig(self, conn):
     log = logging.getLogger('Config')
     log.info("reading server-config")
 
-    server_config = Connection.fetchServerConfig()
+    server_config = conn.fetchServerConfig()
 
     log.info("merging server-config %s", server_config)
     self.read_dict(server_config)

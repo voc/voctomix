@@ -7,7 +7,7 @@ import RPi.GPIO as GPIO
 
 # import things reused from voctogui
 # todo discuss if a libvocto would be usefull
-import lib.connection as Connection
+from lib.connection import Connection
 
 from lib.config import Config
 from lib.loghandler import LogHandler
@@ -16,8 +16,10 @@ from lib.args import Args
 # voctolight class
 class Voctolight(object):
 
-    def __init__(self):
+    def __init__(self, conn):
         self.log = logging.getLogger('Voctolight')
+
+        self.conn = conn 
 
         self.gpio = int(Config.get('light', 'gpio'))
         self.log.debug(self.gpio)
@@ -25,14 +27,14 @@ class Voctolight(object):
         self.cam = Config.get('light', 'cam')
         self.log.debug(self.cam)
 
-        self.comp = Connection.fetch_composit_mode()
+        self.comp = self.conn.fetch_composit_mode()
         self.log.debug(self.comp)
 
-        self.video = Connection.fetch_video()
+        self.video = self.conn.fetch_video()
         self.log.debug(self.video)
 
         # switch connection to nonblocking, event-driven mode
-        Connection.enterNonblockingMode()
+        self.conn.enterNonblockingMode()
 
     def led_on(self):
         GPIO.output(self.gpio, GPIO.HIGH)
@@ -85,14 +87,13 @@ def main():
     logging.info('Python Version: %s', sys.version_info)
 
     # establish a synchronus connection to server
-    Connection.establish(
+    conn = Connection()
+    conn.establish(
         Args.host if Args.host else Config.get('server', 'host')
     )
 
     # fetch config from server
-    Config.fetchServerConfig()
-
-
+    Config.fetchServerConfig(conn)
 
     # set LED GPIO
     GPIO.setmode(GPIO.BOARD)
@@ -104,12 +105,7 @@ def main():
         logging.error('Voctocore is not configured for the same cam as voctolight')
         sys.exit(-1)
 
-    # get current composite mode
-
-
-
-
-    voctolight = Voctolight()
+    voctolight = Voctolight(conn)
     voctolight.run()
 
 if __name__ == '__main__':
