@@ -1,35 +1,31 @@
 import asyncio
 from enum import Enum
 
-class Connection(object):
+class Connection(asyncio.Protocol):
   def __init__(self, interpreter):
-    self.interpreter = interpreter 
+    self.interpreter = interpreter
+
+  def connect(self, host, port = 9999):
     self.loop = asyncio.get_event_loop()
+    self.conn = self.loop.create_connection(lambda: self, host, port)
+    self.loop.run_until_complete(conn.conn)
 
-  def __del__(self):
-    self.loop.close()
+  def send(self, message):
+    self.transport.write(message.encode())
+    self.transport.write("\n".encode())
 
-  def schedule(self, message):
-    self.loop.create_task(self.connection_future(message, self.interpreter.handler))
-   
-  def set_host(self, host, port = '9999'):
-    self.host = host
-    self.port = port
+  def connection_made(self, transport):
+    self.transport = transport
 
-  ### FIXME This logic is wrong. we must send requests, and independently wait for
-  ### answers. Otherwise we will never receive answers to requests that we haven't
-  ### asked for.
-  @asyncio.coroutine
-  def connection_future(connection, message, handler):
-    reader, writer = yield from asyncio.open_connection(connection.host,
-                                                        connection.port,
-                                                        loop=connection.loop)
-    print('Sent: %r' % message)
-    writer.write(message.encode())
-    writer.write('\n'.encode())
-    data = yield from reader.readline()
-    handler(message, data.decode().rstrip('\n'))
-    writer.close()
+  def data_received(self, data):
+#    print('data received: {}'.format(data.decode()))
+    lines = data.decode().rstrip('\n').split('\n')
+    for line in lines:
+      interpreter.handler(line)
+
+  def onnection_lost(self, exc):
+    print('server closed the connection')
+    asyncio.get_event_loop().stop()
 
 ### FIXME Duplicate from videomix.py
 class CompositeModes(Enum):
@@ -39,10 +35,11 @@ class CompositeModes(Enum):
     picture_in_picture = 3
 
 class Interpreter(object):
+  a_or_b = False
+  composite_mode = CompositeModes.fullscreen
+
   def __init__(self, actor):
     self.actor = actor
-    self.a_or_b = False
-    self.composite_mode = CompositeModes.fullscreen
     actor.reset_led()
 
   def compute_state(self):
@@ -51,8 +48,7 @@ class Interpreter(object):
     else:   
       actor.enable_tally(self.a_or_b)
 
-  def handler(self, message, response):
-    print("got " + response + " for " + message)
+  def handler(self, response):
     words = response.split()
     signal = words[0]
     args = words[1:]
@@ -67,10 +63,19 @@ class Interpreter(object):
       self.a_or_b = False
 
     self.primary = (cams[0] == "cam2")
-      
+#    print ("Is primary?", self.primary)
 
-  def handle_composite_mode(self, mode):
-    self.composite_mode = mode
+  def handle_composite_mode(self, mode_list):
+    mode = mode_list[0]
+    if mode == "fullscreen":
+      self.composite_mode = CompositeModes.fullscreen
+    elif mode == "side_by_side_equal":
+      self.composite_mode = CompositeModes.side_by_side_equal
+    elif mode == "side_by_side_preview":
+      self.composite_mode = CompositeModes.side_by_side_preview
+    else:
+      print("Cannot handle", mode, "of type", type(mode))
+
 
 class FakeLedActor:
   def __init__(self):
@@ -89,8 +94,7 @@ if __name__ == "__main__":
     actor = FakeLedActor()
     interpreter = Interpreter(actor)
     conn = Connection(interpreter)
-    conn.set_host("10.73.23.3")
-    conn.schedule("get_video")
-    conn.schedule("get_composite_mode")
+    conn.connect("10.73.23.3")
+    conn.send("get_composite_mode")
+    conn.send("get_video")
     conn.loop.run_forever()
-    conn.wait_closed()
