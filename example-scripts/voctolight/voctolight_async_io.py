@@ -119,21 +119,23 @@ class Interpreter(object):
 
 class LedActor:
   def __init__(self, config):
-    self.gpios = config.get('light', 'gpios')
-    self.gpio_red = config.get('light', 'gpio_red')
+    self.gpios = config.get('light', 'gpios').split(',')
+    self.gpio_red = int(config.get('light', 'gpio_red'))
     self.reset_led()
 
   def reset_led(self):
     GPIO.setmode(GPIO.BOARD)
     GPIO.setwarnings(False)
     for gpio in self.gpios:
+      gpio = int(gpio)
       GPIO.setup(gpio, GPIO.OUT)
+      GPIO.output(gpio, GPIO.HIGH)
 
   def enable_tally(self, enable):
     if enable == True:
-      GPIO.output(self.gpio_red, GPIO.HIGH)
-    else:
       GPIO.output(self.gpio_red, GPIO.LOW)
+    else:
+      GPIO.output(self.gpio_red, GPIO.HIGH)
 
 class FakeLedActor:
   def __init__(self, config):
@@ -150,7 +152,7 @@ class FakeLedActor:
 
 if __name__ == "__main__":
   config = Config()
-  if (platform.uname()[5] == 'arm'):
+  if (platform.uname()[4] == 'armv7l'):
     actor = LedActor(config)
   else:
     actor = FakeLedActor(config)
