@@ -1,5 +1,36 @@
 import asyncio
+import configparser
+import os.path
+import json
+import platform
 from enum import Enum
+try:
+  import RPi.GPIO as GPIO
+except ImportError:
+  print "You need to be on a pi to make this work" 
+
+class Config(configparser.ConfigParser, object):
+  config_files = [
+    os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                 'default-config.ini'),
+    os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                 'config.ini'),
+    '/etc/voctomix/voctolight.ini',
+    '/etc/voctolight.ini',
+    os.path.expanduser('~/.voctolight.ini'),
+  ]
+
+  def __init__(self):
+    super(Config,self).__init__()
+    self.read(self.config_files)
+
+  def setup_with_server_config(self, server_config):
+    self.clear()
+    self.read_dict(server_config)
+    self.read(self.config_files)
+
+  def getlist(self, section, option):
+    return [x.strip() for x in self.get(section, option).split(',')]
 
 class Connection(asyncio.Protocol):
   def __init__(self, interpreter):
@@ -38,7 +69,8 @@ class Interpreter(object):
   a_or_b = False
   composite_mode = CompositeModes.fullscreen
 
-  def __init__(self, actor):
+  def __init__(self, actor, config):
+    self.config = config
     self.actor = actor
     actor.reset_led()
 
@@ -56,13 +88,13 @@ class Interpreter(object):
     interpreter.compute_state()
 
   def handle_video_status(self, cams):
-  ### FIXME DO NOT HARDCODE CAM NAME, READ FROM CONFIG!
-    if "cam2" in cams:
+    mycam = self.config.get('light', 'cam')
+    if mycam in cams:
       self.a_or_b = True
     else:
       self.a_or_b = False
 
-    self.primary = (cams[0] == "cam2")
+    self.primary = (cams[0] == mycam)
 #    print ("Is primary?", self.primary)
 
   def handle_composite_mode(self, mode_list):
@@ -76,9 +108,31 @@ class Interpreter(object):
     else:
       print("Cannot handle", mode, "of type", type(mode))
 
+  def handle_server_config(self, args):
+    server_config_json = " ".join(args)
+    server_config = json.loads(server_config_json)
+    self.config.setup_with_server_config(server_config)
+
+
+class LedActor:
+  def __init__(self, config):
+    self.gpios = config.get('light', 'gpios')
+    self.gpio_red = config.get('light', 'gpio_red')
+    self.reset_led()
+
+  def reset_led(self):
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setwarnings(False)
+    for gpio in self.gpios:
+      GPIO.setup(gpio, GPIO.OUT)
+
+  def enable_tally(self, enable):
+      GPIO.output(self.gpio_red, GPIO.HIGH)
+    else:
+      GPIO.output(self.gpio_red, GPIO.LOW)
 
 class FakeLedActor:
-  def __init__(self):
+  def __init__(self, config):
     pass
 
   def reset_led(self):
@@ -91,10 +145,15 @@ class FakeLedActor:
       print("tally off!")
 
 if __name__ == "__main__":
-    actor = FakeLedActor()
-    interpreter = Interpreter(actor)
-    conn = Connection(interpreter)
-    conn.connect("10.73.23.3")
-    conn.send("get_composite_mode")
-    conn.send("get_video")
-    conn.loop.run_forever()
+  config = Config()
+  if (platform.uname()[5] == 'arm'):
+    actor = LedActor(config)
+  else:
+    actor = FakeLedActor(config)
+  interpreter = Interpreter(actor, config)
+  conn = Connection(interpreter)
+  conn.connect(config.get('server', 'host'))
+  conn.send("get_config")
+  conn.send("get_composite_mode")
+  conn.send("get_video")
+  conn.loop.run_forever()
