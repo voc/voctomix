@@ -1,13 +1,16 @@
+#!/usr/bin/env python3
+
 import asyncio
 import configparser
 import os.path
 import json
 import platform
 from enum import Enum
+
 try:
   import RPi.GPIO as GPIO
 except ImportError:
-  print "You need to be on a pi to make this work" 
+  print("You need to be on a pi to make this work")
 
 class Config(configparser.ConfigParser, object):
   config_files = [
@@ -127,6 +130,7 @@ class LedActor:
       GPIO.setup(gpio, GPIO.OUT)
 
   def enable_tally(self, enable):
+    if enable == True:
       GPIO.output(self.gpio_red, GPIO.HIGH)
     else:
       GPIO.output(self.gpio_red, GPIO.LOW)
