@@ -1,0 +1,9 @@
+[Unit]
+Description=Voctomix Tallylight Agent
+
+[Service]
+ExecStart=/home/voc/voctomix/example-scripts/voctolight/voctolight_async_io.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
