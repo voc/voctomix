@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
 
 import asyncio
+import argparse
 import configparser
 import os.path
 import json
 import platform
 from enum import Enum
 
-try:
+if (platform.uname()[4] == 'armv7l'):
   import RPi.GPIO as GPIO
-except ImportError:
-  print("You need to be on a pi to make this work")
 
 class Config(configparser.ConfigParser, object):
   config_files = [
@@ -154,11 +153,14 @@ class FakeLedActor:
       print("tally off!")
 
 if __name__ == "__main__":
+  parser = argparse.ArgumentParser(description='Tallylight controlling daemon for voctomix.')
+  parser.add_argument("--debug", action="store_true", help="Show what would be done instead of toggling lights")
+  args = parser.parse_args()
   config = Config()
-  if (platform.uname()[4] == 'armv7l'):
-    actor = LedActor(config)
-  else:
+  if (platform.uname()[4] != 'armv7l' or args.debug):
     actor = FakeLedActor(config)
+  else:
+    actor = LedActor(config)
   interpreter = Interpreter(actor, config)
   conn = Connection(interpreter)
   conn.connect(config.get('server', 'host'))
