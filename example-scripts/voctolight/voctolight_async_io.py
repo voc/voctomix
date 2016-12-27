@@ -11,7 +11,7 @@ from enum import Enum
 def isArm():
   return platform.uname()[4][0:3] == 'arm'
 
-if (isArm):
+if (isArm()):
   import RPi.GPIO as GPIO
 
 class Config(configparser.ConfigParser, object):
