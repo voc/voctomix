@@ -87,8 +87,11 @@ class Interpreter(object):
     words = response.split()
     signal = words[0]
     args = words[1:]
-    self.__getattribute__("handle_"+signal)(args)
-    interpreter.compute_state()
+    try:
+      self.__getattribute__("handle_"+signal)(args)
+      interpreter.compute_state()
+    except:
+      print("Ignoring signal", signal)
 
   def handle_video_status(self, cams):
     mycam = self.config.get('light', 'cam')
