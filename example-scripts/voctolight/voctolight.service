@@ -3,6 +3,7 @@ Description=Voctomix Tallylight Agent
 
 [Service]
 ExecStart=/home/voc/voctomix/example-scripts/voctolight/voctolight_async_io.py
+WorkingDirectory=/home/voc/voctomix/example-scripts/voctolight
 Restart=on-failure
 
 [Install]
