@@ -8,7 +8,10 @@ import json
 import platform
 from enum import Enum
 
-if (platform.uname()[4] == 'armv7l'):
+def isArm():
+  return platform.uname()[4][0:3] == 'arm'
+
+if (isArm):
   import RPi.GPIO as GPIO
 
 class Config(configparser.ConfigParser, object):
@@ -157,7 +160,7 @@ if __name__ == "__main__":
   parser.add_argument("--debug", action="store_true", help="Show what would be done instead of toggling lights")
   args = parser.parse_args()
   config = Config()
-  if (platform.uname()[4] != 'armv7l' or args.debug):
+  if (not isArm() or args.debug):
     actor = FakeLedActor(config)
   else:
     actor = LedActor(config)
