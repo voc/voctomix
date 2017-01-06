@@ -26,6 +26,8 @@ class MiscToolbarController(object):
         key, mod = Gtk.accelerator_parse('t')
         cutbtn.add_accelerator('clicked', accelerators,
                                key, mod, Gtk.AccelFlags.VISIBLE)
+        tooltip = Gtk.accelerator_get_label(key, mod)
+        cutbtn.set_tooltip_text(tooltip)
 
     def on_closebtn_clicked(self, btn):
         self.log.info('close-button clicked')

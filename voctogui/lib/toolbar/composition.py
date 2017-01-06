@@ -31,6 +31,9 @@ class CompositionToolbarController(object):
             )
             btn.set_name(name)
 
+            tooltip = Gtk.accelerator_get_label(key, mod)
+            btn.set_tooltip_text(tooltip)
+
             # Thanks to http://stackoverflow.com/a/19739855/1659732
             btn.get_child().add_accelerator('clicked', accelerators,
                                             key, mod, Gtk.AccelFlags.VISIBLE)

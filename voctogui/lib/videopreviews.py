@@ -80,10 +80,14 @@ class VideoPreviewsController(object):
             key, mod = Gtk.accelerator_parse('%u' % (idx + 1))
             btn_a.add_accelerator('activate', accelerators,
                                   key, mod, Gtk.AccelFlags.VISIBLE)
+            tooltip = Gtk.accelerator_get_label(key, mod)
+            btn_a.set_tooltip_text(tooltip)
 
             key, mod = Gtk.accelerator_parse('<Ctrl>%u' % (idx + 1))
             btn_b.add_accelerator('activate', accelerators,
                                   key, mod, Gtk.AccelFlags.VISIBLE)
+            tooltip = Gtk.accelerator_get_label(key, mod)
+            btn_b.set_tooltip_text(tooltip)
 
             btn_fullscreen = uibuilder.find_widget_recursive(preview,
                                                              'btn_fullscreen')
@@ -94,6 +98,8 @@ class VideoPreviewsController(object):
             key, mod = Gtk.accelerator_parse('<Alt>%u' % (idx + 1))
             btn_fullscreen.add_accelerator('activate', accelerators,
                                            key, mod, Gtk.AccelFlags.VISIBLE)
+            tooltip = Gtk.accelerator_get_label(key, mod)
+            btn_fullscreen.set_tooltip_text(tooltip)
 
             self.preview_players[source] = player
             self.previews[source] = preview

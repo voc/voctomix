@@ -16,6 +16,8 @@ from lib.toolbar.composition import CompositionToolbarController
 from lib.toolbar.streamblank import StreamblankToolbarController
 from lib.toolbar.misc import MiscToolbarController
 
+from lib.shortcuts import show_shortcuts
+
 
 class Ui(UiBuilder):
 
@@ -91,6 +93,13 @@ class Ui(UiBuilder):
             win=self.win,
             uibuilder=self
         )
+
+        # Setup Shortcuts window
+        self.win.connect('key-press-event', self.handle_keypress)
+
+    def handle_keypress(self, window, event):
+        if event.keyval == Gdk.KEY_question:
+            show_shortcuts(window)
 
     def show(self):
         self.log.info('Showing Main-Window')
