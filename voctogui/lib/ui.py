@@ -61,10 +61,12 @@ class Ui(UiBuilder):
         # check if there is a fixed audio source configured.
         # if so, remove the combo-box entirely instead of setting it up.
         if Config.has_option('mix', 'audiosource'):
-            drawing_area.remove(self.find_widget_recursive(self.win, 'box_audio'))
+            box_audio = self.find_widget_recursive(self.win, 'box_audio')
+            drawing_area.remove(box_audio)
         else:
+            combo_audio = self.find_widget_recursive(self.win, 'combo_audio')
             self.audio_selector_controller = AudioSelectorController(
-                drawing_area=self.find_widget_recursive(self.win, 'combo_audio'),
+                drawing_area=combo_audio,
                 win=self.win,
                 uibuilder=self
             )

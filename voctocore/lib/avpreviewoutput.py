@@ -98,8 +98,8 @@ class AVPreviewOutput(TCPMultiConnection):
         struct = caps.get_structure(0)
         _, width = struct.get_int('width')
         _, height = struct.get_int('height')
-        _, framerate_numerator, framerate_denominator = struct.get_fraction('framerate')
-
+        (_, framerate_numerator,
+         framerate_denominator) = struct.get_fraction('framerate')
 
         return '''
             capsfilter caps=video/x-raw,interlace-mode=progressive !
@@ -131,7 +131,6 @@ class AVPreviewOutput(TCPMultiConnection):
             '''
         else:
             pipeline = ''
-
 
         pipeline += '''
             videoscale !
