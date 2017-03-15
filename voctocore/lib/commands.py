@@ -61,7 +61,8 @@ class ControlServerCommands(object):
         self.pipeline = pipeline
 
         self.sources = Config.getlist('mix', 'sources')
-        self.blankerSources = Config.getlist('stream-blanker', 'sources')
+        if Config.getboolean('stream-blanker', 'enabled'):
+            self.blankerSources = Config.getlist('stream-blanker', 'sources')
 
     # Commands are defined below. Errors are sent to the clients by throwing
     # exceptions, they will be turned into messages outside.
@@ -105,10 +106,11 @@ class ControlServerCommands(object):
         for source in self.sources:
             helplines.append("\t" + source)
 
-        helplines.append("\n")
-        helplines.append("Stream-Blanker Sources-Names:")
-        for source in self.blankerSources:
-            helplines.append("\t" + source)
+        if Config.getboolean('stream-blanker', 'enabled'):
+            helplines.append("\n")
+            helplines.append("Stream-Blanker Sources-Names:")
+            for source in self.blankerSources:
+                helplines.append("\t" + source)
 
         helplines.append("\n")
         helplines.append("Composition-Modes:")
@@ -210,33 +212,34 @@ class ControlServerCommands(object):
             NotifyResponse('video_status', *video_status)
         ]
 
-    def _get_stream_status(self):
-        blankSource = self.pipeline.streamblanker.blankSource
-        if blankSource is None:
-            return ('live',)
+    if Config.getboolean('stream-blanker', 'enabled'):
+        def _get_stream_status(self):
+            blankSource = self.pipeline.streamblanker.blankSource
+            if blankSource is None:
+                return ('live',)
 
-        return 'blank', encodeName(self.blankerSources, blankSource)
+            return 'blank', encodeName(self.blankerSources, blankSource)
 
-    def get_stream_status(self):
-        """gets the current streamblanker-status"""
-        status = self._get_stream_status()
-        return OkResponse('stream_status', *status)
+        def get_stream_status(self):
+            """gets the current streamblanker-status"""
+            status = self._get_stream_status()
+            return OkResponse('stream_status', *status)
 
-    def set_stream_blank(self, source_name_or_id):
-        """sets the streamblanker-status to blank with the specified
-           blanker-source-name or -id"""
-        src_id = decodeName(self.blankerSources, source_name_or_id)
-        self.pipeline.streamblanker.setBlankSource(src_id)
+        def set_stream_blank(self, source_name_or_id):
+            """sets the streamblanker-status to blank with the specified
+               blanker-source-name or -id"""
+            src_id = decodeName(self.blankerSources, source_name_or_id)
+            self.pipeline.streamblanker.setBlankSource(src_id)
 
-        status = self._get_stream_status()
-        return NotifyResponse('stream_status', *status)
+            status = self._get_stream_status()
+            return NotifyResponse('stream_status', *status)
 
-    def set_stream_live(self):
-        """sets the streamblanker-status to live"""
-        self.pipeline.streamblanker.setBlankSource(None)
+        def set_stream_live(self):
+            """sets the streamblanker-status to live"""
+            self.pipeline.streamblanker.setBlankSource(None)
 
-        status = self._get_stream_status()
-        return NotifyResponse('stream_status', *status)
+            status = self._get_stream_status()
+            return NotifyResponse('stream_status', *status)
 
     def get_config(self):
         """returns the parsed server-config"""

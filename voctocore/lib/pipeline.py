@@ -106,9 +106,9 @@ class Pipeline(object):
             source = AVSource('streamblanker', port, has_video=False)
             self.sbsources.append(source)
 
-        self.log.info('Creating StreamBlanker')
-        self.streamblanker = StreamBlanker()
+            self.log.info('Creating StreamBlanker')
+            self.streamblanker = StreamBlanker()
 
-        port = 15000
-        self.log.info('Creating StreamBlanker-Output at tcp-port %u', port)
-        self.streamout = AVRawOutput('streamblanker_out', port)
+            port = 15000
+            self.log.info('Creating StreamBlanker-Output at tcp-port %u', port)
+            self.streamout = AVRawOutput('streamblanker_out', port)
