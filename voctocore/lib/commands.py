@@ -154,6 +154,10 @@ class ControlServerCommands(object):
         src_id = self.pipeline.amix.getAudioSource()
         return encodeName(self.sources, src_id)
 
+    def _get_source_volume(self):
+        vol = self.pipeline.amix.getSourceVolume()
+        return str(vol)
+
     def get_audio(self):
         """gets the name of the current audio-source"""
         status = self._get_audio_status()
@@ -166,6 +170,20 @@ class ControlServerCommands(object):
 
         status = self._get_audio_status()
         return NotifyResponse('audio_status', status)
+
+    def get_audio_volume(self):
+        """gets the names and volumes of all audio-sources"""
+        status = self._get_source_volume()
+        return OkResponse('audio_volume', status)
+
+    def set_audio_volume(self, src_name_or_id, volume):
+        """sets the audio-source volume to the
+           supplied source-name or source-id and level"""
+        src_id = decodeName(self.sources, src_name_or_id)
+        self.pipeline.amix.updateSourceVolume(src_id, volume)
+
+        vol = self._get_source_volume()
+        return NotifyResponse('source_volume', vol)
 
     def _get_composite_status(self):
         mode = self.pipeline.vmix.getCompositeMode()
