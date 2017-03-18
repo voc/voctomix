@@ -65,8 +65,9 @@ class AudioMix(object):
         self.mixingPipeline.set_state(Gst.State.PLAYING)
 
 
-    def updateSourceVolume(self, idx, volume):
+    def updateSourceVolume(self, name, volume):
         volume = max(0, min(1, float(volume)))  # Clamp volume between 0 and 1
+        idx = self.names.index(name)
         self.log.debug('Setting Mixerpad %u to volume=%0.2f', idx, volume)
         mixerpad = (self.mixingPipeline.get_by_name('mix')
                                        .get_static_pad('sink_%u' % idx))

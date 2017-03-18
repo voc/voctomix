@@ -180,7 +180,7 @@ class ControlServerCommands(object):
         """sets the audio-source volume to the
            supplied source-name or source-id and level"""
         src_id = decodeName(self.sources, src_name_or_id)
-        self.pipeline.amix.updateSourceVolume(src_id, volume)
+        self.pipeline.amix.updateSourceVolume(self.sources[src_id], volume)
 
         vol = self._get_source_volume()
         return NotifyResponse('source_volume', vol)
