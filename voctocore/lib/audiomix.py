@@ -85,7 +85,8 @@ class AudioMix(object):
                                            .get_static_pad('sink_%u' % idx))
             mixerpad.set_property('volume', volume)
 
-    def setAudioSource(self, source):
+    def setAudioSource(self, name):
+        source = self.names.index(name)
         self.selectedSource = source
         self.updateMixerState()
 
