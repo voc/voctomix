@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.18.3 -->
+<!-- Generated with glade 3.20.0 -->
 <interface>
   <requires lib="gtk+" version="3.4"/>
+  <object class="GtkAdjustment" id="audio_level_adjustment">
+    <property name="lower">-20</property>
+    <property name="upper">10</property>
+    <property name="step_increment">0.1</property>
+  </object>
   <object class="GtkImage" id="img-blank-stream">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -195,58 +200,7 @@
                 <property name="can_focus">False</property>
                 <property name="orientation">vertical</property>
                 <child>
-                  <object class="GtkBox" id="box_audio">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <child>
-                      <object class="GtkLabel" id="label_audio">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="margin_left">5</property>
-                        <property name="margin_right">5</property>
-                        <property name="margin_top">5</property>
-                        <property name="margin_bottom">5</property>
-                        <property name="label" translatable="yes">Audio</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkEventBox" id="combo_audio_events">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="events">GDK_BUTTON_PRESS_MASK | GDK_STRUCTURE_MASK</property>
-                        <child>
-                          <object class="GtkComboBoxText" id="combo_audio">
-                            <property name="visible">True</property>
-                            <property name="sensitive">False</property>
-                            <property name="can_focus">False</property>
-                            <property name="events">GDK_BUTTON_PRESS_MASK | GDK_STRUCTURE_MASK</property>
-                            <property name="margin_top">5</property>
-                            <property name="margin_bottom">5</property>
-                            <items>
-                              <item translatable="yes">Foo</item>
-                              <item translatable="yes">Bar</item>
-                            </items>
-                          </object>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="pack_type">end</property>
-                    <property name="position">0</property>
-                  </packing>
+                  <placeholder/>
                 </child>
               </object>
               <packing>
@@ -372,7 +326,6 @@
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="margin_right">5</property>
-                    <property name="xalign">0.5</property>
                     <property name="draw_indicator">False</property>
                   </object>
                   <packing>
@@ -390,7 +343,6 @@
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="margin_right">5</property>
-                    <property name="xalign">0.5</property>
                     <property name="draw_indicator">False</property>
                   </object>
                   <packing>
@@ -408,7 +360,6 @@
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="margin_right">5</property>
-                    <property name="xalign">0.5</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -421,6 +372,27 @@
                 <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkScale" id="audio_level">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="margin_right">5</property>
+                <property name="adjustment">audio_level_adjustment</property>
+                <property name="restrict_to_fill_level">False</property>
+                <property name="round_digits">1</property>
+                <property name="digits">1</property>
+                <property name="value_pos">right</property>
+                <marks>
+                  <mark value="-20">-&#x221e;</mark>
+                  <mark value="0">0.0</mark>
+                </marks>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
               </packing>
             </child>
           </object>

@@ -9,7 +9,6 @@ from lib.audioleveldisplay import AudioLevelDisplay
 from lib.warningoverlay import VideoWarningOverlay
 
 from lib.videopreviews import VideoPreviewsController
-from lib.audioselector import AudioSelectorController
 
 from lib.toolbar.composition import CompositionToolbarController
 from lib.toolbar.streamblank import StreamblankToolbarController
@@ -58,19 +57,6 @@ class Ui(UiBuilder):
             win=self.win,
             uibuilder=self
         )
-
-        # check if there is a fixed audio source configured.
-        # if so, remove the combo-box entirely instead of setting it up.
-        if Config.has_option('mix', 'audiosource'):
-            box_audio = self.find_widget_recursive(self.win, 'box_audio')
-            box_left.remove(box_audio)
-        else:
-            combo_audio = self.find_widget_recursive(self.win, 'combo_audio')
-            self.audio_selector_controller = AudioSelectorController(
-                combo=combo_audio,
-                win=self.win,
-                uibuilder=self
-            )
 
         # Setup Toolbar Controllers
         toolbar = self.find_widget_recursive(self.win, 'toolbar')

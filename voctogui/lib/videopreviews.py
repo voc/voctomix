@@ -1,5 +1,7 @@
 import logging
-from gi.repository import Gtk
+import json
+import math
+from gi.repository import Gtk, GObject
 from configparser import NoOptionError
 
 from lib.config import Config
@@ -21,6 +23,7 @@ class VideoPreviewsController(object):
         self.previews = {}
         self.a_btns = {}
         self.b_btns = {}
+        self.volume_sliders = {}
 
         self.current_source = {'a': None, 'b': None}
 
@@ -44,6 +47,12 @@ class VideoPreviewsController(object):
 
         group_a = None
         group_b = None
+
+        # Check if there is a fixed audio source configured.
+        # If so, we will remove the volume sliders entirely
+        # instead of setting them up.
+        volume_control = (not Config.has_option('mix', 'audiosource') or
+                          Config.getboolean('misc', 'forcevolumecontrol'))
 
         for idx, source in enumerate(self.sources):
             self.log.info('Initializing Video Preview %s', source)
@@ -102,6 +111,27 @@ class VideoPreviewsController(object):
             tooltip = Gtk.accelerator_get_label(key, mod)
             btn_fullscreen.set_tooltip_text(tooltip)
 
+            volume_slider = uibuilder.find_widget_recursive(preview,
+                                                            'audio_level')
+
+            if not volume_control:
+                box = uibuilder.find_widget_recursive(preview, 'box')
+                box.remove(volume_slider)
+            else:
+                volume_slider.set_name("volume {}".format(source))
+                volume_signal = volume_slider.connect('value-changed',
+                                                      self.slider_changed)
+
+                def slider_format(scale, value):
+                    if value == -20.0:
+                        return "-\u221e\u202fdB"
+                    else:
+                        return "{:.{}f}\u202fdB".format(value,
+                                                        scale.get_digits())
+
+                volume_slider.connect('format-value', slider_format)
+                self.volume_sliders[source] = (volume_slider, volume_signal)
+
             self.preview_players[source] = player
             self.previews[source] = preview
             self.a_btns[source] = btn_a
@@ -110,6 +140,10 @@ class VideoPreviewsController(object):
         # connect event-handler and request initial state
         Connection.on('video_status', self.on_video_status)
         Connection.send('get_video')
+
+        if volume_control:
+            Connection.on('audio_status', self.on_audio_status)
+            Connection.send('get_audio')
 
     def btn_toggled(self, btn):
         if not btn.get_active():
@@ -128,6 +162,14 @@ class VideoPreviewsController(object):
 
         self.log.info('video-channel %s changed to %s', channel, source_name)
         Connection.send('set_video_' + channel, source_name)
+
+    def slider_changed(self, slider):
+        slider_name = slider.get_name()
+        source = slider_name.split(' ')[1]
+        value = slider.get_value()
+        volume = 10 ** (value / 20) if value > -20.0 else 0
+        self.log.debug("slider_changed: {}: {:.4f}".format(source, volume))
+        Connection.send('set_audio_volume {} {:.4f}'.format(source, volume))
 
     def btn_fullscreen_clicked(self, btn):
         btn_name = btn.get_name()
@@ -149,3 +191,16 @@ class VideoPreviewsController(object):
 
         self.a_btns[source_a].set_active(True)
         self.b_btns[source_b].set_active(True)
+
+    def on_audio_status(self, *volumes):
+        volumes_json = "".join(volumes)
+        volumes = json.loads(volumes_json)
+
+        for source, volume in volumes.items():
+            volume = 20.0 * math.log10(volume) if volume > 0 else -20.0
+            slider, signal = self.volume_sliders[source]
+            # Temporarily block the 'value-changed' signal,
+            # so we don't (re)trigger it when receiving (our) changes
+            GObject.signal_handler_block(slider, signal)
+            slider.set_value(volume)
+            GObject.signal_handler_unblock(slider, signal)
