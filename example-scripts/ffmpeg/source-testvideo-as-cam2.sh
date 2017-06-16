@@ -6,7 +6,7 @@ if [ -f $confdir/config.sh ]; then
 fi
 
 ffmpeg -y -nostdin \
-	-i "http://ftp.uni-erlangen.de/cdn.media.ccc.de/broadcast/sendezentrum/h264-hd/31c3-sendezentrum-1003-de-Freak_Show_FS147_That_Escalatored_Quickly_hd.mp4" \
+	-i "http://cdn.media.ccc.de/congress/31C3-sendezentrum/h264-hd/31c3-sendezentrum-1003-de-Freak_Show_FS147_That_Escalatored_Quickly_hd.mp4" \
 	-ac 2 \
 	-filter_complex "
 		[0:v] scale=$WIDTH:$HEIGHT,fps=$FRAMERATE [v] ;
