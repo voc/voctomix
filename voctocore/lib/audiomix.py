@@ -7,14 +7,18 @@ from lib.clock import Clock
 
 class AudioMix(object):
 
-    def __init__(self, source=0):
+    def __init__(self, volumes=[]):
         self.log = logging.getLogger('AudioMix')
-
-        self.selectedSource = source
 
         self.caps = Config.get('mix', 'audiocaps')
         self.names = Config.getlist('mix', 'sources')
         self.log.info('Configuring Mixer for %u Sources', len(self.names))
+
+        if volumes:
+            self.volumes = volumes
+        else:
+            self.volumes = [0.0] * len(self.names)
+            self.volumes[0] = 1.0
 
         pipeline = """
             audiomixer name=mix !
@@ -67,7 +71,7 @@ class AudioMix(object):
         self.log.info('Updating Mixer-State')
 
         for idx, name in enumerate(self.names):
-            volume = int(idx == self.selectedSource)
+            volume = self.volumes[idx]
 
             self.log.debug('Setting Mixerpad %u to volume=%0.2f', idx, volume)
             mixerpad = (self.mixingPipeline.get_by_name('mix')
@@ -75,11 +79,15 @@ class AudioMix(object):
             mixerpad.set_property('volume', volume)
 
     def setAudioSource(self, source):
-        self.selectedSource = source
+        self.volumes = [float(idx == source) for idx in range(len(self.names))]
         self.updateMixerState()
 
-    def getAudioSource(self):
-        return self.selectedSource
+    def setAudioSourceVolume(self, source, volume):
+        self.volumes[source] = volume
+        self.updateMixerState()
+
+    def getAudioVolumes(self):
+        return self.volumes
 
     def on_eos(self, bus, message):
         self.log.debug('Received End-of-Stream-Signal on Mixing-Pipeline')

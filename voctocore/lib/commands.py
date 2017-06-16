@@ -143,11 +143,16 @@ class ControlServerCommands(object):
         return NotifyResponse('video_status', *status)
 
     def _get_audio_status(self):
-        src_id = self.pipeline.amix.getAudioSource()
-        return encodeName(self.sources, src_id)
+        volumes = self.pipeline.amix.getAudioVolumes()
+        return '{' + ', '.join(
+            '"{}": {:.4f}'.format(
+                encodeName(self.sources, idx),
+                volumes[idx]
+            ) for idx in range(len(volumes))
+        ) + '}'
 
     def get_audio(self):
-        """gets the name of the current audio-source"""
+        """gets the current volumes of the audio-sources"""
         status = self._get_audio_status()
         return OkResponse('audio_status', status)
 
@@ -155,6 +160,17 @@ class ControlServerCommands(object):
         """sets the audio-source to the supplied source-name or source-id"""
         src_id = decodeName(self.sources, src_name_or_id)
         self.pipeline.amix.setAudioSource(src_id)
+
+        status = self._get_audio_status()
+        return NotifyResponse('audio_status', status)
+
+    def set_audio_volume(self, src_name_or_id, volume):
+        """sets the volume of the supplied source-name or source-id"""
+        src_id = decodeName(self.sources, src_name_or_id)
+        volume = float(volume)
+        if volume < 0.0:
+            raise ValueError("volume must be positive")
+        self.pipeline.amix.setAudioSourceVolume(src_id, volume)
 
         status = self._get_audio_status()
         return NotifyResponse('audio_status', status)
