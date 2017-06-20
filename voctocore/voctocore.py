@@ -96,5 +96,6 @@ def main():
     logging.debug('running Voctocore')
     voctocore.run()
 
+
 if __name__ == '__main__':
     main()

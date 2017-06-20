@@ -34,6 +34,7 @@ server_config = json.loads(server_config_json)
 def getlist(self, section, option):
     return [x.strip() for x in self.get(section, option).split(',')]
 
+
 SafeConfigParser.getlist = getlist
 
 config = SafeConfigParser()

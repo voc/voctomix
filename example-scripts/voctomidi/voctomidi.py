@@ -49,6 +49,7 @@ class MidiInputHandler(object):
 def kthxbye():
     print("Exit")
 
+
 conn, midiin = None, None
 
 try:
@@ -63,6 +64,7 @@ def close_conn():
     global conn
     conn and conn.close()
 
+
 try:
     midiin, port_name = open_midiport(device)
 except (EOFError, KeyboardInterrupt):
@@ -75,6 +77,7 @@ def close_midi():
     global midiin
     midiin and midiin.close_port()
     del midiin
+
 
 midiin.set_callback(MidiInputHandler(port_name))
 

@@ -160,5 +160,6 @@ def main():
     logging.debug('running Voctogui')
     voctogui.run()
 
+
 if __name__ == '__main__':
     main()

@@ -21,6 +21,7 @@ def fetchServerConfig(self):
     log.info("merging server-config %s", server_config)
     self.read_dict(server_config)
 
+
 SafeConfigParser.getlist = getlist
 SafeConfigParser.fetchServerConfig = fetchServerConfig
 
