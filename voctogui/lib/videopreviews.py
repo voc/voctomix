@@ -1,5 +1,6 @@
 import logging
 from gi.repository import Gst, Gtk
+from configparser import NoOptionError
 
 from lib.config import Config
 from lib.videodisplay import VideoDisplay
@@ -26,14 +27,14 @@ class VideoPreviewsController(object):
         try:
             width = Config.getint('previews', 'width')
             self.log.debug('Preview-Width configured to %u', width)
-        except:
+        except NoOptionError:
             width = 320
             self.log.debug('Preview-Width selected as %u', width)
 
         try:
             height = Config.getint('previews', 'height')
             self.log.debug('Preview-Height configured to %u', height)
-        except:
+        except NoOptionError:
             height = width * 9 / 16
             self.log.debug('Preview-Height calculated to %u', height)
 

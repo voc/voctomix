@@ -74,7 +74,7 @@ def on_data(conn, _, leftovers, *args):
 
             except UnicodeDecodeError as e:
                 continue
-    except:
+    except BlockingIOError:
         pass
 
     data = "".join(leftovers)
