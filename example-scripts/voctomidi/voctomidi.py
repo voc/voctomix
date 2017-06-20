@@ -38,7 +38,7 @@ class MidiInputHandler(object):
                 try:
                     conn = socket.create_connection((host, port))
                     print("Reconnected to voctocore")
-                except:
+                except socket.error:
                     pass
         else:
             print("[{}]: Unhandled NOTE ON event {}".format(self.port,

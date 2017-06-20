@@ -50,7 +50,7 @@ for idx, source in enumerate(sources):
 
 try:
     output = sys.argv[1]
-except:
+except IndexError:
     output = 'output.ts'
 
 
