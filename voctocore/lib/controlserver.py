@@ -42,7 +42,7 @@ class ControlServer(TCPMultiConnection):
 
                 except UnicodeDecodeError as e:
                     continue
-        except:
+        except BlockingIOError:
             pass
 
         data = "".join(leftovers)

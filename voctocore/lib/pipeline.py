@@ -1,5 +1,6 @@
 import logging
 from gi.repository import Gst
+from configparser import NoOptionError
 
 # import library components
 from lib.config import Config
@@ -63,7 +64,7 @@ class Pipeline(object):
         # check if there is an audio source preconfigured
         try:
             audiosource = names.index(Config.get('mix', 'audiosource'))
-        except:
+        except NoOptionError:
             audiosource = 0
 
         self.log.info('Creating Audiomixer')

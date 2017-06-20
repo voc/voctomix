@@ -1,5 +1,6 @@
 import logging
 from gi.repository import Gst
+from configparser import NoOptionError
 from enum import Enum, unique
 
 from lib.config import Config
@@ -151,7 +152,7 @@ class VideoMix(object):
         try:
             gutter = Config.getint('side-by-side-equal', 'gutter')
             self.log.debug('Gutter configured to %u', gutter)
-        except:
+        except NoOptionError:
             gutter = int(width / 100)
             self.log.debug('Gutter calculated to %u', gutter)
 
@@ -168,14 +169,14 @@ class VideoMix(object):
         try:
             ya = Config.getint('side-by-side-equal', 'atop')
             self.log.debug('A-Video Y-Pos configured to %u', ya)
-        except:
+        except NoOptionError:
             ya = y
             self.log.debug('A-Video Y-Pos calculated to %u', ya)
 
         try:
             yb = Config.getint('side-by-side-equal', 'btop')
             self.log.debug('B-Video Y-Pos configured to %u', yb)
-        except:
+        except NoOptionError:
             yb = y
             self.log.debug('B-Video Y-Pos calculated to %u', yb)
 
@@ -211,7 +212,7 @@ class VideoMix(object):
                                                 'asize').split('x', 1)]
             self.log.debug('A-Video-Size configured to %ux%u',
                            asize[0], asize[1])
-        except:
+        except NoOptionError:
             asize = [
                 int(width / 1.25),  # 80%
                 int(height / 1.25)  # 80%
@@ -224,7 +225,7 @@ class VideoMix(object):
                                                'apos').split('/', 1)]
             self.log.debug('A-Video-Position configured to %u/%u',
                            apos[0], apos[1])
-        except:
+        except NoOptionError:
             apos = [
                 int(width / 100),  # 1%
                 int(width / 100)  # 1%
@@ -237,7 +238,7 @@ class VideoMix(object):
                                                 'bsize').split('x', 1)]
             self.log.debug('B-Video-Size configured to %ux%u',
                            bsize[0], bsize[1])
-        except:
+        except NoOptionError:
             bsize = [
                 int(width / 4),  # 25%
                 int(height / 4)  # 25%
@@ -250,7 +251,7 @@ class VideoMix(object):
                                                'bpos').split('/', 1)]
             self.log.debug('B-Video-Position configured to %u/%u',
                            bpos[0], bpos[1])
-        except:
+        except NoOptionError:
             bpos = [
                 width - int(width / 100) - bsize[0],
                 height - int(width / 100) - bsize[1]  # 1%
@@ -287,7 +288,7 @@ class VideoMix(object):
                                                   'pipsize').split('x', 1)]
             self.log.debug('PIP-Size configured to %ux%u',
                            pipsize[0], pipsize[1])
-        except:
+        except NoOptionError:
             pipsize = [
                 int(width / 4),  # 25%
                 int(height / 4)  # 25%
@@ -300,7 +301,7 @@ class VideoMix(object):
                                                  'pippos').split('/', 1)]
             self.log.debug('PIP-Position configured to %u/%u',
                            pippos[0], pippos[1])
-        except:
+        except NoOptionError:
             pippos = [
                 width - pipsize[0] - int(width / 100),  # 1%
                 height - pipsize[1] - int(width / 100)  # 1%
