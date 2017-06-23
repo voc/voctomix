@@ -9,11 +9,11 @@ from lib.response import NotifyResponse, OkResponse
 
 def decodeName(items, name_or_id):
     try:
-        name_or_id = int(name_or_id)
-        if name_or_id < 0 or name_or_id >= len(items):
-            raise IndexError("unknown index %d" % name_or_id)
+        id = int(name_or_id)
+        if id < 0 or id >= len(items):
+            raise IndexError("unknown index %d" % id)
 
-        return name_or_id
+        return id
 
     except ValueError as e:
         try:
@@ -25,11 +25,7 @@ def decodeName(items, name_or_id):
 
 def decodeEnumName(enum, name_or_id):
     try:
-        name_or_id = int(name_or_id)
-        if name_or_id < 0 or name_or_id >= len(enum):
-            raise IndexError("unknown index %d" % name_or_id)
-
-        return name_or_id
+        id = int(name_or_id)
 
     except ValueError as e:
         try:
@@ -38,18 +34,13 @@ def decodeEnumName(enum, name_or_id):
         except KeyError as e:
             raise IndexError("unknown name %s" % name_or_id)
 
+    return enum(id)
+
 
 def encodeName(items, id):
     try:
         return items[id]
     except IndexError as e:
-        raise IndexError("unknown index %d" % id)
-
-
-def encodeEnumName(enum, id):
-    try:
-        return enum(id).name
-    except ValueError as e:
         raise IndexError("unknown index %d" % id)
 
 
@@ -170,7 +161,7 @@ class ControlServerCommands(object):
 
     def _get_composite_status(self):
         mode = self.pipeline.vmix.getCompositeMode()
-        return encodeEnumName(CompositeModes, mode)
+        return mode.name
 
     def get_composite_mode(self):
         """gets the name of the current composite-mode"""
