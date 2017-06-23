@@ -29,8 +29,8 @@ class TCPSingleConnection(object, metaclass=ABCMeta):
         self.log.info('Incomming Connection from %s', addr)
 
         if self.currentConnection is not None:
-            self.log.warn('Another Source is already connected, '
-                          'closing existing pipeline')
+            self.log.warning('Another Source is already connected, '
+                             'closing existing pipeline')
             self.disconnect()
             time.sleep(1)
 

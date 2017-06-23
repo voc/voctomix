@@ -137,7 +137,7 @@ def main():
                                                             '127.0.0.1',
                                                             'localhost']
     if not use_previews and not looks_like_localhost:
-        logging.warn(
+        logging.warning(
             'Connecting to `%s` (which looks like a remote host) '
             'might not work without enabeling the preview encoders '
             '(set `[previews] enabled=true` on the core) or it might saturate '
