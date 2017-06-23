@@ -1,10 +1,11 @@
 import logging
 import socket
 from queue import Queue
+from abc import ABCMeta, abstractmethod
 from gi.repository import GObject
 
 
-class TCPMultiConnection(object):
+class TCPMultiConnection(object, metaclass=ABCMeta):
 
     def __init__(self, port):
         if not hasattr(self, 'log'):
@@ -45,3 +46,9 @@ class TCPMultiConnection(object):
             del(self.currentConnections[conn])
         self.log.info('Now %u Receiver connected',
                       len(self.currentConnections))
+
+    @abstractmethod
+    def on_accepted(self, conn, addr):
+        raise NotImplementedError(
+            "child classes of TCPMultiConnection must implement on_accepted()"
+        )
