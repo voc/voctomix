@@ -164,7 +164,7 @@ class VideoMix(object):
 
         xa = 0
         xb = width - targetWidth
-        y = (height - targetHeight) / 2
+        y = int((height - targetHeight) / 2)
 
         try:
             ya = Config.getint('side-by-side-equal', 'atop')
