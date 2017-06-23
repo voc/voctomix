@@ -84,13 +84,14 @@ class ControlServerCommands(object):
                 continue
 
             params = inspect.signature(func).parameters
-            params = [str(info) for name, info in params.items()]
-            params = ', '.join(params[1:])
+            params_iter = (str(info) for name, info in params.items())
+            next(params_iter)
+            params_str = ', '.join(params_iter)
 
             command_sig = '\t' + name
 
-            if params:
-                command_sig += ': ' + params
+            if params_str:
+                command_sig += ': ' + params_str
 
             if func.__doc__:
                 command_sig += '\n\t\t{}\n'.format('\n\t\t'.join(
