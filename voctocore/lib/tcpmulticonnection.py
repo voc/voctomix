@@ -3,8 +3,6 @@ import socket
 from queue import Queue
 from gi.repository import GObject
 
-from lib.config import Config
-
 
 class TCPMultiConnection(object):
 

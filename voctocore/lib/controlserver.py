@@ -1,12 +1,10 @@
-import socket
 import logging
-import traceback
 from queue import Queue
 from gi.repository import GObject
 
 from lib.commands import ControlServerCommands
 from lib.tcpmulticonnection import TCPMultiConnection
-from lib.response import NotifyResponse, OkResponse
+from lib.response import NotifyResponse
 
 
 class ControlServer(TCPMultiConnection):

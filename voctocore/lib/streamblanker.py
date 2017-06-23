@@ -1,6 +1,5 @@
 import logging
 from gi.repository import Gst
-from enum import Enum
 
 from lib.config import Config
 from lib.clock import Clock

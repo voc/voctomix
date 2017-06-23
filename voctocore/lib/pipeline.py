@@ -1,5 +1,4 @@
 import logging
-from gi.repository import Gst
 from configparser import NoOptionError
 
 # import library components

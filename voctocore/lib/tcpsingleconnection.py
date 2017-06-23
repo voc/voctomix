@@ -3,8 +3,6 @@ import socket
 import time
 from gi.repository import GObject
 
-from lib.config import Config
-
 
 class TCPSingleConnection(object):
 
