@@ -39,7 +39,7 @@ class AVRawOutput(TCPMultiConnection):
             channel=self.channel,
             acaps=Config.get('mix', 'audiocaps'),
             vcaps=Config.get('mix', 'videocaps'),
-            buffers_max=Config.get('output-buffers', channel, fallback=500)
+            buffers_max=Config.getint('output-buffers', channel, fallback=500)
         )
         self.log.debug('Creating Output-Pipeline:\n%s', pipeline)
         self.outputPipeline = Gst.parse_launch(pipeline)
