@@ -164,13 +164,3 @@ class ControlServer(TCPMultiConnection):
             self.log.warn(e)
 
         return True
-
-    def notify_all(self, msg):
-        try:
-            words = msg.split()
-            words[-1] = self.commands.encodeSourceName(int(words[-1]))
-            msg = " ".join(words) + '\n'
-            for conn in self.currentConnections:
-                self._schedule_write(conn, msg)
-        except Exception as e:
-            self.log.debug("error during notify: %s", e)
