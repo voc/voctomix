@@ -48,7 +48,7 @@ class AudioSelectorController(object):
     def on_disabled_timer(self, timer_iteration):
         if timer_iteration != self.timer_iteration:
             self.log.debug('lock-timer fired late, ignoring')
-            return
+            return False
 
         self.log.debug('lock-timer fired, locking')
         self.set_enabled(False)
