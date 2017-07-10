@@ -1,6 +1,5 @@
 import os.path
 import logging
-import json
 from configparser import SafeConfigParser
 from lib.args import Args
 import lib.connection as Connection
@@ -20,6 +19,7 @@ class VocConfigParser(SafeConfigParser):
 
         log.info("merging server-config %s", server_config)
         self.read_dict(server_config)
+
 
 files = [
     os.path.join(os.path.dirname(os.path.realpath(__file__)),

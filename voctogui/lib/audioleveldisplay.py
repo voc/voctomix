@@ -1,6 +1,5 @@
 import logging
 import math
-from gi.repository import Gst, Gtk
 
 
 class AudioLevelDisplay(object):

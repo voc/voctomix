@@ -1,7 +1,6 @@
 import logging
 import socket
 import json
-import sys
 from queue import Queue
 from gi.repository import Gtk, GObject
 

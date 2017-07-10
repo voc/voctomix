@@ -1,5 +1,5 @@
 import logging
-from gi.repository import Gst, Gtk
+from gi.repository import Gtk
 from configparser import NoOptionError
 
 from lib.config import Config

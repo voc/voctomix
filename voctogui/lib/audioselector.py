@@ -1,5 +1,5 @@
 import logging
-from gi.repository import Gst, Gdk, GLib
+from gi.repository import Gdk, GLib
 
 from lib.config import Config
 import lib.connection as Connection

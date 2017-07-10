@@ -1,7 +1,5 @@
 import logging
-from gi.repository import GLib, Gst, cairo
-
-from lib.config import Config
+from gi.repository import GLib
 
 
 class VideoWarningOverlay(object):

@@ -1,6 +1,5 @@
-import gi
 import logging
-from gi.repository import Gtk, Gst
+from gi.repository import Gtk
 
 
 class UiBuilder(object):

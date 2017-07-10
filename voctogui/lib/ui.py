@@ -1,6 +1,5 @@
-import gi
 import logging
-from gi.repository import Gtk, Gst, Gdk, GLib
+from gi.repository import Gtk, Gdk
 
 from lib.config import Config
 from lib.uibuilder import UiBuilder
