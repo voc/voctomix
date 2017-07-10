@@ -35,7 +35,7 @@ class VideoPreviewsController(object):
             height = Config.getint('previews', 'height')
             self.log.debug('Preview-Height configured to %u', height)
         except NoOptionError:
-            height = width * 9 / 16
+            height = int(width * 9 / 16)
             self.log.debug('Preview-Height calculated to %u', height)
 
         # Accelerators
