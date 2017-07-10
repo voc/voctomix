@@ -28,7 +28,6 @@ class StreamblankToolbarController(object):
             return
 
         blank_sources = Config.getlist('stream-blanker', 'sources')
-        self.status_btns = {}
 
         self.current_status = None
 
