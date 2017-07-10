@@ -8,13 +8,11 @@ import lib.connection as Connection
 class AudioSelectorController(object):
     """Displays a Level-Meter of another VideoDisplay into a GtkWidget"""
 
-    def __init__(self, drawing_area, win, uibuilder):
+    def __init__(self, combo, win, uibuilder):
         self.log = logging.getLogger('AudioSelectorController')
 
-        self.drawing_area = drawing_area
         self.win = win
 
-        combo = uibuilder.find_widget_recursive(win, 'combo_audio')
         combo.connect('changed', self.on_changed)
         # combo.set_sensitive(True)
         self.combo = combo

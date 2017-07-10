@@ -7,7 +7,7 @@ import lib.connection as Connection
 class CompositionToolbarController(object):
     """Manages Accelerators and Clicks on the Composition Toolbar-Buttons"""
 
-    def __init__(self, drawing_area, win, uibuilder):
+    def __init__(self, toolbar, win, uibuilder):
         self.log = logging.getLogger('CompositionToolbarController')
 
         accelerators = Gtk.AccelGroup()
@@ -26,7 +26,7 @@ class CompositionToolbarController(object):
         for idx, name in enumerate(composites):
             key, mod = Gtk.accelerator_parse('F%u' % (idx + 1))
             btn = uibuilder.find_widget_recursive(
-                drawing_area,
+                toolbar,
                 'composite-' + name.replace('_', '-')
             )
             btn.set_name(name)

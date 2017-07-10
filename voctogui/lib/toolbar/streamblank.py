@@ -8,24 +8,23 @@ import lib.connection as Connection
 class StreamblankToolbarController(object):
     """Manages Accelerators and Clicks on the Composition Toolbar-Buttons"""
 
-    def __init__(self, drawing_area, win, uibuilder, warning_overlay):
+    def __init__(self, toolbar, win, uibuilder, warning_overlay):
         self.log = logging.getLogger('StreamblankToolbarController')
 
         self.warning_overlay = warning_overlay
 
-        livebtn = uibuilder.find_widget_recursive(drawing_area, 'stream_live')
-        blankbtn = uibuilder.find_widget_recursive(drawing_area,
-                                                   'stream_blank')
+        livebtn = uibuilder.find_widget_recursive(toolbar, 'stream_live')
+        blankbtn = uibuilder.find_widget_recursive(toolbar, 'stream_blank')
 
-        blankbtn_pos = drawing_area.get_item_index(blankbtn)
+        blankbtn_pos = toolbar.get_item_index(blankbtn)
 
         if not Config.getboolean('stream-blanker', 'enabled'):
             self.log.info('disabling stream-blanker features '
                           'because the server does not support them: %s',
                           Config.getboolean('stream-blanker', 'enabled'))
 
-            drawing_area.remove(livebtn)
-            drawing_area.remove(blankbtn)
+            toolbar.remove(livebtn)
+            toolbar.remove(blankbtn)
             return
 
         blank_sources = Config.getlist('stream-blanker', 'sources')
@@ -47,7 +46,7 @@ class StreamblankToolbarController(object):
                                                              .get_pixbuf())
                 new_btn = Gtk.RadioToolButton(group=livebtn)
                 new_btn.set_icon_widget(new_icon)
-                drawing_area.insert(new_btn, blankbtn_pos + 1)
+                toolbar.insert(new_btn, blankbtn_pos + 1)
 
             new_btn.set_label("Stream %s" % name)
             new_btn.connect('toggled', self.on_btn_toggled)

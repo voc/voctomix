@@ -8,18 +8,18 @@ import lib.connection as Connection
 class MiscToolbarController(object):
     """Manages Accelerators and Clicks Misc buttons"""
 
-    def __init__(self, drawing_area, win, uibuilder):
+    def __init__(self, toolbar, win, uibuilder):
         self.log = logging.getLogger('MiscToolbarController')
 
         # Accelerators
         accelerators = Gtk.AccelGroup()
         win.add_accel_group(accelerators)
 
-        closebtn = uibuilder.find_widget_recursive(drawing_area, 'close')
+        closebtn = uibuilder.find_widget_recursive(toolbar, 'close')
         closebtn.set_visible(Config.getboolean('misc', 'close'))
         closebtn.connect('clicked', self.on_closebtn_clicked)
 
-        cutbtn = uibuilder.find_widget_recursive(drawing_area, 'cut')
+        cutbtn = uibuilder.find_widget_recursive(toolbar, 'cut')
         cutbtn.set_visible(Config.getboolean('misc', 'cut'))
         cutbtn.connect('clicked', self.on_cutbtn_clicked)
 

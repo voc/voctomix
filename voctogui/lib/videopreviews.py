@@ -10,10 +10,10 @@ import lib.connection as Connection
 class VideoPreviewsController(object):
     """Displays Video-Previews and selection Buttons for them"""
 
-    def __init__(self, drawing_area, win, uibuilder):
+    def __init__(self, preview_box, win, uibuilder):
         self.log = logging.getLogger('VideoPreviewsController')
 
-        self.drawing_area = drawing_area
+        self.preview_box = preview_box
         self.win = win
 
         self.sources = Config.getlist('mix', 'sources')
@@ -52,8 +52,8 @@ class VideoPreviewsController(object):
             video = uibuilder.find_widget_recursive(preview, 'video')
 
             video.set_size_request(width, height)
-            drawing_area.pack_start(preview, fill=False,
-                                    expand=False, padding=0)
+            preview_box.pack_start(preview, fill=False,
+                                   expand=False, padding=0)
 
             player = VideoDisplay(video, port=13000 + idx,
                                   width=width, height=height)
