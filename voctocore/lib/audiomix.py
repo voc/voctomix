@@ -95,7 +95,9 @@ class AudioMix(object):
 
     def getSourceVolume(self):
         out = {}
-        for idx in range(0, len(self.names) - 1):
+        print(self.names)
+        for idx in range(0, len(self.names)):
+            print(idx)
             mixerpad = (self.mixingPipeline.get_by_name('mix')
                                            .get_static_pad('sink_%u' % idx))
             volume = mixerpad.get_property('volume')
