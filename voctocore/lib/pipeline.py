@@ -35,19 +35,22 @@ class Pipeline(object):
             port = 10000 + idx
             self.log.info('Creating AVSource %s at tcp-port %u', name, port)
 
-            outputs = [name + '_mixer', name + '_mirror']
+            outputs = [name + '_mixer']
             if Config.getboolean('previews', 'enabled'):
                 outputs.append(name + '_preview')
+            if Config.getboolean('mirrors', 'enabled'):
+                outputs.append(name + '_mirror')
 
             source = AVSource(name, port, outputs=outputs)
             self.sources.append(source)
 
-            port = 13000 + idx
-            self.log.info('Creating Mirror-Output for AVSource %s '
-                          'at tcp-port %u', name, port)
+            if Config.getboolean('mirrors', 'enabled'):
+                port = 13000 + idx
+                self.log.info('Creating Mirror-Output for AVSource %s '
+                              'at tcp-port %u', name, port)
 
-            mirror = AVRawOutput('%s_mirror' % name, port)
-            self.mirrors.append(mirror)
+                mirror = AVRawOutput('%s_mirror' % name, port)
+                self.mirrors.append(mirror)
 
             if Config.getboolean('previews', 'enabled'):
                 port = 14000 + idx
