@@ -61,8 +61,12 @@ class LoopSource(object):
 def main():
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-    config = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                          '../config.sh')
+    for prefix in ['', 'default-']:
+        config = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                              '../{0}config.sh'.format(prefix))
+        if os.path.exists(config):
+            break
+
     with open(config, 'r') as config:
         lines = [line.strip() for line in config if line[0] != '#']
         pairs = [line.split('=', 1) for line in lines]
