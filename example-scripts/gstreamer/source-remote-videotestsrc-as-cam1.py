@@ -23,12 +23,12 @@ class Source(object):
                 pattern=ball
                 foreground-color=0x00ff0000 background-color=0x00440000 !
             timeoverlay !
-            video/x-raw,format=I420,width=1280,height=720,
-                framerate=25/1,pixel-aspect-ratio=1/1 !
+            video/x-raw,format=I420,width={WIDTH},height={HEIGHT},
+                framerate={FRAMERATE}/1,pixel-aspect-ratio=1/1 !
             mux.
 
             audiotestsrc freq=330 !
-            audio/x-raw,format=S16LE,channels=2,rate=48000,
+            audio/x-raw,format=S16LE,channels=2,rate={AUDIORATE},
                 layout=interleaved !
             mux.
 
@@ -83,12 +83,26 @@ def main():
 
     print('Using IP ' + addrs[0])
 
-    config = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                          '../config.sh')
-    with open(config) as config:
-        lines = [line.strip() for line in config if line[0] != '#']
-        pairs = [line.split('=', 1) for line in lines]
-        settings = {pair[0]: pair[1] for pair in pairs}
+    settings = {}
+
+    for prefix in ['default-', '']:
+        config = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                              '..', '{}config.sh'.format(prefix))
+        if not os.path.exists(config):
+            continue
+
+        with open(config, 'r') as config:
+            lines = [line.strip() for line in config if line[0] != '#']
+            pairs = [line.split('=', 1) for line in lines]
+            for pair in pairs:
+                settings[pair[0]] = pair[1]
+
+    if not ('FRAMERATE' in settings and
+            'WIDTH' in settings and
+            'HEIGHT' in settings and
+            'AUDIORATE' in settings):
+        print("Config needs: FRAMERATE, WIDTH, HEIGHT, and AUDIORATE")
+        return
 
     settings['IP'] = addrs[0]
 
