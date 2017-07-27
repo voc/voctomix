@@ -63,6 +63,16 @@ class AudioMix(object):
         self.log.debug('Launching Mixing-Pipeline')
         self.mixingPipeline.set_state(Gst.State.PLAYING)
 
+
+    def updateSourceVolume(self, name, volume):
+        volume = max(0, min(1, float(volume)))  # Clamp volume between 0 and 1
+        idx = self.names.index(name)
+        self.log.debug('Setting Mixerpad %u to volume=%0.2f', idx, volume)
+        mixerpad = (self.mixingPipeline.get_by_name('mix')
+                                       .get_static_pad('sink_%u' % idx))
+        mixerpad.set_property('volume', volume)
+
+
     def updateMixerState(self):
         self.log.info('Updating Mixer-State')
 
@@ -74,12 +84,23 @@ class AudioMix(object):
                                            .get_static_pad('sink_%u' % idx))
             mixerpad.set_property('volume', volume)
 
-    def setAudioSource(self, source):
+    def setAudioSource(self, name):
+        source = self.names.index(name)
         self.selectedSource = source
         self.updateMixerState()
 
     def getAudioSource(self):
         return self.selectedSource
+
+    def getSourceVolume(self):
+        out = {}
+        for idx in range(0, len(self.names)):
+            mixerpad = (self.mixingPipeline.get_by_name('mix')
+                                           .get_static_pad('sink_%u' % idx))
+            volume = mixerpad.get_property('volume')
+            name = self.names[idx]
+            out[name] = volume
+        return out
 
     def on_eos(self, bus, message):
         self.log.debug('Received End-of-Stream-Signal on Mixing-Pipeline')
