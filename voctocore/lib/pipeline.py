@@ -65,7 +65,12 @@ class Pipeline(object):
 
         # check if there is an audio source preconfigured
         try:
-            audiosource = names.index(Config.get('mix', 'audiosource'))
+            audiosource_str = Config.get('mix', 'audiosource')
+            audiosource = names.index(audiosource_str)
+        except ValueError:
+            self.log.warn('Audiosource "%s" does not exist, '
+                          'defaulting to "%s"', audiosource_str, names[0])
+            audiosource = 0
         except NoOptionError:
             audiosource = 0
 
