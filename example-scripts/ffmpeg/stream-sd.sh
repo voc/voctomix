@@ -1,7 +1,7 @@
 #!/bin/sh
 wget -nc -O /tmp/overlay_hd.png http://c3voc.mazdermind.de/testfiles/overlay_hd.png
 ffmpeg -y -nostdin \
-	-i tcp://localhost:11000 \
+	-i tcp://localhost:15000 \
 	-threads:0 0 \
 	-aspect 16:9 \
 	-c:v libx264 \
