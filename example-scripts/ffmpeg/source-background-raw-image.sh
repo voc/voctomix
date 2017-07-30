@@ -1,4 +1,9 @@
 #!/bin/sh
+confdir="`dirname "$0"`/../"
+. $confdir/default-config.sh
+if [ -f $confdir/config.sh ]; then
+	. $confdir/config.sh
+fi
 
 confdir="`dirname "$0"`/../config/"
 . ${confdir}/defaults.sh
