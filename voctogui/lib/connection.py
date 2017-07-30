@@ -123,12 +123,7 @@ def on_loop():
         return True
 
     for handler in signal_handlers[signal]:
-        cb = handler['cb']
-        if 'one' in handler and handler['one']:
-            log.debug('removing one-time handler')
-            del signal_handlers[signal]
-
-        cb(*args)
+        handler(*args)
 
     return True
 
@@ -147,11 +142,5 @@ def on(signal, cb):
     if signal not in signal_handlers:
         signal_handlers[signal] = []
 
-    signal_handlers[signal].append({'cb': cb})
+    signal_handlers[signal].append(cb)
 
-
-def one(signal, cb):
-    if signal not in signal_handlers:
-        signal_handlers[signal] = []
-
-    signal_handlers[signal].append({'cb': cb, 'one': True})
