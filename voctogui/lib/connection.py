@@ -143,4 +143,3 @@ def on(signal, cb):
         signal_handlers[signal] = []
 
     signal_handlers[signal].append(cb)
-
