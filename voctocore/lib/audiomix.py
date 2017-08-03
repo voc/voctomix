@@ -1,4 +1,6 @@
 import logging
+from configparser import NoOptionError, NoSectionError
+
 from gi.repository import Gst
 
 from lib.config import Config
@@ -7,18 +9,33 @@ from lib.clock import Clock
 
 class AudioMix(object):
 
-    def __init__(self, volumes=[]):
+    def __init__(self):
         self.log = logging.getLogger('AudioMix')
 
         self.caps = Config.get('mix', 'audiocaps')
         self.names = Config.getlist('mix', 'sources')
         self.log.info('Configuring Mixer for %u Sources', len(self.names))
 
-        if volumes:
-            self.volumes = volumes
-        else:
-            self.volumes = [0.0] * len(self.names)
-            self.volumes[0] = 1.0
+        # initialize all sources to silent
+        self.volumes = [0.0] * len(self.names)
+
+        # set default audio-source to 1.0
+        audiosource = Config.get('mix', 'audiosource', fallback=self.names[0])
+        index = self.names.index(audiosource)
+        self.log.info('Configuring Mixer-Pad %s (%u) to %f',
+                      audiosource, index, 1.0)
+        self.volumes[index] = 1.0
+
+        # scan per-source config for volume-setting
+        for index, name in enumerate(self.names):
+            section = 'source.{}'.format(name)
+            try:
+                volume = Config.getfloat(section, 'volume')
+                self.log.info('Configuring Mixer-Pad %s (%u) to %f',
+                              name, index, volume)
+                self.volumes[index] = volume
+            except (NoSectionError, NoOptionError):
+                pass
 
         pipeline = """
             audiomixer name=mix !
