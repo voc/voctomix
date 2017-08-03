@@ -3,7 +3,7 @@ from configparser import NoOptionError
 
 # import library components
 from lib.config import Config
-from lib.avsource import AVSource
+from lib.sources import spawn_source
 from lib.avrawoutput import AVRawOutput
 from lib.avpreviewoutput import AVPreviewOutput
 from lib.videomix import VideoMix
@@ -30,10 +30,9 @@ class Pipeline(object):
         self.previews = []
         self.sbsources = []
 
-        self.log.info('Creating %u Creating AVSources: %s', len(names), names)
+        self.log.info('Creating %u AVSources: %s', len(names), names)
         for idx, name in enumerate(names):
             port = 10000 + idx
-            self.log.info('Creating AVSource %s at tcp-port %u', name, port)
 
             outputs = [name + '_mixer']
             if Config.getboolean('previews', 'enabled'):
@@ -41,7 +40,8 @@ class Pipeline(object):
             if Config.getboolean('mirrors', 'enabled'):
                 outputs.append(name + '_mirror')
 
-            source = AVSource(name, port, outputs=outputs)
+            source = spawn_source(name, port, outputs=outputs)
+            self.log.info('Creating AVSource %s as %s', name, source)
             self.sources.append(source)
 
             if Config.getboolean('mirrors', 'enabled'):
@@ -81,8 +81,8 @@ class Pipeline(object):
         self.amix = AudioMix(volumes)
 
         port = 16000
-        self.log.info('Creating Mixer-Background VSource at tcp-port %u', port)
-        self.bgsrc = AVSource('background', port, has_audio=False)
+        self.bgsrc = spawn_source('background', port, has_audio=False)
+        self.log.info('Creating Mixer-Background VSource as %s', self.bgsrc)
 
         port = 11000
         self.log.info('Creating Mixer-Output at tcp-port %u', port)
@@ -103,18 +103,18 @@ class Pipeline(object):
                                    'StreamBlanker disabled!')
             for idx, name in enumerate(names):
                 port = 17000 + idx
-                self.log.info('Creating StreamBlanker VSource %s '
-                              'at tcp-port %u', name, port)
 
-                source = AVSource('{}_streamblanker'.format(name), port,
-                                  has_audio=False)
+                source = spawn_source('{}_streamblanker'.format(name), port,
+                                      has_audio=False)
+                self.log.info('Creating StreamBlanker VSource %s as %s',
+                              name, source)
                 self.sbsources.append(source)
 
             port = 18000
             self.log.info('Creating StreamBlanker ASource at tcp-port %u',
                           port)
 
-            source = AVSource('streamblanker', port, has_video=False)
+            source = spawn_source('streamblanker', port, has_video=False)
             self.sbsources.append(source)
 
             self.log.info('Creating StreamBlanker')
