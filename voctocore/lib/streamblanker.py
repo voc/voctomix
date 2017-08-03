@@ -16,6 +16,8 @@ class StreamBlanker(object):
         self.log.info('Configuring StreamBlanker video %u Sources',
                       len(self.names))
 
+        self.volume = Config.getfloat('stream-blanker', 'volume', fallback=1.0)
+
         pipeline = """
             compositor name=vmix !
             {vcaps} !
@@ -90,8 +92,11 @@ class StreamBlanker(object):
         blankpad = (self.mixingPipeline.get_by_name('amix')
                                        .get_static_pad('sink_1'))
 
-        mixpad.set_property('volume', int(self.blankSource is None))
-        blankpad.set_property('volume', int(self.blankSource is not None))
+        is_blanked = self.blankSource is not None
+        mixpad.set_property('volume',
+                            0.0 if is_blanked else 1.0)
+        blankpad.set_property('volume',
+                              self.volume if is_blanked else 0.0)
 
     def applyMixerStateVideo(self):
         mixpad = (self.mixingPipeline.get_by_name('vmix')
