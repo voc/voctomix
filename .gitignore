@@ -51,5 +51,11 @@ target/
 *~
 *.swp
 
-# this ain't an example anymore:
-example-scripts/config.sh
+# override-configs
+/voctocore/config.ini
+/voctogui/config.ini
+/example-scripts/config.sh
+
+# IDE project files
+/*.iml
+/.idea
