@@ -34,3 +34,7 @@ log.debug('considered config-files: \n%s',
           "\n".join(["\t\t" + os.path.normpath(file) for file in files]))
 log.debug('successfully parsed config-files: \n%s',
           "\n".join(["\t\t" + os.path.normpath(file) for file in readfiles]))
+
+if Args.ini_file is not None and Args.ini_file not in readfiles:
+    raise RuntimeError('explicitly requested config-file %s '
+                       'could not be read', Args.ini_file)
