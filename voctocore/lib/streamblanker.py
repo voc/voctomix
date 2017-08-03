@@ -20,24 +20,24 @@ class StreamBlanker(object):
             compositor name=vmix !
             {vcaps} !
             queue !
-            intervideosink channel=video_streamblanker_out
+            intervideosink channel=video_stream-blanker_out
 
             audiomixer name=amix !
             {acaps} !
             queue !
-            interaudiosink channel=audio_streamblanker_out
+            interaudiosink channel=audio_stream-blanker_out
 
 
-            intervideosrc channel=video_mix_streamblanker !
+            intervideosrc channel=video_mix_stream-blanker !
             {vcaps} !
             vmix.
 
-            interaudiosrc channel=audio_mix_streamblanker !
+            interaudiosrc channel=audio_mix_stream-blanker !
             {acaps} !
             amix.
 
 
-            interaudiosrc channel=audio_streamblanker !
+            interaudiosrc channel=audio_stream-blanker !
             {acaps} !
             amix.
         """.format(
@@ -47,7 +47,7 @@ class StreamBlanker(object):
 
         for name in self.names:
             pipeline += """
-                intervideosrc channel=video_{name}_streamblanker !
+                intervideosrc channel=video_stream-blanker-{name} !
                 {vcaps} !
                 vmix.
             """.format(

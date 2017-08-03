@@ -61,7 +61,7 @@ class VideoMix(object):
 
         if Config.getboolean('stream-blanker', 'enabled'):
             pipeline += """
-                tee. ! queue ! intervideosink channel=video_mix_streamblanker
+                tee. ! queue ! intervideosink channel=video_mix_stream-blanker
             """
 
         for idx, name in enumerate(self.names):
