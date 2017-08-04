@@ -55,6 +55,7 @@ target/
 /voctocore/config.ini
 /voctogui/config.ini
 /example-scripts/config.sh
+/example-scripts/voctomidi/config.ini
 
 # IDE project files
 /*.iml
