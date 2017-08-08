@@ -3,6 +3,9 @@ python:
   - 3.5
 
 before_install:
-  - pip install pycodestyle
+  - pip install pycodestyle mock
 
-script: ./check_pep8.sh
+script:
+  - ./check_pep8.sh
+  - ./voctocore/fake-gi.sh
+  - ./voctocore/test.sh
