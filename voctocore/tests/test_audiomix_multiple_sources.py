@@ -32,21 +32,21 @@ class AudiomixMultipleSources(VoctomixTest):
         self.assertListEqual(audiomixer.names, ["cam1", "cam2", "grabber"])
         self.assertListEqual(audiomixer.volumes, [0.23, 0.0, 0.42])
 
-    def test_audiosource_together_with_per_source_volumes_for_the_same_source_raise_an_error(self):
+    def test_audiosource_together_with_per_source_volumes_for_the_same_source_raises_an_error(self):
         Config.given("mix", "audiosource", "cam1")
         Config.given("source.cam1", "volume", "0.23")
 
         with self.assertRaises(ConfigurationError):
             audiomixer = AudioMix()
 
-    def test_audiosource_together_with_per_source_volumes_for_different_sources_raise_an_error(self):
+    def test_audiosource_together_with_per_source_volumes_for_different_sources_raises_an_error(self):
         Config.given("mix", "audiosource", "cam2")
         Config.given("source.cam1", "volume", "0.23")
 
         with self.assertRaises(ConfigurationError):
             audiomixer = AudioMix()
 
-    def test_fails_with_invalid_audiosource(self):
+    def test_invalid_audiosource_raises_an_error(self):
         Config.given("mix", "audiosource", "camInvalid")
 
         with self.assertRaises(ConfigurationError):
