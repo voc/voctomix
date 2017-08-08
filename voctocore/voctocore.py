@@ -10,7 +10,6 @@ gi.require_version('GstNet', '1.0')
 from gi.repository import Gst, GObject
 
 # import local classes
-from lib.args import Args
 from lib.loghandler import LogHandler
 
 # check min-version
@@ -66,7 +65,11 @@ class Voctocore(object):
 
 # run mainclass
 def main():
-    # configure logging
+    # parse command-line args
+    from lib import args
+    args.parse()
+
+    from lib.args import Args
     docolor = (Args.color == 'always') or (Args.color == 'auto' and
                                            sys.stderr.isatty())
 
@@ -88,6 +91,10 @@ def main():
 
     logging.info('Python Version: %s', sys.version_info)
     logging.info('GStreamer Version: %s', Gst.version())
+
+    logging.debug('loading Config')
+    from lib import config
+    config.load()
 
     # init main-class and main-loop
     logging.debug('initializing Voctocore')
