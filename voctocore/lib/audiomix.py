@@ -25,7 +25,8 @@ class AudioMix(object):
             section = 'source.{}'.format(name)
             try:
                 volume = Config.getfloat(section, 'volume')
-                self.log.info('Setting Volume of Source %s to %0.2f', name, volume)
+                self.log.info('Setting Volume of Source %s to %0.2f',
+                              name, volume)
                 self.volumes[index] = volume
                 is_configured = True
             except (NoSectionError, NoOptionError):
@@ -36,9 +37,10 @@ class AudioMix(object):
             name = Config.get('mix', 'audiosource')
             if is_configured:
                 raise ConfigurationError(
-                    'cannot configure [mix]audiosource-shortcut and [source.*]volume at the same time')
+                    'cannot configure [mix]audiosource-shortcut and '
+                    '[source.*]volume at the same time')
 
-            if not name in self.names:
+            if name not in self.names:
                 raise ConfigurationError(
                     'unknown source configured as [mix]audiosource: %s', name)
 
@@ -50,12 +52,14 @@ class AudioMix(object):
             pass
 
         if is_configured:
-            self.log.info('Volume was configured, advising ui not to show a selector')
+            self.log.info(
+                'Volume was configured, advising ui not to show a selector')
             Config.add_section_if_missing('audio')
             Config.set('audio', 'volumecontrol', 'false')
 
         else:
-            self.log.info('Setting Volume of first Source %s to %0.2f', self.names[0], 1.0)
+            self.log.info('Setting Volume of first Source %s to %0.2f',
+                          self.names[0], 1.0)
             self.volumes[0] = 1.0
 
         pipeline = """

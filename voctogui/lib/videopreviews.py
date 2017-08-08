@@ -51,8 +51,9 @@ class VideoPreviewsController(object):
         # Check if there is a fixed audio source configured.
         # If so, we will remove the volume sliders entirely
         # instead of setting them up.
-        volume_control = Config.getboolean('audio', 'volumecontrol', fallback=True) or \
-                         Config.getboolean('audio', 'forcevolumecontrol', fallback=False)
+        volume_control = \
+            Config.getboolean('audio', 'volumecontrol', fallback=True) or \
+            Config.getboolean('audio', 'forcevolumecontrol', fallback=False)
 
         for idx, source in enumerate(self.sources):
             self.log.info('Initializing Video Preview %s', source)
