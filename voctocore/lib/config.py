@@ -1,6 +1,6 @@
 import os.path
 import logging
-from configparser import SafeConfigParser
+from configparser import SafeConfigParser, DuplicateSectionError
 from lib.args import Args
 
 __all__ = ['Config']
@@ -16,6 +16,12 @@ class VocConfigParser(SafeConfigParser):
 
         unfiltered = [x.strip() for x in option.split(',')]
         return list(filter(None, unfiltered))
+
+    def add_section_if_missing(self, section):
+        try:
+            self.add_section(section)
+        except DuplicateSectionError:
+            pass
 
 
 def load():

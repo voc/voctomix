@@ -52,6 +52,18 @@ class AudiomixMultipleSources(VoctomixTest):
         with self.assertRaises(ConfigurationError):
             audiomixer = AudioMix()
 
+    def test_configuring_audiosource_disables_ui_audio_selector(self):
+        Config.given("mix", "audiosource", "cam1")
+
+        audiomixer = AudioMix()
+        self.assertEqual(Config.getboolean('audio', 'volumecontrol'), False)
+
+    def test_configuring_per_source_volumes_disables_ui_audio_selector(self):
+        Config.given("source.cam1", "volume", "1.0")
+
+        audiomixer = AudioMix()
+        self.assertEqual(Config.getboolean('audio', 'volumecontrol'), False)
+
 
 if __name__ == '__main__':
     unittest.main()

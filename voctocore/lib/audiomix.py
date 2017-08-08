@@ -5,10 +5,10 @@ from gi.repository import Gst
 
 from lib.config import Config
 from lib.clock import Clock
+from lib.errors.configuration_error import ConfigurationError
 
 
 class AudioMix(object):
-
     def __init__(self):
         self.log = logging.getLogger('AudioMix')
 
@@ -18,24 +18,45 @@ class AudioMix(object):
 
         # initialize all sources to silent
         self.volumes = [0.0] * len(self.names)
+        is_configured = False
 
-        # set default audio-source to 1.0
-        audiosource = Config.get('mix', 'audiosource', fallback=self.names[0])
-        index = self.names.index(audiosource)
-        self.log.info('Configuring Mixer-Pad %s (%u) to %f',
-                      audiosource, index, 1.0)
-        self.volumes[index] = 1.0
-
-        # scan per-source config for volume-setting
+        # try per-source volume-setting
         for index, name in enumerate(self.names):
             section = 'source.{}'.format(name)
             try:
                 volume = Config.getfloat(section, 'volume')
-                self.log.info('Configuring Mixer-Pad %s (%u) to %f',
-                              name, index, volume)
+                self.log.info('Setting Volume of Source %s to %0.2f', name, volume)
                 self.volumes[index] = volume
+                is_configured = True
             except (NoSectionError, NoOptionError):
                 pass
+
+        # try [mix]audiosource shortcut
+        try:
+            name = Config.get('mix', 'audiosource')
+            if is_configured:
+                raise ConfigurationError(
+                    'cannot configure [mix]audiosource-shortcut and [source.*]volume at the same time')
+
+            if not name in self.names:
+                raise ConfigurationError(
+                    'unknown source configured as [mix]audiosource: %s', name)
+
+            index = self.names.index(name)
+            self.log.info('Setting Volume of Source %s to %0.2f', name, 1.0)
+            self.volumes[index] = 1.0
+            is_configured = True
+        except NoOptionError:
+            pass
+
+        if is_configured:
+            self.log.info('Volume was configured, advising ui not to show a selector')
+            Config.add_section_if_missing('audio')
+            Config.set('audio', 'volumecontrol', 'false')
+
+        else:
+            self.log.info('Setting Volume of first Source %s to %0.2f', self.names[0], 1.0)
+            self.volumes[0] = 1.0
 
         pipeline = """
             audiomixer name=mix !
@@ -92,7 +113,7 @@ class AudioMix(object):
 
             self.log.debug('Setting Mixerpad %u to volume=%0.2f', idx, volume)
             mixerpad = (self.mixingPipeline.get_by_name('mix')
-                                           .get_static_pad('sink_%u' % idx))
+                        .get_static_pad('sink_%u' % idx))
             mixerpad.set_property('volume', volume)
 
     def setAudioSource(self, source):
