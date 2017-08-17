@@ -35,4 +35,14 @@ if Args.ini_file is not None:
     files.append(Args.ini_file)
 
 Config = VocConfigParser()
-Config.read(files)
+readfiles = Config.read(files)
+
+log = logging.getLogger('ConfigParser')
+log.debug('considered config-files: \n%s',
+          "\n".join(["\t\t" + os.path.normpath(file) for file in files]))
+log.debug('successfully parsed config-files: \n%s',
+          "\n".join(["\t\t" + os.path.normpath(file) for file in readfiles]))
+
+if Args.ini_file is not None and Args.ini_file not in readfiles:
+    raise RuntimeError('explicitly requested config-file "{}" '
+                       'could not be read'.format(Args.ini_file))
