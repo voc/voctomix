@@ -16,7 +16,7 @@ class StreamBlanker(object):
         self.log.info('Configuring StreamBlanker video %u Sources',
                       len(self.names))
 
-        self.volume = Config.getfloat('stream-blanker', 'volume', fallback=1.0)
+        self.volume = Config.getfloat('stream-blanker', 'volume')
 
         pipeline = """
             compositor name=vmix !
