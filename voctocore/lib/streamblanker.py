@@ -16,28 +16,30 @@ class StreamBlanker(object):
         self.log.info('Configuring StreamBlanker video %u Sources',
                       len(self.names))
 
+        self.volume = Config.getfloat('stream-blanker', 'volume')
+
         pipeline = """
             compositor name=vmix !
             {vcaps} !
             queue !
-            intervideosink channel=video_streamblanker_out
+            intervideosink channel=video_stream-blanker_out
 
             audiomixer name=amix !
             {acaps} !
             queue !
-            interaudiosink channel=audio_streamblanker_out
+            interaudiosink channel=audio_stream-blanker_out
 
 
-            intervideosrc channel=video_mix_streamblanker !
+            intervideosrc channel=video_mix_stream-blanker !
             {vcaps} !
             vmix.
 
-            interaudiosrc channel=audio_mix_streamblanker !
+            interaudiosrc channel=audio_mix_stream-blanker !
             {acaps} !
             amix.
 
 
-            interaudiosrc channel=audio_streamblanker !
+            interaudiosrc channel=audio_stream-blanker !
             {acaps} !
             amix.
         """.format(
@@ -47,7 +49,7 @@ class StreamBlanker(object):
 
         for name in self.names:
             pipeline += """
-                intervideosrc channel=video_{name}_streamblanker !
+                intervideosrc channel=video_stream-blanker-{name} !
                 {vcaps} !
                 vmix.
             """.format(
@@ -90,8 +92,11 @@ class StreamBlanker(object):
         blankpad = (self.mixingPipeline.get_by_name('amix')
                                        .get_static_pad('sink_1'))
 
-        mixpad.set_property('volume', int(self.blankSource is None))
-        blankpad.set_property('volume', int(self.blankSource is not None))
+        is_blanked = self.blankSource is not None
+        mixpad.set_property('volume',
+                            0.0 if is_blanked else 1.0)
+        blankpad.set_property('volume',
+                              self.volume if is_blanked else 0.0)
 
     def applyMixerStateVideo(self):
         mixpad = (self.mixingPipeline.get_by_name('vmix')

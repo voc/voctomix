@@ -104,7 +104,7 @@ class Pipeline(object):
             for idx, name in enumerate(names):
                 port = 17000 + idx
 
-                source = spawn_source('{}_streamblanker'.format(name), port,
+                source = spawn_source('stream-blanker-{}'.format(name), port,
                                       has_audio=False)
                 self.log.info('Creating StreamBlanker VSource %s as %s',
                               name, source)
@@ -114,7 +114,7 @@ class Pipeline(object):
             self.log.info('Creating StreamBlanker ASource at tcp-port %u',
                           port)
 
-            source = spawn_source('streamblanker', port, has_video=False)
+            source = spawn_source('stream-blanker', port, has_video=False)
             self.sbsources.append(source)
 
             self.log.info('Creating StreamBlanker')
@@ -122,4 +122,4 @@ class Pipeline(object):
 
             port = 15000
             self.log.info('Creating StreamBlanker-Output at tcp-port %u', port)
-            self.streamout = AVRawOutput('streamblanker_out', port)
+            self.streamout = AVRawOutput('stream-blanker_out', port)

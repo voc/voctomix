@@ -38,7 +38,7 @@ class AudioMix(object):
 
         if Config.getboolean('stream-blanker', 'enabled'):
             pipeline += """
-                tee. ! queue ! interaudiosink channel=audio_mix_streamblanker
+                tee. ! queue ! interaudiosink channel=audio_mix_stream-blanker
             """
 
         for idx, name in enumerate(self.names):
