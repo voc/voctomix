@@ -10,8 +10,14 @@ Config = None
 
 
 class VocConfigParser(SafeConfigParser):
-    def getlist(self, section, option):
-        return [x.strip() for x in self.get(section, option).split(',')]
+    class VocConfigParser(SafeConfigParser):
+        def getlist(self, section, option):
+            option = self.get(section, option).strip()
+            if len(option) == 0:
+                return []
+
+            unfiltered = [x.strip() for x in option.split(',')]
+            return list(filter(None, unfiltered))
 
     def fetchServerConfig(self):
         log = logging.getLogger('Config')
