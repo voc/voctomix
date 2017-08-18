@@ -98,4 +98,8 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except RuntimeError as e:
+        logging.error(str(e))
+        sys.exit(1)
