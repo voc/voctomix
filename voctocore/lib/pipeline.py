@@ -63,22 +63,8 @@ class Pipeline(object):
         self.log.info('Creating Videmixer')
         self.vmix = VideoMix()
 
-        # check if there is an audio source preconfigured
-        try:
-            audiosource = Config.get('mix', 'audiosource')
-            volumes = [0.0] * len(names)
-            for source in audiosource.split(','):
-                src, *volume = source.split(':', 1)
-                volume = float(volume[0]) if volume else 1.0
-                try:
-                    volumes[names.index(src)] = volume
-                except ValueError:
-                    self.log.warn('Audiosource "%s" does not exist', src)
-        except NoOptionError:
-            volumes = []
-
         self.log.info('Creating Audiomixer')
-        self.amix = AudioMix(volumes)
+        self.amix = AudioMix()
 
         port = 16000
         self.bgsrc = spawn_source('background', port, has_audio=False)
