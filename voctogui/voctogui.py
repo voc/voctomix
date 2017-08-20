@@ -31,16 +31,12 @@ GObject.threads_init()
 Gdk.init([])
 Gtk.init([])
 
-# import local classes
-from lib.args import Args
-from lib.loghandler import LogHandler
-
 
 # main class
 class Voctogui(object):
-
     def __init__(self):
         self.log = logging.getLogger('Voctogui')
+        from lib.args import Args
         from lib.ui import Ui
 
         # Uf a UI-File was specified on the Command-Line, load it
@@ -92,10 +88,15 @@ class Voctogui(object):
 
 # run mainclass
 def main():
-    # configure logging
+    # parse command-line args
+    from lib import args
+    args.parse()
+
+    from lib.args import Args
     docolor = (Args.color == 'always') or (Args.color == 'auto' and
                                            sys.stderr.isatty())
 
+    from lib.loghandler import LogHandler
     handler = LogHandler(docolor, Args.timestamp)
     logging.root.addHandler(handler)
 
@@ -114,6 +115,10 @@ def main():
 
     logging.info('Python Version: %s', sys.version_info)
     logging.info('GStreamer Version: %s', Gst.version())
+
+    logging.debug('loading Config')
+    from lib import config
+    config.load()
 
     from lib.config import Config
 
