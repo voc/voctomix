@@ -6,7 +6,7 @@ if [ -f $confdir/config.sh ]; then
 fi
 
 ffmpeg  -y -nostdin \
-	-re -f lavfi -i 'testsrc=s=1920x1080:n=3[out0];sine=beep_factor=1:f=1000[out1]' \
+	-re -f lavfi -i "testsrc=s=${WIDTH}x${HEIGHT}:r=${FRAMERATE}:n=3[out0];sine=r=${AUDIORATE}:beep_factor=1:f=1000[out1]" \
 	-pix_fmt yuv420p \
 	-c:v rawvideo \
 	-c:a pcm_s16le \
