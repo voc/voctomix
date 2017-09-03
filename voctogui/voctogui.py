@@ -123,6 +123,7 @@ def main():
     from lib.config import Config
 
     # establish a synchronus connection to server
+    import lib.connection as Connection
     Connection.establish(
         Args.host if Args.host else Config.get('server', 'host')
     )
