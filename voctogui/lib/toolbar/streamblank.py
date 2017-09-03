@@ -69,8 +69,9 @@ class StreamblankToolbarController(object):
             tooltip = Gtk.accelerator_get_label(key, mod)
             new_btn.set_tooltip_text(tooltip)
 
-            new_btn.get_child().add_accelerator('clicked', accelerators,
-                                                key, mod, Gtk.AccelFlags.VISIBLE)
+            new_btn.get_child().add_accelerator(
+                'clicked', accelerators,
+                key, mod, Gtk.AccelFlags.VISIBLE)
 
             self.blank_btns[name] = new_btn
 
