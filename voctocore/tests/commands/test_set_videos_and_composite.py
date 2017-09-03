@@ -112,7 +112,6 @@ class CommandsSetVideosAndComposite(VoctomixTest):
         self.pipeline_mock.vmix.setCompositeMode.assert_called_with(
             CompositeModes.side_by_side_preview, apply_default_source=True)
 
-
     def test_setting_composite_mode_with_a_source_does_not_apply_default_source(self):
         self.commands.set_videos_and_composite("grabber", "*", "fullscreen")
 

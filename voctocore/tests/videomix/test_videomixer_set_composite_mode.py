@@ -46,7 +46,6 @@ class VideomixerSetCompositeMode(VoctomixTest):
         self.videomixer.setVideoSourceA.assert_called_with(2)
         self.videomixer.setVideoSourceB.assert_called_with(0)
 
-
     def test_set_composite_mode_does_not_set_default_source_if_requested(self):
         Config.given('side-by-side-preview', 'default-a', 'grabber')
         Config.given('side-by-side-preview', 'default-b', 'cam1')
