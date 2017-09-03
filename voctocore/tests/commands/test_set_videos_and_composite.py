@@ -35,6 +35,13 @@ class CommandsSetVideosAndComposite(VoctomixTest):
         self.pipeline_mock.vmix.setVideoSourceB.assert_not_called()
         self.pipeline_mock.vmix.setCompositeMode.assert_not_called()
 
+    def test_cant_set_video_a_to_invalid_value(self):
+        with self.assertRaises(IndexError):
+            self.commands.set_videos_and_composite("foobar", "*", "*")
+
+        self.pipeline_mock.vmix.setVideoSourceA.assert_not_called()
+        self.pipeline_mock.vmix.setVideoSourceB.assert_not_called()
+
     def test_can_set_video_b(self):
         self.commands.set_videos_and_composite("*", "cam2", "*")
 
@@ -42,12 +49,26 @@ class CommandsSetVideosAndComposite(VoctomixTest):
         self.pipeline_mock.vmix.setVideoSourceB.assert_called_with(1)
         self.pipeline_mock.vmix.setCompositeMode.assert_not_called()
 
+    def test_cant_set_video_b_to_invalid_value(self):
+        with self.assertRaises(IndexError):
+            self.commands.set_videos_and_composite("*", "foobar", "*")
+
+        self.pipeline_mock.vmix.setVideoSourceA.assert_not_called()
+        self.pipeline_mock.vmix.setVideoSourceB.assert_not_called()
+
     def test_can_set_video_a_and_b(self):
         self.commands.set_videos_and_composite("cam2", "grabber", "*")
 
         self.pipeline_mock.vmix.setVideoSourceA.assert_called_with(1)
         self.pipeline_mock.vmix.setVideoSourceB.assert_called_with(2)
         self.pipeline_mock.vmix.setCompositeMode.assert_not_called()
+
+    def test_cant_set_video_a_and_b_to_invalid_value(self):
+        with self.assertRaises(IndexError):
+            self.commands.set_videos_and_composite("foobar", "foobar", "*")
+
+        self.pipeline_mock.vmix.setVideoSourceA.assert_not_called()
+        self.pipeline_mock.vmix.setVideoSourceB.assert_not_called()
 
     def test_can_set_video_a_and_composite_mode(self):
         self.commands.set_videos_and_composite("cam2", "*", "fullscreen")
