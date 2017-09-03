@@ -24,6 +24,10 @@
 - `Alt+2` Source Nr. 2
 - …
 
+### Stream Blanking
+- F11 Set stream to Pause-Loop
+- F12 Set stream Live
+
 ### Other options
 - `t` Cut
 
