@@ -60,7 +60,7 @@ class StreamblankToolbarController(object):
                                                              .get_pixbuf())
                 new_btn = Gtk.RadioToolButton(group=livebtn)
                 new_btn.set_icon_widget(new_icon)
-                toolbar.insert(new_btn, blankbtn_pos + 1)
+                toolbar.insert(new_btn, blankbtn_pos)
 
             new_btn.set_label("Stream %s" % name)
             new_btn.connect('toggled', self.on_btn_toggled)
