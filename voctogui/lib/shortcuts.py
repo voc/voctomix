@@ -24,8 +24,10 @@ if hasattr(Gtk, "ShortcutsWindow"):
             compose_group.show()
             for accel, desc in [("F1", "Select fullscreen mode"),
                                 ("F2", "Select Picture in Picture mode"),
-                                ("F3", "Select  Side-by-Side Equal mode"),
-                                ("F4", "Select  Side-by-Side Preview mode")]:
+                                ("F3", "Select Side-by-Side Equal mode"),
+                                ("F4", "Select Side-by-Side Preview mode"),
+                                ("F11", "Set stream to Pause-Loop"),
+                                ("F12", "Set stream Live")]:
                 short = Gtk.ShortcutsShortcut(title=desc, accelerator=accel)
                 short.show()
                 compose_group.add(short)

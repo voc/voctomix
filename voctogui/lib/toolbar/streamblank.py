@@ -13,6 +13,9 @@ class StreamblankToolbarController(object):
 
         self.warning_overlay = warning_overlay
 
+        accelerators = Gtk.AccelGroup()
+        win.add_accel_group(accelerators)
+
         livebtn = uibuilder.find_widget_recursive(toolbar, 'stream_live')
         blankbtn = uibuilder.find_widget_recursive(toolbar, 'stream_blank')
 
@@ -31,13 +34,25 @@ class StreamblankToolbarController(object):
 
         self.current_status = None
 
+        key, mod = Gtk.accelerator_parse('F12')
         livebtn.connect('toggled', self.on_btn_toggled)
         livebtn.set_name('live')
+
+        tooltip = Gtk.accelerator_get_label(key, mod)
+        livebtn.set_tooltip_text(tooltip)
+
+        livebtn.get_child().add_accelerator('clicked', accelerators,
+                                            key, mod, Gtk.AccelFlags.VISIBLE)
 
         self.livebtn = livebtn
         self.blank_btns = {}
 
+        accel_f_key = 11
+
         for idx, name in enumerate(blank_sources):
+            key, mod = Gtk.accelerator_parse('F%u' % accel_f_key)
+            accel_f_key = accel_f_key - 1
+
             if idx == 0:
                 new_btn = blankbtn
             else:
@@ -50,6 +65,12 @@ class StreamblankToolbarController(object):
             new_btn.set_label("Stream %s" % name)
             new_btn.connect('toggled', self.on_btn_toggled)
             new_btn.set_name(name)
+
+            tooltip = Gtk.accelerator_get_label(key, mod)
+            new_btn.set_tooltip_text(tooltip)
+
+            new_btn.get_child().add_accelerator('clicked', accelerators,
+                                                key, mod, Gtk.AccelFlags.VISIBLE)
 
             self.blank_btns[name] = new_btn
 
