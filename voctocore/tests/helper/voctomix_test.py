@@ -8,6 +8,7 @@ from tests.helper.config_mock import ConfigMock
 
 gi.repository.Gst = MagicMock()
 gi.repository.GstNet = MagicMock()
+gi.repository.GObject = MagicMock()
 lib.config.Config = ConfigMock.WithBasicConfig()
 
 
