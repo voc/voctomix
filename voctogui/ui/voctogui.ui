@@ -119,20 +119,6 @@
               </packing>
             </child>
             <child>
-              <object class="GtkRadioToolButton" id="stream_live">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Stream Live</property>
-                <property name="use_underline">True</property>
-                <property name="icon_widget">img-stream-live</property>
-                <property name="active">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkRadioToolButton" id="stream_blank">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
@@ -140,6 +126,20 @@
                 <property name="use_underline">True</property>
                 <property name="icon_widget">img-blank-stream</property>
                 <property name="group">stream_live</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkRadioToolButton" id="stream_live">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Stream Live</property>
+                <property name="use_underline">True</property>
+                <property name="icon_widget">img-stream-live</property>
+                <property name="active">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
