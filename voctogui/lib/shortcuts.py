@@ -25,13 +25,16 @@ if hasattr(Gtk, "ShortcutsWindow"):
             for accel, desc in [("F1", "Select fullscreen mode"),
                                 ("F2", "Select Picture in Picture mode"),
                                 ("F3", "Select Side-by-Side Equal mode"),
-                                ("F4", "Select Side-by-Side Preview mode"),
-                                ("F11", "Set stream to Pause-Loop"),
-                                ("F12", "Set stream Live")]:
+                                ("F4", "Select Side-by-Side Preview mode")]:
                 short = Gtk.ShortcutsShortcut(title=desc, accelerator=accel)
                 short.show()
                 compose_group.add(short)
             section.add(compose_group)
+
+
+            if Config.getboolean('stream-blanker', 'enabled'):
+                blank_group = self._build_blank_group()
+                section.add(blank_group)
 
             source_group = Gtk.ShortcutsGroup(title="Source Selection")
             source_group.show()
@@ -60,6 +63,22 @@ if hasattr(Gtk, "ShortcutsWindow"):
                 section.add(other_group)
 
             self.add(section)
+
+        def _build_blank_group(self):
+            blank_group = Gtk.ShortcutsGroup(title="Stream blanking")
+            blank_group.show()
+            blank_sources = Config.getlist('stream-blanker', 'sources')
+            blank_items = [
+                ("F{}".format(12 - len(blank_sources) + i),
+                 "Set stream to {}".format(source))
+                for i, source in enumerate(reversed(blank_sources))
+            ]
+            blank_items.append(("F12", "Set stream Live"))
+            for accel, desc in blank_items:
+                short = Gtk.ShortcutsShortcut(title=desc, accelerator=accel)
+                short.show()
+                blank_group.add(short)
+            return blank_group
 else:
     def show_shortcuts(win):
         pass
