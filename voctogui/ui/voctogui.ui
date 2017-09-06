@@ -41,6 +41,7 @@
     <property name="can_focus">False</property>
     <property name="default_width">1280</property>
     <property name="default_height">720</property>
+    <property name="title" translatable="yes">Voctomix GUI</property>
     <child>
       <object class="GtkBox" id="box_toolbar_content">
         <property name="visible">True</property>
