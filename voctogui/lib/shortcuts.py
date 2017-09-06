@@ -31,7 +31,6 @@ if hasattr(Gtk, "ShortcutsWindow"):
                 compose_group.add(short)
             section.add(compose_group)
 
-
             if Config.getboolean('stream-blanker', 'enabled'):
                 blank_group = self._build_blank_group()
                 section.add(blank_group)
