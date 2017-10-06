@@ -1,10 +1,13 @@
 #!/bin/sh
 
-# Go to Facebook.com, and start a new "Live Video" post
-# At the top of the video window, select "Connect" instead of "Camera"
-# Enter the API key below to start the stream
+# Best Practices: https://developers.facebook.com/docs/videos/live-video/best-practices/
+
+# It may be possible to auto-gen the API key: https://developers.facebook.com/docs/graph-api/reference/live-video/
+#   "You can make a POST request to live_videos edge from the following paths"
+
 FACEBOOKURL="rtmp://live-api-a.facebook.com:80/rtmp/"
-STREAMKEY="<STREAMKEY>"
+echo "Enter your Facebook Live Streaming Key"
+read STREAMKEY
 
 ffmpeg -y -nostdin \
 	-thread_queue_size 512 \
