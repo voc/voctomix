@@ -86,6 +86,17 @@ def mk_video_src(args, videocaps):
             videorate !
         """
 
+    elif args.video_source == 'ksvideosrc':
+        video_device = "{}".format(args.video_dev) \
+        if args.video_dev else ""
+        video_src = """
+            ksvideosrc  !
+            image/jpeg,width=1920,height=1080 !
+            jpegdec !
+            videoconvert !
+            videorate !
+        """
+
     elif args.video_source == 'ximage':
         video_src = """
             ximagesrc name=videosrc
@@ -148,6 +159,11 @@ def mk_audio_src(args, audiocaps):
             decklinkaudiosrc !
         """
 
+    elif args.audio_source == 'directsound':
+        audio_src = """
+            directsoundsrc !
+        """
+
     elif args.audio_source == 'test':
         audio_src = """
             audiotestsrc name=audiosrc freq=330 !
@@ -203,8 +219,8 @@ def run_pipeline(pipeline, args):
     clock = GstNet.NetClientClock.new('voctocore', core_ip, 9998, 0)
     print('obtained NetClientClock from host', clock)
 
-    print('waiting for NetClientClock to sync…')
-    clock.wait_for_sync(Gst.CLOCK_TIME_NONE)
+    print('waiting for NetClientClock to sync')
+    #clock.wait_for_sync(Gst.CLOCK_TIME_NONE)
 
     print('starting pipeline')
     senderPipeline = Gst.parse_launch(pipeline)
@@ -254,7 +270,7 @@ def get_args():
                         help="Also print INFO and DEBUG messages.")
 
     parser.add_argument('--video-source', action='store',
-                        choices=['dv', 'hdv', 'hdmi2usb',
+                        choices=['ksvideosrc', 'dv', 'hdv', 'hdmi2usb',
                                  'blackmagichdmi', 'ximage', 'test'],
                         default='test',
                         help="Where to get video from")
@@ -263,7 +279,7 @@ def get_args():
                         help="video device")
 
     parser.add_argument('--audio-source', action='store',
-                        choices=['dv', 'alsa', 'pulse',
+                        choices=['directsound', 'dv', 'alsa', 'pulse',
                                  'blackmagichdmi', 'test'],
                         default='test',
                         help="Where to get audio from")
