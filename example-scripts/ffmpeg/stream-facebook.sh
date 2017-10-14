@@ -13,14 +13,14 @@ ffmpeg -y -nostdin \
 	-thread_queue_size 512 \
 	-timeout 3000000 \
 	-i tcp://localhost:11000 \
-	-t 5400 \
+	-t 14400 \		# Limit to 4 hour segment as Facebook API specifies
 	-strict -2 \
-	-c:a aac -ac 1 -ar 44100 -b:a 128k \
+	-c:a aac -ac 1 -ar 48000 -b:a 128k \ # 48Khz 128Kbps Mono
 	-c:v libx264 \
-	-preset superfast \
+	-preset medium \
 	-pix_fmt yuv420p \
 	-r 30 \
-	-g 60 \
+	-g 60 \ # Keyframe interval - every 2 seconds
 	-vb 2048k -minrate 2000k -maxrate 4000k \
 	-bufsize 4096k -threads 2  \
 	-f flv 	"$FACEBOOKURL$STREAMKEY"
