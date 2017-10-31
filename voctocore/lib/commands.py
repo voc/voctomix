@@ -211,7 +211,12 @@ class ControlServerCommands(object):
 
         if mode_name_or_id != '*':
             mode = decodeEnumName(CompositeModes, mode_name_or_id)
-            self.pipeline.vmix.setCompositeMode(mode)
+            called_with_source = \
+                src_a_name_or_id != '*' or \
+                src_b_name_or_id != '*'
+
+            self.pipeline.vmix.setCompositeMode(
+                mode, apply_default_source=not called_with_source)
 
         composite_status = self._get_composite_status()
         video_status = self._get_video_status()

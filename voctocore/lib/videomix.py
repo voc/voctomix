@@ -406,10 +406,12 @@ class VideoMix(object):
     def getVideoSourceB(self):
         return self.sourceB
 
-    def setCompositeMode(self, mode):
+    def setCompositeMode(self, mode, apply_default_source=True):
         self.compositeMode = mode
 
-        self.selectCompositeModeDefaultSources()
+        if apply_default_source:
+            self.selectCompositeModeDefaultSources()
+
         self.recalculateMixerState()
 
     def getCompositeMode(self):
