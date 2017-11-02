@@ -8,20 +8,6 @@ from lib.response import NotifyResponse, OkResponse
 from lib.sources import restart_source
 
 
-def decodeEnumName(enum, name_or_id):
-    try:
-        id = int(name_or_id)
-
-    except ValueError as e:
-        try:
-            return enum[name_or_id]
-
-        except KeyError as e:
-            raise IndexError("unknown name %s" % name_or_id)
-
-    return enum(id)
-
-
 class ControlServerCommands(object):
     def __init__(self, pipeline):
         self.log = logging.getLogger('ControlServerCommands')
