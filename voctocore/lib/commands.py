@@ -162,9 +162,9 @@ class ControlServerCommands(object):
         status = self._get_audio_status()
         return NotifyResponse('audio_status', status)
 
-    def set_audio_volume(self, src_name_or_id, volume):
+    def set_audio_volume(self, src_name, volume):
         """sets the volume of the supplied source-name or source-id"""
-        src_id = decodeName(self.sources, src_name_or_id)
+        src_id = self.sources.index(src_name)
         volume = float(volume)
         if volume < 0.0:
             raise ValueError("volume must be positive")
