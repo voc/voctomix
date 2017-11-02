@@ -144,12 +144,10 @@ class ControlServerCommands(object):
 
     def _get_audio_status(self):
         volumes = self.pipeline.amix.getAudioVolumes()
-        return '{' + ', '.join(
-            '"{}": {:.4f}'.format(
-                encodeName(self.sources, idx),
-                volumes[idx]
-            ) for idx in range(len(volumes))
-        ) + '}'
+
+        return json.dumps({
+            self.sources[idx]: round(volume, 4) for idx, volume in enumerate(volumes)
+        })
 
     def get_audio(self):
         """gets the current volumes of the audio-sources"""
