@@ -46,7 +46,6 @@ def encodeName(items, id):
 
 
 class ControlServerCommands(object):
-
     def __init__(self, pipeline):
         self.log = logging.getLogger('ControlServerCommands')
 
@@ -113,8 +112,8 @@ class ControlServerCommands(object):
         return OkResponse("\n".join(helplines))
 
     def _get_video_status(self):
-        a = encodeName(self.sources, self.pipeline.vmix.getVideoSourceA())
-        b = encodeName(self.sources, self.pipeline.vmix.getVideoSourceB())
+        a = self.sources[self.pipeline.vmix.getVideoSourceA()]
+        b = self.sources[self.pipeline.vmix.getVideoSourceB()]
         return [a, b]
 
     def get_video(self):
@@ -123,21 +122,21 @@ class ControlServerCommands(object):
         status = self._get_video_status()
         return OkResponse('video_status', *status)
 
-    def set_video_a(self, src_name_or_id):
+    def set_video_a(self, src_name):
         """sets the video-source A to the supplied source-name or source-id,
            swapping A and B if the supplied source is currently used as
            video-source B"""
-        src_id = decodeName(self.sources, src_name_or_id)
+        src_id = self.sources.index(src_name)
         self.pipeline.vmix.setVideoSourceA(src_id)
 
         status = self._get_video_status()
         return NotifyResponse('video_status', *status)
 
-    def set_video_b(self, src_name_or_id):
+    def set_video_b(self, src_name):
         """sets the video-source B to the supplied source-name or source-id,
            swapping A and B if the supplied source is currently used as
            video-source A"""
-        src_id = decodeName(self.sources, src_name_or_id)
+        src_id = self.sources.index(src_name)
         self.pipeline.vmix.setVideoSourceB(src_id)
 
         status = self._get_video_status()
