@@ -159,9 +159,9 @@ class ControlServerCommands(object):
         status = self._get_composite_status()
         return OkResponse('composite_mode', status)
 
-    def set_composite_mode(self, mode_name_or_id):
+    def set_composite_mode(self, mode_name):
         """sets the name of the id of the composite-mode"""
-        mode = decodeEnumName(CompositeModes, mode_name_or_id)
+        mode = CompositeModes[mode_name]
         self.pipeline.vmix.setCompositeMode(mode)
 
         composite_status = self._get_composite_status()
@@ -172,7 +172,7 @@ class ControlServerCommands(object):
         ]
 
     def set_videos_and_composite(self, src_a_name, src_b_name,
-                                 mode_name_or_id):
+                                 mode_name):
         """sets the A- and the B-source synchronously with the composition-mode
            all parametets can be set to "*" which will leave them unchanged."""
         if src_a_name != '*':
@@ -183,8 +183,8 @@ class ControlServerCommands(object):
             src_b_id = self.sources.index(src_b_name)
             self.pipeline.vmix.setVideoSourceB(src_b_id)
 
-        if mode_name_or_id != '*':
-            mode = decodeEnumName(CompositeModes, mode_name_or_id)
+        if mode_name != '*':
+            mode = CompositeModes[mode_name]
             called_with_source = \
                 src_a_name != '*' or \
                 src_b_name != '*'
