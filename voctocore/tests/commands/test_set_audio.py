@@ -4,8 +4,8 @@ from lib.response import NotifyResponse
 from tests.commands.commands_test_base import CommandsTestBase
 
 
-class GetAudioTest(CommandsTestBase):
-    def test_get_audio(self):
+class SetAudioTest(CommandsTestBase):
+    def test_set_audio(self):
         response = self.commands.set_audio("grabber")
         self.pipeline_mock.amix.setAudioSource.assert_called_with(2)
 
