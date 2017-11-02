@@ -8,22 +8,6 @@ from lib.response import NotifyResponse, OkResponse
 from lib.sources import restart_source
 
 
-def decodeName(items, name_or_id):
-    try:
-        id = int(name_or_id)
-        if id < 0 or id >= len(items):
-            raise IndexError("unknown index %d" % id)
-
-        return id
-
-    except ValueError as e:
-        try:
-            return items.index(name_or_id)
-
-        except ValueError as e:
-            raise IndexError("unknown name %s" % name_or_id)
-
-
 def decodeEnumName(enum, name_or_id):
     try:
         id = int(name_or_id)
@@ -36,13 +20,6 @@ def decodeEnumName(enum, name_or_id):
             raise IndexError("unknown name %s" % name_or_id)
 
     return enum(id)
-
-
-def encodeName(items, id):
-    try:
-        return items[id]
-    except IndexError as e:
-        raise IndexError("unknown index %d" % id)
 
 
 class ControlServerCommands(object):
@@ -229,17 +206,17 @@ class ControlServerCommands(object):
             if blankSource is None:
                 return ('live',)
 
-            return 'blank', encodeName(self.blankerSources, blankSource)
+            return 'blank', self.blankerSources[blankSource]
 
         def get_stream_status(self):
             """gets the current streamblanker-status"""
             status = self._get_stream_status()
             return OkResponse('stream_status', *status)
 
-        def set_stream_blank(self, source_name_or_id):
+        def set_stream_blank(self, source_name):
             """sets the streamblanker-status to blank with the specified
                blanker-source-name or -id"""
-            src_id = decodeName(self.blankerSources, source_name_or_id)
+            src_id = self.blankerSources.index(source_name)
             self.pipeline.streamblanker.setBlankSource(src_id)
 
             status = self._get_stream_status()
