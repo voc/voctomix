@@ -1,17 +1,10 @@
-from mock import MagicMock, ANY
+from mock import ANY
 
-from tests.helper.voctomix_test import VoctomixTest
-from lib.commands import ControlServerCommands
+from tests.commands.commands_test_base import CommandsTestBase
 from lib.videomix import CompositeModes
 
 
-class CommandsSetVideosAndComposite(VoctomixTest):
-    def setUp(self):
-        super().setUp()
-        self.pipeline_mock = MagicMock()
-
-        self.commands = ControlServerCommands(self.pipeline_mock)
-
+class CommandsSetVideosAndComposite(CommandsTestBase):
     def test_returns_expected_notifications(self):
         self.pipeline_mock.vmix.getCompositeMode.return_value = \
             CompositeModes.fullscreen
@@ -129,11 +122,3 @@ class CommandsSetVideosAndComposite(VoctomixTest):
 
         self.pipeline_mock.vmix.setCompositeMode.assert_called_with(
             CompositeModes.fullscreen, apply_default_source=False)
-
-    def assertContainsNotification(self, notifications, *args):
-        self.assertTrue(
-            any(n.args == args for n in notifications),
-            msg="Expected notifications {} to contain '{}'".format(
-                [str(n) for n in notifications],
-                ' '.join(args)
-            ))
