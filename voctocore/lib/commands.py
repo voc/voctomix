@@ -109,7 +109,8 @@ class ControlServerCommands(object):
         volumes = self.pipeline.amix.getAudioVolumes()
 
         return json.dumps({
-            self.sources[idx]: round(volume, 4) for idx, volume in enumerate(volumes)
+            self.sources[idx]: round(volume, 4)
+            for idx, volume in enumerate(volumes)
         })
 
     def get_audio(self):
