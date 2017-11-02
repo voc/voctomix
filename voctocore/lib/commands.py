@@ -156,9 +156,9 @@ class ControlServerCommands(object):
         status = self._get_audio_status()
         return OkResponse('audio_status', status)
 
-    def set_audio(self, src_name_or_id):
+    def set_audio(self, src_name):
         """sets the audio-source to the supplied source-name or source-id"""
-        src_id = decodeName(self.sources, src_name_or_id)
+        src_id = self.sources.index(src_name)
         self.pipeline.amix.setAudioSource(src_id)
 
         status = self._get_audio_status()
