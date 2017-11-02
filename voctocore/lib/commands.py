@@ -194,23 +194,23 @@ class ControlServerCommands(object):
             NotifyResponse('video_status', *video_status)
         ]
 
-    def set_videos_and_composite(self, src_a_name_or_id, src_b_name_or_id,
+    def set_videos_and_composite(self, src_a_name, src_b_name,
                                  mode_name_or_id):
         """sets the A- and the B-source synchronously with the composition-mode
            all parametets can be set to "*" which will leave them unchanged."""
-        if src_a_name_or_id != '*':
-            src_a_id = decodeName(self.sources, src_a_name_or_id)
+        if src_a_name != '*':
+            src_a_id = self.sources.index(src_a_name)
             self.pipeline.vmix.setVideoSourceA(src_a_id)
 
-        if src_b_name_or_id != '*':
-            src_b_id = decodeName(self.sources, src_b_name_or_id)
+        if src_b_name != '*':
+            src_b_id = self.sources.index(src_b_name)
             self.pipeline.vmix.setVideoSourceB(src_b_id)
 
         if mode_name_or_id != '*':
             mode = decodeEnumName(CompositeModes, mode_name_or_id)
             called_with_source = \
-                src_a_name_or_id != '*' or \
-                src_b_name_or_id != '*'
+                src_a_name != '*' or \
+                src_b_name != '*'
 
             self.pipeline.vmix.setCompositeMode(
                 mode, apply_default_source=not called_with_source)

@@ -29,7 +29,7 @@ class CommandsSetVideosAndComposite(CommandsTestBase):
         self.pipeline_mock.vmix.setCompositeMode.assert_not_called()
 
     def test_cant_set_video_a_to_invalid_value(self):
-        with self.assertRaises(IndexError):
+        with self.assertRaises(ValueError):
             self.commands.set_videos_and_composite("foobar", "*", "*")
 
         self.pipeline_mock.vmix.setVideoSourceA.assert_not_called()
@@ -43,7 +43,7 @@ class CommandsSetVideosAndComposite(CommandsTestBase):
         self.pipeline_mock.vmix.setCompositeMode.assert_not_called()
 
     def test_cant_set_video_b_to_invalid_value(self):
-        with self.assertRaises(IndexError):
+        with self.assertRaises(ValueError):
             self.commands.set_videos_and_composite("*", "foobar", "*")
 
         self.pipeline_mock.vmix.setVideoSourceA.assert_not_called()
@@ -57,7 +57,7 @@ class CommandsSetVideosAndComposite(CommandsTestBase):
         self.pipeline_mock.vmix.setCompositeMode.assert_not_called()
 
     def test_cant_set_video_a_and_b_to_invalid_value(self):
-        with self.assertRaises(IndexError):
+        with self.assertRaises(ValueError):
             self.commands.set_videos_and_composite("foobar", "foobar", "*")
 
         self.pipeline_mock.vmix.setVideoSourceA.assert_not_called()
