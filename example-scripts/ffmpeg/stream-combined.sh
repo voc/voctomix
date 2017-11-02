@@ -38,13 +38,13 @@ ffmpeg -y -nostdin \
 	-g:v:2 50 \
 	\
 	-map 0:a:0 -filter:a:0 pan='mono|c0=FL' \
-	-c:a:0 libfdk_aac -b:a:0 96k -ar 44100 \
+	-c:a:0 aac -b:a:0 96k -ar 44100 \
 	\
 	-map 0:a:0 -filter:a:1 pan='mono|c0=FR' \
-	-c:a:1 libfdk_aac -b:a:1 96k -ar 44100 \
+	-c:a:1 aac -b:a:1 96k -ar 44100 \
 	\
 	-map 0:a:0 \
-	-c:a:2 libfdk_aac -b:a:2 96k -ar 44100 \
+	-c:a:2 aac -b:a:2 96k -ar 44100 \
 	\
 	-max_interleave_delta 0 \
 	-f nut pipe: | \
