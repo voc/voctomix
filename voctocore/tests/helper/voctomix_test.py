@@ -1,3 +1,4 @@
+import socket
 import unittest
 
 import gi.repository
@@ -10,6 +11,8 @@ gi.repository.Gst = MagicMock()
 gi.repository.GstNet = MagicMock()
 gi.repository.GObject = MagicMock()
 lib.config.Config = ConfigMock.WithBasicConfig()
+
+socket.socket = MagicMock()
 
 
 class VoctomixTest(unittest.TestCase):

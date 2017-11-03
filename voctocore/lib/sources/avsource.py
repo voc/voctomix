@@ -7,7 +7,6 @@ from lib.clock import Clock
 
 
 class AVSource(object, metaclass=ABCMeta):
-
     def __init__(self, name, outputs=None, has_audio=True, has_video=True):
         if not self.log:
             self.log = logging.getLogger('AVSource[{}]'.format(name))
@@ -55,6 +54,7 @@ class AVSource(object, metaclass=ABCMeta):
                 tee name=vtee
             """.format(
                 velem=velem,
+                deinterlacer=self.build_deinterlacer(),
                 vcaps=Config.get('mix', 'videocaps')
             )
 
@@ -73,6 +73,25 @@ class AVSource(object, metaclass=ABCMeta):
         self.pipeline.bus.add_signal_watch()
         self.pipeline.bus.connect("message::eos", self.on_eos)
         self.pipeline.bus.connect("message::error", self.on_error)
+
+    def build_deinterlacer(self):
+        deinterlace_config = self.get_deinterlace_config()
+
+        if deinterlace_config == "yes":
+            return "yadif mode=interlaced"
+
+        elif deinterlace_config == "no":
+            return ""
+
+        else:
+            raise RuntimeError(
+                "Unknown Deinterlace-Mode on source {} configured: {}"
+                .format(self.name, deinterlace_config))
+
+    def get_deinterlace_config(self):
+        section = 'source.{}'.format(self.name)
+        deinterlace_config = Config.get(section, 'deinterlace', fallback="no")
+        return deinterlace_config
 
     def on_eos(self, bus, message):
         self.log.debug('Received End-of-Stream-Signal on Source-Pipeline')

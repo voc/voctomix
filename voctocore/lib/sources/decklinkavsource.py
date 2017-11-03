@@ -6,18 +6,21 @@ from lib.sources.avsource import AVSource
 
 
 class DeckLinkAVSource(AVSource):
-
     def __init__(self, name, outputs=None, has_audio=True, has_video=True):
         self.log = logging.getLogger('DecklinkAVSource[{}]'.format(name))
         super().__init__(name, outputs, has_audio, has_video)
 
         section = 'source.{}'.format(name)
+
         # Device number, default: 0
         self.device = Config.get(section, 'devicenumber', fallback=0)
+
         # Audio connection, default: Automatic
         self.aconn = Config.get(section, 'audio_connection', fallback='auto')
+
         # Video connection, default: Automatic
         self.vconn = Config.get(section, 'video_connection', fallback='auto')
+
         # Video mode, default: 1080i50
         self.vmode = Config.get(section, 'video_mode', fallback='1080i50')
 
@@ -45,10 +48,12 @@ class DeckLinkAVSource(AVSource):
         if self.has_video:
             pipeline += """
                 videoconvert !
-                yadif !
+                {deinterlacer}
                 videoscale !
                 videorate name=deckvideo
-            """
+            """.format(
+                deinterlacer=self.build_deinterlacer()
+            )
         else:
             pipeline += """
                 fakesink
@@ -66,6 +71,13 @@ class DeckLinkAVSource(AVSource):
 
         self.build_pipeline(pipeline, aelem='deckaudio', velem='deckvideo')
         self.pipeline.set_state(Gst.State.PLAYING)
+
+    def build_deinterlacer(self):
+        deinterlacer = super().build_deinterlacer()
+        if deinterlacer != '':
+            deinterlacer += ' !'
+
+        return deinterlacer
 
     def restart(self):
         self.pipeline.set_state(Gst.State.NULL)

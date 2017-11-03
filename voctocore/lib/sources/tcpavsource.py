@@ -10,7 +10,6 @@ ALL_VIDEO_CAPS = Gst.Caps.from_string('video/x-raw')
 
 
 class TCPAVSource(AVSource, TCPSingleConnection):
-
     def __init__(self, name, port, outputs=None,
                  has_audio=True, has_video=True):
         self.log = logging.getLogger('TCPAVSource[{}]'.format(name))
@@ -24,6 +23,7 @@ class TCPAVSource(AVSource, TCPSingleConnection):
         )
 
     def on_accepted(self, conn, addr):
+        deinterlacer = self.build_deinterlacer()
         pipeline = """
             fdsrc fd={fd} blocksize=1048576 !
             queue !
@@ -31,7 +31,19 @@ class TCPAVSource(AVSource, TCPSingleConnection):
         """.format(
             fd=conn.fileno()
         )
-        self.build_pipeline(pipeline, aelem='demux', velem='demux')
+
+        if deinterlacer:
+            pipeline += """
+                demux. !
+                    video/x-raw !
+                    {deinterlacer}
+            """.format(
+                deinterlacer=self.build_deinterlacer()
+            )
+            self.build_pipeline(pipeline, aelem='demux', velem='deinter')
+
+        else:
+            self.build_pipeline(pipeline, aelem='demux', velem='demux')
 
         self.audio_caps = Gst.Caps.from_string(Config.get('mix', 'audiocaps'))
         self.video_caps = Gst.Caps.from_string(Config.get('mix', 'videocaps'))
@@ -40,6 +52,20 @@ class TCPAVSource(AVSource, TCPSingleConnection):
         demux.connect('pad-added', self.on_pad_added)
 
         self.pipeline.set_state(Gst.State.PLAYING)
+
+    def build_deinterlacer(self):
+        deinterlace_config = self.get_deinterlace_config()
+
+        if deinterlace_config == "assume-progressive":
+            deinterlacer = "capssetter " \
+                           "caps=video/x-raw,interlace-mode=progressive"
+        else:
+            deinterlacer = super().build_deinterlacer()
+
+        if deinterlacer != '':
+            deinterlacer += ' name=deinter'
+
+        return deinterlacer
 
     def on_pad_added(self, demux, src_pad):
         caps = src_pad.query_caps(None)
@@ -66,6 +92,8 @@ class TCPAVSource(AVSource, TCPSingleConnection):
                 self.log.warning('   configured caps: %s',
                                  self.video_caps.to_string())
 
+            self.test_and_warn_interlace_mode(caps)
+
     def on_eos(self, bus, message):
         super().on_eos(bus, message)
         if self.currentConnection is not None:
@@ -84,3 +112,19 @@ class TCPAVSource(AVSource, TCPSingleConnection):
     def restart(self):
         if self.currentConnection is not None:
             self.disconnect()
+
+    def test_and_warn_interlace_mode(self, caps):
+        interlace_mode = caps.get_structure(0).get_string('interlace-mode')
+        deinterlace_config = self.get_deinterlace_config()
+
+        if interlace_mode == 'mixed' and deinterlace_config == 'no':
+            self.log.warning(
+                'your source sent an interlace_mode-flag in the matroska-'
+                'container, specifying the source-video-stream is of '
+                'mixed-mode.\n'
+                'this is probably a gstreamer-bug which is triggered with '
+                'recent ffmpeg-versions\n'
+                'setting [source.{name}] deinterlace=assume-progressive '
+                'might help see https://github.com/voc/voctomix/issues/137 '
+                'for more information'.format(name=self.name)
+            )
