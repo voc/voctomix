@@ -8,45 +8,7 @@ from lib.response import NotifyResponse, OkResponse
 from lib.sources import restart_source
 
 
-def decodeName(items, name_or_id):
-    try:
-        id = int(name_or_id)
-        if id < 0 or id >= len(items):
-            raise IndexError("unknown index %d" % id)
-
-        return id
-
-    except ValueError as e:
-        try:
-            return items.index(name_or_id)
-
-        except ValueError as e:
-            raise IndexError("unknown name %s" % name_or_id)
-
-
-def decodeEnumName(enum, name_or_id):
-    try:
-        id = int(name_or_id)
-
-    except ValueError as e:
-        try:
-            return enum[name_or_id]
-
-        except KeyError as e:
-            raise IndexError("unknown name %s" % name_or_id)
-
-    return enum(id)
-
-
-def encodeName(items, id):
-    try:
-        return items[id]
-    except IndexError as e:
-        raise IndexError("unknown index %d" % id)
-
-
 class ControlServerCommands(object):
-
     def __init__(self, pipeline):
         self.log = logging.getLogger('ControlServerCommands')
 
@@ -113,8 +75,8 @@ class ControlServerCommands(object):
         return OkResponse("\n".join(helplines))
 
     def _get_video_status(self):
-        a = encodeName(self.sources, self.pipeline.vmix.getVideoSourceA())
-        b = encodeName(self.sources, self.pipeline.vmix.getVideoSourceB())
+        a = self.sources[self.pipeline.vmix.getVideoSourceA()]
+        b = self.sources[self.pipeline.vmix.getVideoSourceB()]
         return [a, b]
 
     def get_video(self):
@@ -123,21 +85,21 @@ class ControlServerCommands(object):
         status = self._get_video_status()
         return OkResponse('video_status', *status)
 
-    def set_video_a(self, src_name_or_id):
+    def set_video_a(self, src_name):
         """sets the video-source A to the supplied source-name or source-id,
            swapping A and B if the supplied source is currently used as
            video-source B"""
-        src_id = decodeName(self.sources, src_name_or_id)
+        src_id = self.sources.index(src_name)
         self.pipeline.vmix.setVideoSourceA(src_id)
 
         status = self._get_video_status()
         return NotifyResponse('video_status', *status)
 
-    def set_video_b(self, src_name_or_id):
+    def set_video_b(self, src_name):
         """sets the video-source B to the supplied source-name or source-id,
            swapping A and B if the supplied source is currently used as
            video-source A"""
-        src_id = decodeName(self.sources, src_name_or_id)
+        src_id = self.sources.index(src_name)
         self.pipeline.vmix.setVideoSourceB(src_id)
 
         status = self._get_video_status()
@@ -145,29 +107,28 @@ class ControlServerCommands(object):
 
     def _get_audio_status(self):
         volumes = self.pipeline.amix.getAudioVolumes()
-        return '{' + ', '.join(
-            '"{}": {:.4f}'.format(
-                encodeName(self.sources, idx),
-                volumes[idx]
-            ) for idx in range(len(volumes))
-        ) + '}'
+
+        return json.dumps({
+            self.sources[idx]: round(volume, 4)
+            for idx, volume in enumerate(volumes)
+        })
 
     def get_audio(self):
         """gets the current volumes of the audio-sources"""
         status = self._get_audio_status()
         return OkResponse('audio_status', status)
 
-    def set_audio(self, src_name_or_id):
+    def set_audio(self, src_name):
         """sets the audio-source to the supplied source-name or source-id"""
-        src_id = decodeName(self.sources, src_name_or_id)
+        src_id = self.sources.index(src_name)
         self.pipeline.amix.setAudioSource(src_id)
 
         status = self._get_audio_status()
         return NotifyResponse('audio_status', status)
 
-    def set_audio_volume(self, src_name_or_id, volume):
+    def set_audio_volume(self, src_name, volume):
         """sets the volume of the supplied source-name or source-id"""
-        src_id = decodeName(self.sources, src_name_or_id)
+        src_id = self.sources.index(src_name)
         volume = float(volume)
         if volume < 0.0:
             raise ValueError("volume must be positive")
@@ -185,9 +146,9 @@ class ControlServerCommands(object):
         status = self._get_composite_status()
         return OkResponse('composite_mode', status)
 
-    def set_composite_mode(self, mode_name_or_id):
+    def set_composite_mode(self, mode_name):
         """sets the name of the id of the composite-mode"""
-        mode = decodeEnumName(CompositeModes, mode_name_or_id)
+        mode = CompositeModes[mode_name]
         self.pipeline.vmix.setCompositeMode(mode)
 
         composite_status = self._get_composite_status()
@@ -197,23 +158,23 @@ class ControlServerCommands(object):
             NotifyResponse('video_status', *video_status)
         ]
 
-    def set_videos_and_composite(self, src_a_name_or_id, src_b_name_or_id,
-                                 mode_name_or_id):
+    def set_videos_and_composite(self, src_a_name, src_b_name,
+                                 mode_name):
         """sets the A- and the B-source synchronously with the composition-mode
            all parametets can be set to "*" which will leave them unchanged."""
-        if src_a_name_or_id != '*':
-            src_a_id = decodeName(self.sources, src_a_name_or_id)
+        if src_a_name != '*':
+            src_a_id = self.sources.index(src_a_name)
             self.pipeline.vmix.setVideoSourceA(src_a_id)
 
-        if src_b_name_or_id != '*':
-            src_b_id = decodeName(self.sources, src_b_name_or_id)
+        if src_b_name != '*':
+            src_b_id = self.sources.index(src_b_name)
             self.pipeline.vmix.setVideoSourceB(src_b_id)
 
-        if mode_name_or_id != '*':
-            mode = decodeEnumName(CompositeModes, mode_name_or_id)
+        if mode_name != '*':
+            mode = CompositeModes[mode_name]
             called_with_source = \
-                src_a_name_or_id != '*' or \
-                src_b_name_or_id != '*'
+                src_a_name != '*' or \
+                src_b_name != '*'
 
             self.pipeline.vmix.setCompositeMode(
                 mode, apply_default_source=not called_with_source)
@@ -232,17 +193,17 @@ class ControlServerCommands(object):
             if blankSource is None:
                 return ('live',)
 
-            return 'blank', encodeName(self.blankerSources, blankSource)
+            return 'blank', self.blankerSources[blankSource]
 
         def get_stream_status(self):
             """gets the current streamblanker-status"""
             status = self._get_stream_status()
             return OkResponse('stream_status', *status)
 
-        def set_stream_blank(self, source_name_or_id):
+        def set_stream_blank(self, source_name):
             """sets the streamblanker-status to blank with the specified
                blanker-source-name or -id"""
-            src_id = decodeName(self.blankerSources, source_name_or_id)
+            src_id = self.blankerSources.index(source_name)
             self.pipeline.streamblanker.setBlankSource(src_id)
 
             status = self._get_stream_status()
