@@ -8,7 +8,9 @@ from lib.clock import Clock
 
 
 class AVSource(object, metaclass=ABCMeta):
-    def __init__(self, name, outputs=None, has_audio=True, has_video=True):
+    def __init__(self, name, outputs=None,
+                 has_audio=True, has_video=True,
+                 force_num_streams=None):
         if not self.log:
             self.log = logging.getLogger('AVSource[{}]'.format(name))
 
@@ -21,6 +23,7 @@ class AVSource(object, metaclass=ABCMeta):
         self.has_audio = has_audio
         self.has_video = has_video
         self.outputs = outputs
+        self.force_num_streams = force_num_streams
         self.pipeline = None
 
     def __str__(self):
@@ -30,7 +33,11 @@ class AVSource(object, metaclass=ABCMeta):
 
     def build_pipeline(self, pipeline, aelem=None, velem=None):
         if self.has_audio and aelem:
-            for audiostream in range(0, Config.getint('mix', 'audiostreams')):
+            num_streams = self.force_num_streams
+            if num_streams is None:
+                num_streams = Config.getint('mix', 'audiostreams')
+
+            for audiostream in range(0, num_streams):
                 pipeline += """
                     {aelem}.audio_{audiostream} !
                     {acaps} !
@@ -94,7 +101,7 @@ class AVSource(object, metaclass=ABCMeta):
         else:
             raise RuntimeError(
                 "Unknown Deinterlace-Mode on source {} configured: {}"
-                .format(self.name, deinterlace_config))
+                    .format(self.name, deinterlace_config))
 
     def get_deinterlace_config(self):
         section = 'source.{}'.format(self.name)

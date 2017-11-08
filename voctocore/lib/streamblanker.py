@@ -1,4 +1,5 @@
 import logging
+
 from gi.repository import Gst
 
 from lib.config import Config
@@ -18,43 +19,78 @@ class StreamBlanker(object):
 
         self.volume = Config.getfloat('stream-blanker', 'volume')
 
+        # Videomixer
         pipeline = """
             compositor name=vmix !
             {vcaps} !
             queue !
             intervideosink channel=video_stream-blanker_out
+        """.format(
+            vcaps=self.vcaps,
+        )
 
-            audiomixer name=amix !
-            {acaps} !
-            queue !
-            interaudiosink channel=audio_stream-blanker_out
-
-
+        # Source from the Main-Mix
+        pipeline += """
             intervideosrc channel=video_mix_stream-blanker !
             {vcaps} !
             vmix.
-
-            interaudiosrc channel=audio_mix_stream-blanker !
-            {acaps} !
-            amix.
-
-
-            interaudiosrc channel=audio_stream-blanker !
-            {acaps} !
-            amix.
         """.format(
-            acaps=self.acaps,
-            vcaps=self.vcaps
+            vcaps=self.vcaps,
         )
 
+        for audiostream in range(0, Config.getint('mix', 'audiostreams')):
+            # Audiomixer
+            pipeline += """
+                audiomixer name=amix_{audiostream} !
+                {acaps} !
+                queue !
+                interaudiosink channel=audio_stream-blanker_out_stream{audiostream}
+            """.format(
+                acaps=self.acaps,
+                audiostream=audiostream,
+            )
+
+            # Source from the Main-Mix
+            pipeline += """
+                interaudiosrc channel=audio_mix_stream{audiostream}_stream-blanker !
+                {acaps} !
+                amix_{audiostream}.
+            """.format(
+                acaps=self.acaps,
+                audiostream=audiostream,
+            )
+
+            pipeline += "\n\n"
+
+        # Source from the Blank-Audio into a tee
+        pipeline += """
+            interaudiosrc channel=audio_stream-blanker_stream0 !
+            {acaps} !
+            queue !
+            tee name=atee
+        """.format(
+            acaps=self.acaps,
+        )
+
+        for audiostream in range(0, Config.getint('mix', 'audiostreams')):
+            # Source from the Blank-Audio-Tee into the Audiomixer
+            pipeline += """
+                atee. ! queue ! amix_{audiostream}.
+            """.format(
+                audiostream=audiostream,
+            )
+
+        pipeline += "\n\n"
+
         for name in self.names:
+            # Source from the named Blank-Video
             pipeline += """
                 intervideosrc channel=video_stream-blanker-{name} !
                 {vcaps} !
                 vmix.
-            """.format(
+        """.format(
                 name=name,
-                vcaps=self.vcaps
+                vcaps=self.vcaps,
             )
 
         self.log.debug('Creating Mixing-Pipeline:\n%s', pipeline)
@@ -87,26 +123,30 @@ class StreamBlanker(object):
         self.applyMixerStateVideo()
 
     def applyMixerStateAudio(self):
-        mixpad = (self.mixingPipeline.get_by_name('amix')
-                                     .get_static_pad('sink_0'))
-        blankpad = (self.mixingPipeline.get_by_name('amix')
-                                       .get_static_pad('sink_1'))
-
         is_blanked = self.blankSource is not None
-        mixpad.set_property('volume',
-                            0.0 if is_blanked else 1.0)
-        blankpad.set_property('volume',
-                              self.volume if is_blanked else 0.0)
+
+        for audiostream in range(0, Config.getint('mix', 'audiostreams')):
+            mixer = self.mixingPipeline.get_by_name('amix_{}'.format(audiostream))
+            mixpad = mixer.get_static_pad('sink_0')
+            blankpad = mixer.get_static_pad('sink_1')
+
+            mixpad.set_property(
+                'volume',
+                0.0 if is_blanked else 1.0)
+
+            blankpad.set_property(
+                'volume',
+                self.volume if is_blanked else 0.0)
 
     def applyMixerStateVideo(self):
         mixpad = (self.mixingPipeline.get_by_name('vmix')
-                                     .get_static_pad('sink_0'))
+                  .get_static_pad('sink_0'))
         mixpad.set_property('alpha', int(self.blankSource is None))
 
         for idx, name in enumerate(self.names):
             blankpad = (self.mixingPipeline
-                            .get_by_name('vmix')
-                            .get_static_pad('sink_%u' % (idx + 1)))
+                        .get_by_name('vmix')
+                        .get_static_pad('sink_%u' % (idx + 1)))
             blankpad.set_property('alpha', int(self.blankSource == idx))
 
     def setBlankSource(self, source):

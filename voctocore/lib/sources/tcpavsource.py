@@ -12,9 +12,10 @@ ALL_VIDEO_CAPS = Gst.Caps.from_string('video/x-raw')
 
 class TCPAVSource(AVSource, TCPSingleConnection):
     def __init__(self, name, port, outputs=None,
-                 has_audio=True, has_video=True):
+                 has_audio=True, has_video=True,
+                 force_num_streams=None):
         self.log = logging.getLogger('TCPAVSource[{}]'.format(name))
-        AVSource.__init__(self, name, outputs, has_audio, has_video)
+        AVSource.__init__(self, name, outputs, has_audio, has_video, force_num_streams)
         TCPSingleConnection.__init__(self, port)
 
     def __str__(self):
