@@ -62,36 +62,44 @@ class AudioMix(object):
                           self.names[0], 1.0)
             self.volumes[0] = 1.0
 
-        pipeline = """
-            audiomixer name=mix !
-            {caps} !
-            queue !
-            tee name=tee
-
-            tee. ! queue ! interaudiosink channel=audio_mix_out
-        """.format(
-            caps=self.caps
-        )
-
-        if Config.getboolean('previews', 'enabled'):
+        pipeline = ""
+        for audiostream in range(0, Config.getint('mix', 'audiostreams')):
             pipeline += """
-                tee. ! queue ! interaudiosink channel=audio_mix_preview
-            """
-
-        if Config.getboolean('stream-blanker', 'enabled'):
-            pipeline += """
-                tee. ! queue ! interaudiosink channel=audio_mix_stream-blanker
-            """
-
-        for idx, name in enumerate(self.names):
-            pipeline += """
-                interaudiosrc channel=audio_{name}_mixer !
+                audiomixer name=mix_{audiostream} !
                 {caps} !
-                mix.
+                queue !
+                tee name=tee_{audiostream}
+    
+                tee_{audiostream}. ! queue ! interaudiosink channel=audio_mix_out_stream{audiostream}
             """.format(
-                name=name,
-                caps=self.caps
+                caps=self.caps,
+                audiostream=audiostream,
             )
+
+            if Config.getboolean('previews', 'enabled'):
+                pipeline += """
+                    tee_{audiostream}. ! queue ! interaudiosink channel=audio_mix_stream{audiostream}_preview
+                """.format(
+                    audiostream=audiostream,
+                )
+
+            if Config.getboolean('stream-blanker', 'enabled'):
+                pipeline += """
+                    tee_{audiostream}. ! queue ! interaudiosink channel=audio_mix_stream{audiostream}_stream-blanker
+                """.format(
+                    audiostream=audiostream,
+                )
+
+            for idx, name in enumerate(self.names):
+                pipeline += """
+                    interaudiosrc channel=audio_{name}_mixer_stream{audiostream} !
+                    {caps} !
+                    mix_{audiostream}.
+                """.format(
+                    name=name,
+                    caps=self.caps,
+                    audiostream=audiostream,
+                )
 
         self.log.debug('Creating Mixing-Pipeline:\n%s', pipeline)
         self.mixingPipeline = Gst.parse_launch(pipeline)
@@ -116,9 +124,10 @@ class AudioMix(object):
             volume = self.volumes[idx]
 
             self.log.debug('Setting Mixerpad %u to volume=%0.2f', idx, volume)
-            mixerpad = (self.mixingPipeline.get_by_name('mix')
-                        .get_static_pad('sink_%u' % idx))
-            mixerpad.set_property('volume', volume)
+            for audiostream in range(0, Config.getint('mix', 'audiostreams')):
+                mixerpad = (self.mixingPipeline.get_by_name('mix_{}'.format(audiostream))
+                            .get_static_pad('sink_%u' % idx))
+                mixerpad.set_property('volume', volume)
 
     def setAudioSource(self, source):
         self.volumes = [float(idx == source) for idx in range(len(self.names))]
