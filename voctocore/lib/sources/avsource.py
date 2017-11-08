@@ -30,22 +30,25 @@ class AVSource(object, metaclass=ABCMeta):
 
     def build_pipeline(self, pipeline, aelem=None, velem=None):
         if self.has_audio and aelem:
-            pipeline += """
-                {aelem}. !
-                {acaps} !
-                queue !
-                tee name=atee
-            """.format(
-                aelem=aelem,
-                acaps=Config.get('mix', 'audiocaps')
-            )
-
-            for output in self.outputs:
+            for audiostream in range(0, Config.getint('mix', 'audiostreams')):
                 pipeline += """
-                    atee. ! queue ! interaudiosink channel=audio_{output}
+                    {aelem}.audio_{audiostream} !
+                    {acaps} !
+                    queue !
+                    tee name=atee_stream{audiostream}
                 """.format(
-                    output=output
+                    aelem=aelem,
+                    acaps=Config.get('mix', 'audiocaps'),
+                    audiostream=audiostream,
                 )
+
+                for output in self.outputs:
+                    pipeline += """
+                        atee_stream{audiostream}. ! queue ! interaudiosink channel=audio_{output}_stream{audiostream}
+                    """.format(
+                        output=output,
+                        audiostream=audiostream,
+                    )
 
         if self.has_video and velem:
             pipeline += """
