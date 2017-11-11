@@ -32,6 +32,12 @@ class DeckLinkAVSource(AVSource):
         self.required_input_channels = self._calculate_required_input_channels()
         self.log.info("configuring decklink-input to %u channels", self.required_input_channels)
 
+        minGstMultiChannels = (1, 12, 3)
+        if self.required_input_channels > 2 and Gst.version() < minGstMultiChannels:
+            self.log.warning(
+                'GStreamer version %s is probably too to use more then 2 channels on your decklink source. officially supported since %s',
+                tuple(Gst.version()), minGstMultiChannels)
+
         self.launch_pipeline()
 
     def _calculate_required_input_channels(self):
