@@ -29,6 +29,8 @@ class DeckLinkAVSource(AVSource):
         self.audiostream_map = self._parse_audiostream_map(section)
         self.log.info("audiostream_map: %s", self.audiostream_map)
 
+        self._warn_incorrect_number_of_streams()
+
         self.required_input_channels = self._calculate_required_input_channels()
         self.log.info("configuring decklink-input to %u channels", self.required_input_channels)
 
@@ -90,6 +92,13 @@ class DeckLinkAVSource(AVSource):
             return (int(m.group(1)), int(m.group(2)),)
         else:
             return (int(mapping), None,)
+
+    def _warn_incorrect_number_of_streams(self):
+        num_streams = Config.getint('mix', 'audiostreams')
+        for audiostream, mapping in self.audiostream_map.items():
+            if audiostream >= num_streams:
+                raise RuntimeError("Mapping-Configuration for Stream 0 to {} found, but only {} enabled"
+                                   .format(audiostream, num_streams))
 
     def __str__(self):
         return 'DecklinkAVSource[{name}] reading card #{device}'.format(
