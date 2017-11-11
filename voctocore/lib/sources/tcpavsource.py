@@ -42,10 +42,10 @@ class TCPAVSource(AVSource, TCPSingleConnection):
             """.format(
                 deinterlacer=self.build_deinterlacer()
             )
-            self.build_pipeline(pipeline, aelem='demux', velem='deinter')
+            self.build_pipeline(pipeline)
 
         else:
-            self.build_pipeline(pipeline, aelem='demux', velem='demux')
+            self.build_pipeline(pipeline)
 
         self.audio_caps = Gst.Caps.from_string(Config.get('mix', 'audiocaps'))
         self.video_caps = Gst.Caps.from_string(Config.get('mix', 'videocaps'))
@@ -108,6 +108,16 @@ class TCPAVSource(AVSource, TCPSingleConnection):
     def restart(self):
         if self.currentConnection is not None:
             self.disconnect()
+
+    def build_audioport(self, audiostream):
+        return 'demux.audio_{}'.format(audiostream)
+
+    def build_videoport(self):
+        deinterlacer = self.build_deinterlacer()
+        if deinterlacer:
+            return 'deinter.'
+        else:
+            return 'demux.'
 
     def test_and_warn_interlace_mode(self, caps):
         interlace_mode = caps.get_structure(0).get_string('interlace-mode')

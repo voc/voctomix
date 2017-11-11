@@ -31,20 +31,20 @@ class AVSource(object, metaclass=ABCMeta):
             name=self.name
         )
 
-    def build_pipeline(self, pipeline, aelem=None, velem=None):
-        if self.has_audio and aelem:
+    def build_pipeline(self, pipeline):
+        if self.has_audio:
             num_streams = self.force_num_streams
             if num_streams is None:
                 num_streams = Config.getint('mix', 'audiostreams')
 
             for audiostream in range(0, num_streams):
                 pipeline += """
-                    {aelem}.audio_{audiostream} !
+                    {audioport} !
                     {acaps} !
                     queue !
                     tee name=atee_stream{audiostream}
                 """.format(
-                    aelem=aelem,
+                    audioport=self.build_audioport(audiostream),
                     acaps=Config.get('mix', 'audiocaps'),
                     audiostream=audiostream,
                 )
@@ -57,14 +57,14 @@ class AVSource(object, metaclass=ABCMeta):
                         audiostream=audiostream,
                     )
 
-        if self.has_video and velem:
+        if self.has_video:
             pipeline += """
-                {velem}. !
+                {videoport} !
                 {vcaps} !
                 queue !
                 tee name=vtee
             """.format(
-                velem=velem,
+                videoport=self.build_videoport(),
                 deinterlacer=self.build_deinterlacer(),
                 vcaps=Config.get('mix', 'videocaps')
             )
@@ -115,6 +115,14 @@ class AVSource(object, metaclass=ABCMeta):
         self.log.warning('Received Error-Signal on Source-Pipeline')
         (error, debug) = message.parse_error()
         self.log.debug('Error-Details: #%u: %s', error.code, debug)
+
+    @abstractmethod
+    def build_audioport(self, audiostream):
+        raise NotImplementedError('build_audioport not implemented for this source')
+
+    @abstractmethod
+    def build_videoport(self):
+        raise NotImplementedError('build_videoport not implemented for this source')
 
     @abstractmethod
     def restart(self):

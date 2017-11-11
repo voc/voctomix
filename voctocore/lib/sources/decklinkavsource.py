@@ -70,7 +70,7 @@ class DeckLinkAVSource(AVSource):
                 conn=self.aconn
             )
 
-        self.build_pipeline(pipeline, aelem='deckaudio', velem='deckvideo')
+        self.build_pipeline(pipeline)
         self.pipeline.set_state(Gst.State.PLAYING)
 
     def build_deinterlacer(self):
@@ -79,6 +79,12 @@ class DeckLinkAVSource(AVSource):
             deinterlacer += ' !'
 
         return deinterlacer
+
+    def build_audioport(self, audiostream):
+        return 'deckaudio'
+
+    def build_videoport(self):
+        return 'deckvideo'
 
     def restart(self):
         self.pipeline.set_state(Gst.State.NULL)
