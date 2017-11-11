@@ -26,37 +26,57 @@ class DeckLinkAVSource(AVSource):
         # Video mode, default: 1080i50
         self.vmode = Config.get(section, 'video_mode', fallback='1080i50')
 
-        self.audiostream_map = {}
-        for key in Config[section]:
-            value = Config.get(section, key)
-            m = re.match('audiostream\[(\d+)\]', key)
-            if m:
-                audiostream = int(m.group(1))
-                self.audiostream_map[audiostream] = value
-
-        if len(self.audiostream_map) == 0:
-            self.log.info("no audiostream-mapping defined, defaulting to mapping channel 0+1 to first stream")
-            self.audiostream_map = {0: '0+1'}
-
+        self.audiostream_map = self._parse_audiostream_map(section)
         self.log.info("audiostream_map: %s", self.audiostream_map)
 
-        self.required_input_channels = 0
-        for audiostream, mapping in self.audiostream_map.items():
-            left, right = self._parse_audiostream_mapping(mapping)
-            self.required_input_channels = max(self.required_input_channels, left + 1)
-            if right:
-                self.required_input_channels = max(self.required_input_channels, right + 1)
-
-        if self.required_input_channels > 8:
-            self.required_input_channels = 16
-        elif self.required_input_channels > 2:
-            self.required_input_channels = 8
-        else:
-            self.required_input_channels = 2
-
+        self.required_input_channels = self._calculate_required_input_channels()
         self.log.info("configuring decklink-input to %u channels", self.required_input_channels)
 
         self.launch_pipeline()
+
+    def _calculate_required_input_channels(self):
+        required_input_channels = 0
+        for audiostream, mapping in self.audiostream_map.items():
+            left, right = self._parse_audiostream_mapping(mapping)
+            required_input_channels = max(required_input_channels, left + 1)
+            if right:
+                required_input_channels = max(required_input_channels, right + 1)
+
+        required_input_channels = self._round_decklink_channels(required_input_channels)
+
+        return required_input_channels
+
+    def _round_decklink_channels(self, required_input_channels):
+        if required_input_channels > 16:
+            raise RuntimeError("Decklink-Devices support up to 16 Channels, you requested {}".format(
+                required_input_channels))
+
+        elif required_input_channels > 8:
+            required_input_channels = 16
+
+        elif required_input_channels > 2:
+            required_input_channels = 8
+
+        else:
+            required_input_channels = 2
+
+        return required_input_channels
+
+    def _parse_audiostream_map(self, config_section):
+        audiostream_map = {}
+
+        for key in Config[config_section]:
+            value = Config.get(config_section, key)
+            m = re.match('audiostream\[(\d+)\]', key)
+            if m:
+                audiostream = int(m.group(1))
+                audiostream_map[audiostream] = value
+
+        if len(audiostream_map) == 0:
+            self.log.info("no audiostream-mapping defined, defaulting to mapping channel 0+1 to first stream")
+            audiostream_map = {0: '0+1'}
+
+        return audiostream_map
 
     def _parse_audiostream_mapping(self, mapping):
         m = re.match('(\d+)\+(\d+)', mapping)
