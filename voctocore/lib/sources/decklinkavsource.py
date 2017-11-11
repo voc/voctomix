@@ -34,9 +34,36 @@ class DeckLinkAVSource(AVSource):
                 audiostream = int(m.group(1))
                 self.audiostream_map[audiostream] = value
 
+        if len(self.audiostream_map) == 0:
+            self.log.info("no audiostream-mapping defined, defaulting to mapping channel 0+1 to first stream")
+            self.audiostream_map = {0: '0+1'}
+
         self.log.info("audiostream_map: %s", self.audiostream_map)
 
+        self.required_input_channels = 0
+        for audiostream, mapping in self.audiostream_map.items():
+            left, right = self._parse_audiostream_mapping(mapping)
+            self.required_input_channels = max(self.required_input_channels, left + 1)
+            if right:
+                self.required_input_channels = max(self.required_input_channels, right + 1)
+
+        if self.required_input_channels > 8:
+            self.required_input_channels = 16
+        elif self.required_input_channels > 2:
+            self.required_input_channels = 8
+        else:
+            self.required_input_channels = 2
+
+        self.log.info("configuring decklink-input to %u channels", self.required_input_channels)
+
         self.launch_pipeline()
+
+    def _parse_audiostream_mapping(self, mapping):
+        m = re.match('(\d+)\+(\d+)', mapping)
+        if m:
+            return (int(m.group(1)), int(m.group(2)),)
+        else:
+            return (int(mapping), None,)
 
     def __str__(self):
         return 'DecklinkAVSource[{name}] reading card #{device}'.format(
@@ -48,11 +75,12 @@ class DeckLinkAVSource(AVSource):
         # A video source is required even when we only need audio
         pipeline = """
             decklinkvideosrc
-                channels=16
+                {channels}
                 device-number={device}
                 connection={conn}
                 mode={mode} !
         """.format(
+            channels="channels={}".format(self.required_input_channels) if self.required_input_channels > 2 else "",
             device=self.device,
             conn=self.vconn,
             mode=self.vmode
@@ -83,13 +111,13 @@ class DeckLinkAVSource(AVSource):
             )
 
             for audiostream, mapping in self.audiostream_map.items():
-                m = re.match('(\d+)\+(\d+)', mapping)
-                if m:
+                left, right = self._parse_audiostream_mapping(mapping)
+                if right != None:
                     self.log.info(
                         "mapping decklink input-channels {left} and {right} as left and right "
                         "to output-stream {audiostream}".format(
-                            left=m.group(1),
-                            right=m.group(2),
+                            left=left,
+                            right=right,
                             audiostream=audiostream))
 
                     pipeline += """
@@ -98,15 +126,15 @@ class DeckLinkAVSource(AVSource):
                         aout.src_{left} ! queue ! i{audiostream}.sink_0
                         aout.src_{right} ! queue ! i{audiostream}.sink_1
                     """.format(
-                        left=m.group(1),
-                        right=m.group(2),
+                        left=left,
+                        right=right,
                         audiostream=audiostream
                     )
                 else:
                     self.log.info(
                         "mapping decklink input-channel {channel} as left and right "
                         "to output-stream {audiostream}".format(
-                            channel=mapping,
+                            channel=left,
                             audiostream=audiostream))
 
                     pipeline += """
@@ -116,7 +144,7 @@ class DeckLinkAVSource(AVSource):
                         t{audiostream}. ! queue ! i{audiostream}.sink_0
                         t{audiostream}. ! queue ! i{audiostream}.sink_1
                     """.format(
-                        channel=mapping,
+                        channel=left,
                         audiostream=audiostream
                     )
 
@@ -131,7 +159,7 @@ class DeckLinkAVSource(AVSource):
         return deinterlacer
 
     def build_audioport(self, audiostream):
-        if self.audiostream_map[audiostream]:
+        if audiostream in self.audiostream_map:
             return 'i{}.'.format(audiostream)
 
     def build_videoport(self):
