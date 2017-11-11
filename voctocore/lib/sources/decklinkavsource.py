@@ -29,6 +29,11 @@ class DeckLinkAVSource(AVSource):
         self.audiostream_map = self._parse_audiostream_map(section)
         self.log.info("audiostream_map: %s", self.audiostream_map)
 
+        self.fallback_default = False
+        if len(self.audiostream_map) == 0:
+            self.log.info("no audiostream-mapping defined, defaulting to mapping channel 0+1 to first stream")
+            self.fallback_default = True
+
         self._warn_incorrect_number_of_streams()
 
         self.required_input_channels = self._calculate_required_input_channels()
@@ -79,10 +84,6 @@ class DeckLinkAVSource(AVSource):
             if m:
                 audiostream = int(m.group(1))
                 audiostream_map[audiostream] = value
-
-        if len(audiostream_map) == 0:
-            self.log.info("no audiostream-mapping defined, defaulting to mapping channel 0+1 to first stream")
-            audiostream_map = {0: '0+1'}
 
         return audiostream_map
 
@@ -138,11 +139,13 @@ class DeckLinkAVSource(AVSource):
                 decklinkaudiosrc
                     {channels}
                     device-number={device}
-                    connection={conn} ! deinterleave name=aout
+                    connection={conn}
+                    {output}
             """.format(
                 channels="channels={}".format(self.required_input_channels) if self.required_input_channels > 2 else "",
                 device=self.device,
-                conn=self.aconn
+                conn=self.aconn,
+                output="name=aout" if self.fallback_default else "! deinterleave name=aout",
             )
 
             for audiostream, mapping in self.audiostream_map.items():
@@ -194,6 +197,9 @@ class DeckLinkAVSource(AVSource):
         return deinterlacer
 
     def build_audioport(self, audiostream):
+        if self.fallback_default and audiostream == 0:
+            return "aout."
+
         if audiostream in self.audiostream_map:
             return 'i{}.'.format(audiostream)
 
