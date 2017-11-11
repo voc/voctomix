@@ -101,12 +101,10 @@ class DeckLinkAVSource(AVSource):
         # A video source is required even when we only need audio
         pipeline = """
             decklinkvideosrc
-                {channels}
                 device-number={device}
                 connection={conn}
                 mode={mode} !
         """.format(
-            channels="channels={}".format(self.required_input_channels) if self.required_input_channels > 2 else "",
             device=self.device,
             conn=self.vconn,
             mode=self.vmode
@@ -129,9 +127,11 @@ class DeckLinkAVSource(AVSource):
         if self.has_audio:
             pipeline += """
                 decklinkaudiosrc
+                    {channels}
                     device-number={device}
                     connection={conn} ! deinterleave name=aout
             """.format(
+                channels="channels={}".format(self.required_input_channels) if self.required_input_channels > 2 else "",
                 device=self.device,
                 conn=self.aconn
             )
