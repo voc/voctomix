@@ -38,13 +38,17 @@ class AVSource(object, metaclass=ABCMeta):
                 num_streams = Config.getint('mix', 'audiostreams')
 
             for audiostream in range(0, num_streams):
+                audioport = self.build_audioport(audiostream)
+                if not audioport:
+                    continue
+
                 pipeline += """
                     {audioport} !
                     {acaps} !
                     queue !
                     tee name=atee_stream{audiostream}
                 """.format(
-                    audioport=self.build_audioport(audiostream),
+                    audioport=audioport,
                     acaps=Config.get('mix', 'audiocaps'),
                     audiostream=audiostream,
                 )
