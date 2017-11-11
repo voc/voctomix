@@ -1,4 +1,5 @@
 import logging
+
 from gi.repository import Gst
 
 from lib.config import Config
@@ -47,8 +48,8 @@ class DeckLinkAVSource(AVSource):
 
         if self.has_video:
             pipeline += """
-                videoconvert !
                 {deinterlacer}
+                videoconvert !
                 videoscale !
                 videorate name=deckvideo
             """.format(
