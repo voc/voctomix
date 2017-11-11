@@ -1,5 +1,4 @@
 import logging
-from configparser import NoOptionError
 
 # import library components
 from lib.config import Config
@@ -76,8 +75,8 @@ class Pipeline(object):
 
         if Config.getboolean('previews', 'enabled'):
             port = 12000
-            self.log.info('Creating Preview-Output for AVSource %s '
-                          'at tcp-port %u', name, port)
+            self.log.info('Creating Preview-Output for Mix'
+                          'at tcp-port %u', port)
 
             self.mixpreview = AVPreviewOutput('mix_preview', port)
 
