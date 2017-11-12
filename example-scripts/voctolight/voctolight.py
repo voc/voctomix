@@ -4,6 +4,7 @@ from lib.config import Config
 DO_GPIO = True
 try:
     import RPi.GPIO as GPIO
+    GPIO.setmode(GPIO.BOARD)
 except ModuleNotFoundError:
     DO_GPIO = False
 
