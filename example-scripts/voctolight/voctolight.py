@@ -16,7 +16,8 @@ class TallyHandling:
         self.state = ''
         self.stream_status = ''
         self.gpio_port = int(gpio_port)
-        GPIO.setup(self.gpio_port, GPIO.OUT)
+        if DO_GPIO:
+            GPIO.setup(self.gpio_port, GPIO.OUT)
 
     def set_state(self, state):
         self.state = state
@@ -29,14 +30,12 @@ class TallyHandling:
     def tally_on(self):
         if DO_GPIO:
             GPIO.output(self.gpio_port, GPIO.HIGH)
-        else:
-            print('Tally on')
+        print('Tally on')
 
     def tally_off(self):
         if DO_GPIO:
             GPIO.output(self.gpio_port, GPIO.LOW)
-        else:
-            print('Tally off')
+        print('Tally off')
 
     def video_change(self, source_a, source_b):
         if self.stream_status == 'live':
