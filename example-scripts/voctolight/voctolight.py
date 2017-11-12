@@ -15,7 +15,6 @@ class TallyHandling:
     def __init__(self, source, gpio_port, all_gpios=()):
         self.source = source
         self.state = ''
-        self.stream_status = ''
         self.gpio_port = gpio_port
         if DO_GPIO:
             GPIO.setup(all_gpios, GPIO.OUT)
@@ -23,11 +22,6 @@ class TallyHandling:
 
     def set_state(self, state):
         self.state = state
-
-    def set_stream_status(self, status):
-        self.stream_status = status
-        if status.split(' ')[0] == 'blank':
-            self.tally_off()
 
     def tally_on(self):
         if DO_GPIO:
@@ -40,17 +34,16 @@ class TallyHandling:
         print('Tally off')
 
     def video_change(self, source_a, source_b):
-        if self.stream_status == 'live':
-            if self.state == 'fullscreen':
-                if source_a == self.source:
-                    self.tally_on()
-                else:
-                    self.tally_off()
+        if self.state == 'fullscreen':
+            if source_a == self.source:
+                self.tally_on()
             else:
-                if self.source in (source_a, source_b):
-                    self.tally_on()
-                else:
-                    self.tally_off()
+                self.tally_off()
+        else:
+            if self.source in (source_a, source_b):
+                self.tally_on()
+            else:
+                self.tally_off()
 
 
 def start_connection(tally_handler):
@@ -86,11 +79,6 @@ def start_connection(tally_handler):
         elif message[:12] == 'video_status':
             source_a, source_b = message[13:].split(' ')
             tally_handler.video_change(source_a, source_b)
-        elif message[:13] == 'stream_status':
-            status = message[14:]
-            tally_handler.set_stream_status(status)
-            if status == 'live':
-                sock.send(b'get_video\n')
 
 
 if __name__ in '__main__':
@@ -102,4 +90,5 @@ if __name__ in '__main__':
         start_connection(tally_handler)
     finally:
         print('cleanup')
-        GPIO.cleanup()
+        if DO_GPIO:
+            GPIO.cleanup()
