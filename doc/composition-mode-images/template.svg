@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1920"
+    height="1080"
+    version="1.1"
+    viewBox="0 0 1920 1080"
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+  <g id="background" inkscape:groupmode="layer">
+    <rect width="1920" height="1080" style="fill:#fff"/>
+  </g>
+  <g id="full_camera" inkscape:groupmode="layer" style="display:none">
+    <g id="camera" style="display:inline">
+      <rect width="1920" height="1080" style="fill:#0f0"/>
+      <path d="
+m 720.00 1065.00
+v -360.00 360.00
+h 480.00
+v -360.00 360.00
+h 180.00
+c 0 -360.00
+  -30.00 -540.00
+  -330.00 -540.00
+  240.00 -450.00
+  -420.00 -450.00
+  -180.00 0
+  -300.00 0
+  -330.00 180.00
+  -330.00 540.00
+z
+"
+          style="display:inline;fill-rule:evenodd;fill:#001eff;
+                 stroke-linejoin:round;stroke-width:30;stroke:#004fff"/>
+    </g>
+  </g>
+  <g id="full_slide" inkscape:groupmode="layer" style="display:none">
+    <g id="slide" style="display:inline">
+      <rect width="1920" height="1080" style="fill:#000080"/>
+      <rect x="240.0" y="216.0"
+          width="1440.00" height="216.00"
+          ry="54.00" style="fill:#8080ff"/>
+    </g>
+  </g>
+  <g id="side_by_side_preview" inkscape:groupmode="layer" style="display:none">
+    <use transform="matrix(0.739583 0 0 0.739815
+                           20 160)"
+        width="100%" height="100%"
+        xlink:href="#slide"/>
+    <use transform="matrix(0.258333 0 0 0.258333
+                           1404 781)"
+        width="100%" height="100%"
+        xlink:href="#camera"/>
+  </g>
+  <g id="side_by_side_equal" inkscape:groupmode="layer">
+    <use transform="matrix(0.494792 0 0 0.494792 0 160)"
+        width="100%" height="100%"
+        xlink:href="#slide"/>
+    <use transform="matrix(0.494792 0 0 0.494792
+                           970.0 480)"
+        width="100%" height="100%"
+        xlink:href="#camera"/>
+  </g>
+</svg>
+
