@@ -1,3 +1,4 @@
+#!/bin/env python3
 import socket
 from lib.config import Config
 
