@@ -12,13 +12,13 @@ except ModuleNotFoundError:
 
 class TallyHandling:
 
-    def __init__(self, source, gpio_port):
+    def __init__(self, source, gpio_port, all_gpios=()):
         self.source = source
         self.state = ''
         self.stream_status = ''
-        self.gpio_port = int(gpio_port)
+        self.gpio_port = gpio_port
         if DO_GPIO:
-            GPIO.setup(self.gpio_port, GPIO.OUT)
+            GPIO.setup(all_gpios, GPIO.OUT, GPIO.HIGH)
 
     def set_state(self, state):
         self.state = state
@@ -94,7 +94,10 @@ def start_connection(tally_handler):
 
 if __name__ in '__main__':
     try:
-        tally_handler = TallyHandling(Config.get('light', 'cam'), Config.get('light', 'gpio_red'))
+        all_gpios = Config.get('light', 'gpios').split(',')
+        all_gpios = [int(i) for i in all_gpios]
+        tally_handler = TallyHandling(Config.get('light', 'cam'), int(Config.get('light', 'gpio_red')),
+                                      all_gpios=all_gpios)
         start_connection(tally_handler)
     finally:
         print('cleanup')
