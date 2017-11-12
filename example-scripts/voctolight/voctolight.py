@@ -92,5 +92,9 @@ def start_connection(tally_handler):
 
 
 if __name__ in '__main__':
-    tally_handler = TallyHandling(Config.get('light', 'cam'), Config.get('light', 'gpio_red'))
-    start_connection(tally_handler)
+    try:
+        tally_handler = TallyHandling(Config.get('light', 'cam'), Config.get('light', 'gpio_red'))
+        start_connection(tally_handler)
+    finally:
+        print('cleanup')
+        GPIO.cleanup()
