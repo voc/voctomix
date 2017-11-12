@@ -16,6 +16,7 @@ class TallyHandling:
         self.state = ''
         self.stream_status = ''
         self.gpio_port = int(gpio_port)
+        GPIO.setup(self.gpio_port, GPIO.OUT)
 
     def set_state(self, state):
         self.state = state
