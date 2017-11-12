@@ -2,8 +2,6 @@ import logging
 
 import os.path
 from configparser import ConfigParser
-from lib.args import Args
-import lib.connection as Connection
 
 __all__ = ['Config']
 
@@ -33,9 +31,6 @@ files = [
     '/etc/voctolight.ini',
     os.path.expanduser('~/.voctolight.ini'),
 ]
-
-if Args.ini_file is not None:
-    files.append(Args.ini_file)
 
 Config = ConfigParser()
 Config.read(files)
