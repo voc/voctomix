@@ -1,112 +1,94 @@
 #!/usr/bin/env python3
-import sys
-import os
-import signal
-import logging
-import RPi.GPIO as GPIO
-
-# import things reused from voctogui
-# todo discuss if a libvocto would be usefull
-from lib.connection import Connection
-
+import socket
 from lib.config import Config
-from lib.loghandler import LogHandler
-from lib.args import Args
 
-# voctolight class
-class Voctolight(object):
-
-    def __init__(self, conn):
-        self.log = logging.getLogger('Voctolight')
-
-        self.conn = conn 
-
-        self.gpio = int(Config.get('light', 'gpio'))
-        self.log.debug(self.gpio)
-
-        self.cam = Config.get('light', 'cam')
-        self.log.debug(self.cam)
-
-        self.comp = self.conn.fetch_composit_mode()
-        self.log.debug(self.comp)
-
-        self.video = self.conn.fetch_video()
-        self.log.debug(self.video)
-
-        # switch connection to nonblocking, event-driven mode
-        self.conn.enterNonblockingMode()
-
-    def led_on(self):
-        GPIO.output(self.gpio, GPIO.HIGH)
-        self.log.debug('Switching LED on')
-
-    def led_off(self):
-        GPIO.output(self.gpio, GPIO.LOW)
-        self.log.debug('Switching LED off')
-
-    def led_status(self):
-        self.log.debug('LED status is TBD')
-
-    def led_blink(self):
-        self.log.debug('LED will blink')
-
-    def run(self):
-        # set initial LED state
-        if self.video[0] == self.cam:
-            self.led_on()
-        elif self.video[1] == self.cam and self.comp != 'fullscreen':
-            self.led_on()
-        else:
-            self.led_off()
-
-        #todo register events
-
-
-# prepare start of voctolight
-def main():
-    # configure logging
-    docolor = (Args.color == 'always') or (Args.color == 'auto' and
-                                           sys.stderr.isatty())
-
-    handler = LogHandler(docolor, Args.timestamp)
-    logging.root.addHandler(handler)
-
-    if Args.verbose >= 2:
-        level = logging.DEBUG
-    elif Args.verbose == 1:
-        level = logging.INFO
-    else:
-        level = logging.WARNING
-
-    logging.root.setLevel(level)
-
-    # make killable by ctrl-c
-    logging.debug('setting SIGINT handler')
-    signal.signal(signal.SIGINT, signal.SIG_DFL)
-
-    logging.info('Python Version: %s', sys.version_info)
-
-    # establish a synchronus connection to server
-    conn = Connection()
-    conn.establish(
-        Args.host if Args.host else Config.get('server', 'host')
-    )
-
-    # fetch config from server
-    Config.fetchServerConfig(conn)
-
-    # set LED GPIO
+DO_GPIO = True
+try:
+    import RPi.GPIO as GPIO
     GPIO.setmode(GPIO.BOARD)
-    GPIO.setwarnings(False)
-    GPIO.setup(11, GPIO.OUT)
+except ModuleNotFoundError:
+    DO_GPIO = False
 
-    # check if the core uses the same cam name
-    if Config.get('light', 'cam') not in Config.get('mix', 'sources'):
-        logging.error('Voctocore is not configured for the same cam as voctolight')
-        sys.exit(-1)
 
-    voctolight = Voctolight(conn)
-    voctolight.run()
+class TallyHandling:
 
-if __name__ == '__main__':
-    main()
+    def __init__(self, source, gpio_port, all_gpios=()):
+        self.source = source
+        self.state = ''
+        self.gpio_port = gpio_port
+        if DO_GPIO:
+            GPIO.setup(all_gpios, GPIO.OUT)
+            GPIO.output(all_gpios, GPIO.HIGH)
+
+    def set_state(self, state):
+        self.state = state
+
+    def tally_on(self):
+        if DO_GPIO:
+            GPIO.output(self.gpio_port, GPIO.LOW)
+        print('Tally on')
+
+    def tally_off(self):
+        if DO_GPIO:
+            GPIO.output(self.gpio_port, GPIO.HIGH)
+        print('Tally off')
+
+    def video_change(self, source_a, source_b):
+        if self.state == 'fullscreen':
+            if source_a == self.source:
+                self.tally_on()
+            else:
+                self.tally_off()
+        else:
+            if self.source in (source_a, source_b):
+                self.tally_on()
+            else:
+                self.tally_off()
+
+
+def start_connection(tally_handler):
+
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+    try:
+        sock.connect((Config.get('server', 'host'), 9999))
+    except TimeoutError:
+        start_connection(tally_handler)
+
+    messages = []
+    sock.send(b'get_composite_mode\n')
+    sock.send(b'get_video\n')
+    sock.send(b'get_stream_status\n')
+    while True:
+        if len(messages) == 0:
+            message = sock.recv(2048)
+            message = str(message, 'utf-8')
+
+            if not message:
+                start_connection(tally_handler)
+                break
+            messages = message.split('\n')
+
+        message = messages[0]
+
+        if len(messages) != 0:
+            messages = messages[1:]
+
+        if message[:14] == 'composite_mode':
+            tally_handler.set_state(message[15:])
+        elif message[:12] == 'video_status':
+            source_a, source_b = message[13:].split(' ')
+            tally_handler.video_change(source_a, source_b)
+
+
+if __name__ in '__main__':
+    try:
+        all_gpios = Config.get('light', 'gpios').split(',')
+        all_gpios = [int(i) for i in all_gpios]
+        tally_handler = TallyHandling(Config.get('light', 'cam'), int(Config.get('light', 'gpio_red')),
+                                      all_gpios=all_gpios)
+        start_connection(tally_handler)
+    finally:
+        print('cleanup')
+        if DO_GPIO:
+            GPIO.cleanup()
