@@ -29,12 +29,12 @@ class TallyHandling:
 
     def tally_on(self):
         if DO_GPIO:
-            GPIO.output(self.gpio_port, GPIO.HIGH)
+            GPIO.output(self.gpio_port, GPIO.LOW)
         print('Tally on')
 
     def tally_off(self):
         if DO_GPIO:
-            GPIO.output(self.gpio_port, GPIO.LOW)
+            GPIO.output(self.gpio_port, GPIO.HIGH)
         print('Tally off')
 
     def video_change(self, source_a, source_b):
