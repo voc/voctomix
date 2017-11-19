@@ -44,7 +44,8 @@ class StreamBlanker(object):
                 audiomixer name=amix_{audiostream} !
                 {acaps} !
                 queue !
-                interaudiosink channel=audio_stream-blanker_out_stream{audiostream}
+                interaudiosink
+                    channel=audio_stream-blanker_out_stream{audiostream}
             """.format(
                 acaps=self.acaps,
                 audiostream=audiostream,
@@ -52,7 +53,8 @@ class StreamBlanker(object):
 
             # Source from the Main-Mix
             pipeline += """
-                interaudiosrc channel=audio_mix_stream{audiostream}_stream-blanker !
+                interaudiosrc
+                    channel=audio_mix_stream{audiostream}_stream-blanker !
                 {acaps} !
                 amix_{audiostream}.
             """.format(
@@ -126,7 +128,8 @@ class StreamBlanker(object):
         is_blanked = self.blankSource is not None
 
         for audiostream in range(0, Config.getint('mix', 'audiostreams')):
-            mixer = self.mixingPipeline.get_by_name('amix_{}'.format(audiostream))
+            mixer = self.mixingPipeline.get_by_name(
+                'amix_{}'.format(audiostream))
             mixpad = mixer.get_static_pad('sink_0')
             blankpad = mixer.get_static_pad('sink_1')
 

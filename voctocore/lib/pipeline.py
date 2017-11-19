@@ -99,7 +99,10 @@ class Pipeline(object):
             self.log.info('Creating StreamBlanker ASource at tcp-port %u',
                           port)
 
-            source = spawn_source('stream-blanker', port, has_video=False, force_num_streams=1)
+            source = spawn_source('stream-blanker',
+                                  port,
+                                  has_video=False,
+                                  force_num_streams=1)
             self.sbsources.append(source)
 
             self.log.info('Creating StreamBlanker')

@@ -55,7 +55,8 @@ class AVSource(object, metaclass=ABCMeta):
 
                 for output in self.outputs:
                     pipeline += """
-                        atee_stream{audiostream}. ! queue ! interaudiosink channel=audio_{output}_stream{audiostream}
+                        atee_stream{audiostream}. ! queue ! interaudiosink
+                            channel=audio_{output}_stream{audiostream}
                     """.format(
                         output=output,
                         audiostream=audiostream,
@@ -104,8 +105,8 @@ class AVSource(object, metaclass=ABCMeta):
 
         else:
             raise RuntimeError(
-                "Unknown Deinterlace-Mode on source {} configured: {}"
-                    .format(self.name, deinterlace_config))
+                "Unknown Deinterlace-Mode on source {} configured: {}".
+                format(self.name, deinterlace_config))
 
     def get_deinterlace_config(self):
         section = 'source.{}'.format(self.name)
@@ -122,11 +123,13 @@ class AVSource(object, metaclass=ABCMeta):
 
     @abstractmethod
     def build_audioport(self, audiostream):
-        raise NotImplementedError('build_audioport not implemented for this source')
+        raise NotImplementedError(
+            'build_audioport not implemented for this source')
 
     @abstractmethod
     def build_videoport(self):
-        raise NotImplementedError('build_videoport not implemented for this source')
+        raise NotImplementedError(
+            'build_videoport not implemented for this source')
 
     @abstractmethod
     def restart(self):

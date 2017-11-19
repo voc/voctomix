@@ -10,7 +10,10 @@ log = logging.getLogger('AVSourceManager')
 sources = {}
 
 
-def spawn_source(name, port, outputs=None, has_audio=True, has_video=True, force_num_streams=None):
+def spawn_source(name, port, outputs=None,
+                 has_audio=True, has_video=True,
+                 force_num_streams=None):
+
     section = 'source.{}'.format(name)
     kind = Config.get(section, 'kind', fallback='tcp')
 
@@ -23,9 +26,11 @@ def spawn_source(name, port, outputs=None, has_audio=True, has_video=True, force
         return sources[name]
 
     if kind != 'tcp':
-        log.warn('Unknown source kind "%s", defaulting to "tcp"', kind)
+        log.warning('Unknown source kind "%s", defaulting to "tcp"', kind)
 
-    sources[name] = TCPAVSource(name, port, outputs, has_audio, has_video, force_num_streams)
+    sources[name] = TCPAVSource(name, port, outputs,
+                                has_audio, has_video,
+                                force_num_streams)
     return sources[name]
 
 

@@ -69,8 +69,9 @@ class AudioMix(object):
                 {caps} !
                 queue !
                 tee name=tee_{audiostream}
-    
-                tee_{audiostream}. ! queue ! interaudiosink channel=audio_mix_out_stream{audiostream}
+
+                tee_{audiostream}. ! queue ! interaudiosink
+                    channel=audio_mix_out_stream{audiostream}
             """.format(
                 caps=self.caps,
                 audiostream=audiostream,
@@ -78,21 +79,24 @@ class AudioMix(object):
 
             if Config.getboolean('previews', 'enabled'):
                 pipeline += """
-                    tee_{audiostream}. ! queue ! interaudiosink channel=audio_mix_stream{audiostream}_preview
+                    tee_{audiostream}. ! queue ! interaudiosink
+                        channel=audio_mix_stream{audiostream}_preview
                 """.format(
                     audiostream=audiostream,
                 )
 
             if Config.getboolean('stream-blanker', 'enabled'):
                 pipeline += """
-                    tee_{audiostream}. ! queue ! interaudiosink channel=audio_mix_stream{audiostream}_stream-blanker
+                    tee_{audiostream}. ! queue ! interaudiosink
+                        channel=audio_mix_stream{audiostream}_stream-blanker
                 """.format(
                     audiostream=audiostream,
                 )
 
             for idx, name in enumerate(self.names):
                 pipeline += """
-                    interaudiosrc channel=audio_{name}_mixer_stream{audiostream} !
+                    interaudiosrc
+                        channel=audio_{name}_mixer_stream{audiostream} !
                     {caps} !
                     mix_{audiostream}.
                 """.format(
@@ -125,8 +129,10 @@ class AudioMix(object):
 
             self.log.debug('Setting Mixerpad %u to volume=%0.2f', idx, volume)
             for audiostream in range(0, Config.getint('mix', 'audiostreams')):
-                mixerpad = (self.mixingPipeline.get_by_name('mix_{}'.format(audiostream))
-                            .get_static_pad('sink_%u' % idx))
+                mixer = self.mixingPipeline.get_by_name(
+                    'mix_{}'.format(audiostream))
+
+                mixerpad = mixer.get_static_pad('sink_%u' % idx)
                 mixerpad.set_property('volume', volume)
 
     def setAudioSource(self, source):
