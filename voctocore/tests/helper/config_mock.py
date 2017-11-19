@@ -73,6 +73,7 @@ class ConfigMock(VocConfigParser):
             .given("mix", "audiocaps",
                    "audio/x-raw,format=S16LE,channels=2,layout=interleaved,rate=48000") \
             .given("mix", "sources", "cam1,cam2,grabber") \
+            .given("mix", "audiostreams", 1) \
             .given("previews", "enabled", "false") \
             .given("previews", "deinterlace", "false") \
             .given("stream-blanker", "enabled", "true") \
