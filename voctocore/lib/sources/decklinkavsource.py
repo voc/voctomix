@@ -89,6 +89,9 @@ class DeckLinkAVSource(AVSource):
     def _parse_audiostream_map(self, config_section):
         audiostream_map = {}
 
+        if config_section not in Config:
+            return audiostream_map
+
         for key in Config[config_section]:
             value = Config.get(config_section, key)
             m = re.match('audiostream\[(\d+)\]', key)
