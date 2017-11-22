@@ -1,5 +1,4 @@
 import logging
-from configparser import NoOptionError
 
 # import library components
 from lib.config import Config
@@ -76,8 +75,8 @@ class Pipeline(object):
 
         if Config.getboolean('previews', 'enabled'):
             port = 12000
-            self.log.info('Creating Preview-Output for AVSource %s '
-                          'at tcp-port %u', name, port)
+            self.log.info('Creating Preview-Output for Mix'
+                          'at tcp-port %u', port)
 
             self.mixpreview = AVPreviewOutput('mix_preview', port)
 
@@ -100,7 +99,10 @@ class Pipeline(object):
             self.log.info('Creating StreamBlanker ASource at tcp-port %u',
                           port)
 
-            source = spawn_source('stream-blanker', port, has_video=False)
+            source = spawn_source('stream-blanker',
+                                  port,
+                                  has_video=False,
+                                  force_num_streams=1)
             self.sbsources.append(source)
 
             self.log.info('Creating StreamBlanker')

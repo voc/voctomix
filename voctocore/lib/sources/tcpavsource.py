@@ -12,9 +12,12 @@ ALL_VIDEO_CAPS = Gst.Caps.from_string('video/x-raw')
 
 class TCPAVSource(AVSource, TCPSingleConnection):
     def __init__(self, name, port, outputs=None,
-                 has_audio=True, has_video=True):
+                 has_audio=True, has_video=True,
+                 force_num_streams=None):
         self.log = logging.getLogger('TCPAVSource[{}]'.format(name))
-        AVSource.__init__(self, name, outputs, has_audio, has_video)
+        AVSource.__init__(self, name, outputs,
+                          has_audio, has_video,
+                          force_num_streams)
         TCPSingleConnection.__init__(self, port)
 
     def __str__(self):
@@ -41,10 +44,10 @@ class TCPAVSource(AVSource, TCPSingleConnection):
             """.format(
                 deinterlacer=self.build_deinterlacer()
             )
-            self.build_pipeline(pipeline, aelem='demux', velem='deinter')
+            self.build_pipeline(pipeline)
 
         else:
-            self.build_pipeline(pipeline, aelem='demux', velem='demux')
+            self.build_pipeline(pipeline)
 
         self.audio_caps = Gst.Caps.from_string(Config.get('mix', 'audiocaps'))
         self.video_caps = Gst.Caps.from_string(Config.get('mix', 'videocaps'))
@@ -107,6 +110,16 @@ class TCPAVSource(AVSource, TCPSingleConnection):
     def restart(self):
         if self.currentConnection is not None:
             self.disconnect()
+
+    def build_audioport(self, audiostream):
+        return 'demux.audio_{}'.format(audiostream)
+
+    def build_videoport(self):
+        deinterlacer = self.build_deinterlacer()
+        if deinterlacer:
+            return 'deinter.'
+        else:
+            return 'demux.'
 
     def test_and_warn_interlace_mode(self, caps):
         interlace_mode = caps.get_structure(0).get_string('interlace-mode')

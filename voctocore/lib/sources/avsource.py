@@ -8,7 +8,9 @@ from lib.clock import Clock
 
 
 class AVSource(object, metaclass=ABCMeta):
-    def __init__(self, name, outputs=None, has_audio=True, has_video=True):
+    def __init__(self, name, outputs=None,
+                 has_audio=True, has_video=True,
+                 force_num_streams=None):
         if not self.log:
             self.log = logging.getLogger('AVSource[{}]'.format(name))
 
@@ -21,6 +23,7 @@ class AVSource(object, metaclass=ABCMeta):
         self.has_audio = has_audio
         self.has_video = has_video
         self.outputs = outputs
+        self.force_num_streams = force_num_streams
         self.pipeline = None
 
     def __str__(self):
@@ -28,33 +31,45 @@ class AVSource(object, metaclass=ABCMeta):
             name=self.name
         )
 
-    def build_pipeline(self, pipeline, aelem=None, velem=None):
-        if self.has_audio and aelem:
-            pipeline += """
-                {aelem}. !
-                {acaps} !
-                queue !
-                tee name=atee
-            """.format(
-                aelem=aelem,
-                acaps=Config.get('mix', 'audiocaps')
-            )
+    def build_pipeline(self, pipeline):
+        if self.has_audio:
+            num_streams = self.force_num_streams
+            if num_streams is None:
+                num_streams = Config.getint('mix', 'audiostreams')
 
-            for output in self.outputs:
+            for audiostream in range(0, num_streams):
+                audioport = self.build_audioport(audiostream)
+                if not audioport:
+                    continue
+
                 pipeline += """
-                    atee. ! queue ! interaudiosink channel=audio_{output}
+                    {audioport} !
+                    {acaps} !
+                    queue !
+                    tee name=atee_stream{audiostream}
                 """.format(
-                    output=output
+                    audioport=audioport,
+                    acaps=Config.get('mix', 'audiocaps'),
+                    audiostream=audiostream,
                 )
 
-        if self.has_video and velem:
+                for output in self.outputs:
+                    pipeline += """
+                        atee_stream{audiostream}. ! queue ! interaudiosink
+                            channel=audio_{output}_stream{audiostream}
+                    """.format(
+                        output=output,
+                        audiostream=audiostream,
+                    )
+
+        if self.has_video:
             pipeline += """
-                {velem}. !
+                {videoport} !
                 {vcaps} !
                 queue !
                 tee name=vtee
             """.format(
-                velem=velem,
+                videoport=self.build_videoport(),
                 deinterlacer=self.build_deinterlacer(),
                 vcaps=Config.get('mix', 'videocaps')
             )
@@ -90,8 +105,8 @@ class AVSource(object, metaclass=ABCMeta):
 
         else:
             raise RuntimeError(
-                "Unknown Deinterlace-Mode on source {} configured: {}"
-                .format(self.name, deinterlace_config))
+                "Unknown Deinterlace-Mode on source {} configured: {}".
+                format(self.name, deinterlace_config))
 
     def get_deinterlace_config(self):
         section = 'source.{}'.format(self.name)
@@ -105,6 +120,16 @@ class AVSource(object, metaclass=ABCMeta):
         self.log.warning('Received Error-Signal on Source-Pipeline')
         (error, debug) = message.parse_error()
         self.log.debug('Error-Details: #%u: %s', error.code, debug)
+
+    @abstractmethod
+    def build_audioport(self, audiostream):
+        raise NotImplementedError(
+            'build_audioport not implemented for this source')
+
+    @abstractmethod
+    def build_videoport(self):
+        raise NotImplementedError(
+            'build_videoport not implemented for this source')
 
     @abstractmethod
     def restart(self):

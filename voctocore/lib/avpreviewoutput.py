@@ -1,4 +1,5 @@
 import logging
+
 from gi.repository import Gst
 
 from lib.config import Config
@@ -7,7 +8,6 @@ from lib.clock import Clock
 
 
 class AVPreviewOutput(TCPMultiConnection):
-
     def __init__(self, channel, port):
         self.log = logging.getLogger('AVPreviewOutput[{}]'.format(channel))
         super().__init__(port)
@@ -25,12 +25,25 @@ class AVPreviewOutput(TCPMultiConnection):
             {vpipeline} !
             queue !
             mux.
+        """.format(
+            channel=self.channel,
+            vcaps=Config.get('mix', 'videocaps'),
+            vpipeline=self.construct_video_pipeline(target_caps)
+        )
 
-            interaudiosrc channel=audio_{channel} !
-            {acaps} !
-            queue !
-            mux.
+        for audiostream in range(0, Config.getint('mix', 'audiostreams')):
+            pipeline += """
+                interaudiosrc channel=audio_{channel}_stream{audiostream} !
+                {acaps} !
+                queue !
+                mux.
+            """.format(
+                channel=self.channel,
+                acaps=Config.get('mix', 'audiocaps'),
+                audiostream=audiostream,
+            )
 
+        pipeline += """
             matroskamux
                 name=mux
                 streamable=true
@@ -41,12 +54,7 @@ class AVPreviewOutput(TCPMultiConnection):
                 buffers-max=500
                 sync-method=next-keyframe
                 name=fd
-        """.format(
-            channel=self.channel,
-            acaps=Config.get('mix', 'audiocaps'),
-            vcaps=Config.get('mix', 'videocaps'),
-            vpipeline=self.construct_video_pipeline(target_caps)
-        )
+        """
 
         self.log.debug('Creating Output-Pipeline:\n%s', pipeline)
         self.outputPipeline = Gst.parse_launch(pipeline)
