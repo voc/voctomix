@@ -1,5 +1,6 @@
 import logging
 from abc import ABCMeta, abstractmethod
+
 from gi.repository import Gst
 
 from lib.config import Config
@@ -79,6 +80,10 @@ class AVSource(object, metaclass=ABCMeta):
 
         if deinterlace_config == "yes":
             return "yadif mode=interlaced"
+
+        elif deinterlace_config == "assume-progressive":
+            return "capssetter " \
+                   "caps=video/x-raw,interlace-mode=progressive"
 
         elif deinterlace_config == "no":
             return ""

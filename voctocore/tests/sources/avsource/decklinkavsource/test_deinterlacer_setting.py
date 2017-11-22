@@ -29,7 +29,16 @@ class AudiomixMultipleSources(VoctomixTest):
         Config.given("source.cam1", "deinterlace", "yes")
 
         pipeline = self.simulate_connection_and_aquire_pipeline_description()
-        self.assertRegexAnyWhitespace(pipeline, "videoconvert ! yadif mode=interlaced ! videoscale")
+        self.assertRegexAnyWhitespace(pipeline, "mode=1080i50 ! yadif mode=interlaced ! videoconvert")
+
+    def test_assume_progressive_does_add_capssetter(self):
+        Config.given("source.cam1", "deinterlace", "assume-progressive")
+
+        pipeline = self.simulate_connection_and_aquire_pipeline_description()
+        self.assertRegexAnyWhitespace(
+            pipeline,
+            "mode=1080i50 ! capssetter caps=video/x-raw,interlace-mode=progressive ! videoconvert"
+        )
 
     def simulate_connection_and_aquire_pipeline_description(self):
         Gst.parse_launch.reset_mock()

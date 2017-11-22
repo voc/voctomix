@@ -1,4 +1,5 @@
 import logging
+
 from gi.repository import Gst
 
 from lib.config import Config
@@ -54,13 +55,7 @@ class TCPAVSource(AVSource, TCPSingleConnection):
         self.pipeline.set_state(Gst.State.PLAYING)
 
     def build_deinterlacer(self):
-        deinterlace_config = self.get_deinterlace_config()
-
-        if deinterlace_config == "assume-progressive":
-            deinterlacer = "capssetter " \
-                           "caps=video/x-raw,interlace-mode=progressive"
-        else:
-            deinterlacer = super().build_deinterlacer()
+        deinterlacer = super().build_deinterlacer()
 
         if deinterlacer != '':
             deinterlacer += ' name=deinter'
