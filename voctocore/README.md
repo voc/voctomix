@@ -149,3 +149,68 @@ On Startup the Video-Mixer reads the following Configuration-Files:
 From top to bottom the individual Settings override previous Settings. `default-config.ini` should not be edited, because a missing Setting will result in an Exception.
 
 All Settings configured in the Server are available via the `get_config` Call on the Control-Port and will be used by the Clients, so there will be no need to duplicate Configuration options between Server and Clients.
+
+## Multi-Stream Audio Mixing
+Voctomix has support for passing and mixing as many audio streams as desired. At the c3voc we use this feature for recording lectures with simultaneous translation. The number of streams is configured system-wide with the `[mix] audiostreams` setting which defaults to 1. All streams are always stereo. Setting it to 3 configures 3 stereo-streams.
+
+Each tcp-feed for a camera (not stream-blanker and background-feeds) then needs to follow this channel layout (in this example: have 3 stereo-stream) or it will stall after the first couple seconds.
+
+Similar all output-streams (mirrors, main-out, stream-out) will now present 3 stereo-streams. The streamblanker will correctly copy the blank-music to all streams when the stream-blanker is engaged.
+
+For the internal decklink-sources, you have to configure the mapping in the source-section of the config:
+```
+[mix]
+…
+audiostreams = 3
+
+[source.cam1]
+kind = decklink
+devicenumber = 0
+video_connection = SDI
+video_mode = 1080p25
+audio_connection = embedded
+
+# Use audio from this camera
+volume=1.0
+
+# Map SDI-Channel 0 to the left ear and Channel 1 to the right ear of the Output-Stream 0
+audiostream[0] = 0+1
+
+[source.cam2]
+kind = decklink
+devicenumber = 1
+video_connection = SDI
+video_mode = 1080p25
+audio_connection = embedded
+
+# Use audio from this camera
+volume=1.0
+
+# Map SDI-Channel 0 to both ears ear of the Output-Stream 1
+audiostream[1] = 0
+
+# Map SDI-Channel 1 to both ears ear of the Output-Stream 2
+audiostream[2] = 1
+```
+
+With Audio-Embedders which can embed more then 2 Channels onto an SDI-Stream you can also fill all Streams from one SDI-Source. This requires at least GStreamer 1.12.3:
+```
+[mix]
+…
+audiostreams = 3
+
+[source.cam1]
+kind = decklink
+devicenumber = 0
+video_connection = SDI
+video_mode = 1080p25
+audio_connection = embedded
+
+# Use audio from this camera
+volume=1.0
+
+# Map SDI-Channel 0 to the left ear and Channel 1 to the right ear of the Output-Stream 0
+audiostream[0] = 0+1
+audiostream[1] = 2+3
+audiostream[2] = 4+5
+```
