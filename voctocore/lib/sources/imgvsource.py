@@ -1,4 +1,5 @@
 import logging
+
 from gi.repository import Gst
 
 from lib.config import Config
@@ -6,7 +7,6 @@ from lib.sources.avsource import AVSource
 
 
 class ImgVSource(AVSource):
-
     def __init__(self, name, outputs=None, has_audio=False, has_video=True):
         self.log = logging.getLogger('ImgVSource[{}]'.format(name))
         super().__init__(name, outputs, False, has_video)
@@ -34,8 +34,15 @@ class ImgVSource(AVSource):
         """.format(
             uri=self.imguri
         )
-        self.build_pipeline(pipeline, velem='img')
+        self.build_pipeline(pipeline)
         self.pipeline.set_state(Gst.State.PLAYING)
+
+    def build_audioport(self, audiostream):
+        raise NotImplementedError(
+            'build_audioport not implemented for this source')
+
+    def build_videoport(self):
+        return 'img.'
 
     def restart(self):
         self.pipeline.set_state(Gst.State.NULL)
