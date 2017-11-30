@@ -17,6 +17,25 @@ class ControlServerCommands(object):
         self.sources = Config.getlist('mix', 'sources')
         self.audio_sources = []
         self.video_sources = []
+
+        video_only = []
+        audio_only = []
+
+        try:
+            audio_only = Config.getlist('mix', 'audio_only')
+            video_only = Config.getlist('mix', 'video_only')
+        except Exception:
+            pass
+
+        for source in self.sources:
+            if source not in audio_only and source not in video_only:
+                self.audio_sources.append(source)
+                self.video_sources.append(source)
+            elif source in video_only:
+                self.video_sources.append(source)
+            elif source in audio_only:
+                self.audio_sources.append(source)
+
         if Config.getboolean('stream-blanker', 'enabled'):
             self.blankerSources = Config.getlist('stream-blanker', 'sources')
 
@@ -59,34 +78,13 @@ class ControlServerCommands(object):
         helplines.append('\t' + 'quit / exit')
 
         helplines.append("\n")
-
-        video_only = []
-        audio_only = []
-
-        try:
-            audio_only = Config.getlist('mix', 'audio_only')
-            video_only = Config.getlist('mix', 'video_only')
-        except Exception:
-            pass
-
-        helplines.append("Mixed-Source Names:")
-        for source in self.sources:
-            if source not in audio_only and source not in video_only:
-                helplines.append("\t" + source)
-                self.audio_sources.append(source)
-                self.video_sources.append(source)
-
         helplines.append("Video-Source Names:")
-        for source in self.sources:
-            if source in video_only:
-                helplines.append("\t" + source)
-                self.video_sources.append(source)
+        for source in self.video_sources:
+            helplines.append("\t" + source)
 
         helplines.append("Audio-Source Names:")
         for source in self.sources:
-            if source in audio_only:
-                helplines.append("\t" + source)
-                self.audio_sources.append(source)
+            helplines.append("\t" + source)
 
         if Config.getboolean('stream-blanker', 'enabled'):
             helplines.append("\n")
@@ -102,8 +100,12 @@ class ControlServerCommands(object):
         return OkResponse("\n".join(helplines))
 
     def _get_video_status(self):
-        a = self.video_sources[self.pipeline.vmix.getVideoSourceA()]
-        b = self.video_sources[self.pipeline.vmix.getVideoSourceB()]
+        try:
+            a = self.video_sources[self.pipeline.vmix.getVideoSourceA()]
+            b = self.video_sources[self.pipeline.vmix.getVideoSourceB()]
+        except Exception as e:
+            print("\nException!", self.video_sources)
+            raise e
         return [a, b]
 
     def get_video(self):
