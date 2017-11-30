@@ -100,12 +100,8 @@ class ControlServerCommands(object):
         return OkResponse("\n".join(helplines))
 
     def _get_video_status(self):
-        try:
-            a = self.video_sources[self.pipeline.vmix.getVideoSourceA()]
-            b = self.video_sources[self.pipeline.vmix.getVideoSourceB()]
-        except Exception as e:
-            print("\nException!", self.video_sources)
-            raise e
+        a = self.video_sources[self.pipeline.vmix.getVideoSourceA()]
+        b = self.video_sources[self.pipeline.vmix.getVideoSourceB()]
         return [a, b]
 
     def get_video(self):
