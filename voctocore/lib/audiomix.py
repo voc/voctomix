@@ -80,7 +80,7 @@ class AudioMix(object):
             if Config.getboolean('previews', 'enabled'):
                 pipeline += """
                     tee_{audiostream}. ! queue ! interaudiosink
-                        channel=audio_mix_stream{audiostream}_preview
+                        channel=audio_mix_preview_stream{audiostream}
                 """.format(
                     audiostream=audiostream,
                 )
