@@ -179,7 +179,7 @@ class VideoMix(object):
                        targetWidth, targetHeight)
 
         xa = border
-        xb = width - targetWidth
+        xb = width - targetWidth - border
         y = int((height - targetHeight) / 2)
 
         try:
