@@ -165,13 +165,20 @@ class VideoMix(object):
             gutter = int(width / 100)
             self.log.debug('Gutter calculated to %u', gutter)
 
-        targetWidth = int((width - gutter) / 2)
+        try:
+            border = Config.getint('side-by-side-equal', 'border')
+            self.log.debug('border configured to %u', border)
+        except NoOptionError:
+            border = 0
+            self.log.debug('border calculated to %u', border)
+
+        targetWidth = int((width - gutter - border - border) / 2)
         targetHeight = int(targetWidth / width * height)
 
         self.log.debug('Video-Size calculated to %ux%u',
                        targetWidth, targetHeight)
 
-        xa = 0
+        xa = border
         xb = width - targetWidth
         y = int((height - targetHeight) / 2)
 
