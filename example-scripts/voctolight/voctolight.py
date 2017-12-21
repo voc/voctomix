@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import socket
 from lib.config import Config
+import time
 
 DO_GPIO = True
 try:
@@ -49,11 +50,11 @@ class TallyHandling:
 def start_connection(tally_handler):
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(2)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-    try:
-        sock.connect((Config.get('server', 'host'), 9999))
-    except TimeoutError:
-        start_connection(tally_handler)
+
+    sock.connect((Config.get('server', 'host'), 9999))
+    sock.settimeout(None)
 
     messages = []
     sock.send(b'get_composite_mode\n')
@@ -87,7 +88,14 @@ if __name__ in '__main__':
         all_gpios = [int(i) for i in all_gpios]
         tally_handler = TallyHandling(Config.get('light', 'cam'), int(Config.get('light', 'gpio_red')),
                                       all_gpios=all_gpios)
-        start_connection(tally_handler)
+
+        while True:
+            try:
+                start_connection(tally_handler)
+            except (TimeoutError, ConnectionRefusedError, socket.timeout):
+                print('Connection error trying to reconnect in 1s.')
+                time.sleep(1)
+                continue
     finally:
         print('cleanup')
         if DO_GPIO:
