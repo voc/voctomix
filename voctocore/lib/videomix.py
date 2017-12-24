@@ -206,12 +206,12 @@ class VideoMix(object):
             if idx == self.sourceA:
                 pad.xpos = xa
                 pad.ypos = ya
-                pad.zorder = 1
+                pad.zorder = 2
 
             elif idx == self.sourceB:
                 pad.xpos = xb
                 pad.ypos = yb
-                pad.zorder = 2
+                pad.zorder = 1
 
             else:
                 pad.alpha = 0
