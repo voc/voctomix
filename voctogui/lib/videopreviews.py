@@ -1,12 +1,13 @@
 import logging
 import json
 import math
-from gi.repository import Gtk, GObject
 from configparser import NoOptionError
 
-from lib.config import Config
+from gi.repository import Gtk, GObject
 from lib.videodisplay import VideoDisplay
 import lib.connection as Connection
+
+from lib.config import Config
 
 
 class VideoPreviewsController(object):
@@ -100,18 +101,6 @@ class VideoPreviewsController(object):
             tooltip = Gtk.accelerator_get_label(key, mod)
             btn_b.set_tooltip_text(tooltip)
 
-            btn_fullscreen = uibuilder.find_widget_recursive(preview,
-                                                             'btn_fullscreen')
-            btn_fullscreen.set_name("%c %u" % ('f', idx))
-
-            btn_fullscreen.connect('clicked', self.btn_fullscreen_clicked)
-
-            key, mod = Gtk.accelerator_parse('<Alt>%u' % (idx + 1))
-            btn_fullscreen.add_accelerator('activate', accelerators,
-                                           key, mod, Gtk.AccelFlags.VISIBLE)
-            tooltip = Gtk.accelerator_get_label(key, mod)
-            btn_fullscreen.set_tooltip_text(tooltip)
-
             volume_slider = uibuilder.find_widget_recursive(preview,
                                                             'audio_level')
 
@@ -171,17 +160,6 @@ class VideoPreviewsController(object):
         volume = 10 ** (value / 20) if value > -20.0 else 0
         self.log.debug("slider_changed: {}: {:.4f}".format(source, volume))
         Connection.send('set_audio_volume {} {:.4f}'.format(source, volume))
-
-    def btn_fullscreen_clicked(self, btn):
-        btn_name = btn.get_name()
-        self.log.debug('btn_fullscreen_clicked: %s', btn_name)
-
-        channel, idx = btn_name.split(' ')[:2]
-        source_name = self.sources[int(idx)]
-
-        self.log.info('selcting video %s for fullscreen', source_name)
-        Connection.send('set_videos_and_composite',
-                        source_name, '*', 'fullscreen')
 
     def on_video_status(self, source_a, source_b):
         self.log.info('on_video_status callback w/ sources: %s and %s',
