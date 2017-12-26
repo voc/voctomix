@@ -1,7 +1,8 @@
 import logging
-from gi.repository import Gst
 from configparser import NoOptionError
 from enum import Enum, unique
+
+from gi.repository import Gst
 
 from lib.config import Config
 from lib.clock import Clock
@@ -16,7 +17,6 @@ class CompositeModes(Enum):
 
 
 class PadState(object):
-
     def __init__(self):
         self.reset()
 
@@ -112,7 +112,7 @@ class VideoMix(object):
         self.applyMixerState()
 
         bgMixerpad = (self.mixingPipeline.get_by_name('mix')
-                                         .get_static_pad('sink_0'))
+                      .get_static_pad('sink_0'))
         bgMixerpad.set_property('zorder', 0)
 
         self.log.debug('Launching Mixing-Pipeline')
@@ -381,8 +381,8 @@ class VideoMix(object):
         for idx, state in enumerate(self.padState):
             # mixerpad 0 = background
             mixerpad = (self.mixingPipeline
-                            .get_by_name('mix')
-                            .get_static_pad('sink_%u' % (idx + 1)))
+                        .get_by_name('mix')
+                        .get_static_pad('sink_%u' % (idx + 1)))
 
             cropper = self.mixingPipeline.get_by_name("video_%u_cropper" % idx)
 
