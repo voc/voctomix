@@ -1,8 +1,9 @@
 import logging
+
 from gi.repository import Gtk
+import lib.connection as Connection
 
 from lib.config import Config
-import lib.connection as Connection
 
 
 class StreamblankToolbarController(object):
@@ -37,6 +38,7 @@ class StreamblankToolbarController(object):
         key, mod = Gtk.accelerator_parse('F12')
         livebtn.connect('toggled', self.on_btn_toggled)
         livebtn.set_name('live')
+        livebtn.set_label(livebtn.get_label() + "\nF12")
 
         tooltip = Gtk.accelerator_get_label(key, mod)
         livebtn.set_tooltip_text(tooltip)
@@ -51,18 +53,17 @@ class StreamblankToolbarController(object):
 
         for idx, name in enumerate(blank_sources):
             key, mod = Gtk.accelerator_parse('F%u' % accel_f_key)
-            accel_f_key = accel_f_key - 1
 
             if idx == 0:
                 new_btn = blankbtn
             else:
                 new_icon = Gtk.Image.new_from_pixbuf(blankbtn.get_icon_widget()
-                                                             .get_pixbuf())
+                                                     .get_pixbuf())
                 new_btn = Gtk.RadioToolButton(group=livebtn)
                 new_btn.set_icon_widget(new_icon)
                 toolbar.insert(new_btn, blankbtn_pos)
 
-            new_btn.set_label("Stream %s" % name)
+            new_btn.set_label("Stream %s\nF%s" % (name, accel_f_key))
             new_btn.connect('toggled', self.on_btn_toggled)
             new_btn.set_name(name)
 
@@ -74,6 +75,7 @@ class StreamblankToolbarController(object):
                 key, mod, Gtk.AccelFlags.VISIBLE)
 
             self.blank_btns[name] = new_btn
+            accel_f_key = accel_f_key - 1
 
         # connect event-handler and request initial state
         Connection.on('stream_status', self.on_stream_status)

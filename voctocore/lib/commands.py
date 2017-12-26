@@ -146,6 +146,12 @@ class ControlServerCommands(object):
         status = self._get_composite_status()
         return OkResponse('composite_mode', status)
 
+    def get_composite_mode_and_video_status(self):
+        composite_status = self._get_composite_status()
+        video_status = self._get_video_status()
+        return OkResponse('composite_mode_and_video_status',
+                          composite_status, *video_status)
+
     def set_composite_mode(self, mode_name):
         """sets the name of the id of the composite-mode"""
         mode = CompositeModes[mode_name]
@@ -155,7 +161,9 @@ class ControlServerCommands(object):
         video_status = self._get_video_status()
         return [
             NotifyResponse('composite_mode', composite_status),
-            NotifyResponse('video_status', *video_status)
+            NotifyResponse('video_status', *video_status),
+            NotifyResponse('composite_mode_and_video_status',
+                           composite_status, *video_status),
         ]
 
     def set_videos_and_composite(self, src_a_name, src_b_name,
@@ -184,7 +192,9 @@ class ControlServerCommands(object):
 
         return [
             NotifyResponse('composite_mode', composite_status),
-            NotifyResponse('video_status', *video_status)
+            NotifyResponse('video_status', *video_status),
+            NotifyResponse('composite_mode_and_video_status',
+                           composite_status, *video_status),
         ]
 
     if Config.getboolean('stream-blanker', 'enabled'):
