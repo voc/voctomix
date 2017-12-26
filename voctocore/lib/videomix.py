@@ -409,7 +409,7 @@ class VideoMix(object):
             cropper.set_property("bottom", state.cropbottom)
             cropper.set_property("right", state.cropright)
 
-    def selectCompositeModeDefaultSources(self):
+    def selectCompositeModeDefaultSources(self, previousMode):
         sectionNames = {
             CompositeModes.fullscreen: 'fullscreen',
             CompositeModes.side_by_side_equal: 'side-by-side-equal',
@@ -422,9 +422,25 @@ class VideoMix(object):
 
         try:
             defSource = Config.get(sectionName, 'default-a')
-            self.setVideoSourceA(self.names.index(defSource))
             self.log.info('Changing sourceA to default of Mode %s: %s',
                           compositeModeName, defSource)
+
+            self.log.warning("previousMode=%s compositeMode=%s",
+                             previousMode, self.compositeMode)
+
+            if previousMode == CompositeModes.fullscreen \
+               and self.compositeMode != previousMode:
+                self.log.info(
+                    'switched from fullscreen to another composition with '
+                    'source-a being set by a default, *not* keeping b-source '
+                    '(which was not visible before and has no meaning) but '
+                    'setting b-source to the original a-source: %s',
+                    self.sourceA)
+
+            self.setVideoSourceB(self.sourceA)
+            self.setVideoSourceA(self.names.index(defSource))
+            return
+
         except Exception as e:
             pass
 
@@ -474,10 +490,11 @@ class VideoMix(object):
         return self.sourceB
 
     def setCompositeMode(self, mode, apply_default_source=True):
+        previousMode = self.compositeMode
         self.compositeMode = mode
 
         if apply_default_source:
-            self.selectCompositeModeDefaultSources()
+            self.selectCompositeModeDefaultSources(previousMode)
 
         self.recalculateMixerState()
 
