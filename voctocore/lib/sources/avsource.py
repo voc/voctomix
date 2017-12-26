@@ -94,7 +94,7 @@ class AVSource(object, metaclass=ABCMeta):
         deinterlace_config = self.get_deinterlace_config()
 
         if deinterlace_config == "yes":
-            return "yadif mode=interlaced"
+            return "videoconvert ! yadif mode=interlaced"
 
         elif deinterlace_config == "assume-progressive":
             return "capssetter " \
