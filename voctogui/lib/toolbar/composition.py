@@ -35,7 +35,6 @@ class CompositionToolbarController(object):
 
         for idx, name in enumerate(sources):
             key, mod = Gtk.accelerator_parse('F%u' % accel_f_key)
-            accel_f_key = accel_f_key + 1
 
             if idx == 0:
                 new_btn = fullscreen_btn
@@ -46,7 +45,7 @@ class CompositionToolbarController(object):
                 new_btn.set_icon_widget(new_icon)
                 toolbar.insert(new_btn, fullscreen_btn_pos + idx)
 
-            new_btn.set_label("Fullscreen %s" % name)
+            new_btn.set_label("Fullscreen %s\nF%s" % (name, accel_f_key))
             new_btn.connect('toggled', self.on_btn_toggled)
             new_btn.set_name('fullscreen %s' % name)
 
@@ -58,16 +57,18 @@ class CompositionToolbarController(object):
                 key, mod, Gtk.AccelFlags.VISIBLE)
 
             self.composite_btns['fullscreen %s' % name] = new_btn
+            accel_f_key = accel_f_key + 1
 
         for idx, name in enumerate(composites):
             key, mod = Gtk.accelerator_parse('F%u' % accel_f_key)
-            accel_f_key = accel_f_key + 1
 
             btn = uibuilder.find_widget_recursive(
                 toolbar,
                 'composite-' + name.replace('_', '-')
             )
             btn.set_name(name)
+
+            btn.set_label(btn.get_label() + "\nF%s" % accel_f_key)
 
             tooltip = Gtk.accelerator_get_label(key, mod)
             btn.set_tooltip_text(tooltip)
@@ -78,6 +79,7 @@ class CompositionToolbarController(object):
             btn.connect('toggled', self.on_btn_toggled)
 
             self.composite_btns[name] = btn
+            accel_f_key = accel_f_key + 1
 
         # connect event-handler and request initial state
         Connection.on('composite_mode_and_video_status',
