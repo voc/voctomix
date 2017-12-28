@@ -36,8 +36,13 @@ class Pipeline(object):
             outputs = [name + '_mixer']
             if Config.getboolean('previews', 'enabled'):
                 outputs.append(name + '_preview')
+
             if Config.getboolean('mirrors', 'enabled'):
                 outputs.append(name + '_mirror')
+
+            if Config.has_option('mix', 'slides_source_name') and \
+                    Config.get('mix', 'slides_source_name') == name:
+                outputs.append('slides_stream-blanker')
 
             source = spawn_source(name, port, outputs=outputs)
             self.log.info('Creating AVSource %s as %s', name, source)
@@ -111,3 +116,8 @@ class Pipeline(object):
             port = 15000
             self.log.info('Creating StreamBlanker-Output at tcp-port %u', port)
             self.streamout = AVRawOutput('stream-blanker_out', port)
+
+            if Config.has_option('mix', 'slides_source_name'):
+                port = 15001
+                self.log.info('Creating SlideStreamBlanker-Output at tcp-port %u', port)
+                self.slides_streamout = AVRawOutput('slides_stream-blanker_out', port)

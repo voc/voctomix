@@ -38,11 +38,31 @@ class StreamBlanker(object):
             vcaps=self.vcaps,
         )
 
+        if Config.has_option('mix', 'slides_source_name'):
+            pipeline += """
+                compositor name=vmix-slides !
+                {vcaps} !
+                queue !
+                intervideosink channel=video_slides_stream-blanker_out
+            """.format(
+                vcaps=self.vcaps,
+            )
+
+            pipeline += """
+                intervideosrc channel=video_slides_stream-blanker !
+                {vcaps} !
+                vmix-slides.
+            """.format(
+                vcaps=self.vcaps,
+            )
+
         for audiostream in range(0, Config.getint('mix', 'audiostreams')):
             # Audiomixer
             pipeline += """
                 audiomixer name=amix_{audiostream} !
                 {acaps} !
+                queue !
+                tee name=amix_{audiostream}-tee !
                 queue !
                 interaudiosink
                     channel=audio_stream-blanker_out_stream{audiostream}
@@ -50,6 +70,16 @@ class StreamBlanker(object):
                 acaps=self.acaps,
                 audiostream=audiostream,
             )
+
+            if Config.has_option('mix', 'slides_source_name'):
+                pipeline += """
+                amix_{audiostream}-tee. !
+                queue !
+                interaudiosink
+                    channel=audio_slides_stream-blanker_out_stream{audiostream}
+            """.format(
+                    audiostream=audiostream,
+                )
 
             # Source from the Main-Mix
             pipeline += """
@@ -89,11 +119,23 @@ class StreamBlanker(object):
             pipeline += """
                 intervideosrc channel=video_stream-blanker-{name} !
                 {vcaps} !
+                queue !
+                tee name=video_stream-blanker-tee-{name} !
+                queue !
                 vmix.
-        """.format(
+            """.format(
                 name=name,
                 vcaps=self.vcaps,
             )
+
+            if Config.has_option('mix', 'slides_source_name'):
+                pipeline += """
+                    video_stream-blanker-tee-{name}. !
+                    queue !
+                    vmix-slides.
+                """.format(
+                    name=name,
+                )
 
         self.log.debug('Creating Mixing-Pipeline:\n%s', pipeline)
         self.mixingPipeline = Gst.parse_launch(pipeline)
@@ -122,7 +164,9 @@ class StreamBlanker(object):
 
     def applyMixerState(self):
         self.applyMixerStateAudio()
-        self.applyMixerStateVideo()
+        self.applyMixerStateVideo('vmix')
+        if Config.has_option('mix', 'slides_source_name'):
+            self.applyMixerStateVideo('vmix-slides')
 
     def applyMixerStateAudio(self):
         is_blanked = self.blankSource is not None
@@ -141,14 +185,14 @@ class StreamBlanker(object):
                 'volume',
                 self.volume if is_blanked else 0.0)
 
-    def applyMixerStateVideo(self):
-        mixpad = (self.mixingPipeline.get_by_name('vmix')
+    def applyMixerStateVideo(self, mixername):
+        mixpad = (self.mixingPipeline.get_by_name(mixername)
                   .get_static_pad('sink_0'))
         mixpad.set_property('alpha', int(self.blankSource is None))
 
         for idx, name in enumerate(self.names):
             blankpad = (self.mixingPipeline
-                        .get_by_name('vmix')
+                        .get_by_name(mixername)
                         .get_static_pad('sink_%u' % (idx + 1)))
             blankpad.set_property('alpha', int(self.blankSource == idx))
 
