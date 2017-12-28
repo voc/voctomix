@@ -13,7 +13,16 @@ class AudioMix(object):
         self.log = logging.getLogger('AudioMix')
 
         self.caps = Config.get('mix', 'audiocaps')
-        self.names = Config.getlist('mix', 'sources')
+
+        try:
+            video_only = Config.getlist('mix', 'video_only')
+        except Exception:
+            video_only = []
+
+        self.names = [name for name in
+                      Config.getlist('mix', 'sources')
+                      if name not in video_only]
+
         self.log.info('Configuring Mixer for %u Sources', len(self.names))
 
         # initialize all sources to silent

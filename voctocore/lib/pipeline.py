@@ -29,6 +29,14 @@ class Pipeline(object):
         self.previews = []
         self.sbsources = []
 
+        audio_only = []
+        video_only = []
+        try:
+            audio_only = Config.getlist('mix', 'audio_only')
+            video_only = Config.getlist('mix', 'video_only')
+        except Exception:
+            pass
+
         self.log.info('Creating %u AVSources: %s', len(names), names)
         for idx, name in enumerate(names):
             port = 10000 + idx
@@ -39,7 +47,10 @@ class Pipeline(object):
             if Config.getboolean('mirrors', 'enabled'):
                 outputs.append(name + '_mirror')
 
-            source = spawn_source(name, port, outputs=outputs)
+            has_audio = name not in video_only
+            has_video = name not in audio_only
+            source = spawn_source(name, port, outputs=outputs,
+                                  has_audio=has_audio, has_video=has_video)
             self.log.info('Creating AVSource %s as %s', name, source)
             self.sources.append(source)
 

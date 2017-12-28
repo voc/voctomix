@@ -43,8 +43,15 @@ class VideoMix(object):
     def __init__(self):
         self.caps = Config.get('mix', 'videocaps')
 
-        self.names = Config.getlist('mix', 'sources')
-        self.log.info('Configuring Mixer for %u Sources', len(self.names))
+        try:
+            audio_only = Config.getlist('mix', 'audio_only')
+        except Exception:
+            audio_only = []
+
+        self.names = [name for name in
+                      Config.getlist('mix', 'sources')
+                      if name not in audio_only]
+        self.log.info('Configuring VideoMixer for %u Sources', len(self.names))
 
         pipeline = """
             compositor name=mix !

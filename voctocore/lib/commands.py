@@ -15,6 +15,27 @@ class ControlServerCommands(object):
         self.pipeline = pipeline
 
         self.sources = Config.getlist('mix', 'sources')
+        self.audio_sources = []
+        self.video_sources = []
+
+        video_only = []
+        audio_only = []
+
+        try:
+            audio_only = Config.getlist('mix', 'audio_only')
+            video_only = Config.getlist('mix', 'video_only')
+        except Exception:
+            pass
+
+        for source in self.sources:
+            if source not in audio_only and source not in video_only:
+                self.audio_sources.append(source)
+                self.video_sources.append(source)
+            elif source in video_only:
+                self.video_sources.append(source)
+            elif source in audio_only:
+                self.audio_sources.append(source)
+
         if Config.getboolean('stream-blanker', 'enabled'):
             self.blankerSources = Config.getlist('stream-blanker', 'sources')
 
@@ -57,7 +78,11 @@ class ControlServerCommands(object):
         helplines.append('\t' + 'quit / exit')
 
         helplines.append("\n")
-        helplines.append("Source-Names:")
+        helplines.append("Video-Source Names:")
+        for source in self.video_sources:
+            helplines.append("\t" + source)
+
+        helplines.append("Audio-Source Names:")
         for source in self.sources:
             helplines.append("\t" + source)
 
@@ -75,8 +100,8 @@ class ControlServerCommands(object):
         return OkResponse("\n".join(helplines))
 
     def _get_video_status(self):
-        a = self.sources[self.pipeline.vmix.getVideoSourceA()]
-        b = self.sources[self.pipeline.vmix.getVideoSourceB()]
+        a = self.video_sources[self.pipeline.vmix.getVideoSourceA()]
+        b = self.video_sources[self.pipeline.vmix.getVideoSourceB()]
         return [a, b]
 
     def get_video(self):
@@ -89,7 +114,7 @@ class ControlServerCommands(object):
         """sets the video-source A to the supplied source-name or source-id,
            swapping A and B if the supplied source is currently used as
            video-source B"""
-        src_id = self.sources.index(src_name)
+        src_id = self.video_sources.index(src_name)
         self.pipeline.vmix.setVideoSourceA(src_id)
 
         status = self._get_video_status()
@@ -99,7 +124,7 @@ class ControlServerCommands(object):
         """sets the video-source B to the supplied source-name or source-id,
            swapping A and B if the supplied source is currently used as
            video-source A"""
-        src_id = self.sources.index(src_name)
+        src_id = self.video_sources.index(src_name)
         self.pipeline.vmix.setVideoSourceB(src_id)
 
         status = self._get_video_status()
@@ -109,7 +134,7 @@ class ControlServerCommands(object):
         volumes = self.pipeline.amix.getAudioVolumes()
 
         return json.dumps({
-            self.sources[idx]: round(volume, 4)
+            self.audio_sources[idx]: round(volume, 4)
             for idx, volume in enumerate(volumes)
         })
 
@@ -120,7 +145,7 @@ class ControlServerCommands(object):
 
     def set_audio(self, src_name):
         """sets the audio-source to the supplied source-name or source-id"""
-        src_id = self.sources.index(src_name)
+        src_id = self.audio_sources.index(src_name)
         self.pipeline.amix.setAudioSource(src_id)
 
         status = self._get_audio_status()
@@ -128,7 +153,7 @@ class ControlServerCommands(object):
 
     def set_audio_volume(self, src_name, volume):
         """sets the volume of the supplied source-name or source-id"""
-        src_id = self.sources.index(src_name)
+        src_id = self.audio_sources.index(src_name)
         volume = float(volume)
         if volume < 0.0:
             raise ValueError("volume must be positive")
@@ -171,11 +196,11 @@ class ControlServerCommands(object):
         """sets the A- and the B-source synchronously with the composition-mode
            all parametets can be set to "*" which will leave them unchanged."""
         if src_a_name != '*':
-            src_a_id = self.sources.index(src_a_name)
+            src_a_id = self.video_sources.index(src_a_name)
             self.pipeline.vmix.setVideoSourceA(src_a_id)
 
         if src_b_name != '*':
-            src_b_id = self.sources.index(src_b_name)
+            src_b_id = self.video_sources.index(src_b_name)
             self.pipeline.vmix.setVideoSourceB(src_b_id)
 
         if mode_name != '*':
