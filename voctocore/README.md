@@ -34,12 +34,16 @@ Also, if enabled in Config, another Building-Block is chained after the Main-Mix
                 /
 10000… AVSource --> MirrorPort 13000…
                 \-> Encoder* -> PreviewPort* 14000…
+                 \
+                  \
+                   \--> Slides -> SlidesStreamBlanker*** -> SlidesStreamOutputPort** 15001
 
 9999 Control-Server
 9998 GstNetTimeProvider Network-Clock
 
-*)  only when [previews] enabled=true is configured
-**) only when [stream-blanker] enabled=true is configured
+*)   only when [previews] enabled=true is configured
+**)  only when [stream-blanker] enabled=true is configured
+***) only when [mix] slides_source_name=… is configured
 ````
 
 ## Network Ports Listing
