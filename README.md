@@ -62,7 +62,7 @@ docker run -it --rm --name=bg --link=voctocore:corehost c3voc/voctomix gstreamer
 Run the GUI 
 ```
 xhost +local:$(id -un)
-touch /tmp/vocto/configgui.ini
+mkdir /tmp/vocto/ && touch /tmp/vocto/configgui.ini
 docker run -it --rm --name=gui --env=gid=$(id -g) --env=uid=$(id -u) --env=DISPLAY=:0 --link=voctocore:corehost \
   -v /tmp/vocto/configgui.ini:/opt/voctomix/voctogui/config.ini -v /tmp/.X11-unix:/tmp/.X11-unix -v /tmp/.docker.xauth:/tmp/.docker.xauth c3voc/voctomix gui
 ```
