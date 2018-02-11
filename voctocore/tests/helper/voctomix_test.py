@@ -20,3 +20,13 @@ class VoctomixTest(unittest.TestCase):
 
     def setUp(self):
         lib.config.Config.resetToDefaults()
+
+    def assertContainsIgnoringWhitespace(self, text, search):
+        regex = search.replace(" ", "\s*")
+
+        try:
+            self.assertRegex(text, regex)
+        except AssertionError:
+            raise AssertionError("search-string was out found in text (ignoring whitespace)\n"
+                                 "search-string %s\n"
+                                 "text:\n%s" % (search, text))

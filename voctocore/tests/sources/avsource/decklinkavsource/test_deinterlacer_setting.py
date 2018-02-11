@@ -17,25 +17,27 @@ class AudiomixMultipleSources(VoctomixTest):
 
     def test_unconfigured_does_not_add_a_deinterlacer(self):
         pipeline = self.simulate_connection_and_aquire_pipeline_description()
-        self.assertRegexAnyWhitespace(pipeline, "videoconvert ! videoscale")
+        self.assertContainsIgnoringWhitespace(pipeline, "videoconvert ! videoscale")
 
     def test_no_does_not_add_a_deinterlacer(self):
         Config.given("source.cam1", "deinterlace", "no")
 
         pipeline = self.simulate_connection_and_aquire_pipeline_description()
-        self.assertRegexAnyWhitespace(pipeline, "videoconvert ! videoscale")
+        self.assertContainsIgnoringWhitespace(pipeline, "videoconvert ! videoscale")
 
     def test_yes_does_add_yadif(self):
         Config.given("source.cam1", "deinterlace", "yes")
 
         pipeline = self.simulate_connection_and_aquire_pipeline_description()
-        self.assertRegexAnyWhitespace(pipeline, "mode=1080i50 ! yadif mode=interlaced ! videoconvert")
+        self.assertContainsIgnoringWhitespace(
+            pipeline,
+            "mode=1080i50 ! videoconvert ! yadif mode=interlaced ! videoconvert")
 
     def test_assume_progressive_does_add_capssetter(self):
         Config.given("source.cam1", "deinterlace", "assume-progressive")
 
         pipeline = self.simulate_connection_and_aquire_pipeline_description()
-        self.assertRegexAnyWhitespace(
+        self.assertContainsIgnoringWhitespace(
             pipeline,
             "mode=1080i50 ! capssetter caps=video/x-raw,interlace-mode=progressive ! videoconvert"
         )
@@ -49,7 +51,3 @@ class AudiomixMultipleSources(VoctomixTest):
         pipeline = args[0]
 
         return pipeline
-
-    def assertRegexAnyWhitespace(self, text, regex):
-        regex = regex.replace(" ", "\s*")
-        self.assertRegex(text, regex)

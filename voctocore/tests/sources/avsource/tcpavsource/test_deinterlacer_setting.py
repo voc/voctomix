@@ -20,25 +20,27 @@ class AudiomixMultipleSources(VoctomixTest):
 
     def test_unconfigured_does_not_add_a_deinterlacer(self):
         pipeline = self.simulate_connection_and_aquire_pipeline_description()
-        self.assertRegexAnyWhitespace(pipeline, "demux. ! video/x-raw ! queue ! tee name=vtee")
+        self.assertContainsIgnoringWhitespace(pipeline, "demux. ! video/x-raw ! queue ! tee name=vtee")
 
     def test_no_does_not_add_a_deinterlacer(self):
         Config.given("source.cam1", "deinterlace", "no")
 
         pipeline = self.simulate_connection_and_aquire_pipeline_description()
-        self.assertRegexAnyWhitespace(pipeline, "demux. ! video/x-raw ! queue ! tee name=vtee")
+        self.assertContainsIgnoringWhitespace(pipeline, "demux. ! video/x-raw ! queue ! tee name=vtee")
 
     def test_yes_does_add_yadif(self):
         Config.given("source.cam1", "deinterlace", "yes")
 
         pipeline = self.simulate_connection_and_aquire_pipeline_description()
-        self.assertRegexAnyWhitespace(pipeline, "demux. ! video/x-raw ! yadif mode=interlaced name=deinter")
+        self.assertContainsIgnoringWhitespace(
+            pipeline,
+            "demux. ! video/x-raw ! videoconvert ! yadif mode=interlaced name=deinter")
 
     def test_assume_progressive_does_add_capssetter(self):
         Config.given("source.cam1", "deinterlace", "assume-progressive")
 
         pipeline = self.simulate_connection_and_aquire_pipeline_description()
-        self.assertRegexAnyWhitespace(
+        self.assertContainsIgnoringWhitespace(
             pipeline,
             "demux. ! video/x-raw ! capssetter caps=video/x-raw,interlace-mode=progressive name=deinter"
         )
@@ -52,7 +54,3 @@ class AudiomixMultipleSources(VoctomixTest):
         pipeline = args[0]
 
         return pipeline
-
-    def assertRegexAnyWhitespace(self, text, regex):
-        regex = regex.replace(" ", "\s*")
-        self.assertRegex(text, regex)
