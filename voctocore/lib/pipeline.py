@@ -119,5 +119,7 @@ class Pipeline(object):
 
             if Config.has_option('mix', 'slides_source_name'):
                 port = 15001
-                self.log.info('Creating SlideStreamBlanker-Output at tcp-port %u', port)
-                self.slides_streamout = AVRawOutput('slides_stream-blanker_out', port)
+                self.log.info(
+                    'Creating SlideStreamBlanker-Output at tcp-port %u', port)
+                self.slides_streamout = AVRawOutput(
+                    'slides_stream-blanker_out', port)
