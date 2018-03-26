@@ -16,7 +16,7 @@ Install the required dependencies:
 apt-get install gstreamer1.0-plugins-bad gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-ugly gstreamer1.0-tools libgstreamer1.0-0 python3 python3-gi gir1.2-gstreamer-1.0 gir1.2-gst-plugins-base-1.0
 
 # Optional for the Example-Scripts
-apt-get install python3-pyinotify gstreamer1.0-libav rlwrap fbset
+apt-get install python3-pyinotify gstreamer1.0-libav rlwrap fbset ffmpeg netcat gstreamer1.0-vaapi
 ````
 
 
