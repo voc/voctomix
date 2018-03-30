@@ -54,6 +54,12 @@ Now proceed as described under [Installation](#installation).
 
 ### docker-compose
 
+Install docker-compose (prerequisite)
+```
+apt install docker-compose      # debian
+dnf install docker-compose      # fedora
+```
+
 Run the core, gui and two example source streams
 ```
 xhost +local:$(id -un)
