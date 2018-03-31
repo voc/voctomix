@@ -68,6 +68,10 @@ class Voctogui(object):
             raise Exception("Can't find any .ui-Files to use "
                             "(searched {})".format(', '.join(paths)))
 
+        #
+        # search for a .css style sheet file and load it
+        #
+
         css_provider = Gtk.CssProvider()
         context = Gtk.StyleContext()
 
