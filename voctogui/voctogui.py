@@ -68,6 +68,32 @@ class Voctogui(object):
             raise Exception("Can't find any .ui-Files to use "
                             "(searched {})".format(', '.join(paths)))
 
+        css_provider = Gtk.CssProvider()
+        context = Gtk.StyleContext()
+
+        css_paths = [
+            os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                         'ui/voctogui.css'),
+            '/usr/lib/voctogui/ui/voctogui.css'
+        ]
+
+        for path in css_paths:
+            self.log.debug('trying to load css-file from file %s', path)
+
+            if os.path.isfile(path):
+                self.log.info('loading css-file from file %s', path)
+                css_provider.load_from_path(path)
+                break
+        else:
+            raise Exception("Can't find any .css-Files to use "
+                            "(searched {})".format(', '.join(css_paths)))
+
+        context.add_provider_for_screen(
+            Gdk.Screen.get_default(),
+            css_provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_USER
+        )
+
         self.ui.setup()
 
     def run(self):

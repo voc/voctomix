@@ -332,6 +332,9 @@
                     <property name="receives_default">True</property>
                     <property name="margin_right">5</property>
                     <property name="draw_indicator">False</property>
+                    <style>
+                      <class name="btn_grp_a"/>
+                    </style>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -349,6 +352,9 @@
                     <property name="receives_default">True</property>
                     <property name="margin_right">5</property>
                     <property name="draw_indicator">False</property>
+                    <style>
+                      <class name="btn_grp_b"/>
+                    </style>
                   </object>
                   <packing>
                     <property name="expand">False</property>
