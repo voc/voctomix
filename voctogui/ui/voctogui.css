@@ -1,0 +1,11 @@
+.btn_grp_a:checked {
+  background-image: none;
+  background-color: blue;
+  color: white;
+}
+
+.btn_grp_b:checked {
+  background-image: none;
+  background-color: red;
+  color: white;
+}
