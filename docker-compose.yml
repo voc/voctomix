@@ -1,0 +1,54 @@
+---
+version: '3.4'
+
+services:
+  voctocore:
+    image: c3voc/voctomix
+    command: core
+    container_name: voctocore
+    networks:
+      voctomix:
+        aliases:
+          - corehost
+  source_cam1:
+    image: c3voc/voctomix
+    command: gstreamer/source-videotestsrc-as-cam1.sh
+    container_name: source_cam1
+    depends_on:
+      - voctocore
+    networks:
+      - voctomix
+  source_bg:
+    image: c3voc/voctomix
+    command: gstreamer/source-videotestsrc-as-background-loop.sh
+    container_name: source_bg
+    depends_on:
+      - voctocore
+    networks:
+      - voctomix
+  voctogui:
+    image: c3voc/voctomix
+    command: gui
+    container_name: voctogui
+    depends_on:
+      - voctocore
+    environment:
+      DISPLAY: :0
+      uid: ${UID}
+      gid: ${GID}
+    volumes:
+      - type: bind
+        source: /tmp/vocto/configgui.ini
+        target: /opt/voctomix/voctogui/config.ini
+      - type: bind
+        source: /tmp/.X11-unix
+        target: /tmp/.X11-unix
+      - type: bind
+        source: /tmp/.docker.xauth
+        target: /tmp/.docker.xauth
+    networks:
+      - voctomix
+
+networks:
+  voctomix:
+...

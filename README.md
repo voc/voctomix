@@ -52,6 +52,33 @@ Now proceed as described under [Installation](#installation).
 
 ## Quickstart using Docker
 
+### docker-compose
+
+Install docker-compose (prerequisite)
+```
+apt install docker-compose      # debian
+dnf install docker-compose      # fedora
+```
+
+Run the core, gui and two example source streams
+```
+xhost +local:$(id -un)
+mkdir /tmp/vocto/ && touch /tmp/vocto/configgui.ini
+GID=$(id -g) UID=$(id -u) docker-compose up
+```
+
+Run only the core
+```
+docker-compose up voctocore
+```
+
+Clean up stale containers
+```
+docker-compose rm
+```
+
+### Manually
+
 Run the core and two example source streams
 ```
 docker run -it --rm --name=voctocore c3voc/voctomix core
