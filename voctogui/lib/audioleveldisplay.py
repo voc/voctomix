@@ -1,6 +1,6 @@
 import logging
 import math
-
+import cairo
 
 class AudioLevelDisplay(object):
     """Displays a Level-Meter of another VideoDisplay into a GtkWidget"""
@@ -46,52 +46,57 @@ class AudioLevelDisplay(object):
         peak_px = [self.normalize_db(db) * height for db in self.levelpeak]
         decay_px = [self.normalize_db(db) * height for db in self.leveldecay]
 
-        # set the line-width >1, to get a nice overlap
-        cr.set_line_width(2)
+        # setup brightness levels for the different levels
+        bg_fade = 0.25
+        rms_fade = 1.0
+        peak_fade = 0.75
+        decay_fade = 0.5
 
-        # iterate over all pixels
-        for y in range(0, height):
+        # setup gradients for all level bars
+        bg_lg = cairo.LinearGradient(0, 0, 0, height)
+        bg_lg.add_color_stop_rgb(0.0, bg_fade, 0, 0)
+        bg_lg.add_color_stop_rgb(0.5, bg_fade, bg_fade, 0)
+        bg_lg.add_color_stop_rgb(1.0, 0, bg_fade, 0)
 
-            # calculate our place in the color-gradient, clamp to 0…1
-            # 0 -> green, 0.5 -> yellow, 1 -> red
-            color = self.clamp(((y / height) - 0.6) / 0.42)
+        rms_lg = cairo.LinearGradient(0, 0, 0, height)
+        rms_lg.add_color_stop_rgb(0.0, rms_fade, 0, 0)
+        rms_lg.add_color_stop_rgb(0.5, rms_fade, rms_fade, 0)
+        rms_lg.add_color_stop_rgb(1.0, 0, rms_fade, 0)
 
-            for channel in range(0, channels):
-                # start-coordinate for this channel
-                x = (channel * channel_width) + (channel * margin)
+        peak_lg = cairo.LinearGradient(0, 0, 0, height)
+        peak_lg.add_color_stop_rgb(0.0, 0.75, 0, 0)
+        peak_lg.add_color_stop_rgb(0.5, 0.75, 0.75, 0)
+        peak_lg.add_color_stop_rgb(1.0, 0, 0.75, 0)
 
-                # calculate the brightness based on whether this line is in the
-                # active region
+        decay_lg = cairo.LinearGradient(0, 0, 0, height)
+        decay_lg.add_color_stop_rgb(0.0, 1, 0.5, 0.5)
+        decay_lg.add_color_stop_rgb(0.5, 1, 1, 0.5)
+        decay_lg.add_color_stop_rgb(1.0, 0.5, 1, 0.5)
 
-                # default to 0.25, dark
-                bright = 0.25
-                if int(y - decay_px[channel]) in range(0, 2):
-                    # decay marker, 2px wide, extra bright
-                    bright = 1.5
-                elif y < rms_px[channel]:
-                    # rms bar, full bright
-                    bright = 1
-                elif y < peak_px[channel]:
-                    # peak bar, a little darker
-                    bright = 0.75
+        # draw all level bars for all channels
+        for channel in range(0, channels):
+            # start-coordinate for this channel
+            x = (channel * channel_width) + (channel * margin)
 
-                # set the color with a little reduced green
-                cr.set_source_rgb(
-                    color * bright,
-                    (1 - color) * bright * 0.75,
-                    0
-                )
+            # draw background
+            cr.rectangle(x, 0, channel_width, height - peak_px[channel])
+            cr.set_source(bg_lg)
+            cr.fill()
 
-                # draw the marker
-                cr.move_to(x, height - y)
-                cr.line_to(x + channel_width, height - y)
-                cr.stroke()
+            # draw peak bar
+            cr.rectangle(x, height - peak_px[channel], channel_width, peak_px[channel])
+            cr.set_source(peak_lg)
+            cr.fill()
 
-                # draw a black line for the margin
-                cr.set_source_rgb(0, 0, 0)
-                cr.move_to(x + channel_width, height - y)
-                cr.line_to(x + channel_width + margin, height - y)
-                cr.stroke()
+            # draw rms bar below
+            cr.rectangle(x, height - rms_px[channel], channel_width, rms_px[channel] - peak_px[channel])
+            cr.set_source(rms_lg)
+            cr.fill()
+
+            # draw decay bar
+            cr.rectangle(x, height - decay_px[channel], channel_width, 2)
+            cr.set_source(decay_lg)
+            cr.fill()
 
         # draw db text-markers
         cr.set_source_rgb(1, 1, 1)
