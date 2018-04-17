@@ -20,6 +20,19 @@ class AudioLevelDisplay(object):
         # register on_draw handler
         self.drawing_area.connect('draw', self.on_draw)
 
+    # generate gradient from green to yellow to red in logarithmic scale
+    def gradient(self, brightness, darkness, height):
+        # prepare gradient
+        lg = cairo.LinearGradient(0, 0, 0, height)
+        # set gradient stops
+        lg.add_color_stop_rgb(0.0, brightness, darkness, darkness)
+        lg.add_color_stop_rgb(0.22, brightness, brightness, darkness)
+        lg.add_color_stop_rgb(0.25, brightness, brightness, darkness)
+        lg.add_color_stop_rgb(0.35, darkness, brightness, darkness)
+        lg.add_color_stop_rgb(1.0, darkness, brightness, darkness)
+        # return result
+        return lg
+
     def on_draw(self, widget, cr):
         # number of audio-channels
         channels = len(self.levelrms)
@@ -47,34 +60,11 @@ class AudioLevelDisplay(object):
         peak_px = [self.normalize_db(db) * height for db in self.levelpeak]
         decay_px = [self.normalize_db(db) * height for db in self.leveldecay]
 
-        # setup brightness levels for the different levels
-        bg_fade = 0.25
-        rms_fade = 1.0
-        peak_fade = 0.75
-        decay_invers_fade = 0.5
-
         # setup gradients for all level bars
-        bg_lg = cairo.LinearGradient(0, 0, 0, height)
-        bg_lg.add_color_stop_rgb(0.0, bg_fade, 0, 0)
-        bg_lg.add_color_stop_rgb(0.5, bg_fade, bg_fade, 0)
-        bg_lg.add_color_stop_rgb(1.0, 0, bg_fade, 0)
-
-        rms_lg = cairo.LinearGradient(0, 0, 0, height)
-        rms_lg.add_color_stop_rgb(0.0, rms_fade, 0, 0)
-        rms_lg.add_color_stop_rgb(0.5, rms_fade, rms_fade, 0)
-        rms_lg.add_color_stop_rgb(1.0, 0, rms_fade, 0)
-
-        peak_lg = cairo.LinearGradient(0, 0, 0, height)
-        peak_lg.add_color_stop_rgb(0.0, peak_fade, 0, 0)
-        peak_lg.add_color_stop_rgb(0.5, peak_fade, peak_fade, 0)
-        peak_lg.add_color_stop_rgb(1.0, 0, peak_fade, 0)
-
-        decay_lg = cairo.LinearGradient(0, 0, 0, height)
-        decay_lg.add_color_stop_rgb(
-            0.0, 1, decay_invers_fade, decay_invers_fade)
-        decay_lg.add_color_stop_rgb(0.5, 1, 1, decay_invers_fade)
-        decay_lg.add_color_stop_rgb(
-            1.0, decay_invers_fade, 1, decay_invers_fade)
+        bg_lg = self.gradient(0.25, 0.0, height)
+        rms_lg = self.gradient(1.0, 0.0, height)
+        peak_lg = self.gradient(0.75, 0.0, height)
+        decay_lg = self.gradient(0.0, 0.5, height)
 
         # draw all level bars for all channels
         for channel in range(0, channels):
