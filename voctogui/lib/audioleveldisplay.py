@@ -64,7 +64,7 @@ class AudioLevelDisplay(object):
         bg_lg = self.gradient(0.25, 0.0, height)
         rms_lg = self.gradient(1.0, 0.0, height)
         peak_lg = self.gradient(0.75, 0.0, height)
-        decay_lg = self.gradient(0.0, 0.5, height)
+        decay_lg = self.gradient(1.0, 0.5, height)
 
         # draw all level bars for all channels
         for channel in range(0, channels):
