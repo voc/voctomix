@@ -17,6 +17,8 @@ class AudioLevelDisplay(object):
         self.levelpeak = []
         self.leveldecay = []
 
+        self.height = -1
+
         # register on_draw handler
         self.drawing_area.connect('draw', self.on_draw)
 
@@ -60,11 +62,13 @@ class AudioLevelDisplay(object):
         peak_px = [self.normalize_db(db) * height for db in self.levelpeak]
         decay_px = [self.normalize_db(db) * height for db in self.leveldecay]
 
-        # setup gradients for all level bars
-        bg_lg = self.gradient(0.25, 0.0, height)
-        rms_lg = self.gradient(1.0, 0.0, height)
-        peak_lg = self.gradient(0.75, 0.0, height)
-        decay_lg = self.gradient(1.0, 0.5, height)
+        if self.height != height:
+            self.height = height
+            # setup gradients for all level bars
+            self.bg_lg = self.gradient(0.25, 0.0, height)
+            self.rms_lg = self.gradient(1.0, 0.0, height)
+            self.peak_lg = self.gradient(0.75, 0.0, height)
+            self.decay_lg = self.gradient(1.0, 0.5, height)
 
         # draw all level bars for all channels
         for channel in range(0, channels):
@@ -73,25 +77,25 @@ class AudioLevelDisplay(object):
 
             # draw background
             cr.rectangle(x, 0, channel_width, height - peak_px[channel])
-            cr.set_source(bg_lg)
+            cr.set_source(self.bg_lg)
             cr.fill()
 
             # draw peak bar
             cr.rectangle(
                 x, height - peak_px[channel], channel_width, peak_px[channel])
-            cr.set_source(peak_lg)
+            cr.set_source(self.peak_lg)
             cr.fill()
 
             # draw rms bar below
             cr.rectangle(
                 x, height - rms_px[channel], channel_width,
                 rms_px[channel] - peak_px[channel])
-            cr.set_source(rms_lg)
+            cr.set_source(self.rms_lg)
             cr.fill()
 
             # draw decay bar
             cr.rectangle(x, height - decay_px[channel], channel_width, 2)
-            cr.set_source(decay_lg)
+            cr.set_source(self.decay_lg)
             cr.fill()
 
             # draw medium grey margin bar
