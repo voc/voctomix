@@ -50,7 +50,7 @@ class AudioLevelDisplay(object):
         bg_fade = 0.25
         rms_fade = 1.0
         peak_fade = 0.75
-        decay_fade = 0.5
+        decay_invers_fade = 0.5
 
         # setup gradients for all level bars
         bg_lg = cairo.LinearGradient(0, 0, 0, height)
@@ -64,14 +64,14 @@ class AudioLevelDisplay(object):
         rms_lg.add_color_stop_rgb(1.0, 0, rms_fade, 0)
 
         peak_lg = cairo.LinearGradient(0, 0, 0, height)
-        peak_lg.add_color_stop_rgb(0.0, 0.75, 0, 0)
-        peak_lg.add_color_stop_rgb(0.5, 0.75, 0.75, 0)
-        peak_lg.add_color_stop_rgb(1.0, 0, 0.75, 0)
+        peak_lg.add_color_stop_rgb(0.0, peak_fade, 0, 0)
+        peak_lg.add_color_stop_rgb(0.5, peak_fade, peak_fade, 0)
+        peak_lg.add_color_stop_rgb(1.0, 0, peak_fade, 0)
 
         decay_lg = cairo.LinearGradient(0, 0, 0, height)
-        decay_lg.add_color_stop_rgb(0.0, 1, 0.5, 0.5)
-        decay_lg.add_color_stop_rgb(0.5, 1, 1, 0.5)
-        decay_lg.add_color_stop_rgb(1.0, 0.5, 1, 0.5)
+        decay_lg.add_color_stop_rgb(0.0, 1, decay_invers_fade, decay_invers_fade)
+        decay_lg.add_color_stop_rgb(0.5, 1, 1, decay_invers_fade)
+        decay_lg.add_color_stop_rgb(1.0, decay_invers_fade, 1, decay_invers_fade)
 
         # draw all level bars for all channels
         for channel in range(0, channels):
