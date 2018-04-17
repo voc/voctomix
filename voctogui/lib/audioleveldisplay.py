@@ -94,6 +94,12 @@ class AudioLevelDisplay(object):
             cr.set_source(decay_lg)
             cr.fill()
 
+            # draw medium grey margin bar
+            if margin > 0:
+                cr.rectangle(x + channel_width, 0, margin, height)
+                cr.set_source_rgb(0.5, 0.5, 0.5)
+                cr.fill()
+
         # draw db text-markers
         for db in [-40, -20, -10, -5, -4, -3, -2, -1]:
             text = str(db)
