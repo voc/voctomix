@@ -2,6 +2,7 @@ import logging
 import math
 import cairo
 
+
 class AudioLevelDisplay(object):
     """Displays a Level-Meter of another VideoDisplay into a GtkWidget"""
 
@@ -69,9 +70,11 @@ class AudioLevelDisplay(object):
         peak_lg.add_color_stop_rgb(1.0, 0, peak_fade, 0)
 
         decay_lg = cairo.LinearGradient(0, 0, 0, height)
-        decay_lg.add_color_stop_rgb(0.0, 1, decay_invers_fade, decay_invers_fade)
+        decay_lg.add_color_stop_rgb(
+            0.0, 1, decay_invers_fade, decay_invers_fade)
         decay_lg.add_color_stop_rgb(0.5, 1, 1, decay_invers_fade)
-        decay_lg.add_color_stop_rgb(1.0, decay_invers_fade, 1, decay_invers_fade)
+        decay_lg.add_color_stop_rgb(
+            1.0, decay_invers_fade, 1, decay_invers_fade)
 
         # draw all level bars for all channels
         for channel in range(0, channels):
@@ -84,12 +87,15 @@ class AudioLevelDisplay(object):
             cr.fill()
 
             # draw peak bar
-            cr.rectangle(x, height - peak_px[channel], channel_width, peak_px[channel])
+            cr.rectangle(
+                x, height - peak_px[channel], channel_width, peak_px[channel])
             cr.set_source(peak_lg)
             cr.fill()
 
             # draw rms bar below
-            cr.rectangle(x, height - rms_px[channel], channel_width, rms_px[channel] - peak_px[channel])
+            cr.rectangle(
+                x, height - rms_px[channel], channel_width,
+                rms_px[channel] - peak_px[channel])
             cr.set_source(rms_lg)
             cr.fill()
 
