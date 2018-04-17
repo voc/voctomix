@@ -134,8 +134,8 @@ class AudioLevelDisplay(object):
         return max(min(value, max_value), min_value)
 
     def level_callback(self, rms, peak, decay):
-        if (self.levelrms != rms or self.levelpeak != peak or
-                self.leveldecay != decay):
+        if self.levelrms != rms or self.levelpeak != peak \
+                or self.leveldecay != decay:
             self.levelrms = rms
             self.levelpeak = peak
             self.leveldecay = decay
