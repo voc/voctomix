@@ -95,7 +95,6 @@ class AudioLevelDisplay(object):
             cr.fill()
 
         # draw db text-markers
-        cr.set_source_rgb(1, 1, 1)
         for db in [-40, -20, -10, -5, -4, -3, -2, -1]:
             text = str(db)
             (xbearing, ybearing,
@@ -103,6 +102,10 @@ class AudioLevelDisplay(object):
              xadvance, yadvance) = cr.text_extents(text)
 
             y = self.normalize_db(db) * height
+            if y > peak_px[channel]:
+                cr.set_source_rgb(1, 1, 1)
+            else:
+                cr.set_source_rgb(0, 0, 0)
             cr.move_to((width - textwidth) / 2, height - y - textheight)
             cr.show_text(text)
 
