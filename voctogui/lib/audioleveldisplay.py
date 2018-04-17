@@ -102,11 +102,11 @@ class AudioLevelDisplay(object):
              xadvance, yadvance) = cr.text_extents(text)
 
             y = self.normalize_db(db) * height
-            if y > peak_px[channel]:
+            if y > peak_px[channels - 1]:
                 cr.set_source_rgb(1, 1, 1)
             else:
                 cr.set_source_rgb(0, 0, 0)
-            cr.move_to((width - textwidth) / 2, height - y - textheight)
+            cr.move_to((width - textwidth) - 2, height - y - textheight)
             cr.show_text(text)
 
         return True
