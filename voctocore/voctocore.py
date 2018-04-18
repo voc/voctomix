@@ -70,8 +70,8 @@ def main():
     args.parse()
 
     from lib.args import Args
-    docolor = (Args.color == 'always') or (Args.color == 'auto' and
-                                           sys.stderr.isatty())
+    docolor = (Args.color == 'always') \
+        or (Args.color == 'auto' and sys.stderr.isatty())
 
     handler = LogHandler(docolor, Args.timestamp)
     logging.root.addHandler(handler)

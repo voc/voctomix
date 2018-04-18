@@ -21,8 +21,8 @@ class VideoDisplay(object):
         else:
             previewcaps = Config.get('mix', 'videocaps')
 
-        use_previews = (Config.getboolean('previews', 'enabled') and
-                        Config.getboolean('previews', 'use'))
+        use_previews = Config.getboolean('previews', 'enabled') \
+            and Config.getboolean('previews', 'use')
 
         # Preview-Ports are Raw-Ports + 1000
         if use_previews:
