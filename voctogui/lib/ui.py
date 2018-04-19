@@ -29,6 +29,11 @@ class Ui(UiBuilder):
         # Aquire the Main-Window from the UI-File
         self.win = self.get_check_widget('window')
 
+        if Config.has_option('mainwindow', 'width') \
+                and Config.has_option('mainwindow', 'height'):
+            self.win.resize(Config.getint(
+                'mainwindow', 'width'), Config.getint('mainwindow', 'height'))
+
         # Connect Close-Handler
         self.win.connect('delete-event', Gtk.main_quit)
 
