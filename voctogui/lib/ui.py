@@ -30,7 +30,8 @@ class Ui(UiBuilder):
         self.win = self.get_check_widget('window')
 
         # check for configuration option mainwindow/force_fullscreen
-        if Config.getboolean('mainwindow', 'force_fullscreen'):
+        if Config.has_option('mainwindow', 'force_fullscreen') \
+                and Config.getboolean('mainwindow', 'force_fullscreen'):
             self.log.info(
                 'Forcing main window to full screen by configuration')
             # set window into fullscreen mode
@@ -103,7 +104,9 @@ class Ui(UiBuilder):
             show_shortcuts(window)
 
     def handle_state(self, window, event):
-        if Config.getboolean('mainwindow', 'force_fullscreen'):
+        # force full screen if whished by configuration
+        if Config.has_option('mainwindow', 'force_fullscreen') \
+                and Config.getboolean('mainwindow', 'force_fullscreen'):
             self.win.fullscreen()
 
     def show(self):
