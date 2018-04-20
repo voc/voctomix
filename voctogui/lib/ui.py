@@ -31,7 +31,7 @@ class Ui(UiBuilder):
 
         if Config.has_option('mainwindow', 'width') \
                 and Config.has_option('mainwindow', 'height'):
-            self.win.resize(Config.getint(
+            self.win.set_size_request(Config.getint(
                 'mainwindow', 'width'), Config.getint('mainwindow', 'height'))
 
         # Connect Close-Handler
