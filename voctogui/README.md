@@ -2,33 +2,34 @@
 
 ![Screenshot of voctogui in action](voctomix.png)
 
-## Keyboard Shortcuts
-### Composition Modes
+## Usage
+### Keyboard Shortcuts
+#### Composition Modes
 - `F1` Fullscreen
 - `F2` Picture in Picture
 - `F3` Side-by-Side Equal
 - `F4` Side-by-Side Preview
 
-### Select A-Source
+#### Select A-Source
 - `1` Source Nr. 1
 - `2` Source Nr. 2
 - …
 
-### Select B-Source
+#### Select B-Source
 - `Ctrl+1` Source Nr. 1
 - `Ctrl+2` Source Nr. 2
 - …
 
-### Set Fullscteen
+#### Set Fullscteen
 - `Alt+1` Source Nr. 1
 - `Alt+2` Source Nr. 2
 - …
 
-### Stream Blanking
+#### Stream Blanking
 - F11 Set stream to Pause-Loop
 - F12 Set stream Live
 
-### Other options
+#### Other options
 - `t` Cut
 
 ### Select an Audio-Source
