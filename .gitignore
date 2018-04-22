@@ -12,7 +12,7 @@ __pycache__/
 *.egg
 
 # PyInstaller
-#  Usually these files are written by a python script from a template 
+#  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
@@ -60,3 +60,6 @@ target/
 # IDE project files
 /*.iml
 /.idea
+
+# html files generated from MD files
+*.md.html
