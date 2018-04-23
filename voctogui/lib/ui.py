@@ -30,7 +30,7 @@ class Ui(UiBuilder):
         self.win = self.get_check_widget('window')
 
         # check for configuration option mainwindow/force_fullscreen
-        if Config.getboolean('mainwindow', 'force_fullscreen', fallback=False):
+        if Config.getboolean('mainwindow', 'forcefullscreen', fallback=False):
             self.log.info(
                 'Forcing main window to full screen by configuration')
             # set window into fullscreen mode
