@@ -17,7 +17,7 @@ def establish(host):
 
     log.info('establishing Connection to %s', host)
     conn = socket.create_connection((host, port))
-    log.debug('Connection successful \o/')
+    log.debug(r'Connection successful \o/')
 
     ip = conn.getpeername()[0]
     log.debug('Remote-IP is %s', ip)
