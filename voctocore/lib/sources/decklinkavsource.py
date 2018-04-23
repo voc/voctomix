@@ -8,6 +8,7 @@ from lib.sources.avsource import AVSource
 
 
 class DeckLinkAVSource(AVSource):
+
     def __init__(self, name, outputs=None, has_audio=True, has_video=True):
         self.log = logging.getLogger('DecklinkAVSource[{}]'.format(name))
         super().__init__(name, outputs, has_audio, has_video)
@@ -94,7 +95,7 @@ class DeckLinkAVSource(AVSource):
 
         for key in Config[config_section]:
             value = Config.get(config_section, key)
-            m = re.match('audiostream\[(\d+)\]', key)
+            m = re.match(r'audiostream\[(\d+)\]', key)
             if m:
                 audiostream = int(m.group(1))
                 audiostream_map[audiostream] = value
@@ -102,7 +103,7 @@ class DeckLinkAVSource(AVSource):
         return audiostream_map
 
     def _parse_audiostream_mapping(self, mapping):
-        m = re.match('(\d+)\+(\d+)', mapping)
+        m = re.match(r'(\d+)\+(\d+)', mapping)
         if m:
             return (int(m.group(1)), int(m.group(2)),)
         else:
