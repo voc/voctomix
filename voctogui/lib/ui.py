@@ -46,6 +46,7 @@ class Ui(UiBuilder):
                     'Set window size by configuration to %d:%d', width, height)
                 # set window size
                 self.win.set_size_request(width, height)
+                self.win.set_resizable(False)
 
         # Connect Close-Handler
         self.win.connect('delete-event', Gtk.main_quit)
