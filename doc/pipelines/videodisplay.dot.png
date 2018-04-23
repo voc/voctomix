@@ -1,0 +1,334 @@
+digraph pipeline {
+	graph [bb="0,0,2151,390",
+		fontname=sans,
+		fontsize=10,
+		label="<GstPipeline>\npipeline3\n[0]",
+		labelloc=t,
+		lheight=0.46,
+		lp="1075.5,369.5",
+		lwidth=0.97,
+		nodesep=.1,
+		rankdir=LR,
+		ranksep=.2
+	];
+	node [fontname=sans,
+		fontsize=9,
+		label="\N",
+		margin="0.0,0.0",
+		shape=box,
+		style="filled,rounded"
+	];
+	edge [fontname=monospace,
+		fontsize=9,
+		labelfontsize=6
+	];
+	subgraph cluster_glimagesink3_0x1a5b150 {
+		graph [bb="2005,114,2151,237",
+			color=black,
+			fillcolor="#aaaaff",
+			fontname="Bitstream Vera Sans",
+			fontsize=8,
+			label="GstGLImageSink\nglimagesink3\n[0]\nparent=(GstPipeline) pipeline3\nmax-lateness=20000000\nqos=TRUE\npixel-aspect-ratio=0/1",
+			lheight=0.88,
+			lp="2078,201.5",
+			lwidth=1.81,
+			style="filled,rounded"
+		];
+		subgraph cluster_glimagesink3_0x1a5b150_sink {
+			graph [bb="2043,122,2113,158",
+				label="",
+				style=invis
+			];
+			glimagesink3_0x1a5b150_sink_0x7f7f60005490			 [color=black,
+				fillcolor="#aaaaff",
+				height=0.27778,
+				label="sink\n[-][bFb]",
+				pos="2078,140",
+				style="filled,solid",
+				width=0.75];
+		}
+	}
+	subgraph cluster_glcolorconvertelement3_0x1709960 {
+		graph [bb="1553,114,1726,219",
+			color=black,
+			fillcolor="#aaffaa",
+			fontname="Bitstream Vera Sans",
+			fontsize=8,
+			label="GstGLColorConvertElement\nglcolorconvertelement3\n[0]\nparent=(GstPipeline) pipeline3\nqos=TRUE",
+			lheight=0.62,
+			lp="1639.5,192.5",
+			lwidth=1.81,
+			style="filled,rounded"
+		];
+		subgraph cluster_glcolorconvertelement3_0x1709960_sink {
+			graph [bb="1561,122,1631,158",
+				label="",
+				style=invis
+			];
+			glcolorconvertelement3_0x1709960_sink_0x7f7f60005010			 [color=black,
+				fillcolor="#aaaaff",
+				height=0.27778,
+				label="sink\n[-][bFb]",
+				pos="1596,140",
+				style="filled,solid",
+				width=0.75];
+		}
+		subgraph cluster_glcolorconvertelement3_0x1709960_src {
+			graph [bb="1648,122,1718,158",
+				label="",
+				style=invis
+			];
+			glcolorconvertelement3_0x1709960_src_0x7f7f60005250			 [color=black,
+				fillcolor="#ffaaaa",
+				height=0.27778,
+				label="src\n[-][bFb]",
+				pos="1683,140",
+				style="filled,solid",
+				width=0.75];
+		}
+		glcolorconvertelement3_0x1709960_sink_0x7f7f60005010 -> glcolorconvertelement3_0x1709960_src_0x7f7f60005250		 [pos="e,1655.9,140 1623.4,140 1630.5,140 1638.3,140 1645.9,140",
+			style=invis];
+	}
+	subgraph cluster_gluploadelement3_0x17095e0 {
+		graph [bb="763,114,1244,219",
+			color=black,
+			fillcolor="#aaffaa",
+			fontname="Bitstream Vera Sans",
+			fontsize=8,
+			label="GstGLUploadElement\ngluploadelement3\n[0]\nparent=(GstPipeline) pipeline3\nqos=TRUE",
+			lheight=0.62,
+			lp="1003.5,192.5",
+			lwidth=1.81,
+			style="filled,rounded"
+		];
+		subgraph cluster_gluploadelement3_0x17095e0_sink {
+			graph [bb="771,122,841,158",
+				label="",
+				style=invis
+			];
+			gluploadelement3_0x17095e0_sink_0x7f7f60004b90			 [color=black,
+				fillcolor="#aaaaff",
+				height=0.27778,
+				label="sink\n[-][bFb]",
+				pos="806,140",
+				style="filled,solid",
+				width=0.75];
+		}
+		subgraph cluster_gluploadelement3_0x17095e0_src {
+			graph [bb="1166,122,1236,158",
+				label="",
+				style=invis
+			];
+			gluploadelement3_0x17095e0_src_0x7f7f60004dd0			 [color=black,
+				fillcolor="#ffaaaa",
+				height=0.27778,
+				label="src\n[-][bFb]",
+				pos="1201,140",
+				style="filled,solid",
+				width=0.75];
+		}
+		gluploadelement3_0x17095e0_sink_0x7f7f60004b90 -> gluploadelement3_0x17095e0_src_0x7f7f60004dd0		 [pos="e,1173.9,140 833.09,140 901.29,140 1085,140 1163.6,140",
+			style=invis];
+	}
+	subgraph cluster_queue8_0x16f7780 {
+		graph [bb="140,114,484,210",
+			color=black,
+			fillcolor="#aaffaa",
+			fontname="Bitstream Vera Sans",
+			fontsize=8,
+			label="GstQueue\nqueue8\n[0]\nparent=(GstPipeline) pipeline3",
+			lheight=0.50,
+			lp="312,188",
+			lwidth=1.81,
+			style="filled,rounded"
+		];
+		subgraph cluster_queue8_0x16f7780_sink {
+			graph [bb="148,122,218,158",
+				label="",
+				style=invis
+			];
+			queue8_0x16f7780_sink_0x1a40b90			 [color=black,
+				fillcolor="#aaaaff",
+				height=0.27778,
+				label="sink\n[-][bFb]",
+				pos="183,140",
+				style="filled,solid",
+				width=0.75];
+		}
+		subgraph cluster_queue8_0x16f7780_src {
+			graph [bb="406,122,476,158",
+				label="",
+				style=invis
+			];
+			queue8_0x16f7780_src_0x7f7f60004950			 [color=black,
+				fillcolor="#ffaaaa",
+				height=0.27778,
+				label="src\n[-][bFb]",
+				pos="441,140",
+				style="filled,solid",
+				width=0.75];
+		}
+		queue8_0x16f7780_sink_0x1a40b90 -> queue8_0x16f7780_src_0x7f7f60004950		 [pos="e,413.71,140 210.43,140 256.45,140 351.33,140 403.56,140",
+			style=invis];
+	}
+	subgraph cluster_demux_0x16faad0 {
+		graph [bb="1128,227,1274,323",
+			color=black,
+			fillcolor="#aaaaff",
+			fontname="Bitstream Vera Sans",
+			fontsize=8,
+			label="GstMatroskaDemux\ndemux\n[0]\nparent=(GstPipeline) pipeline3",
+			lheight=0.50,
+			lp="1201,301",
+			lwidth=1.81,
+			style="filled,rounded"
+		];
+		subgraph cluster_demux_0x16faad0_sink {
+			graph [bb="1166,235,1236,271",
+				label="",
+				style=invis
+			];
+			demux_0x16faad0_sink_0x1a40dd0			 [color=black,
+				fillcolor="#aaaaff",
+				height=0.27778,
+				label="sink\n[-][bFb]",
+				pos="1201,253",
+				style="filled,solid",
+				width=0.75];
+		}
+	}
+	subgraph cluster_queue7_0x16f7490 {
+		graph [bb="398,227,849,323",
+			color=black,
+			fillcolor="#aaffaa",
+			fontname="Bitstream Vera Sans",
+			fontsize=8,
+			label="GstQueue\nqueue7\n[0]\nparent=(GstPipeline) pipeline3",
+			lheight=0.50,
+			lp="623.5,301",
+			lwidth=1.81,
+			style="filled,rounded"
+		];
+		subgraph cluster_queue7_0x16f7490_sink {
+			graph [bb="406,235,476,271",
+				label="",
+				style=invis
+			];
+			queue7_0x16f7490_sink_0x1a41250			 [color=black,
+				fillcolor="#aaaaff",
+				height=0.27778,
+				label="sink\n[-][bFb]",
+				pos="441,253",
+				style="filled,solid",
+				width=0.75];
+		}
+		subgraph cluster_queue7_0x16f7490_src {
+			graph [bb="771,235,841,271",
+				label="",
+				style=invis
+			];
+			queue7_0x16f7490_src_0x1a41490			 [color=black,
+				fillcolor="#ffaaaa",
+				height=0.27778,
+				label="src\n[-][bFb]",
+				pos="806,253",
+				style="filled,solid",
+				width=0.75];
+		}
+		queue7_0x16f7490_sink_0x1a41250 -> queue7_0x16f7490_src_0x1a41490		 [pos="e,778.64,253 468.11,253 531.79,253 695.24,253 768.51,253",
+			style=invis];
+	}
+	subgraph cluster_tcpclientsrc3_0x16f4cb0 {
+		graph [bb="110,227,256,341",
+			color=black,
+			fillcolor="#ffaaaa",
+			fontname="Bitstream Vera Sans",
+			fontsize=8,
+			label="GstTCPClientSrc\ntcpclientsrc3\n[0]\nparent=(GstPipeline) pipeline3\nblocksize=1048576\nport=13002",
+			lheight=0.75,
+			lp="183,310",
+			lwidth=1.81,
+			style="filled,rounded"
+		];
+		subgraph cluster_tcpclientsrc3_0x16f4cb0_src {
+			graph [bb="148,235,218,271",
+				label="",
+				style=invis
+			];
+			tcpclientsrc3_0x16f4cb0_src_0x1a41010			 [color=black,
+				fillcolor="#ffaaaa",
+				height=0.27778,
+				label="src\n[-][bFb]",
+				pos="183,253",
+				style="filled,solid",
+				width=0.75];
+		}
+	}
+	legend	 [height=0.80556,
+		label="Legend\lElement-States: [~] void-pending, [0] null, [-] ready, [=] paused, [>] playing\lPad-Activation: [-] none, [>] push, [<] \
+pull\lPad-Flags: [b]locked, [f]lushing, [b]locking; upper-case is set\lPad-Task: [T] has started task, [t] has paused task\l",
+		margin="0.05,0.05",
+		pos="183,77",
+		style=filled,
+		width=5.0833];
+	glcolorconvertelement3_0x1709960_src_0x7f7f60005250 -> glimagesink3_0x1a5b150_sink_0x7f7f60005490	 [head_lp="1950.9,140",
+		headlabel="video/x-raw(memory:GLMemory)\l              format: RGBA\l               width: [ 1, 2147483647 ]\l              height: [ 1, 2147483647 ]\l           \
+framerate: [ 0/1, 2147483647/1 ]\l      texture-target: { 2D, external-oes }\lvideo/x-raw(memory:GLMemory, meta:GstVideoOverlayComposition)\l              \
+format: RGBA\l               width: [ 1, 2147483647 ]\l              height: [ 1, 2147483647 ]\l           framerate: [ 0/1, 2147483647/\
+1 ]\l      texture-target: { 2D, external-oes }\l",
+		label="                                                  ",
+		labelangle=0,
+		labeldistance=10,
+		lp="1865.5,145",
+		pos="e,2050.9,140 1710.1,140 1778.3,140 1962,140 2040.6,140",
+		tail_lp="1810.1,140",
+		taillabel="video/x-raw(memory:GLMemory)\l              format: { RGBA, RGB, RGBx, B... }\l               width: [ 1, 2147483647 ]\l              \
+height: [ 1, 2147483647 ]\l           framerate: [ 0/1, 2147483647/1 ]\l      texture-target: { 2D, rectangle, ext... }\lvideo/x-raw(\
+memory:GLMemory, meta:GstVideoOverlayComposition)\l              format: { RGBA, RGB, RGBx, B... }\l               width: [ 1, 2147483647 ]\l              \
+height: [ 1, 2147483647 ]\l           framerate: [ 0/1, 2147483647/1 ]\l      texture-target: { 2D, rectangle, ext... }\l"];
+	gluploadelement3_0x17095e0_src_0x7f7f60004dd0 -> glcolorconvertelement3_0x1709960_sink_0x7f7f60005010	 [head_lp="1468.9,140",
+		headlabel="video/x-raw(memory:GLMemory)\l              format: { RGBA, RGB, RGBx, B... }\l               width: [ 1, 2147483647 ]\l              \
+height: [ 1, 2147483647 ]\l           framerate: [ 0/1, 2147483647/1 ]\l      texture-target: { 2D, rectangle, ext... }\lvideo/x-raw(\
+memory:GLMemory, meta:GstVideoOverlayComposition)\l              format: { RGBA, RGB, RGBx, B... }\l               width: [ 1, 2147483647 ]\l              \
+height: [ 1, 2147483647 ]\l           framerate: [ 0/1, 2147483647/1 ]\l      texture-target: { 2D, rectangle, ext... }\l",
+		label="                                                  ",
+		labelangle=0,
+		labeldistance=10,
+		lp="1413.5,145",
+		pos="e,1568.9,140 1228.1,140 1296.3,140 1480,140 1558.6,140",
+		tail_lp="1328.1,140",
+		taillabel="video/x-raw(ANY)\l"];
+	queue8_0x16f7780_src_0x7f7f60004950 -> gluploadelement3_0x17095e0_sink_0x7f7f60004b90	 [head_lp="678.64,140",
+		headlabel="video/x-raw(memory:GLMemory, meta:GstVideoOverlayComposition)\l              format: { RGBA, BGRA, RGBx, ... }\l               width: [ \
+1, 2147483647 ]\l              height: [ 1, 2147483647 ]\l           framerate: [ 0/1, 2147483647/1 ]\lvideo/x-raw(memory:EGLImage, \
+meta:GstVideoOverlayComposition)\l              format: RGBA\l               width: [ 1, 2147483647 ]\l              height: [ 1, \
+2147483647 ]\l           framerate: [ 0/1, 2147483647/1 ]\lvideo/x-raw(memory:SystemMemory, meta:GstVideoOverlayComposition)\l              \
+format: { RGBA, BGRA, RGBx, ... }\l               width: [ 1, 2147483647 ]\l              height: [ 1, 2147483647 ]\l           \
+framerate: [ 0/1, 2147483647/1 ]\lvideo/x-raw(meta:GstVideoGLTextureUploadMeta, meta:GstVideoOverlayComposition)\l              \
+format: RGBA\l               width: [ 1, 2147483647 ]\l              height: [ 1, 2147483647 ]\l           framerate: [ 0/1, 2147483647/\
+1 ]\lvideo/x-raw(memory:GLMemory)\l              format: { RGBA, BGRA, RGBx, ... }\l               width: [ 1, 2147483647 ]\l              \
+height: [ 1, 2147483647 ]\l           framerate: [ 0/1, 2147483647/1 ]\lvideo/x-raw(memory:EGLImage)\l              format: RGBA\l               \
+width: [ 1, 2147483647 ]\l              height: [ 1, 2147483647 ]\l           framerate: [ 0/1, 2147483647/1 ]\lvideo/x-raw\l              \
+format: { RGBA, BGRA, RGBx, ... }\l               width: [ 1, 2147483647 ]\l              height: [ 1, 2147483647 ]\l           \
+framerate: [ 0/1, 2147483647/1 ]\lvideo/x-raw(meta:GstVideoGLTextureUploadMeta)\l              format: RGBA\l               width: [ \
+1, 2147483647 ]\l              height: [ 1, 2147483647 ]\l           framerate: [ 0/1, 2147483647/1 ]\l",
+		label="                                                  ",
+		labelangle=0,
+		labeldistance=10,
+		lp="623.5,145",
+		pos="e,778.64,140 468.11,140 531.79,140 695.24,140 768.51,140",
+		tail_lp="568.11,140",
+		taillabel=ANY];
+	queue7_0x16f7490_src_0x1a41490 -> demux_0x16faad0_sink_0x1a40dd0	 [head_lp="1073.9,253",
+		headlabel="audio/x-matroska\lvideo/x-matroska\lvideo/x-matroska-3d\laudio/webm\lvideo/webm\l",
+		label="                                                  ",
+		labelangle=0,
+		labeldistance=10,
+		lp="988.5,258",
+		pos="e,1173.9,253 833.09,253 901.29,253 1085,253 1163.6,253",
+		tail_lp="933.09,253",
+		taillabel=ANY];
+	tcpclientsrc3_0x16f4cb0_src_0x1a41010 -> queue7_0x16f7490_sink_0x1a41250	 [label=ANY,
+		lp="382,258",
+		pos="e,413.71,253 210.43,253 256.45,253 351.33,253 403.56,253"];
+}

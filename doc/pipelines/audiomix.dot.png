@@ -1,0 +1,658 @@
+digraph pipeline {
+	graph [bb="0,0,3271,473",
+		fontname=sans,
+		fontsize=10,
+		label="<GstPipeline>\npipeline4\n[0]",
+		labelloc=t,
+		lheight=0.46,
+		lp="1635.5,452.5",
+		lwidth=0.97,
+		nodesep=.1,
+		rankdir=LR,
+		ranksep=.2
+	];
+	node [fontname=sans,
+		fontsize=9,
+		label="\N",
+		margin="0.0,0.0",
+		shape=box,
+		style="filled,rounded"
+	];
+	edge [fontname=monospace,
+		fontsize=9,
+		labelfontsize=6
+	];
+	subgraph cluster_capsfilter14_0x19b7290 {
+		graph [bb="645,73,1037,178",
+			color=black,
+			fillcolor="#aaffaa",
+			fontname="Bitstream Vera Sans",
+			fontsize=8,
+			label="GstCapsFilter\ncapsfilter14\n[0]\nparent=(GstPipeline) pipeline4\ncaps=audio/x-raw, format=(string)S16LE, channels=(int)2, layout=(\
+string)interleaved, …",
+			lheight=0.62,
+			lp="841,151.5",
+			lwidth=5.22,
+			style="filled,rounded"
+		];
+		subgraph cluster_capsfilter14_0x19b7290_sink {
+			graph [bb="762,81,832,117",
+				label="",
+				style=invis
+			];
+			capsfilter14_0x19b7290_sink_0x19e14a0			 [color=black,
+				fillcolor="#aaaaff",
+				height=0.27778,
+				label="sink\n[-][bFb]",
+				pos="797,99",
+				style="filled,solid",
+				width=0.75];
+		}
+		subgraph cluster_capsfilter14_0x19b7290_src {
+			graph [bb="849,81,919,117",
+				label="",
+				style=invis
+			];
+			capsfilter14_0x19b7290_src_0x19e16e0			 [color=black,
+				fillcolor="#ffaaaa",
+				height=0.27778,
+				label="src\n[-][bFb]",
+				pos="884,99",
+				style="filled,solid",
+				width=0.75];
+		}
+		capsfilter14_0x19b7290_sink_0x19e14a0 -> capsfilter14_0x19b7290_src_0x19e16e0		 [pos="e,856.88,99 824.43,99 831.53,99 839.34,99 846.87,99",
+			style=invis];
+	}
+	subgraph cluster_capsfilter13_0x19b6f60 {
+		graph [bb="645,303,1037,408",
+			color=black,
+			fillcolor="#aaffaa",
+			fontname="Bitstream Vera Sans",
+			fontsize=8,
+			label="GstCapsFilter\ncapsfilter13\n[0]\nparent=(GstPipeline) pipeline4\ncaps=audio/x-raw, format=(string)S16LE, channels=(int)2, layout=(\
+string)interleaved, …",
+			lheight=0.62,
+			lp="841,381.5",
+			lwidth=5.22,
+			style="filled,rounded"
+		];
+		subgraph cluster_capsfilter13_0x19b6f60_sink {
+			graph [bb="762,311,832,347",
+				label="",
+				style=invis
+			];
+			capsfilter13_0x19b6f60_sink_0x19e1020			 [color=black,
+				fillcolor="#aaaaff",
+				height=0.27778,
+				label="sink\n[-][bFb]",
+				pos="797,329",
+				style="filled,solid",
+				width=0.75];
+		}
+		subgraph cluster_capsfilter13_0x19b6f60_src {
+			graph [bb="849,311,919,347",
+				label="",
+				style=invis
+			];
+			capsfilter13_0x19b6f60_src_0x19e1260			 [color=black,
+				fillcolor="#ffaaaa",
+				height=0.27778,
+				label="src\n[-][bFb]",
+				pos="884,329",
+				style="filled,solid",
+				width=0.75];
+		}
+		capsfilter13_0x19b6f60_sink_0x19e1020 -> capsfilter13_0x19b6f60_src_0x19e1260		 [pos="e,856.88,329 824.43,329 831.53,329 839.34,329 846.87,329",
+			style=invis];
+	}
+	subgraph cluster_capsfilter12_0x19b6c30 {
+		graph [bb="645,188,1037,293",
+			color=black,
+			fillcolor="#aaffaa",
+			fontname="Bitstream Vera Sans",
+			fontsize=8,
+			label="GstCapsFilter\ncapsfilter12\n[0]\nparent=(GstPipeline) pipeline4\ncaps=audio/x-raw, format=(string)S16LE, channels=(int)2, layout=(\
+string)interleaved, …",
+			lheight=0.62,
+			lp="841,266.5",
+			lwidth=5.22,
+			style="filled,rounded"
+		];
+		subgraph cluster_capsfilter12_0x19b6c30_sink {
+			graph [bb="762,196,832,232",
+				label="",
+				style=invis
+			];
+			capsfilter12_0x19b6c30_sink_0x19e0ba0			 [color=black,
+				fillcolor="#aaaaff",
+				height=0.27778,
+				label="sink\n[-][bFb]",
+				pos="797,214",
+				style="filled,solid",
+				width=0.75];
+		}
+		subgraph cluster_capsfilter12_0x19b6c30_src {
+			graph [bb="849,196,919,232",
+				label="",
+				style=invis
+			];
+			capsfilter12_0x19b6c30_src_0x19e0de0			 [color=black,
+				fillcolor="#ffaaaa",
+				height=0.27778,
+				label="src\n[-][bFb]",
+				pos="884,214",
+				style="filled,solid",
+				width=0.75];
+		}
+		capsfilter12_0x19b6c30_sink_0x19e0ba0 -> capsfilter12_0x19b6c30_src_0x19e0de0		 [pos="e,856.88,214 824.43,214 831.53,214 839.34,214 846.87,214",
+			style=invis];
+	}
+	subgraph cluster_capsfilter11_0x19b6900 {
+		graph [bb="1768,188,2160,293",
+			color=black,
+			fillcolor="#aaffaa",
+			fontname="Bitstream Vera Sans",
+			fontsize=8,
+			label="GstCapsFilter\ncapsfilter11\n[0]\nparent=(GstPipeline) pipeline4\ncaps=audio/x-raw, format=(string)S16LE, channels=(int)2, layout=(\
+string)interleaved, …",
+			lheight=0.62,
+			lp="1964,266.5",
+			lwidth=5.22,
+			style="filled,rounded"
+		];
+		subgraph cluster_capsfilter11_0x19b6900_sink {
+			graph [bb="1885,196,1955,232",
+				label="",
+				style=invis
+			];
+			capsfilter11_0x19b6900_sink_0x19e0720			 [color=black,
+				fillcolor="#aaaaff",
+				height=0.27778,
+				label="sink\n[-][bFb]",
+				pos="1920,214",
+				style="filled,solid",
+				width=0.75];
+		}
+		subgraph cluster_capsfilter11_0x19b6900_src {
+			graph [bb="1972,196,2042,232",
+				label="",
+				style=invis
+			];
+			capsfilter11_0x19b6900_src_0x19e0960			 [color=black,
+				fillcolor="#ffaaaa",
+				height=0.27778,
+				label="src\n[-][bFb]",
+				pos="2007,214",
+				style="filled,solid",
+				width=0.75];
+		}
+		capsfilter11_0x19b6900_sink_0x19e0720 -> capsfilter11_0x19b6900_src_0x19e0960		 [pos="e,1979.9,214 1947.4,214 1954.5,214 1962.3,214 1969.9,214",
+			style=invis];
+	}
+	subgraph cluster_interaudiosrc5_0x19e20d0 {
+		graph [bb="86,66,280,180",
+			color=black,
+			fillcolor="#ffaaaa",
+			fontname="Bitstream Vera Sans",
+			fontsize=8,
+			label="GstInterAudioSrc\ninteraudiosrc5\n[0]\nparent=(GstPipeline) pipeline4\nblocksize=4294967295\nchannel=\"audio_grabber_mixer_stream0\"",
+			lheight=0.75,
+			lp="183,149",
+			lwidth=2.47,
+			style="filled,rounded"
+		];
+		subgraph cluster_interaudiosrc5_0x19e20d0_src {
+			graph [bb="148,74,218,110",
+				label="",
+				style=invis
+			];
+			interaudiosrc5_0x19e20d0_src_0x19e04e0			 [color=black,
+				fillcolor="#ffaaaa",
+				height=0.27778,
+				label="src\n[-][bFb]",
+				pos="183,92",
+				style="filled,solid",
+				width=0.75];
+		}
+	}
+	subgraph cluster_interaudiosrc4_0x19df520 {
+		graph [bb="91,310,275,424",
+			color=black,
+			fillcolor="#ffaaaa",
+			fontname="Bitstream Vera Sans",
+			fontsize=8,
+			label="GstInterAudioSrc\ninteraudiosrc4\n[0]\nparent=(GstPipeline) pipeline4\nblocksize=4294967295\nchannel=\"audio_cam2_mixer_stream0\"",
+			lheight=0.75,
+			lp="183,393",
+			lwidth=2.33,
+			style="filled,rounded"
+		];
+		subgraph cluster_interaudiosrc4_0x19df520_src {
+			graph [bb="148,318,218,354",
+				label="",
+				style=invis
+			];
+			interaudiosrc4_0x19df520_src_0x19e02a0			 [color=black,
+				fillcolor="#ffaaaa",
+				height=0.27778,
+				label="src\n[-][bFb]",
+				pos="183,336",
+				style="filled,solid",
+				width=0.75];
+		}
+	}
+	subgraph cluster_interaudiosrc3_0x19deca0 {
+		graph [bb="91,188,275,302",
+			color=black,
+			fillcolor="#ffaaaa",
+			fontname="Bitstream Vera Sans",
+			fontsize=8,
+			label="GstInterAudioSrc\ninteraudiosrc3\n[0]\nparent=(GstPipeline) pipeline4\nblocksize=4294967295\nchannel=\"audio_cam1_mixer_stream0\"",
+			lheight=0.75,
+			lp="183,271",
+			lwidth=2.33,
+			style="filled,rounded"
+		];
+		subgraph cluster_interaudiosrc3_0x19deca0_src {
+			graph [bb="148,196,218,232",
+				label="",
+				style=invis
+			];
+			interaudiosrc3_0x19deca0_src_0x19e0060			 [color=black,
+				fillcolor="#ffaaaa",
+				height=0.27778,
+				label="src\n[-][bFb]",
+				pos="183,214",
+				style="filled,solid",
+				width=0.75];
+		}
+	}
+	subgraph cluster_interaudiosink1_0x19dd650 {
+		graph [bb="3054,144,3271,249",
+			color=black,
+			fillcolor="#aaaaff",
+			fontname="Bitstream Vera Sans",
+			fontsize=8,
+			label="GstInterAudioSink\ninteraudiosink1\n[0]\nparent=(GstPipeline) pipeline4\nchannel=\"audio_mix_stream0_stream-blanker\"",
+			lheight=0.62,
+			lp="3162.5,222.5",
+			lwidth=2.79,
+			style="filled,rounded"
+		];
+		subgraph cluster_interaudiosink1_0x19dd650_sink {
+			graph [bb="3127,152,3197,188",
+				label="",
+				style=invis
+			];
+			interaudiosink1_0x19dd650_sink_0x19b9d70			 [color=black,
+				fillcolor="#aaaaff",
+				height=0.27778,
+				label="sink\n[-][bFb]",
+				pos="3162,170",
+				style="filled,solid",
+				width=0.75];
+		}
+	}
+	subgraph cluster_queue11_0x19a42f0 {
+		graph [bb="2602,147,2775,243",
+			color=black,
+			fillcolor="#aaffaa",
+			fontname="Bitstream Vera Sans",
+			fontsize=8,
+			label="GstQueue\nqueue11\n[0]\nparent=(GstPipeline) pipeline4",
+			lheight=0.50,
+			lp="2688.5,221",
+			lwidth=1.81,
+			style="filled,rounded"
+		];
+		subgraph cluster_queue11_0x19a42f0_sink {
+			graph [bb="2610,155,2680,191",
+				label="",
+				style=invis
+			];
+			queue11_0x19a42f0_sink_0x19b98f0			 [color=black,
+				fillcolor="#aaaaff",
+				height=0.27778,
+				label="sink\n[-][bFb]",
+				pos="2645,173",
+				style="filled,solid",
+				width=0.75];
+		}
+		subgraph cluster_queue11_0x19a42f0_src {
+			graph [bb="2697,155,2767,191",
+				label="",
+				style=invis
+			];
+			queue11_0x19a42f0_src_0x19b9b30			 [color=black,
+				fillcolor="#ffaaaa",
+				height=0.27778,
+				label="src\n[-][bFb]",
+				pos="2732,173",
+				style="filled,solid",
+				width=0.75];
+		}
+		queue11_0x19a42f0_sink_0x19b98f0 -> queue11_0x19a42f0_src_0x19b9b30		 [pos="e,2704.9,173 2672.4,173 2679.5,173 2687.3,173 2694.9,173",
+			style=invis];
+	}
+	subgraph cluster_interaudiosink0_0x19d9610 {
+		graph [bb="3080,257,3245,362",
+			color=black,
+			fillcolor="#aaaaff",
+			fontname="Bitstream Vera Sans",
+			fontsize=8,
+			label="GstInterAudioSink\ninteraudiosink0\n[0]\nparent=(GstPipeline) pipeline4\nchannel=\"audio_mix_out_stream0\"",
+			lheight=0.62,
+			lp="3162.5,335.5",
+			lwidth=2.07,
+			style="filled,rounded"
+		];
+		subgraph cluster_interaudiosink0_0x19d9610_sink {
+			graph [bb="3127,265,3197,301",
+				label="",
+				style=invis
+			];
+			interaudiosink0_0x19d9610_sink_0x19b96b0			 [color=black,
+				fillcolor="#aaaaff",
+				height=0.27778,
+				label="sink\n[-][bFb]",
+				pos="3162,283",
+				style="filled,solid",
+				width=0.75];
+		}
+	}
+	subgraph cluster_queue10_0x19a4000 {
+		graph [bb="2602,252,2775,348",
+			color=black,
+			fillcolor="#aaffaa",
+			fontname="Bitstream Vera Sans",
+			fontsize=8,
+			label="GstQueue\nqueue10\n[0]\nparent=(GstPipeline) pipeline4",
+			lheight=0.50,
+			lp="2688.5,326",
+			lwidth=1.81,
+			style="filled,rounded"
+		];
+		subgraph cluster_queue10_0x19a4000_sink {
+			graph [bb="2610,260,2680,296",
+				label="",
+				style=invis
+			];
+			queue10_0x19a4000_sink_0x19b9230			 [color=black,
+				fillcolor="#aaaaff",
+				height=0.27778,
+				label="sink\n[-][bFb]",
+				pos="2645,278",
+				style="filled,solid",
+				width=0.75];
+		}
+		subgraph cluster_queue10_0x19a4000_src {
+			graph [bb="2697,260,2767,296",
+				label="",
+				style=invis
+			];
+			queue10_0x19a4000_src_0x19b9470			 [color=black,
+				fillcolor="#ffaaaa",
+				height=0.27778,
+				label="src\n[-][bFb]",
+				pos="2732,278",
+				style="filled,solid",
+				width=0.75];
+		}
+		queue10_0x19a4000_sink_0x19b9230 -> queue10_0x19a4000_src_0x19b9470		 [pos="e,2704.9,278 2672.4,278 2679.5,278 2687.3,278 2694.9,278",
+			style=invis];
+	}
+	subgraph cluster_tee_0_0x18f42a0 {
+		graph [bb="2397,161,2570,293",
+			color=black,
+			fillcolor="#aaffaa",
+			fontname="Bitstream Vera Sans",
+			fontsize=8,
+			label="GstTee\ntee_0\n[0]\nparent=(GstPipeline) pipeline4\nnum-src-pads=2",
+			lheight=0.62,
+			lp="2483.5,266.5",
+			lwidth=1.81,
+			style="filled,rounded"
+		];
+		subgraph cluster_tee_0_0x18f42a0_sink {
+			graph [bb="2405,196,2475,232",
+				label="",
+				style=invis
+			];
+			tee_0_0x18f42a0_sink_0x19b8ff0			 [color=black,
+				fillcolor="#aaaaff",
+				height=0.27778,
+				label="sink\n[-][bFb]",
+				pos="2440,214",
+				style="filled,solid",
+				width=0.75];
+		}
+		subgraph cluster_tee_0_0x18f42a0_src {
+			graph [bb="2492,169,2562,232",
+				label="",
+				style=invis
+			];
+			tee_0_0x18f42a0_src_0_0x19b4570			 [color=black,
+				fillcolor="#ffaaaa",
+				height=0.27778,
+				label="src_0\n[-][bFb]",
+				pos="2527,214",
+				style="filled,dashed",
+				width=0.75];
+			tee_0_0x18f42a0_src_1_0x19b47c0			 [color=black,
+				fillcolor="#ffaaaa",
+				height=0.27778,
+				label="src_1\n[-][bFb]",
+				pos="2527,187",
+				style="filled,dashed",
+				width=0.75];
+		}
+		tee_0_0x18f42a0_sink_0x19b8ff0 -> tee_0_0x18f42a0_src_0_0x19b4570		 [pos="e,2499.9,214 2467.4,214 2474.5,214 2482.3,214 2489.9,214",
+			style=invis];
+	}
+	subgraph cluster_queue9_0x194ba80 {
+		graph [bb="2192,188,2365,284",
+			color=black,
+			fillcolor="#aaffaa",
+			fontname="Bitstream Vera Sans",
+			fontsize=8,
+			label="GstQueue\nqueue9\n[0]\nparent=(GstPipeline) pipeline4",
+			lheight=0.50,
+			lp="2278.5,262",
+			lwidth=1.81,
+			style="filled,rounded"
+		];
+		subgraph cluster_queue9_0x194ba80_sink {
+			graph [bb="2200,196,2270,232",
+				label="",
+				style=invis
+			];
+			queue9_0x194ba80_sink_0x19b8b70			 [color=black,
+				fillcolor="#aaaaff",
+				height=0.27778,
+				label="sink\n[-][bFb]",
+				pos="2235,214",
+				style="filled,solid",
+				width=0.75];
+		}
+		subgraph cluster_queue9_0x194ba80_src {
+			graph [bb="2287,196,2357,232",
+				label="",
+				style=invis
+			];
+			queue9_0x194ba80_src_0x19b8db0			 [color=black,
+				fillcolor="#ffaaaa",
+				height=0.27778,
+				label="src\n[-][bFb]",
+				pos="2322,214",
+				style="filled,solid",
+				width=0.75];
+		}
+		queue9_0x194ba80_sink_0x19b8b70 -> queue9_0x194ba80_src_0x19b8db0		 [pos="e,2294.9,214 2262.4,214 2269.5,214 2277.3,214 2284.9,214",
+			style=invis];
+	}
+	subgraph cluster_mix_0_0x19d3060 {
+		graph [bb="1316,161,1489,311",
+			color=black,
+			fillcolor="#aaffaa",
+			fontname="Bitstream Vera Sans",
+			fontsize=8,
+			label="GstAudioMixer\nmix_0\n[0]\nparent=(GstPipeline) pipeline4",
+			lheight=0.50,
+			lp="1402.5,289",
+			lwidth=1.81,
+			style="filled,rounded"
+		];
+		subgraph cluster_mix_0_0x19d3060_sink {
+			graph [bb="1324,169,1394,259",
+				label="",
+				style=invis
+			];
+			mix_0_0x19d3060_sink_2_0x19e5830			 [color=black,
+				fillcolor="#aaaaff",
+				height=0.27778,
+				label="sink_2\n[-][bFb]",
+				pos="1359,187",
+				style="filled,dashed",
+				width=0.75];
+			mix_0_0x19d3060_sink_1_0x19e4e40			 [color=black,
+				fillcolor="#aaaaff",
+				height=0.27778,
+				label="sink_1\n[-][bFb]",
+				pos="1359,241",
+				style="filled,dashed",
+				width=0.75];
+			mix_0_0x19d3060_sink_0_0x19e3c00			 [color=black,
+				fillcolor="#aaaaff",
+				height=0.27778,
+				label="sink_0\n[-][bFb]",
+				pos="1359,214",
+				style="filled,dashed",
+				width=0.75];
+		}
+		subgraph cluster_mix_0_0x19d3060_src {
+			graph [bb="1411,196,1481,232",
+				label="",
+				style=invis
+			];
+			mix_0_0x19d3060_src_0x19b8930			 [color=black,
+				fillcolor="#ffaaaa",
+				height=0.27778,
+				label="src\n[-][bFb]",
+				pos="1446,214",
+				style="filled,solid",
+				width=0.75];
+		}
+		mix_0_0x19d3060_sink_0_0x19e3c00 -> mix_0_0x19d3060_src_0x19b8930		 [pos="e,1418.9,214 1386.4,214 1393.5,214 1401.3,214 1408.9,214",
+			style=invis];
+	}
+	legend	 [height=0.80556,
+		label="Legend\lElement-States: [~] void-pending, [0] null, [-] ready, [=] paused, [>] playing\lPad-Activation: [-] none, [>] push, [<] \
+pull\lPad-Flags: [b]locked, [f]lushing, [b]locking; upper-case is set\lPad-Task: [T] has started task, [t] has paused task\l",
+		margin="0.05,0.05",
+		pos="183,29",
+		style=filled,
+		width=5.0833];
+	capsfilter14_0x19b7290_src_0x19e16e0 -> mix_0_0x19d3060_sink_2_0x19e5830	 [head_lp="1233.7,163.87",
+		headlabel="audio/x-raw\l              format: { S32LE, U32LE, S16L... }\l                rate: [ 1, 2147483647 ]\l            channels: [ 1, \
+2147483647 ]\l              layout: { interleaved, non-i... }\l",
+		label="                                                  ",
+		labelangle=0,
+		labeldistance=10,
+		lp="1176.5,182",
+		pos="e,1332,182.16 911.1,103.86 990.73,118.67 1230.7,163.31 1322.1,180.32",
+		tail_lp="1009.4,122.15",
+		taillabel=ANY];
+	capsfilter13_0x19b6f60_src_0x19e1260 -> mix_0_0x19d3060_sink_1_0x19e4e40	 [head_lp="1233.7,264.13",
+		headlabel="audio/x-raw\l              format: { S32LE, U32LE, S16L... }\l                rate: [ 1, 2147483647 ]\l            channels: [ 1, \
+2147483647 ]\l              layout: { interleaved, non-i... }\l",
+		label="                                                  ",
+		labelangle=0,
+		labeldistance=10,
+		lp="1176.5,304",
+		pos="e,1332,245.84 911.1,324.14 990.73,309.33 1230.7,264.69 1322.1,247.68",
+		tail_lp="1009.4,305.85",
+		taillabel=ANY];
+	capsfilter12_0x19b6c30_src_0x19e0de0 -> mix_0_0x19d3060_sink_0_0x19e3c00	 [head_lp="1232,214",
+		headlabel="audio/x-raw\l              format: { S32LE, U32LE, S16L... }\l                rate: [ 1, 2147483647 ]\l            channels: [ 1, \
+2147483647 ]\l              layout: { interleaved, non-i... }\l",
+		label="                                                  ",
+		labelangle=0,
+		labeldistance=10,
+		lp="1176.5,219",
+		pos="e,1332,214 911.1,214 990.65,214 1230.2,214 1321.8,214",
+		tail_lp="1011.1,214",
+		taillabel=ANY];
+	capsfilter11_0x19b6900_src_0x19e0960 -> queue9_0x194ba80_sink_0x19b8b70	 [label=ANY,
+		lp="2176,219",
+		pos="e,2207.8,214 2034.4,214 2074.8,214 2152.1,214 2197.7,214"];
+	interaudiosrc5_0x19e20d0_src_0x19e04e0 -> capsfilter14_0x19b7290_sink_0x19e14a0	 [head_lp="669.81,97.557",
+		headlabel=ANY,
+		label="                                                  ",
+		labelangle=0,
+		labeldistance=10,
+		lp="505.5,103",
+		pos="e,769.8,98.7 210.3,92.301 307.6,93.414 647.36,97.3 759.66,98.584",
+		tail_lp="310.29,93.444",
+		taillabel="audio/x-raw\l              format: { S8, U8, S16LE, S16... }\l                rate: [ 1, 2147483647 ]\l            channels: [ 1, \
+2147483647 ]\l              layout: interleaved\l"];
+	interaudiosrc4_0x19df520_src_0x19e02a0 -> capsfilter13_0x19b6f60_sink_0x19e1020	 [head_lp="669.81,330.44",
+		headlabel=ANY,
+		label="                                                  ",
+		labelangle=0,
+		labeldistance=10,
+		lp="505.5,338",
+		pos="e,769.8,329.3 210.3,335.7 307.6,334.59 647.36,330.7 759.66,329.42",
+		tail_lp="310.29,334.56",
+		taillabel="audio/x-raw\l              format: { S8, U8, S16LE, S16... }\l                rate: [ 1, 2147483647 ]\l            channels: [ 1, \
+2147483647 ]\l              layout: interleaved\l"];
+	interaudiosrc3_0x19deca0_src_0x19e0060 -> capsfilter12_0x19b6c30_sink_0x19e0ba0	 [head_lp="669.8,214",
+		headlabel=ANY,
+		label="                                                  ",
+		labelangle=0,
+		labeldistance=10,
+		lp="505.5,219",
+		pos="e,769.8,214 210.3,214 307.6,214 647.36,214 759.66,214",
+		tail_lp="310.3,214",
+		taillabel="audio/x-raw\l              format: { S8, U8, S16LE, S16... }\l                rate: [ 1, 2147483647 ]\l            channels: [ 1, \
+2147483647 ]\l              layout: interleaved\l"];
+	queue11_0x19a42f0_src_0x19b9b30 -> interaudiosink1_0x19dd650_sink_0x19b9d70	 [head_lp="3034.9,170.88",
+		headlabel="audio/x-raw\l              format: { S8, U8, S16LE, S16... }\l                rate: [ 1, 2147483647 ]\l            channels: [ 1, \
+2147483647 ]\l",
+		label="                                                  ",
+		labelangle=0,
+		labeldistance=10,
+		lp="2914.5,178",
+		pos="e,3134.9,170.18 2759.1,172.82 2832.5,172.3 3040.5,170.84 3124.8,170.25",
+		tail_lp="2859.1,172.12",
+		taillabel=ANY];
+	queue10_0x19a4000_src_0x19b9470 -> interaudiosink0_0x19d9610_sink_0x19b96b0	 [head_lp="3034.9,281.53",
+		headlabel="audio/x-raw\l              format: { S8, U8, S16LE, S16... }\l                rate: [ 1, 2147483647 ]\l            channels: [ 1, \
+2147483647 ]\l",
+		label="                                                  ",
+		labelangle=0,
+		labeldistance=10,
+		lp="2914.5,287",
+		pos="e,3134.9,282.7 2759.1,278.31 2832.5,279.16 3040.5,281.59 3124.8,282.58",
+		tail_lp="2859.1,279.47",
+		taillabel=ANY];
+	tee_0_0x18f42a0_src_0_0x19b4570 -> queue10_0x19a4000_sink_0x19b9230	 [label=ANY,
+		lp="2586,255",
+		pos="e,2625.7,267.91 2546.4,224.14 2565.3,234.58 2595,250.96 2616.7,262.92"];
+	tee_0_0x18f42a0_src_1_0x19b47c0 -> queue11_0x19a42f0_sink_0x19b98f0	 [label=ANY,
+		lp="2586,186",
+		pos="e,2617.7,176.18 2554,183.86 2569.7,181.96 2590,179.52 2607.3,177.43"];
+	queue9_0x194ba80_src_0x19b8db0 -> tee_0_0x18f42a0_sink_0x19b8ff0	 [label=ANY,
+		lp="2381,219",
+		pos="e,2412.7,214 2349,214 2364.7,214 2385,214 2402.3,214"];
+	mix_0_0x19d3060_src_0x19b8930 -> capsfilter11_0x19b6900_sink_0x19e0720	 [head_lp="1792.7,214",
+		headlabel=ANY,
+		label="                                                  ",
+		labelangle=0,
+		labeldistance=10,
+		lp="1628.5,219",
+		pos="e,1892.7,214 1473,214 1552.3,214 1790.9,214 1882.6,214",
+		tail_lp="1573,214",
+		taillabel="audio/x-raw\l              format: { S32LE, U32LE, S16L... }\l                rate: [ 1, 2147483647 ]\l            channels: [ 1, \
+2147483647 ]\l              layout: { interleaved, non-i... }\l"];
+}
