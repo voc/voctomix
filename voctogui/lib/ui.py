@@ -30,8 +30,7 @@ class Ui(UiBuilder):
         self.win = self.get_check_widget('window')
 
         # check for configuration option mainwindow/force_fullscreen
-        if Config.has_option('mainwindow', 'force_fullscreen') \
-                and Config.getboolean('mainwindow', 'force_fullscreen'):
+        if Config.getboolean('mainwindow', 'force_fullscreen', fallback=False):
             self.log.info(
                 'Forcing main window to full screen by configuration')
             # set window into fullscreen mode
@@ -40,10 +39,13 @@ class Ui(UiBuilder):
             # check for configuration option mainwindow/width and /height
             if Config.has_option('mainwindow', 'width') \
                     and Config.has_option('mainwindow', 'height'):
-                self.log.info('Set window size by configuration')
+                # get size from config
+                width = Config.getint('mainwindow', 'width')
+                height = Config.getint('mainwindow', 'height')
+                self.log.info(
+                    'Set window size by configuration to %d:%d', width, height)
                 # set window size
-                self.win.set_size_request(Config.getint(
-                    'mainwindow', 'width'), Config.getint('mainwindow', 'height'))
+                self.win.set_size_request(width, height)
 
         # Connect Close-Handler
         self.win.connect('delete-event', Gtk.main_quit)
@@ -105,8 +107,7 @@ class Ui(UiBuilder):
 
     def handle_state(self, window, event):
         # force full screen if whished by configuration
-        if Config.has_option('mainwindow', 'force_fullscreen') \
-                and Config.getboolean('mainwindow', 'force_fullscreen'):
+        if Config.getboolean('mainwindow', 'forcefullscreen', fallback=False):
             self.win.fullscreen()
 
     def show(self):
