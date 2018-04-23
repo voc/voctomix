@@ -22,7 +22,7 @@ class VoctomixTest(unittest.TestCase):
         lib.config.Config.resetToDefaults()
 
     def assertContainsIgnoringWhitespace(self, text, search):
-        regex = search.replace(" ", "\s*")
+        regex = search.replace(" ", r"\s*")
 
         try:
             self.assertRegex(text, regex)
