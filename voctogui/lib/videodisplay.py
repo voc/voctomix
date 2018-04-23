@@ -133,6 +133,10 @@ class VideoDisplay(object):
 
         self.log.debug('Creating Display-Pipeline:\n%s', pipeline)
         self.pipeline = Gst.parse_launch(pipeline)
+
+        Gst.debug_bin_to_dot_file(
+            self.pipeline, Gst.DebugGraphDetails.ALL, "videodisplay")
+
         self.pipeline.use_clock(Clock)
 
         self.drawing_area.realize()

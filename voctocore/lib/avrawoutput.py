@@ -8,6 +8,7 @@ from lib.clock import Clock
 
 
 class AVRawOutput(TCPMultiConnection):
+
     def __init__(self, channel, port):
         self.log = logging.getLogger('AVRawOutput[{}]'.format(channel))
         super().__init__(port)
@@ -52,6 +53,10 @@ class AVRawOutput(TCPMultiConnection):
         )
         self.log.debug('Creating Output-Pipeline:\n%s', pipeline)
         self.outputPipeline = Gst.parse_launch(pipeline)
+
+        Gst.debug_bin_to_dot_file(
+            self.outputPipeline, Gst.DebugGraphDetails.ALL, "avrawoutput")
+
         self.outputPipeline.use_clock(Clock)
 
         self.log.debug('Binding Error & End-of-Stream-Signal '

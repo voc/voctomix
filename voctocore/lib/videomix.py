@@ -17,6 +17,7 @@ class CompositeModes(Enum):
 
 
 class PadState(object):
+
     def __init__(self):
         self.reset()
 
@@ -86,6 +87,10 @@ class VideoMix(object):
 
         self.log.debug('Creating Mixing-Pipeline:\n%s', pipeline)
         self.mixingPipeline = Gst.parse_launch(pipeline)
+
+        Gst.debug_bin_to_dot_file(
+            self.mixingPipeline, Gst.DebugGraphDetails.ALL, "videomix")
+
         self.mixingPipeline.use_clock(Clock)
 
         self.log.debug('Binding Error & End-of-Stream-Signal '
