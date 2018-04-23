@@ -34,6 +34,7 @@ Gtk.init([])
 
 # main class
 class Voctogui(object):
+
     def __init__(self):
         self.log = logging.getLogger('Voctogui')
         from lib.args import Args
@@ -123,8 +124,8 @@ def main():
     args.parse()
 
     from lib.args import Args
-    docolor = (Args.color == 'always') or (Args.color == 'auto' and
-                                           sys.stderr.isatty())
+    docolor = (Args.color == 'always') \
+        or (Args.color == 'auto' and sys.stderr.isatty())
 
     from lib.loghandler import LogHandler
     handler = LogHandler(docolor, Args.timestamp)
@@ -165,8 +166,8 @@ def main():
     # The list-comparison is not complete
     # (one could use a local hostname or the local system ip),
     # but it's only here to warn that one might be making a mistake
-    use_previews = (Config.getboolean('previews', 'enabled') and
-                    Config.getboolean('previews', 'use'))
+    use_previews = Config.getboolean('previews', 'enabled') \
+        and Config.getboolean('previews', 'use')
     looks_like_localhost = Config.get('server', 'host') in ['::1',
                                                             '127.0.0.1',
                                                             'localhost']
