@@ -108,6 +108,7 @@ class Ui(UiBuilder):
     def handle_state(self, window, event):
         # force full screen if whished by configuration
         if Config.getboolean('mainwindow', 'forcefullscreen', fallback=False):
+            self.log.info('re-forcing fullscreen mode')
             self.win.fullscreen()
 
     def show(self):
