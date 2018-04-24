@@ -17,4 +17,4 @@ timeout 5s ./voctogui/voctogui.py
 
 cd $TMP_DIR
 echo converting DOT to PNG into \'$PNG_DIR\'...
-for j in *.dot; do dot "$j" > "${PNG_DIR}/${j%}.png"; done
+for j in *.dot; do dot -Tpng -o${PNG_DIR}/${j%}.png ${j}; done
