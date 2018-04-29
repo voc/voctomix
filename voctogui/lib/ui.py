@@ -16,6 +16,8 @@ from lib.toolbar.misc import MiscToolbarController
 
 from lib.shortcuts import show_shortcuts
 
+from lib.studioclock import StudioClock
+
 
 class Ui(UiBuilder):
 
@@ -97,6 +99,8 @@ class Ui(UiBuilder):
             win=self.win,
             uibuilder=self
         )
+
+        toolbar.insert(StudioClock(), len(toolbar.get_children()) - 1)
 
         # Setup Shortcuts window
         self.win.connect('key-press-event', self.handle_keypress)
