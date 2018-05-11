@@ -148,7 +148,7 @@ class StreamBlanker(object):
         self.mixingPipeline.bus.connect("message::error", self.on_error)
 
         self.log.debug('Initializing Mixer-State')
-        self.blankSource = None
+        self.blankSource = 0 if len(self.names) > 0 else None
         self.applyMixerState()
 
         self.log.debug('Launching Mixing-Pipeline')
