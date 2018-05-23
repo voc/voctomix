@@ -75,7 +75,7 @@ def start_connection(tally_handler):
         if len(messages) != 0:
             messages = messages[1:]
 
-        if message[:14] == 'composite_mode':
+        if message[:15] == 'composite_mode ':
             tally_handler.set_state(message[15:])
         elif message[:12] == 'video_status':
             source_a, source_b = message[13:].split(' ')
