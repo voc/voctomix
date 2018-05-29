@@ -12,9 +12,10 @@ class StudioClock(Gtk.ToolItem):
 
     # set resolution of the update timer in seconds
     timer_resolution = 0.1
+    time = time.localtime(0)
 
     # init widget
-    def __init__(self, toolbar):
+    def __init__(self):
         super().__init__()
         # suggest size of widget
         self.set_size_request(130, 50)
@@ -22,8 +23,6 @@ class StudioClock(Gtk.ToolItem):
         self.time = time.localtime(0)
         # set up timeout for periodic redraw
         GLib.timeout_add_seconds(self.timer_resolution, self.do_timeout)
-        # add studio clock to toolbar
-        toolbar.insert(self, len(toolbar.get_children()) - 1)
 
     def do_timeout(self):
         # get current time
