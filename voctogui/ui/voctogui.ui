@@ -249,7 +249,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkDrawingArea" id="audiolevel_main">
+              <object class="AudioLevelDisplay" id="audiolevel_main">
                 <property name="width_request">30</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
