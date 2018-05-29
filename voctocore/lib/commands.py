@@ -147,6 +147,12 @@ class ControlServerCommands(object):
         status = self._get_composite_status()
         return OkResponse('composite_mode', status)
 
+    def get_composite_modes(self):
+        """lists the names of all available composite-mode"""
+        names = [mode.name for mode in CompositeModes]
+        namestr = ','.join(names)
+        return OkResponse('composite_modes', namestr)
+
     def get_composite_mode_and_video_status(self):
         """retrieves the composite-mode and the video-status
         in a single call"""
