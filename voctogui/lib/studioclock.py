@@ -32,7 +32,7 @@ class StudioClock(Gtk.ToolItem):
             self.time = t
             self.queue_draw()
         # just come back
-        GLib.timeout_add_seconds(self.timer_resolution, self.do_timeout)
+        return True
 
     # override drawing of the widget
     def do_draw(self, cr):
