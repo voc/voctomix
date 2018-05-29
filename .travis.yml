@@ -7,5 +7,4 @@ before_install:
 
 script:
   - ./check_pep8.sh
-  - ./voctocore/fake-gi.sh
   - ./voctocore/test.sh
