@@ -27,6 +27,7 @@ class ControlServerCommands(object):
         return NotifyResponse('message', *args)
 
     def help(self):
+        """displays help-messages for all commands"""
         helplines = []
 
         helplines.append("Commands:")
@@ -147,6 +148,8 @@ class ControlServerCommands(object):
         return OkResponse('composite_mode', status)
 
     def get_composite_mode_and_video_status(self):
+        """retrieves the composite-mode and the video-status
+        in a single call"""
         composite_status = self._get_composite_status()
         video_status = self._get_video_status()
         return OkResponse('composite_mode_and_video_status',
