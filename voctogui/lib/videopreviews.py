@@ -61,7 +61,8 @@ class VideoPreviewsController(object):
             self.log.info('Initializing Video Preview %s', source)
 
             preview = uibuilder.load_check_widget(
-                'widget_preview', os.path.dirname(uibuilder.uifile) + "/widgetpreview.ui")
+                'widget_preview',
+                os.path.dirname(uibuilder.uifile) + "/widgetpreview.ui")
             video = uibuilder.find_widget_recursive(preview, 'video')
 
             video.set_size_request(width, height)
