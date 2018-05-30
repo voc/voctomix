@@ -70,16 +70,18 @@ def start_connection(tally_handler):
                 break
             messages = message.split('\n')
 
-        message = messages[0]
+        message = messages[0].split()
 
         if len(messages) != 0:
             messages = messages[1:]
-
-        if message[:14] == 'composite_mode':
-            tally_handler.set_state(message[15:])
-        elif message[:12] == 'video_status':
-            source_a, source_b = message[13:].split(' ')
-            tally_handler.video_change(source_a, source_b)
+        try:
+            if message[0] == 'composite_mode':
+                tally_handler.set_state(message[1])
+            elif message[0] == 'video_status':
+                source_a, source_b = message[1], message[2]
+                tally_handler.video_change(source_a, source_b)
+        except IndexError:
+            pass
 
 
 if __name__ in '__main__':
