@@ -37,20 +37,30 @@ class UiBuilder(object):
 
         return None
 
-    def get_check_widget(self, widget_id, clone=False):
-        if clone:
-            builder = Gtk.Builder()
-            builder.add_from_file(self.uifile)
-        else:
-            builder = self.builder
-
+    def get_check_widget(self, widget_id):
         self.log.debug('loading widget "%s" from the .ui-File', widget_id)
-        widget = builder.get_object(widget_id)
+        widget = self.builder.get_object(widget_id)
         if not widget:
             self.log.error(
                 'could not load required widget "%s" from the .ui-File',
                 widget_id
             )
             raise Exception('Widget not found in .ui-File')
+
+        return widget
+
+    def load_check_widget(self, widget_id, ui_file):
+        builder = Gtk.Builder()
+        builder.add_from_file(ui_file)
+
+        self.log.debug(
+            'loading widget "%s" from extra .ui-File "%s"', widget_id, ui_file)
+        widget = builder.get_object(widget_id)
+        if not widget:
+            self.log.error(
+                'could not load required widget "%s" from extra .ui-File "%s"',
+                widget_id
+            )
+            raise Exception('Widget not found in .ui-File "%s"', ui_file)
 
         return widget
