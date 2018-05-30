@@ -20,15 +20,15 @@ class StudioClock(Gtk.ToolItem):
         # suggest size of widget
         self.set_size_request(130, 50)
         # remember last drwn time
-        self.time = time.localtime(0)
+        self.time = time.time()
         # set up timeout for periodic redraw
         GLib.timeout_add_seconds(self.timer_resolution, self.do_timeout)
 
     def do_timeout(self):
         # get current time
-        t = time.localtime(time.time())
+        t = time.time()
         # if time did not change since last redraw
-        if self.time != t:
+        if t - self.time >= 1.0:
             self.time = t
             self.queue_draw()
         # just come back
@@ -52,10 +52,11 @@ class StudioClock(Gtk.ToolItem):
         cr.set_source(bg_lg)
         cr.arc(center[0], center[1], radius, 0, 2 * math.pi)
         cr.fill()
+        ltime = time.localtime(self.time)
         # draw ticks for every second
         for tick in range(0, 60):
             # fade out seconds in future and highlight past seconds
-            if tick > self.time.tm_sec:
+            if tick > ltime.tm_sec:
                 cr.set_source_rgb(0.2, 0.3, 0.01)
             else:
                 cr.set_source_rgb(0.764, 0.804, 0.176)
