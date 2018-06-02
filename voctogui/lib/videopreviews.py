@@ -1,6 +1,7 @@
 import logging
 import json
 import math
+import os
 from configparser import NoOptionError
 
 from gi.repository import Gtk, GObject
@@ -59,7 +60,9 @@ class VideoPreviewsController(object):
         for idx, source in enumerate(self.sources):
             self.log.info('Initializing Video Preview %s', source)
 
-            preview = uibuilder.get_check_widget('widget_preview', clone=True)
+            preview = uibuilder.load_check_widget(
+                'widget_preview',
+                os.path.dirname(uibuilder.uifile) + "/widgetpreview.ui")
             video = uibuilder.find_widget_recursive(preview, 'video')
 
             video.set_size_request(width, height)
