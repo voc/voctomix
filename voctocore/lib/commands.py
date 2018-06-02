@@ -13,7 +13,7 @@ class ControlServerCommands(object):
         self.log = logging.getLogger('ControlServerCommands')
 
         self.pipeline = pipeline
-        self.stored_message = {}
+        self.stored_values = {}
 
         self.sources = Config.getlist('mix', 'sources')
         if Config.getboolean('stream-blanker', 'enabled'):
@@ -27,24 +27,24 @@ class ControlServerCommands(object):
         user-defined scripts. does not change the state of the voctocore."""
         return NotifyResponse('message', *args)
 
-    def store_message(self, key, *args):
-        """stores a message from a user-defined script in voctomix' memory.
-        setting a message triggers a 'message'-broadcast.
-        the message can be later retrieved using fetch_message.
+    def store_value(self, key, *args):
+        """stores a value from a user-defined script in voctomix' memory.
+        setting a value triggers a 'value'-broadcast.
+        the value can be later retrieved using fetch_value.
         does not change the state of the voctocore."""
         value = ' '.join(args)
-        self.stored_message[key] = value
-        return NotifyResponse('message', key, value)
+        self.stored_values[key] = value
+        return NotifyResponse('value', key, value)
 
-    def fetch_message(self, key):
-        """retrieves a previusly stored message from a user-defined script.
+    def fetch_value(self, key):
+        """retrieves a previusly stored value from a user-defined script.
         does not change the state of the voctocore."""
         try:
-            value = self.stored_message[key]
+            value = self.stored_values[key]
         except KeyError:
             value = ""
 
-        return OkResponse('message', key, value)
+        return OkResponse('value', key, value)
 
     def help(self):
         """displays help-messages for all commands"""
