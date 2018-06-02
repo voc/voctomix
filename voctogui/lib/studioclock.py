@@ -11,7 +11,7 @@ class StudioClock(Gtk.ToolItem):
     __gtype_name__ = 'StudioClock'
 
     # set resolution of the update timer in seconds
-    timer_resolution = 0.1
+    timer_resolution = 0.5
     last_draw_time = time.localtime(0)
 
     # init widget
@@ -22,7 +22,7 @@ class StudioClock(Gtk.ToolItem):
         # remember last draw time
         self.last_draw_time = time.time()
         # set up timeout for periodic redraw
-        GLib.timeout_add_seconds(self.timer_resolution, self.do_timeout)
+        GLib.timeout_add(self.timer_resolution * 1000, self.do_timeout)
 
     def do_timeout(self):
         # get current time
