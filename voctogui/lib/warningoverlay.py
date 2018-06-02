@@ -39,9 +39,6 @@ class VideoWarningOverlay(object):
         w = drawing_area.get_allocated_width()
         h = drawing_area.get_allocated_height()
 
-        self.log.debug('draw_callback: w/h=%u/%u, blink_state=%u',
-                       w, h, self.blink_state)
-
         if self.blink_state:
             cr.set_source_rgba(1.0, 0.0, 0.0, 0.8)
         else:
