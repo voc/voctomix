@@ -1,18 +1,14 @@
-import logging
 import math
 import cairo
 
+from gi.repository import Gtk, GLib
 
-class AudioLevelDisplay(object):
+
+class AudioLevelDisplay(Gtk.DrawingArea):
     """Displays a Level-Meter of another VideoDisplay into a GtkWidget"""
+    __gtype_name__ = 'AudioLevelDisplay'
 
-    def __init__(self, drawing_area):
-        self.log = logging.getLogger(
-            'AudioLevelDisplay[{}]'.format(drawing_area.get_name())
-        )
-
-        self.drawing_area = drawing_area
-
+    def __init__(self):
         self.levelrms = []
         self.levelpeak = []
         self.leveldecay = []
@@ -20,7 +16,7 @@ class AudioLevelDisplay(object):
         self.height = -1
 
         # register on_draw handler
-        self.drawing_area.connect('draw', self.on_draw)
+        self.connect('draw', self.draw_callback)
 
     # generate gradient from green to yellow to red in logarithmic scale
     def gradient(self, brightness, darkness, height):
@@ -35,15 +31,15 @@ class AudioLevelDisplay(object):
         # return result
         return lg
 
-    def on_draw(self, widget, cr):
+    def draw_callback(self, widget, cr):
         # number of audio-channels
         channels = len(self.levelrms)
 
         if channels == 0:
             return False
 
-        width = self.drawing_area.get_allocated_width()
-        height = self.drawing_area.get_allocated_height()
+        width = self.get_allocated_width()
+        height = self.get_allocated_height()
 
         # space between the channels in px
         margin = 2
@@ -139,4 +135,4 @@ class AudioLevelDisplay(object):
             self.levelrms = rms
             self.levelpeak = peak
             self.leveldecay = decay
-            self.drawing_area.queue_draw()
+            self.queue_draw()
