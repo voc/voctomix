@@ -99,8 +99,6 @@ class Ui(UiBuilder):
             uibuilder=self
         )
 
-        toolbar.insert(StudioClock(), len(toolbar.get_children()) - 1)
-
         # Setup Shortcuts window
         self.win.connect('key-press-event', self.handle_keypress)
         self.win.connect('window-state-event', self.handle_state)
