@@ -53,10 +53,9 @@ class Ui(UiBuilder):
         # Connect Close-Handler
         self.win.connect('delete-event', Gtk.main_quit)
 
-        # Create Audio-Level Display
-        drawing_area = self.find_widget_recursive(self.win, 'audiolevel_main')
-        self.audio_level_display = AudioLevelDisplay(drawing_area)
-
+        # Get Audio-Level Display
+        self.audio_level_display = self.find_widget_recursive(
+            self.win, 'audiolevel_main')
         # Create Main-Video Overlay Controller
         drawing_area = self.find_widget_recursive(self.win,
                                                   'video_overlay_drawingarea')
@@ -99,8 +98,6 @@ class Ui(UiBuilder):
             win=self.win,
             uibuilder=self
         )
-
-        toolbar.insert(StudioClock(), len(toolbar.get_children()) - 1)
 
         # Setup Shortcuts window
         self.win.connect('key-press-event', self.handle_keypress)

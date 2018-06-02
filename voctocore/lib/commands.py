@@ -13,6 +13,7 @@ class ControlServerCommands(object):
         self.log = logging.getLogger('ControlServerCommands')
 
         self.pipeline = pipeline
+        self.stored_values = {}
 
         self.sources = Config.getlist('mix', 'sources')
         if Config.getboolean('stream-blanker', 'enabled'):
@@ -25,6 +26,25 @@ class ControlServerCommands(object):
         """sends a message through the control-server, which can be received by
         user-defined scripts. does not change the state of the voctocore."""
         return NotifyResponse('message', *args)
+
+    def store_value(self, key, *args):
+        """stores a value from a user-defined script in voctomix' memory.
+        setting a value triggers a 'value'-broadcast.
+        the value can be later retrieved using fetch_value.
+        does not change the state of the voctocore."""
+        value = ' '.join(args)
+        self.stored_values[key] = value
+        return NotifyResponse('value', key, value)
+
+    def fetch_value(self, key):
+        """retrieves a previusly stored value from a user-defined script.
+        does not change the state of the voctocore."""
+        try:
+            value = self.stored_values[key]
+        except KeyError:
+            value = ""
+
+        return OkResponse('value', key, value)
 
     def help(self):
         """displays help-messages for all commands"""
@@ -147,6 +167,12 @@ class ControlServerCommands(object):
         status = self._get_composite_status()
         return OkResponse('composite_mode', status)
 
+    def get_composite_modes(self):
+        """lists the names of all available composite-mode"""
+        names = [mode.name for mode in CompositeModes]
+        namestr = ','.join(names)
+        return OkResponse('composite_modes', namestr)
+
     def get_composite_mode_and_video_status(self):
         """retrieves the composite-mode and the video-status
         in a single call"""
@@ -234,6 +260,11 @@ class ControlServerCommands(object):
         confdict = {header: dict(section)
                     for header, section in dict(Config).items()}
         return OkResponse('server_config', json.dumps(confdict))
+
+    def get_config_option(self, section, key):
+        """returns a single value from the server-config"""
+        value = Config.get(section, key)
+        return OkResponse('server_config_option', section, key, value)
 
     def restart_source(self, src_name):
         """restarts the specified source"""
