@@ -255,6 +255,11 @@ class ControlServerCommands(object):
                     for header, section in dict(Config).items()}
         return OkResponse('server_config', json.dumps(confdict))
 
+    def get_config_option(self, section, key):
+        """returns a single value from the server-config"""
+        value = Config.get(section, key)
+        return OkResponse('server_config_option', section, key, value)
+
     def restart_source(self, src_name):
         """restarts the specified source"""
         restart_source(src_name)
