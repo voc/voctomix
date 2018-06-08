@@ -27,6 +27,9 @@ class DeckLinkAVSource(AVSource):
         # Video mode, default: 1080i50
         self.vmode = Config.get(section, 'video_mode', fallback='1080i50')
 
+        # Video format, default: auto
+        self.vfmt = Config.get(section, 'video_format', fallback='auto')
+
         self.audiostream_map = self._parse_audiostream_map(section)
         self.log.info("audiostream_map: %s", self.audiostream_map)
 
@@ -130,11 +133,13 @@ class DeckLinkAVSource(AVSource):
             decklinkvideosrc
                 device-number={device}
                 connection={conn}
+                video-format={fmt}
                 mode={mode} !
         """.format(
             device=self.device,
             conn=self.vconn,
-            mode=self.vmode
+            mode=self.vmode,
+            fmt=self.vfmt
         )
 
         if self.has_video:
