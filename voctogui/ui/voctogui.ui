@@ -255,7 +255,7 @@
             </child>
             <child>
               <object class="AudioLevelDisplay" id="audiolevel_main">
-                <property name="width_request">30</property>
+                <property name="width_request">100</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="margin_right">5</property>

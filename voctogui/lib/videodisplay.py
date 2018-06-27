@@ -1,4 +1,5 @@
 import logging
+import re
 from gi.repository import Gst
 
 from lib.args import Args
@@ -23,6 +24,13 @@ class VideoDisplay(object):
 
         use_previews = Config.getboolean('previews', 'enabled') \
             and Config.getboolean('previews', 'use')
+
+        audiostreams = int(Config.get('mix', 'audiostreams'))
+
+        if (Config.has_option('mainvideo', 'vumeter')) \
+                and (Config.get('mainvideo', 'vumeter') != 'all') \
+                and int(Config.get('mainvideo', 'vumeter')) < audiostreams:
+            audiostreams = int(Config.get('mainvideo', 'vumeter'))
 
         # Preview-Ports are Raw-Ports + 1000
         if use_previews:
@@ -103,24 +111,29 @@ class VideoDisplay(object):
         # If an Audio-Path is required,
         # add an Audio-Path through a level-Element
         if self.level_callback or play_audio:
-            pipeline += """
-                demux. !
-                {acaps} !
-                queue !
-                level name=lvl interval=50000000 !
-            """
-
-            # If Playback is requested, push fo pulseaudio
-            if play_audio:
+            for audiostream in range(0, audiostreams):
                 pipeline += """
-                    pulsesink
-                """
-
-            # Otherwise just trash the Audio
-            else:
+                    demux.audio_{audiostream} !
+                """.format(audiostream=audiostream)
                 pipeline += """
-                    fakesink
-                """
+                    {acaps} !
+                    queue !
+                    """
+                pipeline += """
+                    level name=lvl_{audiostream} interval=50000000 !
+                """.format(audiostream=audiostream)
+
+                # If Playback is requested, push fo pulseaudio
+                if play_audio:
+                    pipeline += """
+                        pulsesink
+                    """
+
+                # Otherwise just trash the Audio
+                else:
+                    pipeline += """
+                        fakesink
+                    """
 
         pipeline = pipeline.format(
             acaps=Config.get('mix', 'audiocaps'),
@@ -163,7 +176,9 @@ class VideoDisplay(object):
         self.log.debug('Error-Details: #%u: %s', error.code, debug)
 
     def on_level(self, bus, msg):
-        if msg.src.name != 'lvl':
+        p = re.compile('(lvl_)([0-9])')
+        m = p.match(msg.src.name)
+        if not(m):
             return
 
         if msg.type != Gst.MessageType.ELEMENT:
@@ -172,4 +187,5 @@ class VideoDisplay(object):
         rms = msg.get_structure().get_value('rms')
         peak = msg.get_structure().get_value('peak')
         decay = msg.get_structure().get_value('decay')
-        self.level_callback(rms, peak, decay)
+        stream = int(m.group(2))
+        self.level_callback(rms, peak, decay, stream)

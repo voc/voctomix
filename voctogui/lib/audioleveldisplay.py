@@ -1,7 +1,8 @@
 import math
 import cairo
 
-from gi.repository import Gtk, GLib
+from lib.config import Config
+from gi.repository import Gtk, GLib, Gst
 
 
 class AudioLevelDisplay(Gtk.DrawingArea):
@@ -9,9 +10,20 @@ class AudioLevelDisplay(Gtk.DrawingArea):
     __gtype_name__ = 'AudioLevelDisplay'
 
     def __init__(self):
-        self.levelrms = []
-        self.levelpeak = []
-        self.leveldecay = []
+        self.audiostreams = int(Config.get('mix', 'audiostreams'))
+        meters = Config.get('mainvideo', 'vumeter')
+        if (Config.has_option('mainvideo', 'vumeter')) \
+                and (meters != 'all') \
+                and (int(meters) < self.audiostreams):
+            self.audiostreams = int(meters)
+
+        self.channels = 2
+        acaps = Gst.Caps.from_string(Config.get('mix', 'audiocaps'))
+        self.channels = int(acaps.get_structure(0).get_int("channels")[1])
+
+        self.levelrms = [0] * self.channels * self.audiostreams
+        self.levelpeak = [0] * self.channels * self.audiostreams
+        self.leveldecay = [0] * self.channels * self.audiostreams
 
         self.height = -1
 
@@ -129,10 +141,13 @@ class AudioLevelDisplay(Gtk.DrawingArea):
     def clamp(self, value, min_value=0, max_value=1):
         return max(min(value, max_value), min_value)
 
-    def level_callback(self, rms, peak, decay):
-        if self.levelrms != rms or self.levelpeak != peak \
-                or self.leveldecay != decay:
-            self.levelrms = rms
-            self.levelpeak = peak
-            self.leveldecay = decay
+    def level_callback(self, rms, peak, decay, stream):
+        p = self.channels * stream
+        if self.levelrms[p] != rms[0] \
+                or self.levelpeak[p] != peak[0] \
+                or self.leveldecay[p] != decay[0]:
+            for i in range(0, self.channels):
+                self.levelrms[p + i] = rms[i]
+                self.levelpeak[p + i] = peak[i]
+                self.leveldecay[p + i] = decay[i]
             self.queue_draw()
