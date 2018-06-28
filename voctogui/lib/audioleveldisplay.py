@@ -10,22 +10,22 @@ class AudioLevelDisplay(Gtk.DrawingArea):
     __gtype_name__ = 'AudioLevelDisplay'
 
     def __init__(self):
-        self.audiostreams = int(Config.get('mix', 'audiostreams'))
+        self.num_audiostreams_ = int(Config.get('mix', 'audiostreams'))
         meters = Config.get('mainvideo', 'vumeter')
-        if (Config.has_option('mainvideo', 'vumeter')) \
-                and (meters != 'all') \
-                and (int(meters) < self.audiostreams):
-            self.audiostreams = int(meters)
+        if (meters != 'all') and (int(meters) < self.num_audiostreams_):
+            self.num_audiostreams_ = int(meters)
 
         self.channels = 2
         acaps = Gst.Caps.from_string(Config.get('mix', 'audiocaps'))
         self.channels = int(acaps.get_structure(0).get_int("channels")[1])
 
-        self.levelrms = [0] * self.channels * self.audiostreams
-        self.levelpeak = [0] * self.channels * self.audiostreams
-        self.leveldecay = [0] * self.channels * self.audiostreams
+        self.levelrms = [0] * self.channels * self.num_audiostreams_
+        self.levelpeak = [0] * self.channels * self.num_audiostreams_
+        self.leveldecay = [0] * self.channels * self.num_audiostreams_
 
         self.height = -1
+
+        self.set_size_request(20 * self.num_audiostreams_, -1)
 
         # register on_draw handler
         self.connect('draw', self.draw_callback)
@@ -142,12 +142,9 @@ class AudioLevelDisplay(Gtk.DrawingArea):
         return max(min(value, max_value), min_value)
 
     def level_callback(self, rms, peak, decay, stream):
-        p = self.channels * stream
-        if self.levelrms[p] != rms[0] \
-                or self.levelpeak[p] != peak[0] \
-                or self.leveldecay[p] != decay[0]:
-            for i in range(0, self.channels):
-                self.levelrms[p + i] = rms[i]
-                self.levelpeak[p + i] = peak[i]
-                self.leveldecay[p + i] = decay[i]
-            self.queue_draw()
+        meter_offset = self.channels * stream
+        for i in range(0, self.channels):
+            self.levelrms[meter_offset + i] = rms[i]
+            self.levelpeak[meter_offset + i] = peak[i]
+            self.leveldecay[meter_offset + i] = decay[i]
+        self.queue_draw()

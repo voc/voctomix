@@ -27,8 +27,7 @@ class VideoDisplay(object):
 
         audiostreams = int(Config.get('mix', 'audiostreams'))
 
-        if (Config.has_option('mainvideo', 'vumeter')) \
-                and (Config.get('mainvideo', 'vumeter') != 'all') \
+        if (Config.get('mainvideo', 'vumeter') != 'all') \
                 and int(Config.get('mainvideo', 'vumeter')) < audiostreams:
             audiostreams = int(Config.get('mainvideo', 'vumeter'))
 
@@ -124,7 +123,7 @@ class VideoDisplay(object):
                 """.format(audiostream=audiostream)
 
                 # If Playback is requested, push fo pulseaudio
-                if play_audio:
+                if play_audio and audiostream == 0:
                     pipeline += """
                         pulsesink
                     """
@@ -176,9 +175,7 @@ class VideoDisplay(object):
         self.log.debug('Error-Details: #%u: %s', error.code, debug)
 
     def on_level(self, bus, msg):
-        p = re.compile('(lvl_)([0-9])')
-        m = p.match(msg.src.name)
-        if not(m):
+        if not(msg.src.name.startswith('lvl_')):
             return
 
         if msg.type != Gst.MessageType.ELEMENT:
@@ -187,5 +184,5 @@ class VideoDisplay(object):
         rms = msg.get_structure().get_value('rms')
         peak = msg.get_structure().get_value('peak')
         decay = msg.get_structure().get_value('decay')
-        stream = int(m.group(2))
+        stream = int(msg.src.name[4])
         self.level_callback(rms, peak, decay, stream)
