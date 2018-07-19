@@ -33,23 +33,6 @@ cd voctomix
 ./voctogui/voctogui.py -vv
 ````
 
-## Installation on Jessie
-Because we are using Debian Jessie as our production system (which only has [1.4 packaged](https://packages.debian.org/jessie/libgstreamer1.0-0)), we are packaging the required libraries in our own Debian repository. The packages inside this repository are built against deb-multimedia.org, so to use them you should add the following lines to your `/etc/apt/sources.list`:
-````
-deb http://www.deb-multimedia.org jessie main non-free
-deb http://c3voc.de/voctomix jessie non-free
-````
-
-You'll then need install the GPG keys:
-````
-apt-get update
-apt-get install deb-multimedia-keyring
-curl https://c3voc.de/voctomix/gpg-key.asc | apt-key add -
-apt-get update
-````
-
-Now proceed as described under [Installation](#installation).
-
 ## Quickstart using Docker
 
 ### docker-compose
