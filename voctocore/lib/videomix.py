@@ -48,6 +48,7 @@ class VideoMix(object):
 
         pipeline = """
             compositor name=mix !
+            videoconvert !
             {caps} !
             identity name=sig !
             queue !
@@ -77,12 +78,25 @@ class VideoMix(object):
                 intervideosrc channel=video_{name}_mixer !
                 {caps} !
                 videocrop name=video_{idx}_cropper !
-                mix.
             """.format(
                 name=name,
                 caps=self.caps,
                 idx=idx
             )
+            section = 'source.{}'.format(name)
+
+            if Config.has_option(section, 'alpha_method'):
+                alpha_method = Config.get(section, 'alpha_method')
+                pipeline += """
+                    alpha name=video_{idx}_alpha method={method} !
+                """.format(
+                    idx=idx,
+                    method=alpha_method
+                )
+
+            pipeline += """
+                mix.
+            """
 
         self.log.debug('Creating Mixing-Pipeline:\n%s', pipeline)
         self.mixingPipeline = Gst.parse_launch(pipeline)
@@ -145,11 +159,22 @@ class VideoMix(object):
     def recalculateMixerStateFullscreen(self):
         self.log.info('Updating Mixer-State for Fullscreen-Composition')
 
+        sourceAHasAlpha = Config.has_option('source.{}'
+                                            .format(self.names[self.sourceA]),
+                                            'alpha_method')
+
         for idx, name in enumerate(self.names):
             pad = self.padState[idx]
 
             pad.reset()
-            pad.alpha = float(idx == self.sourceA)
+
+            if (sourceAHasAlpha and (idx == self.sourceB)):
+                # If source A has alpha, also display source B ...
+                pad.alpha = 1.0
+                # ... but in background
+                pad.zorder = 1
+            else:
+                pad.alpha = float(idx == self.sourceA)
 
     def recalculateMixerStateSideBySideEqual(self):
         self.log.info('Updating Mixer-State for '
