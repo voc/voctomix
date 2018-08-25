@@ -1,54 +1,33 @@
 #!/usr/bin/env python3
 import socket
 from lib.config import Config
+from lib.plugins.all_plugins import get_plugin
 import time
-
-DO_GPIO = True
-try:
-    import RPi.GPIO as GPIO
-    GPIO.setmode(GPIO.BOARD)
-except ModuleNotFoundError:
-    DO_GPIO = False
 
 
 class TallyHandling:
-
-    def __init__(self, source, gpio_port, all_gpios=()):
+    def __init__(self, plugin, source):
+        self.plugin = plugin
         self.source = source
-        self.state = ''
-        self.gpio_port = gpio_port
-        if DO_GPIO:
-            GPIO.setup(all_gpios, GPIO.OUT)
-            GPIO.output(all_gpios, GPIO.HIGH)
+        self.state = None
 
     def set_state(self, state):
         self.state = state
 
-    def tally_on(self):
-        if DO_GPIO:
-            GPIO.output(self.gpio_port, GPIO.LOW)
-        print('Tally on')
-
-    def tally_off(self):
-        if DO_GPIO:
-            GPIO.output(self.gpio_port, GPIO.HIGH)
-        print('Tally off')
-
     def video_change(self, source_a, source_b):
         if self.state == 'fullscreen':
             if source_a == self.source:
-                self.tally_on()
+                self.plugin.tally_on()
             else:
-                self.tally_off()
+                self.plugin.tally_off()
         else:
             if self.source in (source_a, source_b):
-                self.tally_on()
+                self.plugin.tally_on()
             else:
-                self.tally_off()
+                self.plugin.tally_off()
 
 
 def start_connection(tally_handler):
-
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.settimeout(2)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
@@ -56,6 +35,7 @@ def start_connection(tally_handler):
     sock.connect((Config.get('server', 'host'), 9999))
     sock.settimeout(None)
 
+    print('Connected.')
     messages = []
     sock.send(b'get_composite_mode\n')
     sock.send(b'get_video\n')
@@ -83,14 +63,10 @@ def start_connection(tally_handler):
         except IndexError:
             pass
 
-
-if __name__ in '__main__':
+def main():
+    plugin = get_plugin(Config)
+    tally_handler = TallyHandling(plugin, Config.get('light', 'cam'))
     try:
-        all_gpios = Config.get('light', 'gpios').split(',')
-        all_gpios = [int(i) for i in all_gpios]
-        tally_handler = TallyHandling(Config.get('light', 'cam'), int(Config.get('light', 'gpio_red')),
-                                      all_gpios=all_gpios)
-
         while True:
             try:
                 start_connection(tally_handler)
@@ -100,5 +76,6 @@ if __name__ in '__main__':
                 continue
     finally:
         print('cleanup')
-        if DO_GPIO:
-            GPIO.cleanup()
+
+if __name__ in '__main__':
+    main()
