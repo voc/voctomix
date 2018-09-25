@@ -6,7 +6,10 @@ from gi.repository import Gst, GstController
 
 from lib.config import Config
 from lib.clock import Clock
-from lib.composites import Frame, Composites
+from lib.transitions import Frame, Composites, Transitions
+
+fps = 50
+
 
 @unique
 class CompositeModes(Enum):
@@ -14,6 +17,7 @@ class CompositeModes(Enum):
     side_by_side_equal = 1
     side_by_side_preview = 2
     picture_in_picture = 3
+
 
 class VideoMix(object):
     log = logging.getLogger('VideoMix')
@@ -25,9 +29,11 @@ class VideoMix(object):
         self.log.info('Configuring Mixer for %u Sources', len(self.names))
 
         self.log.info("reading composites from configuration...")
-        self.composites = Composites.configure(Config.items('composites'), self.getInputVideoSize())
+        self.composites = Composites.configure(
+            Config.items('composites'), self.getInputVideoSize())
         self.targets = Composites.targets(self.composites)
-
+        self.transitions = Transitions.configure(Config.items(
+            'transitions'), self.composites, self.targets, fps)
         pipeline = """
             compositor name=mix !
             {caps} !
@@ -58,7 +64,7 @@ class VideoMix(object):
             pipeline += """
                 intervideosrc channel=video_{name}_mixer !
                 {caps} !
-                videocrop name=video_{idx}_cropper !
+                videobox name=video_{idx}_cropper !
                 mix.
             """.format(
                 name=name,
@@ -85,6 +91,8 @@ class VideoMix(object):
         self.padStateDirty = False
 
         self.log.debug('Initializing Mixer-State')
+        self.transition = None
+        self.composite = None
         self.compositeMode = CompositeModes.fullscreen
         self.sourceA = 0
         self.sourceB = 1
@@ -107,22 +115,28 @@ class VideoMix(object):
         return width, height
 
     def recalculateMixerState(self):
-        if self.compositeMode == CompositeModes.fullscreen:
-            self.composite = self.composites["fs-a"]
-
-        elif self.compositeMode == CompositeModes.side_by_side_equal:
-            self.composite = self.composites["sbs"]
-
-        elif self.compositeMode == CompositeModes.side_by_side_preview:
-            self.composite = self.composites["sbsp"]
-
-        elif self.compositeMode == CompositeModes.picture_in_picture:
-            self.composite = self.composites["pip"]
+        composites = {
+            CompositeModes.fullscreen: self.composites["fs-a"],
+            CompositeModes.side_by_side_equal: self.composites["sbs"],
+            CompositeModes.side_by_side_preview: self.composites["sbsp"],
+            CompositeModes.picture_in_picture: self.composites["pip"]
+        }
+        if self.composite:
+            self.transition = self.transitions.find(
+                self.composite, composites[self.compositeMode])
+        self.composite = composites[self.compositeMode]
 
         self.log.info("switching to composite: %s" % self.composite)
 
         self.log.debug('Marking Pad-State as Dirty')
         self.padStateDirty = True
+
+    def gstController(self, pad, item):
+        cs = GstController.InterpolationControlSource()
+        cs.set_property('mode', GstController.InterpolationMode.NONE)
+        cb = GstController.DirectControlBinding.new_absolute(pad, item, cs)
+        pad.add_control_binding(cb)
+        return cs
 
     def applyMixerState(self):
         self.log.info('Updating Mixer-State for composite')
@@ -135,37 +149,74 @@ class VideoMix(object):
 
             cropper = self.mixingPipeline.get_by_name("video_%u_cropper" % idx)
 
-            frame = Frame(alpha=0)
-            zorder = 1
-            if idx == self.sourceA:
-                frame = self.composite.A()
-                zorder = 2
-            elif idx == self.sourceB:
-                frame = self.composite.B()
-                zorder = 3
-            if frame:
-                self.log.debug('Reconfiguring Mixerpad %u to '
-                               'x/y=%u/%u, w/h=%u/%u alpha=%0.2f, zorder=%u',
-                               idx, frame.cropped_left(), frame.cropped_top(),
-                               frame.cropped_width(), frame.cropped_height(),
-                               frame.float_alpha(), zorder)
-                mixerpad.set_property('xpos', frame.cropped_left())
-                mixerpad.set_property('ypos', frame.cropped_top())
-                mixerpad.set_property('width', frame.cropped_width())
-                mixerpad.set_property('height', frame.cropped_height())
-                mixerpad.set_property('alpha', frame.float_alpha())
-                mixerpad.set_property('zorder', zorder)
+            if self.transition:
 
-                self.log.info("Reconfiguring Cropper %d to %d/%d/%d/%d",
-                              idx,
-                              frame.croptop(),
-                              frame.cropleft(),
-                              frame.cropbottom(),
-                              frame.cropright())
-                cropper.set_property("top", frame.croptop())
-                cropper.set_property("left", frame.cropleft())
-                cropper.set_property("bottom", frame.cropbottom())
-                cropper.set_property("right", frame.cropright())
+                xpos = self.gstController(mixerpad, 'xpos')
+                ypos = self.gstController(mixerpad, 'ypos')
+                width = self.gstController(mixerpad, 'width')
+                height = self.gstController(mixerpad, 'height')
+                alpha = self.gstController(mixerpad, 'alpha')
+                zorder = self.gstController(mixerpad, 'zorder')
+                croptop = self.gstController(cropper, 'top')
+                cropleft = self.gstController(cropper, 'left')
+                cropbottom = self.gstController(cropper, 'bottom')
+                cropright = self.gstController(cropper, 'right')
+                step = int(Gst.SECOND / fps)
+                current_time = self.mixingPipeline.get_clock().get_time() - self.mixingPipeline.get_base_time()
+                for f in range(self.transition.frames()):
+                    time = current_time + f * step
+                    frame = Frame(alpha=0)
+                    z = 1
+                    if idx == self.sourceA:
+                        frame = self.transition.A(f)
+                        z = 2
+                    elif idx == self.sourceB:
+                        frame = self.transition.B(f)
+                        z = 3
+                    xpos.set(time, frame.cropped_left())
+                    ypos.set(time, frame.cropped_top())
+                    width.set(time, frame.cropped_width())
+                    height.set(time, frame.cropped_height())
+                    alpha.set(time, frame.float_alpha())
+                    zorder.set(time, z)
+                    croptop.set(time, frame.croptop())
+                    cropleft.set(time, frame.cropleft())
+                    cropbottom.set(time, frame.cropbottom())
+                    cropright.set(time, frame.cropright())
+            else:
+                frame = Frame(alpha=0)
+                zorder = 1
+                if idx == self.sourceA:
+                    frame = self.composite.A()
+                    zorder = 2
+                elif idx == self.sourceB:
+                    frame = self.composite.B()
+                    zorder = 3
+                if frame:
+                    self.log.debug('Reconfiguring Mixerpad %u to '
+                                   'x/y=%u/%u, w/h=%u/%u alpha=%0.2f, zorder=%u',
+                                   idx, frame.cropped_left(), frame.cropped_top(),
+                                   frame.cropped_width(), frame.cropped_height(),
+                                   frame.float_alpha(), zorder)
+                    mixerpad.set_property('xpos', frame.cropped_left())
+                    mixerpad.set_property('ypos', frame.cropped_top())
+                    mixerpad.set_property('width', frame.cropped_width())
+                    mixerpad.set_property('height', frame.cropped_height())
+                    mixerpad.set_property('alpha', frame.float_alpha())
+                    mixerpad.set_property('zorder', zorder)
+
+                    self.log.info("Reconfiguring Cropper %d to %d/%d/%d/%d",
+                                  idx,
+                                  frame.croptop(),
+                                  frame.cropleft(),
+                                  frame.cropbottom(),
+                                  frame.cropright())
+                    cropper.set_property("top", frame.croptop())
+                    cropper.set_property("left", frame.cropleft())
+                    cropper.set_property("bottom", frame.cropbottom())
+                    cropper.set_property("right", frame.cropright())
+
+        self.transition = None
 
     def selectCompositeModeDefaultSources(self):
         sectionNames = {
