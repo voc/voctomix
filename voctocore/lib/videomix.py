@@ -174,15 +174,16 @@ class VideoMix(object):
             if self.transition:
                 time = current_time
                 step = int(Gst.SECOND / fps)
+                flip = self.transition.flip()
                 for f in range(self.transition.frames()):
                     frame = Frame(alpha=0)
                     z = 1
                     if idx == self.sourceA:
                         frame = self.transition.A(f)
-                        z = 2
+                        z = 2 if (not flip) or f < flip else 3
                     elif idx == self.sourceB:
                         frame = self.transition.B(f)
-                        z = 3
+                        z = 3 if (not flip) or f < flip else 2
                         
                     self.properties[idx]['xpos'].set(
                         time, frame.cropped_left())
