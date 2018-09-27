@@ -1,4 +1,7 @@
 import logging
+import gi
+gi.require_version('GstController', '1.0')
+
 from configparser import NoOptionError
 from enum import Enum, unique
 
