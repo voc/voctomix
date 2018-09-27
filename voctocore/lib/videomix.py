@@ -91,6 +91,26 @@ class VideoMix(object):
         sig = self.mixingPipeline.get_by_name('sig')
         sig.connect('handoff', self.on_handoff)
 
+        self.properties = list()
+        for idx, name in enumerate(self.names):
+            self.log.debug(idx)
+            mixerpad = (self.mixingPipeline
+                        .get_by_name('mix')
+                        .get_static_pad('sink_%u' % (idx + 1)))
+            cropperpad = (self.mixingPipeline
+                          .get_by_name("video_%u_cropper" % idx))
+            self.properties.append({
+                'xpos': self.gstController(mixerpad, 'xpos'),
+                'ypos': self.gstController(mixerpad, 'ypos'),
+                'width': self.gstController(mixerpad, 'width'),
+                'height': self.gstController(mixerpad, 'height'),
+                'alpha': self.gstController(mixerpad, 'alpha'),
+                'zorder': self.gstController(mixerpad, 'zorder'),
+                'croptop': self.gstController(cropperpad, 'top'),
+                'cropleft': self.gstController(cropperpad, 'left'),
+                'cropbottom': self.gstController(cropperpad, 'bottom'),
+                'cropright': self.gstController(cropperpad, 'right')
+            })
         self.padStateDirty = False
 
         self.log.debug('Initializing Mixer-State')
@@ -144,30 +164,17 @@ class VideoMix(object):
     def applyMixerState(self):
         self.log.info('Updating Mixer-State for composite')
 
+        if self.mixingPipeline.get_clock():
+            current_time = self.mixingPipeline.get_clock().get_time() - \
+                self.mixingPipeline.get_base_time()
+        else:
+            current_time = 0
         for idx, name in enumerate(self.names):
             # mixerpad 0 = background
-            mixerpad = (self.mixingPipeline
-                        .get_by_name('mix')
-                        .get_static_pad('sink_%u' % (idx + 1)))
-
-            cropper = self.mixingPipeline.get_by_name("video_%u_cropper" % idx)
-
             if self.transition:
-
-                xpos = self.gstController(mixerpad, 'xpos')
-                ypos = self.gstController(mixerpad, 'ypos')
-                width = self.gstController(mixerpad, 'width')
-                height = self.gstController(mixerpad, 'height')
-                alpha = self.gstController(mixerpad, 'alpha')
-                zorder = self.gstController(mixerpad, 'zorder')
-                croptop = self.gstController(cropper, 'top')
-                cropleft = self.gstController(cropper, 'left')
-                cropbottom = self.gstController(cropper, 'bottom')
-                cropright = self.gstController(cropper, 'right')
+                time = current_time
                 step = int(Gst.SECOND / fps)
-                current_time = self.mixingPipeline.get_clock().get_time() - self.mixingPipeline.get_base_time()
                 for f in range(self.transition.frames()):
-                    time = current_time + f * step
                     frame = Frame(alpha=0)
                     z = 1
                     if idx == self.sourceA:
@@ -176,17 +183,27 @@ class VideoMix(object):
                     elif idx == self.sourceB:
                         frame = self.transition.B(f)
                         z = 3
-                    xpos.set(time, frame.cropped_left())
-                    ypos.set(time, frame.cropped_top())
-                    width.set(time, frame.cropped_width())
-                    height.set(time, frame.cropped_height())
-                    alpha.set(time, frame.float_alpha())
-                    zorder.set(time, z)
-                    croptop.set(time, frame.croptop())
-                    cropleft.set(time, frame.cropleft())
-                    cropbottom.set(time, frame.cropbottom())
-                    cropright.set(time, frame.cropright())
+                        
+                    self.properties[idx]['xpos'].set(
+                        time, frame.cropped_left())
+                    self.properties[idx]['ypos'].set(time, frame.cropped_top())
+                    self.properties[idx]['width'].set(
+                        time, frame.cropped_width())
+                    self.properties[idx]['height'].set(
+                        time, frame.cropped_height())
+                    self.properties[idx]['alpha'].set(
+                        time, frame.float_alpha())
+                    self.properties[idx]['zorder'].set(time, z)
+                    self.properties[idx]['croptop'].set(time, frame.croptop())
+                    self.properties[idx]['cropleft'].set(
+                        time, frame.cropleft())
+                    self.properties[idx]['cropbottom'].set(
+                        time, frame.cropbottom())
+                    self.properties[idx]['cropright'].set(
+                        time, frame.cropright())
+                    time += step
             else:
+                time = current_time
                 frame = Frame(alpha=0)
                 zorder = 1
                 if idx == self.sourceA:
@@ -195,29 +212,23 @@ class VideoMix(object):
                 elif idx == self.sourceB:
                     frame = self.composite.B()
                     zorder = 3
-                if frame:
-                    self.log.debug('Reconfiguring Mixerpad %u to '
-                                   'x/y=%u/%u, w/h=%u/%u alpha=%0.2f, zorder=%u',
-                                   idx, frame.cropped_left(), frame.cropped_top(),
-                                   frame.cropped_width(), frame.cropped_height(),
-                                   frame.float_alpha(), zorder)
-                    mixerpad.set_property('xpos', frame.cropped_left())
-                    mixerpad.set_property('ypos', frame.cropped_top())
-                    mixerpad.set_property('width', frame.cropped_width())
-                    mixerpad.set_property('height', frame.cropped_height())
-                    mixerpad.set_property('alpha', frame.float_alpha())
-                    mixerpad.set_property('zorder', zorder)
-
-                    self.log.info("Reconfiguring Cropper %d to %d/%d/%d/%d",
-                                  idx,
-                                  frame.croptop(),
-                                  frame.cropleft(),
-                                  frame.cropbottom(),
-                                  frame.cropright())
-                    cropper.set_property("top", frame.croptop())
-                    cropper.set_property("left", frame.cropleft())
-                    cropper.set_property("bottom", frame.cropbottom())
-                    cropper.set_property("right", frame.cropright())
+                self.properties[idx]['xpos'].set(
+                    time, frame.cropped_left())
+                self.properties[idx]['ypos'].set(time, frame.cropped_top())
+                self.properties[idx]['width'].set(
+                    time, frame.cropped_width())
+                self.properties[idx]['height'].set(
+                    time, frame.cropped_height())
+                self.properties[idx]['alpha'].set(
+                    time, frame.float_alpha())
+                self.properties[idx]['zorder'].set(time, zorder)
+                self.properties[idx]['croptop'].set(time, frame.croptop())
+                self.properties[idx]['cropleft'].set(
+                    time, frame.cropleft())
+                self.properties[idx]['cropbottom'].set(
+                    time, frame.cropbottom())
+                self.properties[idx]['cropright'].set(
+                    time, frame.cropright())
 
         self.transition = None
 
