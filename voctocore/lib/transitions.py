@@ -453,9 +453,6 @@ def fade(begin, end, factor):
         # call fade() for every of these values
         for i in range(len(begin)):
             result.append(fade(begin[i], end[i], factor))
-    elif type(begin) is int:
-        # round result to int if begin is an int
-        result = int(round(begin + (end - begin) * factor))
     else:
         # return the resulting float
         result = begin + (end - begin) * factor
@@ -471,14 +468,14 @@ def morph(begin, end, pt, corner, factor):
     # calculate current size
     size = fade(begin.size(), end.size(), factor)
     # calculate current rectangle
-    result.rect = [pt[X] if corner[X] is L else pt[X] - size[X],
-                   pt[Y] if corner[Y] is T else pt[Y] - size[Y],
-                   pt[X] if corner[X] is R else pt[X] + size[X],
-                   pt[Y] if corner[Y] is B else pt[Y] + size[Y],
+    result.rect = [pt[X] if corner[X] is L else int(round(pt[X] - size[X])),
+                   pt[Y] if corner[Y] is T else int(round(pt[Y] - size[Y])),
+                   pt[X] if corner[X] is R else int(round(pt[X] + size[X])),
+                   pt[Y] if corner[Y] is B else int(round(pt[Y] + size[Y])),
                    ]
     # calculate current alpha value and cropping
-    result.alpha = fade(begin.alpha, end.alpha, factor)
-    result.crop = fade(begin.crop, end.crop, factor)
+    result.alpha = int(round(fade(begin.alpha, end.alpha, factor)))
+    result.crop = [int(round(x)) for x in fade(begin.crop, end.crop, factor)]
     # copy orignial size from begin
     result.original_size = begin.original_size
     return result
