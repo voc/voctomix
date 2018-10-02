@@ -25,6 +25,52 @@ class CompositeModes(Enum):
 class VideoMix(object):
     log = logging.getLogger('VideoMix')
 
+    class Pad(list):
+
+        def __init__(self, pipeline, names):
+            for idx, name in enumerate(names):
+                mixerpad = (pipeline
+                            .get_by_name('mix')
+                            .get_static_pad('sink_%u' % (idx + 1)))
+                cropperpad = (pipeline
+                              .get_by_name("video_%u_cropper" % idx))
+
+                def bind(pad, item):
+                    cs = GstController.InterpolationControlSource()
+                    cs.set_property(
+                        'mode', GstController.InterpolationMode.NONE)
+                    cb = GstController.DirectControlBinding.new_absolute(
+                        pad, item, cs)
+                    pad.add_control_binding(cb)
+                    return cs
+
+                self.append({
+                    'xpos': bind(mixerpad, 'xpos'),
+                    'ypos': bind(mixerpad, 'ypos'),
+                    'width': bind(mixerpad, 'width'),
+                    'height': bind(mixerpad, 'height'),
+                    'alpha': bind(mixerpad, 'alpha'),
+                    'zorder': bind(mixerpad, 'zorder'),
+                    'croptop': bind(cropperpad, 'top'),
+                    'cropleft': bind(cropperpad, 'left'),
+                    'cropbottom': bind(cropperpad, 'bottom'),
+                    'cropright': bind(cropperpad, 'right')
+                })
+            self.dirty = False
+
+        def mix(self, time, frame, idx, zorder):
+            self[idx]['xpos'].set(time, frame.cropped_left())
+            self[idx]['ypos'].set(time, frame.cropped_top())
+            self[idx]['width'].set(time, frame.cropped_width())
+            self[idx]['height'].set(time, frame.cropped_height())
+            self[idx]['alpha'].set(time, frame.float_alpha())
+            self[idx]['zorder'].set(time, zorder)
+
+            self[idx]['croptop'].set(time, frame.croptop())
+            self[idx]['cropleft'].set(time, frame.cropleft())
+            self[idx]['cropbottom'].set(time, frame.cropbottom())
+            self[idx]['cropright'].set(time, frame.cropright())
+
     def __init__(self):
         self.caps = Config.get('mix', 'videocaps')
 
@@ -91,27 +137,7 @@ class VideoMix(object):
         sig = self.mixingPipeline.get_by_name('sig')
         sig.connect('handoff', self.on_handoff)
 
-        self.properties = list()
-        for idx, name in enumerate(self.names):
-            self.log.debug(idx)
-            mixerpad = (self.mixingPipeline
-                        .get_by_name('mix')
-                        .get_static_pad('sink_%u' % (idx + 1)))
-            cropperpad = (self.mixingPipeline
-                          .get_by_name("video_%u_cropper" % idx))
-            self.properties.append({
-                'xpos': self.gstController(mixerpad, 'xpos'),
-                'ypos': self.gstController(mixerpad, 'ypos'),
-                'width': self.gstController(mixerpad, 'width'),
-                'height': self.gstController(mixerpad, 'height'),
-                'alpha': self.gstController(mixerpad, 'alpha'),
-                'zorder': self.gstController(mixerpad, 'zorder'),
-                'croptop': self.gstController(cropperpad, 'top'),
-                'cropleft': self.gstController(cropperpad, 'left'),
-                'cropbottom': self.gstController(cropperpad, 'bottom'),
-                'cropright': self.gstController(cropperpad, 'right')
-            })
-        self.padStateDirty = False
+        self.pad = self.Pad(self.mixingPipeline, self.names)
 
         self.log.debug('Initializing Mixer-State')
         self.transition = None
@@ -148,90 +174,44 @@ class VideoMix(object):
             self.transition = self.transitions.find(
                 self.composite, composites[self.compositeMode])
         self.composite = composites[self.compositeMode]
-
         self.log.info("switching to composite: %s" % self.composite)
-
-        self.log.debug('Marking Pad-State as Dirty')
-        self.padStateDirty = True
-
-    def gstController(self, pad, item):
-        cs = GstController.InterpolationControlSource()
-        cs.set_property('mode', GstController.InterpolationMode.NONE)
-        cb = GstController.DirectControlBinding.new_absolute(pad, item, cs)
-        pad.add_control_binding(cb)
-        return cs
+        self.pad.dirty = True
 
     def applyMixerState(self):
         self.log.info('Updating Mixer-State for composite')
-
+        # get play time from mixing pipeline or assume zero
         if self.mixingPipeline.get_clock():
-            current_time = self.mixingPipeline.get_clock().get_time() - \
+            time = self.mixingPipeline.get_clock().get_time() - \
                 self.mixingPipeline.get_base_time()
         else:
-            current_time = 0
-        for idx, name in enumerate(self.names):
-            # mixerpad 0 = background
-            if self.transition:
-                time = current_time
-                step = int(Gst.SECOND / fps)
-                flip = self.transition.flip()
-                for f in range(self.transition.frames()):
+            time = 0
+        # if a transition is running
+        if self.transition:
+            # time span for every frame
+            span = int(Gst.SECOND / fps)
+            # get sources flip point
+            flip = self.transition.flip()
+            # walk through animation
+            for f in range(self.transition.frames()):
+                # walk through all sources
+                for idx, name in enumerate(self.names):
                     frame = Frame(alpha=0)
-                    z = 1
+
+                    # HACK: shitty try to manage zorder
+                    zorder = 1
                     if idx == self.sourceA:
                         frame = self.transition.A(f)
-                        z = 2 if (not flip) or f < flip else 3
+                        zorder = 2 if (not flip) or f < flip else 3
                     elif idx == self.sourceB:
                         frame = self.transition.B(f)
-                        z = 3 if (not flip) or f < flip else 2
-                        
-                    self.properties[idx]['xpos'].set(
-                        time, frame.cropped_left())
-                    self.properties[idx]['ypos'].set(time, frame.cropped_top())
-                    self.properties[idx]['width'].set(
-                        time, frame.cropped_width())
-                    self.properties[idx]['height'].set(
-                        time, frame.cropped_height())
-                    self.properties[idx]['alpha'].set(
-                        time, frame.float_alpha())
-                    self.properties[idx]['zorder'].set(time, z)
-                    self.properties[idx]['croptop'].set(time, frame.croptop())
-                    self.properties[idx]['cropleft'].set(
-                        time, frame.cropleft())
-                    self.properties[idx]['cropbottom'].set(
-                        time, frame.cropbottom())
-                    self.properties[idx]['cropright'].set(
-                        time, frame.cropright())
-                    time += step
-            else:
-                time = current_time
-                frame = Frame(alpha=0)
-                zorder = 1
-                if idx == self.sourceA:
-                    frame = self.composite.A()
-                    zorder = 2
-                elif idx == self.sourceB:
-                    frame = self.composite.B()
-                    zorder = 3
-                self.properties[idx]['xpos'].set(
-                    time, frame.cropped_left())
-                self.properties[idx]['ypos'].set(time, frame.cropped_top())
-                self.properties[idx]['width'].set(
-                    time, frame.cropped_width())
-                self.properties[idx]['height'].set(
-                    time, frame.cropped_height())
-                self.properties[idx]['alpha'].set(
-                    time, frame.float_alpha())
-                self.properties[idx]['zorder'].set(time, zorder)
-                self.properties[idx]['croptop'].set(time, frame.croptop())
-                self.properties[idx]['cropleft'].set(
-                    time, frame.cropleft())
-                self.properties[idx]['cropbottom'].set(
-                    time, frame.cropbottom())
-                self.properties[idx]['cropright'].set(
-                    time, frame.cropright())
+                        zorder = 3 if (not flip) or f < flip else 2
 
-        self.transition = None
+                    # apply pad properties
+                    self.pad.mix(time, frame, idx, zorder)
+                # calculate time for next frame
+                time += span
+            # transition was applied
+            self.transition = None
 
     def selectCompositeModeDefaultSources(self):
         sectionNames = {
@@ -261,8 +241,8 @@ class VideoMix(object):
             pass
 
     def on_handoff(self, object, buffer):
-        if self.padStateDirty:
-            self.padStateDirty = False
+        if self.pad.dirty:
+            self.pad.dirty = False
             self.log.debug('[Streaming-Thread]: Pad-State is Dirty, '
                            'applying new Mixer-State')
             self.applyMixerState()
