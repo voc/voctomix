@@ -26,24 +26,41 @@ class VideoMix(object):
     log = logging.getLogger('VideoMix')
 
     class Pad(list):
+        """ Pad is the adaptor between the gstreamer compositor
+            and voctomix transitions
+        """
 
-        def __init__(self, pipeline, names):
-            for idx, name in enumerate(names):
+        def __init__(self, pipeline, sources):
+            """ initialize with a gstreamer pipeline and names
+                of the sources to manage
+            """
+            # walk all sources
+            for idx in range(len(sources)):
+                # get mixer and cropper pad from pipeline
                 mixerpad = (pipeline
                             .get_by_name('mix')
                             .get_static_pad('sink_%u' % (idx + 1)))
                 cropperpad = (pipeline
                               .get_by_name("video_%u_cropper" % idx))
 
-                def bind(pad, item):
+                def bind(pad, prop):
+                    """ adds a binding to a gstreamer property
+                        pad's property
+                    """
+                    # set up control source
                     cs = GstController.InterpolationControlSource()
                     cs.set_property(
                         'mode', GstController.InterpolationMode.NONE)
+                    # create control binding
                     cb = GstController.DirectControlBinding.new_absolute(
-                        pad, item, cs)
+                        pad, prop, cs)
+                    # add binding to pad
                     pad.add_control_binding(cb)
+                    # return binding
                     return cs
 
+                # create dictionary of binds to all properties
+                # we vary for this source
                 self.append({
                     'xpos': bind(mixerpad, 'xpos'),
                     'ypos': bind(mixerpad, 'ypos'),
@@ -56,26 +73,29 @@ class VideoMix(object):
                     'cropbottom': bind(cropperpad, 'bottom'),
                     'cropright': bind(cropperpad, 'right')
                 })
+            # born dirty
             self.dirty = False
 
-        def mix(self, time, frame, idx, zorder):
-            self[idx]['xpos'].set(time, frame.cropped_left())
-            self[idx]['ypos'].set(time, frame.cropped_top())
-            self[idx]['width'].set(time, frame.cropped_width())
-            self[idx]['height'].set(time, frame.cropped_height())
-            self[idx]['alpha'].set(time, frame.float_alpha())
-            self[idx]['zorder'].set(time, zorder)
-
-            self[idx]['croptop'].set(time, frame.croptop())
-            self[idx]['cropleft'].set(time, frame.cropleft())
-            self[idx]['cropbottom'].set(time, frame.cropbottom())
-            self[idx]['cropright'].set(time, frame.cropright())
+        def mix(self, time, frame, source_idx, zorder):
+            # get pad for given source
+            pad = self[source_idx]
+            # transmit frame properties into mixing pipeline
+            pad['xpos'].set(time, frame.cropped_left())
+            pad['ypos'].set(time, frame.cropped_top())
+            pad['width'].set(time, frame.cropped_width())
+            pad['height'].set(time, frame.cropped_height())
+            pad['alpha'].set(time, frame.float_alpha())
+            pad['zorder'].set(time, zorder)
+            pad['croptop'].set(time, frame.croptop())
+            pad['cropleft'].set(time, frame.cropleft())
+            pad['cropbottom'].set(time, frame.cropbottom())
+            pad['cropright'].set(time, frame.cropright())
 
     def __init__(self):
         self.caps = Config.get('mix', 'videocaps')
 
-        self.names = Config.getlist('mix', 'sources')
-        self.log.info('Configuring Mixer for %u Sources', len(self.names))
+        self.sources = Config.getlist('mix', 'sources')
+        self.log.info('Configuring Mixer for %u Sources', len(self.sources))
 
         self.log.info("reading composites from configuration...")
         self.composites = Composites.configure(
@@ -109,7 +129,7 @@ class VideoMix(object):
                 tee. ! queue ! intervideosink channel=video_mix_stream-blanker
             """
 
-        for idx, name in enumerate(self.names):
+        for idx, name in enumerate(self.sources):
             pipeline += """
                 intervideosrc channel=video_{name}_mixer !
                 {caps} !
@@ -137,7 +157,7 @@ class VideoMix(object):
         sig = self.mixingPipeline.get_by_name('sig')
         sig.connect('handoff', self.on_handoff)
 
-        self.pad = self.Pad(self.mixingPipeline, self.names)
+        self.pad = self.Pad(self.mixingPipeline, self.sources)
 
         self.log.debug('Initializing Mixer-State')
         self.transition = None
@@ -194,7 +214,7 @@ class VideoMix(object):
             # walk through animation
             for f in range(self.transition.frames()):
                 # walk through all sources
-                for idx, name in enumerate(self.names):
+                for idx, name in enumerate(self.sources):
                     frame = Frame(alpha=0)
 
                     # HACK: shitty try to manage zorder
@@ -226,7 +246,7 @@ class VideoMix(object):
 
         try:
             defSource = Config.get(sectionName, 'default-a')
-            self.setVideoSourceA(self.names.index(defSource))
+            self.setVideoSourceA(self.sources.index(defSource))
             self.log.info('Changing sourceA to default of Mode %s: %s',
                           compositeModeName, defSource)
         except Exception as e:
@@ -234,7 +254,7 @@ class VideoMix(object):
 
         try:
             defSource = Config.get(sectionName, 'default-b')
-            self.setVideoSourceB(self.names.index(defSource))
+            self.setVideoSourceB(self.sources.index(defSource))
             self.log.info('Changing sourceB to default of Mode %s: %s',
                           compositeModeName, defSource)
         except Exception as e:
