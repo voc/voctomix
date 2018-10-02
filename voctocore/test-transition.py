@@ -48,7 +48,7 @@ def read_arguments():
                         help="when using -g: do not generate animated GIFS")
     parser.add_argument('-v', '--verbose', action='count', default=0,
                         help="also print WARNING (-v), INFO (-vv) and DEBUG (-vvv) messages")
-    parser.add_argument('-s', '--size', action='store', default="960x540",
+    parser.add_argument('-s', '--size', action='store',
                         help="set frame size 'WxH' W and H must be pixels")
     parser.add_argument('-S', '--fps', '--speed', action='store', default=25,
                         help="animation resolution (frames per second)")
@@ -77,16 +77,21 @@ def read_config(filename=None):
     config.read(filename)
     if Args.size:
         r = re.match(
-            r'^\s*([\d]+)\s*x\s*([\d]+)\s*$', Args.size)
-        if r:
-            size = [int(r.group(1)), int(r.group(2))]
+            r'^\s*(\d+)\s*x\s*(\d+)\s*$', Args.size)
     else:
-        # read frame size
-        size = config.get('output', 'size').split('x')
-        size = [int(size[0]), int(size[1])]
-
+        r = re.match(
+            r'^.*width\s*=\s*(\d+).*height\s*=\s*(\d+).*$', config.get('mix','videocaps'))
+    if r:
+        size = [int(r.group(1)), int(r.group(2))]
     # read frames per second
-    fps = int(Args.fps if Args.fps else config.get('output', 'fps'))
+    if Args.fps:
+        fps = int(Args.fps)
+    else:
+        r = re.match(
+            r'^\s*framerate\s*=\s*(\d+)/(\d+).*$', config.get('mix','videocaps'))
+        if r:
+            fps = float(r.group(1))/float(r.group(2))
+    print (size,fps)
     # read composites from configuration
     log.info("reading composites from configuration...")
     composites = Composites.configure(config.items('composites'), size)
