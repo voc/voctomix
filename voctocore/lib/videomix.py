@@ -161,7 +161,7 @@ class VideoMix(object):
 
         self.log.debug('Initializing Mixer-State')
         self.transition = None
-        self.composite = None
+        self.composite = self.composites["fs-a"]
         self.compositeMode = CompositeModes.fullscreen
         self.sourceA = 0
         self.sourceB = 1
@@ -190,9 +190,8 @@ class VideoMix(object):
             CompositeModes.side_by_side_preview: self.composites["sbsp"],
             CompositeModes.picture_in_picture: self.composites["pip"]
         }
-        if self.composite:
-            self.transition = self.transitions.find(
-                self.composite, composites[self.compositeMode])
+        self.transition = self.transitions.find(
+            self.composite, composites[self.compositeMode])
         self.composite = composites[self.compositeMode]
         self.log.info("switching to composite: %s" % self.composite)
         self.pad.dirty = True
