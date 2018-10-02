@@ -58,16 +58,16 @@ The images below show source <span style="color:red">__A__</span> in red and sou
 
 #### s(A), s(B)
 
-![fullscreen A composite](images/fullscreen.png)
-![fullscreen B composite](images/fullscreen-b.png)
+![fullscreen A composite](doc/transitions/images/fullscreen.png)
+![fullscreen B composite](doc/transitions/images/fullscreen-b.png)
 
 We name these kind of composites __s(A)__ or __s(B)__.
 
 #### t(A,B)
 
-![pip composite](images/pip.png)
-![sidebyside  composite](images/sidebyside.png)
-![sidebysidepreview composite](images/sidebysidepreview.png)
+![pip composite](doc/transitions/images/pip.png)
+![sidebyside  composite](doc/transitions/images/sidebyside.png)
+![sidebysidepreview composite](doc/transitions/images/sidebysidepreview.png)
 
 We name these kind of composites __t(A,B)__.
 
@@ -80,30 +80,30 @@ Generally we can differ between the following transition cases.
 
 #### *s*(A) &harr; *s*(B)
 
-![fullscreen-fullscreen transition](images/fullscreen-fullscreen.gif)
-![another fullscreen-fullscreen transition](images/fullscreen-fullscreen-both.gif)
+![fullscreen-fullscreen transition](doc/transitions/images/fullscreen-fullscreen.gif)
+![another fullscreen-fullscreen transition](doc/transitions/images/fullscreen-fullscreen-both.gif)
 
 First case is to switch from one full screen source to another by switching A &harr; B. The most common method here is to blend transparency of both sources from one to the other.
 
 #### *s*(A) &harr; *t*(A,B)
 
-![fullscreen-pip transition](images/fullscreen-pip.gif)
-![fullscreen-sidebyside transition](images/fullscreen-sidebyside.gif)
-![fullscreen-sidebysidepreview transition](images/fullscreen-sidebysidepreview.gif)
+![fullscreen-pip transition](doc/transitions/images/fullscreen-pip.gif)
+![fullscreen-sidebyside transition](doc/transitions/images/fullscreen-sidebyside.gif)
+![fullscreen-sidebysidepreview transition](doc/transitions/images/fullscreen-sidebysidepreview.gif)
 
 Switch from full screen to a composite of both sources can be done by blending the alpha channel of the added source from transparent to opaque or by an animation of the incoming source or both.
 
 #### *s*(B) &rarr; *t*(A,B)
 
-![fullscreen-b-pip transition](images/fullscreen-b-pip.gif)
-![fullscreen-b-sidebyside transition](images/fullscreen-b-sidebyside.gif)
-![fullscreen-b-sidebysidepreview transition](images/fullscreen-b-sidebysidepreview.gif)
+![fullscreen-b-pip transition](doc/transitions/images/fullscreen-b-pip.gif)
+![fullscreen-b-sidebyside transition](doc/transitions/images/fullscreen-b-sidebyside.gif)
+![fullscreen-b-sidebysidepreview transition](doc/transitions/images/fullscreen-b-sidebysidepreview.gif)
 
 #### *t*(A,B) &harr; *t*(B,A)
 
-![pip-pip transition](images/pip-pip.gif)
-![sidebyside-sidebyside transition](images/sidebyside-sidebyside.gif)
-![sidebysidepreview-sidebysidepreview transition](images/sidebysidepreview-sidebysidepreview.gif)
+![pip-pip transition](doc/transitions/images/pip-pip.gif)
+![sidebyside-sidebyside transition](doc/transitions/images/sidebyside-sidebyside.gif)
+![sidebysidepreview-sidebysidepreview transition](doc/transitions/images/sidebysidepreview-sidebysidepreview.gif)
 
 To switch between A and B within a composite an animation is preferable. In some composites like _picture-in-picture_ (see in the middle) the second source (B) is overlapping the first one (A) and so the *z-order* (order in which the frames have to be drawn) has to be flipped within a transition to get a proper effect.
 
@@ -112,17 +112,17 @@ _voctomix_ __transitions__ is then using *B-Splines* to interpolate a smooth mot
 
 #### *t<sub>1</sub>*(A,B) &harr; *t<sub>2</sub>*(A,B)
 
-![sidebyside-sidebysidepreview transition](images/sidebyside-sidebysidepreview.gif)
-![sidebysidepreview-sidebyside transition](images/sidebysidepreview-sidebyside.gif)
-![sidebyside-pip transition](images/sidebyside-pip.gif)
+![sidebyside-sidebysidepreview transition](doc/transitions/images/sidebyside-sidebysidepreview.gif)
+![sidebysidepreview-sidebyside transition](doc/transitions/images/sidebysidepreview-sidebyside.gif)
+![sidebyside-pip transition](doc/transitions/images/sidebyside-pip.gif)
 
 Switching the composite while leaving the sources A and B untouched is similar to the previous case __*t*(A,B)__ &harr; __*t*(B,A)__ except that there is usually no need to have intermediate composites to switch the z-order because A and B remain unswapped.
 
 #### *t<sub>1</sub>*(A,B) &harr; *t<sub>2</sub>*(B,A)
 
-![sidebyside-sidebysidepreview-b transition](images/sidebyside-sidebysidepreview-b.gif)
-![sidebysidepreview-sidebyside-b transition](images/sidebysidepreview-sidebyside-b.gif)
-![pip-sidebyside-b transition](images/sidebyside-b-pip.gif)
+![sidebyside-sidebysidepreview-b transition](doc/transitions/images/sidebyside-sidebysidepreview-b.gif)
+![sidebysidepreview-sidebyside-b transition](doc/transitions/images/sidebysidepreview-sidebyside-b.gif)
+![pip-sidebyside-b transition](doc/transitions/images/sidebyside-b-pip.gif)
 
 #### *s*(A<sub>1</sub>) &harr; *s*(A<sub>2</sub>) or *t*(A<sub>1</sub>,B) &harr; *t*(A<sub>2</sub>,B)
 
@@ -150,8 +150,8 @@ So when _voctomix_-**transitions** is looking for a matching composite it uses t
 
 A composite of source A and B _t(A,B)_ can be swapped by simply swapping A and B like in this example:
 
-![sidebyside  composite](images/sidebyside.png)
-![sidebyside  composite](images/sidebyside-swapped.png)
+![sidebyside  composite](doc/transitions/images/sidebyside.png)
+![sidebyside  composite](doc/transitions/images/sidebyside-swapped.png)
 
 We mark that swap operation with a `^` sign.
 Put into a formular we can write this as
@@ -164,8 +164,8 @@ Put into a formular we can write this as
 
 #### Reverse
 
-![sidebyside  composite](images/sidebysidepreview-sidebyside.gif)
-![sidebyside  composite](images/sidebyside-sidebysidepreview.gif)
+![sidebyside  composite](doc/transitions/images/sidebysidepreview-sidebyside.gif)
+![sidebyside  composite](doc/transitions/images/sidebyside-sidebysidepreview.gif)
 
 A transition *T* from composite *t<sub>1</sub>* to composite *t<sub>2</sub>* written as...
 
@@ -201,13 +201,13 @@ So to get a propper picture-in-picture &arr; picture-in-picture transition we ca
 
 The result with a side-by-side composite in the middle looks like:
 
-![pip-pip transition](images/pip-pip-key.gif)
+![pip-pip transition](doc/transitions/images/pip-pip-key.gif)
 
 On the left you can see the added side-by-side composite as rectangles and you can see that A and B ar swapping somewhere within the animation.
 
 Without side-by-side in the middle it would look like:
 
-![pip-pip transition](images/pip-pip-default.gif)
+![pip-pip transition](doc/transitions/images/pip-pip-default.gif)
 
 ...which is worse than a hard cut.
 
@@ -561,7 +561,7 @@ saving transition animation file 'pip-pip.gif' (pip-pip, 37 frames)...
 
 This call generates the following animated GIF:
 
-![pip-pip transition with keyframes](images/pip-pip-key-big.gif)
+![pip-pip transition with keyframes](doc/transitions/images/pip-pip-key-big.gif)
 
 You can see the key frames of `pip` `A.0`=`B.2` and `B.0`=`A.2` of the start and end composite. In the vertical center you can see the key frames `A.1` and `B.1` given by sidebyside to produce a moment of non-overlapping. At the first time when the blue frame `B` is not overlapping the red one `A` the flipping point is reached and sources `A`/`B` can be flipped without side effects.
 
