@@ -37,9 +37,9 @@ The purpose of _voctomix_ __transitions__ is to implement an easy way to semi-au
 
 So far _voctomix_ was capable of using the following preset composites:
 
-- single source __*s*(A)__
+- single source __*c*(A)__
   - single source full screen (fs)
-- two sources __*t*(A,B)__
+- two sources __*c*(A,B)__
   - side-by-side (sbs)
   - picture-in-picture (pip)
   - side-by-side-preview (sbsp)
@@ -56,20 +56,20 @@ _Voctomix_ also uses a background source image which will not be discussed here 
 
 The images below show source <span style="color:red">__A__</span> in red and source <span style="color:blue">__B__</span> in blue.
 
-#### s(A), s(B)
+#### c(A), c(B)
 
 ![fullscreen A composite](doc/transitions/images/fullscreen.png)
 ![fullscreen B composite](doc/transitions/images/fullscreen-b.png)
 
-We name these kind of composites __s(A)__ or __s(B)__.
+We name these kind of composites __c(A)__ or __c(B)__.
 
-#### t(A,B)
+#### c(A,B)
 
 ![pip composite](doc/transitions/images/pip.png)
 ![sidebyside  composite](doc/transitions/images/sidebyside.png)
 ![sidebysidepreview composite](doc/transitions/images/sidebysidepreview.png)
 
-We name these kind of composites __t(A,B)__.
+We name these kind of composites __c(A,B)__.
 
 We later also differ between overlapping and __non-overlapping composites__.
 _pip_ for example is an __overlapping composite__ because the image of source B overlaps that of source A.
@@ -78,14 +78,14 @@ _pip_ for example is an __overlapping composite__ because the image of source B 
 
 Generally we can differ between the following transition cases.
 
-#### *s*(A) &harr; *s*(B)
+#### *c*(A) &harr; *c*(B)
 
 ![fullscreen-fullscreen transition](doc/transitions/images/fullscreen-fullscreen.gif)
 ![another fullscreen-fullscreen transition](doc/transitions/images/fullscreen-fullscreen-both.gif)
 
 First case is to switch from one full screen source to another by switching A &harr; B. The most common method here is to blend transparency of both sources from one to the other.
 
-#### *s*(A) &harr; *t*(A,B)
+#### *c*(A) &harr; *c*(A,B)
 
 ![fullscreen-pip transition](doc/transitions/images/fullscreen-pip.gif)
 ![fullscreen-sidebyside transition](doc/transitions/images/fullscreen-sidebyside.gif)
@@ -93,13 +93,13 @@ First case is to switch from one full screen source to another by switching A &h
 
 Switch from full screen to a composite of both sources can be done by blending the alpha channel of the added source from transparent to opaque or by an animation of the incoming source or both.
 
-#### *s*(B) &rarr; *t*(A,B)
+#### *c*(B) &rarr; *c*(A,B)
 
 ![fullscreen-b-pip transition](doc/transitions/images/fullscreen-b-pip.gif)
 ![fullscreen-b-sidebyside transition](doc/transitions/images/fullscreen-b-sidebyside.gif)
 ![fullscreen-b-sidebysidepreview transition](doc/transitions/images/fullscreen-b-sidebysidepreview.gif)
 
-#### *t*(A,B) &harr; *t*(B,A)
+#### *c*(A,B) &harr; *c*(B,A)
 
 ![pip-pip transition](doc/transitions/images/pip-pip.gif)
 ![sidebyside-sidebyside transition](doc/transitions/images/sidebyside-sidebyside.gif)
@@ -108,23 +108,23 @@ Switch from full screen to a composite of both sources can be done by blending t
 To switch between A and B within a composite an animation is preferable. In some composites like _picture-in-picture_ (see in the middle) the second source (B) is overlapping the first one (A) and so the *z-order* (order in which the frames have to be drawn) has to be flipped within a transition to get a proper effect.
 
 To guarantee that this is possible transitions can be improved by inserting so-called __intermediate composites__ which add __key frames__ for both sources in which they do not overlap and so bring a chance to do the z-order swap.
-_voctomix_ __transitions__ is then using *B-Splines* to interpolate a smooth motion between __*t*(A,B)__ &harr; __*t'*(A,B)__ &harr; __*t*(B,A)__. You even can use multiple intermediate composites within the same transition, if you like.
+_voctomix_ __transitions__ is then using *B-Splines* to interpolate a smooth motion between __*c*(A,B)__ &harr; __*t'*(A,B)__ &harr; __*c*(B,A)__. You even can use multiple intermediate composites within the same transition, if you like.
 
-#### *t<sub>1</sub>*(A,B) &harr; *t<sub>2</sub>*(A,B)
+#### *c<sub>1</sub>*(A,B) &harr; *c<sub>2</sub>*(A,B)
 
 ![sidebyside-sidebysidepreview transition](doc/transitions/images/sidebyside-sidebysidepreview.gif)
 ![sidebysidepreview-sidebyside transition](doc/transitions/images/sidebysidepreview-sidebyside.gif)
 ![sidebyside-pip transition](doc/transitions/images/sidebyside-pip.gif)
 
-Switching the composite while leaving the sources A and B untouched is similar to the previous case __*t*(A,B)__ &harr; __*t*(B,A)__ except that there is usually no need to have intermediate composites to switch the z-order because A and B remain unswapped.
+Switching the composite while leaving the sources A and B untouched is similar to the previous case __*c*(A,B)__ &harr; __*c*(B,A)__ except that there is usually no need to have intermediate composites to switch the z-order because A and B remain unswapped.
 
-#### *t<sub>1</sub>*(A,B) &harr; *t<sub>2</sub>*(B,A)
+#### *c<sub>1</sub>*(A,B) &harr; *c<sub>2</sub>*(B,A)
 
 ![sidebyside-sidebysidepreview-b transition](doc/transitions/images/sidebyside-sidebysidepreview-b.gif)
 ![sidebysidepreview-sidebyside-b transition](doc/transitions/images/sidebysidepreview-sidebyside-b.gif)
 ![pip-sidebyside-b transition](doc/transitions/images/sidebyside-b-pip.gif)
 
-#### *s*(A<sub>1</sub>) &harr; *s*(A<sub>2</sub>) or *t*(A<sub>1</sub>,B) &harr; *t*(A<sub>2</sub>,B)
+#### *c*(A<sub>1</sub>) &harr; *c*(A<sub>2</sub>) or *c*(A<sub>1</sub>,B) &harr; *c*(A<sub>2</sub>,B)
 
 Switching one of both sources to another input channel can lead to a three sources scenario which is currently not covered by _voctomix_ __transitions__ but shall be part of *future development*.
 
@@ -148,7 +148,7 @@ So when _voctomix_-**transitions** is looking for a matching composite it uses t
 
 #### Swap
 
-A composite of source A and B _t(A,B)_ can be swapped by simply swapping A and B like in this example:
+A composite of source A and B _c(A,B)_ can be swapped by simply swapping A and B like in this example:
 
 ![sidebyside  composite](doc/transitions/images/sidebyside.png)
 ![sidebyside  composite](doc/transitions/images/sidebyside-swapped.png)
@@ -157,7 +157,7 @@ We mark that swap operation with a `^` sign.
 Put into a formular we can write this as
 
 <center>
-*^t(A,B) = t(A,B)*
+*^c(A,B) = c(A,B)*
 </center>
 
 ### Transition Operations
@@ -167,19 +167,19 @@ Put into a formular we can write this as
 ![sidebyside  composite](doc/transitions/images/sidebysidepreview-sidebyside.gif)
 ![sidebyside  composite](doc/transitions/images/sidebyside-sidebysidepreview.gif)
 
-A transition *T* from composite *t<sub>1</sub>* to composite *t<sub>2</sub>* written as...
+A transition *T* from composite *c<sub>1</sub>* to composite *c<sub>2</sub>* written as...
 
-*T = t<sub>1</sub> &rarr; t<sub>2</sub>*
+*T = c<sub>1</sub> &rarr; c<sub>2</sub>*
 
 ...can be reversed.
 
 We mark that reverse operation with an exponent of <sup>`-1`</sup>:
 
-*T<sup>-1</sup> = (t<sub>1</sub>(A,B) &rarr; t<sub>2</sub>(A,B))<sup>-1</sup> = t<sub>2</sub>(A,B) &rarr; t<sub>1</sub>(A,B)*
+*T<sup>-1</sup> = (c<sub>1</sub>(A,B) &rarr; c<sub>2</sub>(A,B))<sup>-1</sup> = c<sub>2</sub>(A,B) &rarr; c<sub>1</sub>(A,B)*
 
 Or shorter:
 
-*T<sup>-1</sup> = (t<sub>1</sub> &rarr; t<sub>2</sub>)<sup>-1</sup> = t<sub>2</sub> &rarr; t<sub>1</sub>*
+*T<sup>-1</sup> = (c<sub>1</sub> &rarr; c<sub>2</sub>)<sup>-1</sup> = c<sub>2</sub> &rarr; c<sub>1</sub>*
 
 #### Phi &Phi;()
 
@@ -295,10 +295,10 @@ These composites can be either:
 - two or more in a list of __key composites__ to generate an animation for
 - or a list of composites which describe an already generated animation and so a ready-to-go transition.
 
-#### Transition.frames()
+#### Transition.framec()
 Returns the number of composites stored in this transition.
 ```python
-def frames(self):
+def framec(self):
 ```
 The return value can be either the _number of key frames_ or the _number frames of an animation_ depending on if this transition instance is meant to be used as a parameter to calculate an animation or as return value of that calculation.
 
@@ -315,7 +315,7 @@ Return the index of the frame preferred to flip both sources (and the scenario) 
 ```python
 def flip(self):
 ```
-Using this information is stronlgy recommended to get smooth results, when using transitions of type *t*(A,B) &harr; *t*(B,A).
+Using this information is stronlgy recommended to get smooth results, when using transitions of type *c*(A,B) &harr; *c*(B,A).
 
 #### Transition.begin/end()
 Returns the begin or end composite of that transition.
@@ -498,14 +498,14 @@ This generates a B-Spline transition from composite `pip` to composite `sidebysi
   config = SafeConfigParser()
   config.read(filename)
   # read composites config section
-  composites = Composites.configure(config.items('composites'), size)
+  composites = Composites.configure(config.itemc('composites'), size)
   # read transitions config section
-  transitions = Transitions.configure(config.items('transitions'), composites, fps)
+  transitions = Transitions.configure(config.itemc('transitions'), composites, fps)
 
   # search for a transitions that does a fade between fullscreen and sidebyside composites
   t_name, t = Transitions.find(composites["fullscreen"], composites["sidebyside"], transitions)
   # stupid loop through all frames of the animation
-  for i in range(t.frames()):
+  for i in range(t.framec()):
     # access current frame in animation to update compositing scenario
     update_my_compositor( t.A(i), t.B(i) )
 ```
@@ -684,16 +684,16 @@ Every cell includes the available transitions.
 The program consists of several functions which are called from a main block:
 
 ```python
-read_arguments()
+read_argumentc()
 init_log()
 render_sequence(*read_config("composite.ini"))
 ```
 `render_sequence()` takes exactly what `read_config()` is delivering.
 
-#### read_arguments()
+#### read_argumentc()
 Reads command line arguments like described above.
 ```python
-def read_arguments():
+def read_argumentc():
 ```
 Fills global `Args` with the parser result.
 
@@ -711,12 +711,12 @@ def read_config(filename):
 ```
 `filename` is the name of the config file.
 
-#### render_composites()
+#### render_compositec()
 
 Renders pictures of all `composites` and saves them into PNG files.
 
 ```python
-def render_composites(size, composites):
+def render_compositec(size, composites):
 ```
 Produces images of the given `size`.
 
@@ -771,6 +771,6 @@ To get out video transition effect within _voctomix_ the configuration needs a f
 ### Future Development
 
 - May be have just one `configure()` in `Transitions` which returns both composites and transitions so that you only need to import the Transitions interface instead of additionally the Composties interface.
-- Decide in which way three source scenarios like *t*(A<sub>1</sub>,B) &harr; *t*(A<sub>2</sub>,B) or *t*(A,B<sub>1</sub>) &harr; *t*(A,B<sub>2</sub>) can profite from any kind of specialized transitions.
+- Decide in which way three source scenarios like *c*(A<sub>1</sub>,B) &harr; *c*(A<sub>2</sub>,B) or *c*(A,B<sub>1</sub>) &harr; *c*(A,B<sub>2</sub>) can profite from any kind of specialized transitions.
 - What about unlimited sources?
 - add additional composite operations (like visual mirroring)?
