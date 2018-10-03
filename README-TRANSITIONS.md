@@ -295,10 +295,10 @@ These composites can be either:
 - two or more in a list of __key composites__ to generate an animation for
 - or a list of composites which describe an already generated animation and so a ready-to-go transition.
 
-#### Transition.framec()
+#### Transition.frames()
 Returns the number of composites stored in this transition.
 ```python
-def framec(self):
+def frames(self):
 ```
 The return value can be either the _number of key frames_ or the _number frames of an animation_ depending on if this transition instance is meant to be used as a parameter to calculate an animation or as return value of that calculation.
 
