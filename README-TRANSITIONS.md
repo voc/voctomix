@@ -33,7 +33,7 @@
 
 ## Purpose
 
-The purpose of _voctomix_ __transitions__ is to implement an easy way to semi-automatize fading from one _video mixing scenario_ to another. We call those scenarios __composites__. A composite in _voctomix_ traditionally consitsts of up to two mixed video sources __A__ and __B__ whose representation parameters we call __frames__.
+The purpose of _voctomix_ __transitions__ is to implement an easy way to semi-automatize fading from one _video mixing scenario_ to another. We call those scenarios __composites__. A composite in _voctomix_ traditionally consists of up to two mixed video sources __A__ and __B__ whose representation parameters we call __frames__.
 
 So far _voctomix_ was capable of using the following preset composites:
 
@@ -144,7 +144,7 @@ A frame of empty size is invisible like one which is fully transparent but has a
 Also a composite of two frames where one is opaque and overlapping the other completely includes one invisible frame.
 So those kind of composites may be treated as equivalent if one frame differs in both composites by some properties but is overall still invisible in both.
 
-So when _voctomix_-**transitions** is looking for a matching composite it uses this rule which shortens the list of necessary manual tranisiton definitions.
+So when _voctomix_-**transitions** is looking for a matching composite it uses this rule which shortens the list of necessary manual transition definitions.
 
 #### Swap
 
@@ -154,7 +154,7 @@ A composite of source A and B _c(A,B)_ can be swapped by simply swapping A and B
 ![sidebyside  composite](doc/transitions/images/sidebyside-swapped.png)
 
 We mark that swap operation with a `^` sign.
-Put into a formular we can write this as
+Put into a formula we can write this as
 
 <center>
 *^c(A,B) = c(A,B)*
@@ -169,17 +169,17 @@ Put into a formular we can write this as
 
 A transition *T* from composite *c<sub>1</sub>* to composite *c<sub>2</sub>* written as...
 
-*T = c<sub>1</sub> &rarr; c<sub>2</sub>*
+*T* = *c<sub>1</sub>* &rarr; *c<sub>2</sub>*
 
 ...can be reversed.
 
 We mark that reverse operation with an exponent of <sup>`-1`</sup>:
 
-*T<sup>-1</sup> = (c<sub>1</sub>(A,B) &rarr; c<sub>2</sub>(A,B))<sup>-1</sup> = c<sub>2</sub>(A,B) &rarr; c<sub>1</sub>(A,B)*
+*T*<sup>-1</sup> = (*c<sub>1</sub>*(A,B) &rarr; *c<sub>2</sub>*(A,B))<sup>-1</sup> = *c<sub>2</sub>*(A,B) &rarr; *c<sub>1</sub>*(A,B)
 
 Or shorter:
 
-*T<sup>-1</sup> = (c<sub>1</sub> &rarr; c<sub>2</sub>)<sup>-1</sup> = c<sub>2</sub> &rarr; c<sub>1</sub>*
+*T*<sup>-1</sup> = (*c<sub>1</sub>* &rarr; *c<sub>2</sub>*)<sup>-1</sup> = *c<sub>2</sub>* &rarr; *c<sub>1</sub>*
 
 #### Phi &Phi;()
 
@@ -190,20 +190,20 @@ We call that operation _&Phi;()_.
 Overlay composites have a so-called _z-order_ which defines that B is drawn above A.
 If you take an overlay composite like _picture-in-picture_, generating an animation for swapping both sources must include a switch of this z-order.
 
-This is done with the _&Phi;()_ operation which finds the first composite within a transition where source B do not even paritally cover the image of source A.
+This is done with the _&Phi;()_ operation which finds the first composite within a transition where source B do not even partially cover the image of source A.
 To profit by this operation one must specialize this transition an put a non-overlaying composite between the target composites.
 
-So to get a propper picture-in-picture &arr; picture-in-picture transition we can put a side-by-side composite between:
+So to get a proper picture-in-picture &arr; picture-in-picture transition we can put a side-by-side composite between:
 
 <center>
-&Phi;(pip &harr; sbs &harr; pip)
+&Phi;(*pip* &harr; *sbs* &harr; *pip*)
 </center>
 
 The result with a side-by-side composite in the middle looks like:
 
 ![pip-pip transition](doc/transitions/images/pip-pip-key.gif)
 
-On the left you can see the added side-by-side composite as rectangles and you can see that A and B ar swapping somewhere within the animation.
+On the left you can see the added side-by-side composite as rectangles and you can see that A and B are swapping somewhere within the animation.
 
 Without side-by-side in the middle it would look like:
 
@@ -238,7 +238,7 @@ Additionally you have to give `size` which must be a list including _width_ and 
 It is an external parameter and should be given by your compositor configuration.
 `size` will be used to calculate coordinates from any proportional floating point values inside the configuration and for calculating source related coordinates of any cropping.
 
-The return value is a dictonary of `string` &rarr; `Composite`.
+The return value is a dictionary of `string` &rarr; `Composite`.
 
 `configure()` may throw an `RuntimeError` exception when parsing the syntax causes problems.
 
@@ -254,7 +254,7 @@ Take that return value and give it to `find()` to fetch a specific transition.
 ```python
 def configure(cfg, composites, fps=25):
 ```
-Generates all transitions configured by the list of named configuration values in dictonary `cfg` (`string` &rarr; `string`) by using the given `composites` and `fps` (frames per second) and return them in a dictonary of `string` &rarr; `Transition`.
+Generates all transitions configured by the list of named configuration values in dictionary `cfg` (`string` &rarr; `string`) by using the given `composites` and `fps` (frames per second) and return them in a dictionary of `string` &rarr; `Transition`.
 
 `configure()` may throw an `RuntimeError` exception when parsing the syntax causes problems.
 
@@ -265,7 +265,7 @@ def add(self, transition, frames, overwrite=False):
 ```
 `transition` is added to at all position in the table where it matches.
 `frames` is the number of frames the (re-)calculated transition shall last.
-When `overwrite` is `False` exisiting transitions will not be overwritten.
+When `overwrite` is `False` existing transitions will not be overwritten.
 
 #### Transitions.find()
 Fetch a transition whose beginning and ending is matching the given composites.
@@ -277,14 +277,14 @@ In a second step also checks if reversed versions transitions match.
 If a transition was found a tuple of it's name and the transition will be returned - otherwise `None`.
 
 #### Transitions.travel()
-Returns a list of pairs of composites along all possible transitions between all given `composites` by walking the tree of all combinations recusively.
+Returns a list of pairs of composites along all possible transitions between all given `composites` by walking the tree of all combinations recursively.
 ```python
 def travel(composites, previous=None):
 ```
 Parameter `previous` shall always be the default `None` and must only be used internally for recursion.
-This method is just a tool to walk all possible transitions in one animation and so concatinate existing transitions.
+This method is just a tool to walk all possible transitions in one animation and so concatenate existing transitions.
 
-Currently it is only used within the _Transition Tester_ to generate test output but could be also subject of *future development* to generate more complex animations by concatination.
+Currently it is only used within the _Transition Tester_ to generate test output but could be also subject of *future development* to generate more complex animations by concatenation.
 
 ## Entities
 
@@ -311,11 +311,11 @@ def B(self, n):
 Precisely returns `Frame` number `n` of source A or B of the `Transtition`.
 
 #### Transition.flip()
-Return the index of the frame preferred to flip both sources (and the scenario) to get a propper z-order behavior.
+Return the index of the frame preferred to flip both sources (and the scenario) to get a proper z-order behavior.
 ```python
 def flip(self):
 ```
-Using this information is stronlgy recommended to get smooth results, when using transitions of type *c*(A,B) &harr; *c*(B,A).
+Using this information is strongly recommended to get smooth results, when using transitions of type *c*(A,B) &harr; *c*(B,A).
 
 #### Transition.begin/end()
 Returns the begin or end composite of that transition.
@@ -352,7 +352,7 @@ self.rect = [0, 0, 0, 0]
 ```
 The value is a list of coordinates of the _left_, _top_, _right_ and _bottom_ of the frame.
 Use imported constants `L`, `T`, `R` and `B` to access these list elements.
-The default is an empty rect in the upper-left corner.
+The default is an empty rectangle in the upper-left corner.
 
 #### Frame.alpha
 The transparency value of this frame.
@@ -406,7 +406,7 @@ _name_`.alpha-a`| ALPHA  | opaque      | opacity of frame A
 _name_`.alpha-b`| ALPHA  | opaque      | opacity of frame B
 _name_`.noswap` | BOOL   | swap        | prevents to target swapped composite
 
-So a default frame without any attributes is invisble by his zero extent.
+So a default frame without any attributes is invisible by his zero extent.
 
 #### _name_
 All attributes begin with the composite's name followed by a dot `.` and the attribute's name.
@@ -416,7 +416,7 @@ A composite can be freely named but _name_ must be unique.
 
 In __RECT__ and __CROP__ you may decide if you like to use _absolute pixel coordinates_ or _proportional floating point values_.
 Using proportional values is often an advantage because you can easily change the full screen size once and all other pixel values will be automatically calculated with that size.
-This enables you to use the same composites configuration with different resolutions but similar apect ratio.
+This enables you to use the same composites configuration with different resolutions but similar aspect ratio.
 
 #### RECT
 Rectangular coordinates are given in different formats like: `X/Y WxH`, `POS WxH`, `X/Y SIZE`, `POS SIZE` or `*`.
@@ -512,8 +512,8 @@ This generates a B-Spline transition from composite `pip` to composite `sidebysi
 
 ## Transition Tester
 
-The transitions tester lists information about what composites and transitions are definded in a configuration called `composite.ini` and generates PNG files or animated GIF for each listed transition.
-You may also select additional drawing of cropping, key frames or a title by command line option or take a further look into the calulations by using verbose mode.
+The transitions tester lists information about what composites and transitions are defined in a configuration called `composite.ini` and generates PNG files or animated GIF for each listed transition.
+You may also select additional drawing of cropping, key frames or a title by command line option or take a further look into the calculations by using verbose mode.
 
 ```raw
 ▶ python3 testtransition.py -h  
@@ -563,7 +563,7 @@ This call generates the following animated GIF:
 
 ![pip-pip transition with keyframes](doc/transitions/images/pip-pip-key-big.gif)
 
-You can see the key frames of `pip` `A.0`=`B.2` and `B.0`=`A.2` of the start and end composite. In the vertical center you can see the key frames `A.1` and `B.1` given by sidebyside to produce a moment of non-overlapping. At the first time when the blue frame `B` is not overlapping the red one `A` the flipping point is reached and sources `A`/`B` can be flipped without side effects.
+You can see the key frames of `pip` `A.0`=`B.2` and `B.0`=`A.2` of the start and end composite. In the vertical center you can see the key frames `A.1` and `B.1` given by `sidebyside` to produce a moment of non-overlapping. At the first time when the blue frame `B` is not overlapping the red one `A` the flipping point is reached and sources `A`/`B` can be flipped without side effects.
 
 The following configuration file was used to generate that animation:
 
@@ -647,7 +647,7 @@ transition found: Φ(pip-pip)
 	 24  *  B( 199, 110   237, 131   255     0,   0,   0,   0  0.00,0.00)	A(   0,   0   240, 135   255     0,   0,   0,   0  0.00,0.00)  pip
 ```
 
-As you can see the tripple verbose mode (using option `-vvv`) prints out a list of loaded composites and found transitions too, like option `-l` does.
+As you can see the triple verbose mode (using option `-vvv`) prints out a list of loaded composites and found transitions too, like option `-l` does.
 
 Additionally it prints out:
 - the composites used to request the transition `pip -> pip` including a mark `(swapped)` at the right margin indicates that this transition has the same begin and end frame and so it will be swapped,
@@ -709,7 +709,7 @@ Read from the given file.
 ```python
 def read_config(filename):
 ```
-`filename` is the name of the config file.
+`filename` is the name of the configuration file.
 
 #### render_compositec()
 
@@ -730,11 +730,11 @@ def render_sequence(size, fps, targets, transitions, composites):
 
 Sequence is defined by the names listed in `targets`.
 Produces images of the given `size`.
-Calculate with `fps` frames per second and use the `transitions` and `composites` dictonaries to find matching transitions.
+Calculate with `fps` frames per second and use the `transitions` and `composites` dictionaries to find matching transitions.
 
 #### save_transition_gif()
 
-Generates an anmiated GIF of the given name of an animation by using `draw_transition()` (see below)
+Generates an animated GIF of the given name of an animation by using `draw_transition()` (see below)
 
 ```python
 def save_transition_gif(filename, size, name, animation, time):
@@ -770,7 +770,7 @@ To get out video transition effect within _voctomix_ the configuration needs a f
 
 ### Future Development
 
-- May be have just one `configure()` in `Transitions` which returns both composites and transitions so that you only need to import the Transitions interface instead of additionally the Composties interface.
+- May be have just one `configure()` in `Transitions` which returns both composites and transitions so that you only need to import the Transitions interface instead of additionally the composites interface.
 - Decide in which way three source scenarios like *c*(A<sub>1</sub>,B) &harr; *c*(A<sub>2</sub>,B) or *c*(A,B<sub>1</sub>) &harr; *c*(A,B<sub>2</sub>) can profite from any kind of specialized transitions.
 - What about unlimited sources?
 - add additional composite operations (like visual mirroring)?
