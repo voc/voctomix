@@ -65,7 +65,7 @@ class Composites:
 
 class Composite:
 
-    def __init__(self, order, name, a=Frame(True), b=Frame(True)):
+    def __init__(self, order, name, a=Frame(True,1), b=Frame(True,2)):
         assert type(order) is int or order is None
         assert type(name) is str or not name
         self.name = name
@@ -98,6 +98,12 @@ class Composite:
 
     def B(self):
         return self.frame[1]
+
+    def zorders(self, orders=None):
+        if orders:
+            self.A().zorder = orders[0]
+            self.B().zorder = orders[1]
+        return self.A().zorder, self.B().zorder
 
     def swap(self):
         """ swap A and B source items

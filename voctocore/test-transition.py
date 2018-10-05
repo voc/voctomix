@@ -160,7 +160,7 @@ def draw_text(draw, size, line_or_pos, text, fill=(255, 255, 255, 255), align=0)
     draw.text([x, y], text, font=font, fill=fill)
 
 
-def draw_composite(size, composite, swap=False):
+def draw_composite(size, composite):
     # indices in size and tsize
     X, Y = 0, 1
     # create an image to draw into
@@ -182,11 +182,10 @@ def draw_composite(size, composite, swap=False):
 
     # simulate swapping sources
     a, b = composite.A(), composite.B()
-    if swap:
+    if a.zorder > b.zorder:
         a, b = b, a
         if Args.title:
             draw_text(drawFg, size, 2, "(swapped sources)")
-
     if Args.crop:
         # draw source frame
         drawA.rectangle(a.rect, outline=(128, 0, 0, a.alpha))
@@ -202,15 +201,12 @@ def draw_composite(size, composite, swap=False):
 
 
 def draw_transition(size, transition, info=None):
-    # get where to flip sources
-    flip_at = transition.flip()
     # animation as a list of images
     images = []
     # render all frames
     for i in range(transition.frames()):
         # create an image to draw into
-        imageBg = draw_composite(size, transition.composites[i],
-                                 flip_at is not None and i >= flip_at)
+        imageBg = draw_composite(size, transition.composites[i])
         imageDesc = Image.new('RGBA', size, (0, 0, 0, 0))
         imageFg = Image.new('RGBA', size, (0, 0, 0, 0))
         # create a drawing context

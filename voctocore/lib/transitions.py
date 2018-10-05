@@ -192,23 +192,14 @@ class Transition:
 
     def __str__(self):
         # remember index when to flip sources A/B
-        flip_at = self.flip()
         str = "\t%s = %s -> %s:\n" % (self.name(),
                                       self.begin().name, self.end().name)
         # add table title
         str += "\tNo. %s\n" % Composite.str_title()
         # add composites until flipping point
-        for i in range(flip_at if flip_at is not None else self.frames()):
+        for i in range(self.frames()):
             str += ("\t%3d %s A%s\tB%s  %s\n" %
                     (i, " * " if self.A(i).key else "   ", self.A(i), self.B(i), self.composites[i].name))
-        # add composites behind flipping point
-        if flip_at is not None:
-            str += ("\t-----------------------------------------------------------"
-                    " FLIP SOURCES "
-                    "------------------------------------------------------------\n")
-            for i in range(flip_at, self.frames()):
-                str += ("\t%3d %s B%s\tA%s  %s\n" %
-                        (i, " * " if self.A(i).key else "   ", self.A(i), self.B(i), self.composites[i].name))
         return str
 
     def phi(self):
@@ -261,14 +252,12 @@ class Transition:
             def overlap(a, b):
                 return (a[L] < b[R] and a[R] > b[L] and a[T] < b[B] and a[B] > b[T])
 
-            # check if A of begin composite and B of end composite are the same
-            if self.A(0) == self.B(-1):
-                # find the first non overlapping composite
-                for i in range(self.frames() - 2):
-                    if not overlap(self.A(i).cropped(), self.B(i).cropped()):
-                        return i
-                # at last we need to swap at the end
-                return self.frames() - 1
+            # find the first non overlapping composite
+            for i in range(self.frames() - 2):
+                if not overlap(self.A(i).cropped(), self.B(i).cropped()):
+                    return i
+            # at last we need to swap at the end
+            return self.frames() - 1
         # no flipping
         return None
 
@@ -305,6 +294,13 @@ class Transition:
                     name = "..."
                 composites.append(Composite(len(composites), name, a[i], b[i]))
             self.composites = composites
+            # calulate zorders
+            f = self.flip()
+            zorders = self.composites[0].zorders()
+            for i, composite in enumerate(self.composites):
+                if i == f:
+                    zorders = zorders[::-1]
+                self.composites[i].zorders(zorders)
 
     def keys(self):
         """ return the indices of all key composites
