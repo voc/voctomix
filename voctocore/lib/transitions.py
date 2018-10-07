@@ -88,7 +88,7 @@ class Transitions:
                     n += 1
         return n
 
-    def configure(cfg, composites, targets, fps=25):
+    def configure(cfg, composites, targets=None, fps=25):
         """ generate all transitions configured in the INI-like configuration
             string in <cfg> by using the given <composites> and return them
             in a dictonary
@@ -102,6 +102,9 @@ class Transitions:
         def convert(keys, conv):
             return [keys, keys.reversed(), keys.swapped(), keys.reversed().swapped()][conv]
 
+        # filter target composites from given composites
+        if not targets:
+            targets = Composites.targets(composites)
         # prepare result
         transitions = Transitions(targets)
 
