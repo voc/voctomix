@@ -165,6 +165,8 @@ class Composite:
             (considers shape with cropping and transparency)
         """
         below, above = self.frame
+        if below.zorder > above.zorder:
+            below, above = above, below
         if below.invisible():
             return True
         if above.invisible():
