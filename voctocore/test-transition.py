@@ -80,7 +80,7 @@ def read_config(filename=None):
             r'^\s*(\d+)\s*x\s*(\d+)\s*$', Args.size)
     else:
         r = re.match(
-            r'^.*width\s*=\s*(\d+).*height\s*=\s*(\d+).*$', config.get('mix','videocaps'))
+            r'^.*width\s*=\s*(\d+).*height\s*=\s*(\d+).*$', config.get('mix', 'videocaps'))
     if r:
         size = [int(r.group(1)), int(r.group(2))]
     # read frames per second
@@ -88,10 +88,10 @@ def read_config(filename=None):
         fps = int(Args.fps)
     else:
         r = re.match(
-            r'^\s*framerate\s*=\s*(\d+)/(\d+).*$', config.get('mix','videocaps'))
+            r'^\s*framerate\s*=\s*(\d+)/(\d+).*$', config.get('mix', 'videocaps'))
         if r:
-            fps = float(r.group(1))/float(r.group(2))
-    print (size,fps)
+            fps = float(r.group(1)) / float(r.group(2))
+    print (size, fps)
     # read composites from configuration
     log.info("reading composites from configuration...")
     composites = Composites.configure(config.items('composites'), size)
