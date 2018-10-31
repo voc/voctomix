@@ -193,6 +193,7 @@ class Transition:
                 self.composites = a
         else:
             self.composites = []
+        self.flip = None
 
     def __str__(self):
         # remember index when to flip sources A/B
@@ -235,6 +236,24 @@ class Transition:
             assert type(n) is int
             return self.composites[n].B()
 
+    def Az(self, z0, z1):
+        frames = []
+        for i,c in enumerate(self.composites):
+            if (not self.flip) or i < self.flip:
+                frames.append(c.Az(z0))
+            else:
+                frames.append(c.Az(z1))
+        return frames
+
+    def Bz(self, z0, z1):
+        frames = []
+        for i,c in enumerate(self.composites):
+            if (not self.flip) or i < self.flip:
+                frames.append(c.Bz(z0))
+            else:
+                frames.append(c.Bz(z1))
+        return frames
+
     def begin(self): return self.composites[0]
 
     def end(self): return self.composites[-1]
@@ -245,7 +264,7 @@ class Transition:
     def swapped(self):
         return Transition(swap_name(self._name), [c.swapped() for c in self.composites])
 
-    def flip(self):
+    def calculate_flip(self):
         """ find the first non overlapping rectangle pair within parameters and
             return it's index
         """
@@ -298,13 +317,7 @@ class Transition:
                     name = "..."
                 composites.append(Composite(len(composites), name, a[i], b[i]))
             self.composites = composites
-            # calculate zorders
-            f = self.flip()
-            zorders = self.composites[0].zorders()
-            for i, composite in enumerate(self.composites):
-                if i == f:
-                    zorders = zorders[::-1]
-                self.composites[i].zorders(zorders)
+            self.flip = self.calculate_flip()
 
     def keys(self):
         """ return the indices of all key composites

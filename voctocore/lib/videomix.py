@@ -176,13 +176,13 @@ class VideoMix(object):
             if transition:
                 self.log.debug(
                     "committing transition '%s' to scene", transition.name())
-                self.scene.commit(newA, transition.A())
-                self.scene.commit(newB, transition.B())
+                self.scene.commit(newA, transition.Az(1,2))
+                self.scene.commit(newB, transition.Bz(2,1))
             else:
                 self.log.debug(
                     "committing composite '%s' to scene", newComposite)
-                self.scene.commit(newA, [c.A()])
-                self.scene.commit(newB, [c.B()])
+                self.scene.commit(newA, [c.Az(1)])
+                self.scene.commit(newB, [c.Bz(2)])
             self.composite = newComposite
             self.sourceA = newA
             self.sourceB = newB

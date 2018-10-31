@@ -65,7 +65,7 @@ class Composites:
 
 class Composite:
 
-    def __init__(self, order, name, a=Frame(True,1), b=Frame(True,2)):
+    def __init__(self, order, name, a=Frame(True), b=Frame(True)):
         assert type(order) is int or order is None
         assert type(name) is str or not name
         self.name = name
@@ -99,11 +99,15 @@ class Composite:
     def B(self):
         return self.frame[1]
 
-    def zorders(self, orders=None):
-        if orders:
-            self.A().zorder = orders[0]
-            self.B().zorder = orders[1]
-        return self.A().zorder, self.B().zorder
+    def Az(self, zorder):
+        frame = copy.deepcopy(self.frame[0])
+        frame.zorder = zorder
+        return frame
+
+    def Bz(self, zorder):
+        frame = copy.deepcopy(self.frame[1])
+        frame.zorder = zorder
+        return frame
 
     def swap(self):
         """ swap A and B source items

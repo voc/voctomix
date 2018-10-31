@@ -10,23 +10,24 @@ log = logging.getLogger('Frame')
 
 class Frame:
 
-    def __init__(self, key=False,alpha=255):
+    def __init__(self, key=False,alpha=255,zorder=None):
         self.rect = [0, 0, 0, 0]
         self.crop = [0, 0, 0, 0]
         self.alpha = alpha
         self.original_size = [0.0, 0.0]
         self.key = key
+        self.zorder = zorder
 
     def __repr__(self):
         z = [round(x, 1) for x in self.zoom]
         return ("{0.rect} {0.crop} {0.alpha} {1}").format(self, z)
 
     def str_title():
-        return "(   L,   T     R,   B alpha  LCRP,TCRP,RCRP,BCRP  XZOM,YZOM)"
+        return "(   L,   T     R,   B alpha  LCRP,TCRP,RCRP,BCRP  XZOM,YZOM,  Z)"
 
     def __str__(self):
-        return ("(%4d,%4d  %4d,%4d  %4d  %4d,%4d,%4d,%4d  %1.2f,%1.2f)" %
-                tuple(self.rect + [self.alpha] + self.crop + self.zoom()))
+        return ("(%4d,%4d  %4d,%4d  %4d  %4d,%4d,%4d,%4d  %1.2f,%1.2f, %2d)" %
+                tuple(self.rect + [self.alpha] + self.crop + self.zoom() + [self.zorder if self.zorder else -1]))
 
     def __eq__(self, other):
         # do NOT compare zoom

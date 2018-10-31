@@ -4,7 +4,6 @@ gi.require_version('GstController', '1.0')
 from gi.repository import Gst, GstController
 from lib.transitions import Frame, L, T, R, B
 
-
 class Scene:
     """ Scene is the adaptor between the gstreamer compositor
         and voctomix frames.
@@ -86,7 +85,7 @@ class Scene:
             time = at_time
             # get GStreamer property pad for this source
             pad = self.pads[source]
-            self.log.debug("%s", Frame.str_title())
+            self.log.debug("    %s", Frame.str_title())
             # apply all frames of this source to GStreamer pipeline
             for idx, frame in enumerate(frames):
                 self.log.debug("%2d: %s", idx, frame)
