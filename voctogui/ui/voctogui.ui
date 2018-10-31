@@ -7,26 +7,6 @@
     <property name="can_focus">False</property>
     <property name="pixbuf">blank-stream.svg</property>
   </object>
-  <object class="GtkImage" id="img-composite-fullscreen">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">composite-fullscreen.svg</property>
-  </object>
-  <object class="GtkImage" id="img-composite-picture-in-picture">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">composite-picture-in-picture.svg</property>
-  </object>
-  <object class="GtkImage" id="img-composite-side-by-side-equal">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">composite-side-by-side-equal.svg</property>
-  </object>
-  <object class="GtkImage" id="img-composite-side-by-side-preview">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">composite-side-by-side-preview.svg</property>
-  </object>
   <object class="GtkImage" id="img-stream-live">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -48,61 +28,6 @@
             <property name="can_focus">False</property>
             <property name="hexpand">True</property>
             <property name="toolbar_style">both</property>
-            <child>
-              <object class="GtkRadioToolButton" id="composite-fullscreen">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Fullscreen</property>
-                <property name="use_underline">True</property>
-                <property name="icon_widget">img-composite-fullscreen</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkRadioToolButton" id="composite-picture-in-picture">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Picture in Picture</property>
-                <property name="use_underline">True</property>
-                <property name="icon_widget">img-composite-picture-in-picture</property>
-                <property name="group">composite-fullscreen</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkRadioToolButton" id="composite-side-by-side-equal">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Side-by-side Equal</property>
-                <property name="use_underline">True</property>
-                <property name="icon_widget">img-composite-side-by-side-equal</property>
-                <property name="group">composite-fullscreen</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkRadioToolButton" id="composite-side-by-side-preview">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Side-by-side Preview</property>
-                <property name="use_underline">True</property>
-                <property name="icon_widget">img-composite-side-by-side-preview</property>
-                <property name="group">composite-fullscreen</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
             <child>
               <object class="GtkSeparatorToolItem" id="s1">
                 <property name="visible">True</property>

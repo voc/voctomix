@@ -3,12 +3,12 @@ import json
 import inspect
 
 from lib.config import Config
-from lib.videomix import CompositeModes
 from lib.response import NotifyResponse, OkResponse
 from lib.sources import restart_source
 
 
 class ControlServerCommands(object):
+
     def __init__(self, pipeline):
         self.log = logging.getLogger('ControlServerCommands')
 
@@ -88,11 +88,6 @@ class ControlServerCommands(object):
             for source in self.blankerSources:
                 helplines.append("\t" + source)
 
-        helplines.append("\n")
-        helplines.append("Composition-Modes:")
-        for mode in CompositeModes:
-            helplines.append("\t" + mode.name)
-
         return OkResponse("\n".join(helplines))
 
     def _get_video_status(self):
@@ -169,7 +164,9 @@ class ControlServerCommands(object):
 
     def get_composite_modes(self):
         """lists the names of all available composite-mode"""
-        names = [mode.name for mode in CompositeModes]
+        # TODO: fix this...
+        #names = [mode.name for mode in CompositeModes]
+        names = [""]
         namestr = ','.join(names)
         return OkResponse('composite_modes', namestr)
 
@@ -185,6 +182,18 @@ class ControlServerCommands(object):
         """sets the name of the id of the composite-mode"""
         mode = CompositeModes[mode_name]
         self.pipeline.vmix.setCompositeMode(mode)
+
+        composite_status = self._get_composite_status()
+        video_status = self._get_video_status()
+        return [
+            NotifyResponse('composite_mode', composite_status),
+            NotifyResponse('video_status', *video_status),
+            NotifyResponse('composite_mode_and_video_status',
+                           composite_status, *video_status),
+        ]
+
+    def set_composite(self, command):
+        self.pipeline.vmix.setComposite(command)
 
         composite_status = self._get_composite_status()
         video_status = self._get_video_status()

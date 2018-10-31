@@ -15,71 +15,27 @@ class CompositionToolbarController(object):
         accelerators = Gtk.AccelGroup()
         win.add_accel_group(accelerators)
 
-        composites = [
-            'picture_in_picture',
-            'side_by_side_equal',
-            'side_by_side_preview'
-        ]
-
-        sources = Config.getlist('mix', 'sources')
+        buttons = Config.items('toolbar')
 
         self.composite_btns = {}
         self.current_composition = None
 
-        fullscreen_btn = uibuilder.find_widget_recursive(
-            toolbar, 'composite-fullscreen')
+        pos = 0
 
-        fullscreen_btn_pos = toolbar.get_item_index(fullscreen_btn)
-
-        accel_f_key = 1
-
-        for idx, name in enumerate(sources):
-            key, mod = Gtk.accelerator_parse('F%u' % accel_f_key)
-
-            if idx == 0:
-                new_btn = fullscreen_btn
+        self.commands = dict()
+        first_btn = None
+        for name, value in buttons:
+            command, label = value.split(':')
+            if not first_btn:
+                first_btn = new_btn = Gtk.RadioToolButton(None)
             else:
-                new_icon = Gtk.Image.new_from_pixbuf(
-                    fullscreen_btn.get_icon_widget().get_pixbuf())
-                new_btn = Gtk.RadioToolButton(group=fullscreen_btn)
-                new_btn.set_icon_widget(new_icon)
-                toolbar.insert(new_btn, fullscreen_btn_pos + idx)
-
-            new_btn.set_label("Fullscreen %s\nF%s" % (name, accel_f_key))
+                new_btn = Gtk.RadioToolButton.new_from_widget(first_btn)
+            new_btn.set_name(name)
+            new_btn.set_label(label)
+            self.commands[name] = command
             new_btn.connect('toggled', self.on_btn_toggled)
-            new_btn.set_name('fullscreen %s' % name)
-
-            tooltip = Gtk.accelerator_get_label(key, mod)
-            new_btn.set_tooltip_text(tooltip)
-
-            new_btn.get_child().add_accelerator(
-                'clicked', accelerators,
-                key, mod, Gtk.AccelFlags.VISIBLE)
-
-            self.composite_btns['fullscreen %s' % name] = new_btn
-            accel_f_key = accel_f_key + 1
-
-        for idx, name in enumerate(composites):
-            key, mod = Gtk.accelerator_parse('F%u' % accel_f_key)
-
-            btn = uibuilder.find_widget_recursive(
-                toolbar,
-                'composite-' + name.replace('_', '-')
-            )
-            btn.set_name(name)
-
-            btn.set_label(btn.get_label() + "\nF%s" % accel_f_key)
-
-            tooltip = Gtk.accelerator_get_label(key, mod)
-            btn.set_tooltip_text(tooltip)
-
-            # Thanks to http://stackoverflow.com/a/19739855/1659732
-            btn.get_child().add_accelerator('clicked', accelerators,
-                                            key, mod, Gtk.AccelFlags.VISIBLE)
-            btn.connect('toggled', self.on_btn_toggled)
-
-            self.composite_btns[name] = btn
-            accel_f_key = accel_f_key + 1
+            toolbar.insert(new_btn, pos)
+            pos += 1
 
         # connect event-handler and request initial state
         Connection.on('composite_mode_and_video_status',
@@ -90,22 +46,9 @@ class CompositionToolbarController(object):
     def on_btn_toggled(self, btn):
         if not btn.get_active():
             return
-
         btn_name = btn.get_name()
-        self.log.info('btn_name = %s', btn_name)
-        if self.current_composition == btn_name:
-            self.log.info('composition-mode already active: %s', btn_name)
-            return
-
-        self.log.info('composition-mode activated: %s', btn_name)
-
-        if btn_name.startswith('fullscreen'):
-            _, source_name = btn_name.split(' ', 1)
-            Connection.send('set_videos_and_composite',
-                            source_name, '*', 'fullscreen')
-
-        else:
-            Connection.send('set_composite_mode', btn_name)
+        self.log.info('sending command: %s', self.commands[btn.get_name()])
+        Connection.send('set_composite', self.commands[btn.get_name()])
 
     def on_composite_mode_and_video_status(self, mode, source_a, source_b):
         self.log.info('composite_mode_and_video_status callback w/ '

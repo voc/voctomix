@@ -73,22 +73,6 @@ class Frame:
 
     def height(self): return self.rect[B] - self.rect[T]
 
-    def cropped_left(self): return self.rect[L] + self.crop[L] * self.zoomx()
-
-    def cropped_top(self): return self.rect[T] + self.crop[T] * self.zoomy()
-
-    def cropped_width(self): return self.rect[R] - self.rect[L]  - (self.crop[R] + self.crop[L]) * self.zoomx()
-
-    def cropped_height(self): return self.rect[B]  - self.rect[T] - (self.crop[B] + self.crop[T]) * self.zoomy()
-
-    def cropleft(self): return self.crop[L]
-
-    def croptop(self): return self.crop[T]
-
-    def cropright(self): return self.crop[R]
-
-    def cropbottom(self): return self.crop[B]
-
     def float_alpha(self):
         return float(self.alpha)/255.0
 

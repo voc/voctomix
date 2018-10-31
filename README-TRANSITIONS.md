@@ -124,9 +124,27 @@ Switching the composite while leaving the sources A and B untouched is similar t
 ![sidebysidepreview-sidebyside-b transition](doc/transitions/images/sidebysidepreview-sidebyside-b.gif)
 ![pip-sidebyside-b transition](doc/transitions/images/sidebyside-b-pip.gif)
 
-#### *c*(A<sub>1</sub>) &harr; *c*(A<sub>2</sub>) or *c*(A<sub>1</sub>,B) &harr; *c*(A<sub>2</sub>,B)
+#### Three-Sources Transitions
 
-Switching one of both sources to another input channel can lead to a three sources scenario which is currently not covered by _voctomix_ __transitions__ but shall be part of *future development*.
+Switching a source of one frame within a composite to another (external) source leads to a *three-sources transition* because three sources have to be mixed together simultaneously.
+To avoid the complexity of transitions of such a higher grade we like to stay with the real use cases which occur when working with *voctomix*.
+We exclude all three sources transitions except those of one type.   
+
+##### *c*(A<sub>1</sub>) &harr; *c*(A<sub>2</sub>)
+When you start with a single source composite and you switch that one input source to another one which is not the hidden source B, you just have to switch source B to A<sub>2</sub> first and then do a two source transition *c*(A<sub>1</sub>) &harr; *c*(B) which is then equivalent to *c*(A<sub>1</sub>) &harr; *c*(A<sub>2</sub>).
+
+##### *c*(A) &harr; *c*(A,B<sub>2</sub>)
+
+We easily can cover this one with the same switching maneuver as in the previous case.
+
+##### *c*(A<sub>1</sub>,B) &harr; *c*(A<sub>2</sub>,B)
+
+The remaining one is different:
+If you want to switch one of the sources within a two source composite to a new (external) source you need a real three sources transition to animate that case.
+
+Again we like to restrict that issue to the real use case where we use just one type of three source transition which is based on a two source transitions and just mixes one source to another external by transparency fading.
+
+This case is currently out of scope for transitions and is solved within the mixer.
 
 ## Operations
 
@@ -157,8 +175,28 @@ We mark that swap operation with a `^` sign.
 Put into a formula we can write this as
 
 <center>
-*^c(A,B) = c(A,B)*
+^*c*(A,B) = *c*(A,B)
 </center>
+
+#### Gamma
+
+The **gamma operation** is used for that one remaining *three sources transition* case when you switch one of the sources to another input within a two source composite.
+
+Taking a two source composite *c*(A,B) and a third source C this operation has a transition *T* as result.  
+
+We describe that with the upper case Greek letter **Γ** as:
+
+<center>
+*T* = Γ(*c*,C) = Γ(*c*(A,B),C) = *c*(A,B) &rarr; *c*(A,C)
+</center>
+or
+<center>
+*T* = Γ(C,*c*) = Γ(C,*c*(A,B)) = *c*(A,B) &rarr; *c*(C,B)
+</center>
+
+Where *T* is the resulting transition, *c* is the current composite and *A*,*B* and *C* the related sources.  
+
+Because *voctomix* **transitions** are focusing on two sources composites and translations we will integrate that case in separately into the mixer.
 
 ### Transition Operations
 

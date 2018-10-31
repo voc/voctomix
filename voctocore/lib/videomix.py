@@ -1,108 +1,41 @@
 import logging
-import gi
-gi.require_version('GstController', '1.0')
+import re
 
 from configparser import NoOptionError
 from enum import Enum, unique
-
-from gi.repository import Gst, GstController
-
+from gi.repository import Gst
 from lib.config import Config
 from lib.clock import Clock
-from lib.transitions import Frame, Composites, Transitions
+from lib.transitions import Composites, Transitions
+from lib.scene import Scene
 
-fps = 50
-
-
-@unique
-class CompositeModes(Enum):
-    fullscreen = 0
-    side_by_side_equal = 1
-    side_by_side_preview = 2
-    picture_in_picture = 3
-
+useTransitions = True
 
 class VideoMix(object):
     log = logging.getLogger('VideoMix')
 
-    class Pad(list):
-        """ Pad is the adaptor between the gstreamer compositor
-            and voctomix transitions
-        """
-
-        def __init__(self, pipeline, sources):
-            """ initialize with a gstreamer pipeline and names
-                of the sources to manage
-            """
-            # walk all sources
-            for idx in range(len(sources)):
-                # get mixer and cropper pad from pipeline
-                mixerpad = (pipeline
-                            .get_by_name('mix')
-                            .get_static_pad('sink_%u' % (idx + 1)))
-                cropperpad = (pipeline
-                              .get_by_name("video_%u_cropper" % idx))
-
-                def bind(pad, prop):
-                    """ adds a binding to a gstreamer property
-                        pad's property
-                    """
-                    # set up control source
-                    cs = GstController.InterpolationControlSource()
-                    cs.set_property(
-                        'mode', GstController.InterpolationMode.NONE)
-                    # create control binding
-                    cb = GstController.DirectControlBinding.new_absolute(
-                        pad, prop, cs)
-                    # add binding to pad
-                    pad.add_control_binding(cb)
-                    # return binding
-                    return cs
-
-                # create dictionary of binds to all properties
-                # we vary for this source
-                self.append({
-                    'xpos': bind(mixerpad, 'xpos'),
-                    'ypos': bind(mixerpad, 'ypos'),
-                    'width': bind(mixerpad, 'width'),
-                    'height': bind(mixerpad, 'height'),
-                    'alpha': bind(mixerpad, 'alpha'),
-                    'zorder': bind(mixerpad, 'zorder'),
-                    'croptop': bind(cropperpad, 'top'),
-                    'cropleft': bind(cropperpad, 'left'),
-                    'cropbottom': bind(cropperpad, 'bottom'),
-                    'cropright': bind(cropperpad, 'right')
-                })
-            # born dirty
-            self.dirty = False
-
-        def mix(self, time, frame, source_idx, zorder):
-            # get pad for given source
-            pad = self[source_idx]
-            # transmit frame properties into mixing pipeline
-            pad['xpos'].set(time, frame.cropped_left())
-            pad['ypos'].set(time, frame.cropped_top())
-            pad['width'].set(time, frame.cropped_width())
-            pad['height'].set(time, frame.cropped_height())
-            pad['alpha'].set(time, frame.float_alpha())
-            pad['zorder'].set(time, zorder)
-            pad['croptop'].set(time, frame.croptop())
-            pad['cropleft'].set(time, frame.cropleft())
-            pad['cropbottom'].set(time, frame.cropbottom())
-            pad['cropright'].set(time, frame.cropright())
-
     def __init__(self):
+        # read capabilites and sources from confg file
         self.caps = Config.get('mix', 'videocaps')
-
         self.sources = Config.getlist('mix', 'sources')
         self.log.info('Configuring Mixer for %u Sources', len(self.sources))
 
-        self.log.info("reading composites from configuration...")
+        # get fps from video capabilities
+        r = re.match(
+            r'^.*framerate=(\d+)/(\d+).*$', self.caps)
+        assert r
+        fps = float(r.group(1)) / float(r.group(2))
+
+        # load composites from config
+        self.log.info("reading transitions configuration...")
         self.composites = Composites.configure(
             Config.items('composites'), self.getInputVideoSize())
-        self.targets = Composites.targets(self.composites)
+
+        # load transitions from configuration
         self.transitions = Transitions.configure(Config.items(
-            'transitions'), self.composites, self.targets, fps)
+            'transitions'), self.composites, fps=fps)
+
+        # build GStreamer mixing pipeline descriptor
         pipeline = """
             compositor name=mix !
             {caps} !
@@ -140,8 +73,8 @@ class VideoMix(object):
                 caps=self.caps,
                 idx=idx
             )
-        self.log.info(pipeline)
 
+        # create pipeline
         self.log.debug('Creating Mixing-Pipeline:\n%s', pipeline)
         self.mixingPipeline = Gst.parse_launch(pipeline)
         self.mixingPipeline.use_clock(Clock)
@@ -157,16 +90,13 @@ class VideoMix(object):
         sig = self.mixingPipeline.get_by_name('sig')
         sig.connect('handoff', self.on_handoff)
 
-        self.pad = self.Pad(self.mixingPipeline, self.sources)
-
         self.log.debug('Initializing Mixer-State')
-        self.transition = None
-        self.composite = self.composites["fs-a"]
-        self.compositeMode = CompositeModes.fullscreen
-        self.sourceA = 0
-        self.sourceB = 1
-        self.recalculateMixerState()
-        self.applyMixerState()
+        # initialize pipeline bindings for all sources
+        self.scene = Scene(self.sources, self.mixingPipeline, fps)
+        self.composite = None
+        self.sourceA = None
+        self.sourceB = None
+        self.setComposite("fs-a(cam1,cam2)")
 
         bgMixerpad = (self.mixingPipeline.get_by_name('mix')
                       .get_static_pad('sink_0'))
@@ -183,88 +113,16 @@ class VideoMix(object):
 
         return width, height
 
-    def recalculateMixerState(self):
-        composites = {
-            CompositeModes.fullscreen: self.composites["fs-a"],
-            CompositeModes.side_by_side_equal: self.composites["sbs"],
-            CompositeModes.side_by_side_preview: self.composites["sbsp"],
-            CompositeModes.picture_in_picture: self.composites["pip"]
-        }
-        self.transition = self.transitions.find(
-            self.composite, composites[self.compositeMode])
-        self.composite = composites[self.compositeMode]
-        self.log.info("switching to composite: %s" % self.composite)
-        self.pad.dirty = True
-
-    def applyMixerState(self):
-        self.log.info('Updating Mixer-State for composite')
+    def playTime(self):
         # get play time from mixing pipeline or assume zero
-        if self.mixingPipeline.get_clock():
-            time = self.mixingPipeline.get_clock().get_time() - \
-                self.mixingPipeline.get_base_time()
-        else:
-            time = 0
-        # if a transition is running
-        if self.transition:
-            # time span for every frame
-            span = int(Gst.SECOND / fps)
-            # get sources flip point
-            flip = self.transition.flip()
-            # walk through animation
-            for f in range(self.transition.frames()):
-                # walk through all sources
-                for idx, name in enumerate(self.sources):
-                    frame = Frame(alpha=0)
-
-                    # HACK: shitty try to manage zorder
-                    zorder = 1
-                    if idx == self.sourceA:
-                        frame = self.transition.A(f)
-                        zorder = 2 if (not flip) or f < flip else 3
-                    elif idx == self.sourceB:
-                        frame = self.transition.B(f)
-                        zorder = 3 if (not flip) or f < flip else 2
-
-                    # apply pad properties
-                    self.pad.mix(time, frame, idx, zorder)
-                # calculate time for next frame
-                time += span
-            # transition was applied
-            self.transition = None
-
-    def selectCompositeModeDefaultSources(self):
-        sectionNames = {
-            CompositeModes.fullscreen: 'fullscreen',
-            CompositeModes.side_by_side_equal: 'side-by-side-equal',
-            CompositeModes.side_by_side_preview: 'side-by-side-preview',
-            CompositeModes.picture_in_picture: 'picture-in-picture'
-        }
-
-        compositeModeName = self.compositeMode.name
-        sectionName = sectionNames[self.compositeMode]
-
-        try:
-            defSource = Config.get(sectionName, 'default-a')
-            self.setVideoSourceA(self.sources.index(defSource))
-            self.log.info('Changing sourceA to default of Mode %s: %s',
-                          compositeModeName, defSource)
-        except Exception as e:
-            pass
-
-        try:
-            defSource = Config.get(sectionName, 'default-b')
-            self.setVideoSourceB(self.sources.index(defSource))
-            self.log.info('Changing sourceB to default of Mode %s: %s',
-                          compositeModeName, defSource)
-        except Exception as e:
-            pass
+        return self.mixingPipeline.get_pipeline_clock().get_time() - \
+            self.mixingPipeline.get_base_time()
 
     def on_handoff(self, object, buffer):
-        if self.pad.dirty:
-            self.pad.dirty = False
+        if self.scene.dirty:
             self.log.debug('[Streaming-Thread]: Pad-State is Dirty, '
                            'applying new Mixer-State')
-            self.applyMixerState()
+            self.scene.push(self.playTime())
 
     def on_eos(self, bus, message):
         self.log.debug('Received End-of-Stream-Signal on Mixing-Pipeline')
@@ -274,35 +132,87 @@ class VideoMix(object):
         (error, debug) = message.parse_error()
         self.log.debug('Error-Details: #%u: %s', error.code, debug)
 
-    def setVideoSourceA(self, source):
-        # swap if required
-        if self.sourceB == source:
-            self.sourceB = self.sourceA
-
-        self.sourceA = source
-        self.recalculateMixerState()
-
     def getVideoSourceA(self):
         return self.sourceA
-
-    def setVideoSourceB(self, source):
-        # swap if required
-        if self.sourceA == source:
-            self.sourceA = self.sourceB
-
-        self.sourceB = source
-        self.recalculateMixerState()
 
     def getVideoSourceB(self):
         return self.sourceB
 
-    def setCompositeMode(self, mode, apply_default_source=True):
-        self.compositeMode = mode
+    def getComposite(self):
+        return self.composite
 
-        if apply_default_source:
-            self.selectCompositeModeDefaultSources()
+    def setCompositeEx(self, newComposite=None, newA=None, newB=None):
+        curComposite = None
+        # check if there is a current composite
+        if self.composite:
+            curComposite = self.composite
+            curA = self.sourceA
+            curB = self.sourceB
+            self.log.info("current composite: %s(%s,%s)",
+                          curComposite, curA, curB)
+            if self.composites[curComposite].covered():
+                curB = newB
 
-        self.recalculateMixerState()
+            # use current state if undefined as parameter
+            if not newComposite or newComposite == "*":
+                newComposite = self.composite
+            if not newA or newA == "*":
+                newA = curA
+            if not newB or newB == "*":
+                if newA == curB:
+                    newB = curA
+                else:
+                    newB = curB
+        assert newA != newB
 
-    def getCompositeMode(self):
-        return self.compositeMode
+        self.log.info("setting new composite %s(%s,%s)",
+                      newComposite, newA, newB)
+        if (newComposite in self.composites.keys()) and newA and newB:
+            c = self.composites[newComposite]
+            transition = None
+            if useTransitions:
+                if curComposite and ((curA,curB) == (newA,newB) or (curA,curB) == (newB,newA)):
+                    transition = self.transitions.find(self.composites[curComposite], c)
+            if transition:
+                self.log.debug(
+                    "committing transition '%s' to scene", transition.name())
+                self.scene.commit(newA, transition.A())
+                self.scene.commit(newB, transition.B())
+            else:
+                self.log.debug(
+                    "committing composite '%s' to scene", newComposite)
+                self.scene.commit(newA, [c.A()])
+                self.scene.commit(newB, [c.B()])
+            self.composite = newComposite
+            self.sourceA = newA
+            self.sourceB = newB
+        else:
+            self.log.warning("composite '%s' not found in configuration", newComposite)
+
+    def setComposite(self, command):
+        ''' parse command and switch to the described composite
+        '''
+        self.log.info("setting new composite by string '%s'", command)
+        A = None
+        B = None
+        # match case: c(A,B)
+        r = re.match(
+            r'^\s*([-_\w]+)\s*\(\s*([-_\w]+)\s*,\s*([-_\w]+)\)\s*$', command)
+        if r:
+            A = r.group(2)
+            B = r.group(3)
+        else:
+            # match case: c(A)
+            r = re.match(r'^\s*([-_\w]+)\s*\(\s*([-_\w]+)\s*\)\s*$', command)
+            if r:
+                A = r.group(2)
+            else:
+                # match case: c
+                r = re.match(r'^\s*([-_\w]+)\s*$', command)
+                assert r
+        composite = r.group(1)
+        if A == '*':
+            A = None
+        if B == '*':
+            B = None
+        self.setCompositeEx(composite, A, B)
