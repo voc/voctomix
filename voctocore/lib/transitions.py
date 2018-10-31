@@ -208,7 +208,7 @@ class Transition:
         return str
 
     def phi(self):
-        return self.begin().equals(self.end().swapped(), True)
+        return self.begin().equals(self.end().swapped(), False)
 
     def name(self):
         if self.phi():

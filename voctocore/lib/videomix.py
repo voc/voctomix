@@ -154,11 +154,11 @@ class VideoMix(object):
                 curB = newB
 
             # use current state if undefined as parameter
-            if not newComposite or newComposite == "*":
+            if not newComposite:
                 newComposite = self.composite
-            if not newA or newA == "*":
+            if not newA:
                 newA = curA
-            if not newB or newB == "*":
+            if not newB:
                 if newA == curB:
                     newB = curA
                 else:
@@ -197,20 +197,22 @@ class VideoMix(object):
         B = None
         # match case: c(A,B)
         r = re.match(
-            r'^\s*([-_\w]+)\s*\(\s*([-_\w]+)\s*,\s*([-_\w]+)\)\s*$', command)
+            r'^\s*([-_\w*]+)\s*\(\s*([-_\w*]+)\s*,\s*([-_\w*]+)\)\s*$', command)
         if r:
             A = r.group(2)
             B = r.group(3)
         else:
             # match case: c(A)
-            r = re.match(r'^\s*([-_\w]+)\s*\(\s*([-_\w]+)\s*\)\s*$', command)
+            r = re.match(r'^\s*([-_\w*]+)\s*\(\s*([-_\w*]+)\s*\)\s*$', command)
             if r:
                 A = r.group(2)
             else:
                 # match case: c
-                r = re.match(r'^\s*([-_\w]+)\s*$', command)
+                r = re.match(r'^\s*([-_\w*]+)\s*$', command)
                 assert r
         composite = r.group(1)
+        if composite == '*':
+            composite = None
         if A == '*':
             A = None
         if B == '*':
