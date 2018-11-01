@@ -15,12 +15,18 @@ class LogFormatter(logging.Formatter):
             c_mod = 32
             c_msg = 0
 
-            if record.levelno == logging.WARNING:
+            if record.levelno <= logging.DEBUG:
+                c_msg = 90
+
+            elif record.levelno <= logging.INFO:
+                c_lvl = 37
+                c_msg = 97
+
+            elif record.levelno <= logging.WARNING:
                 c_lvl = 31
-                # c_mod = 33
                 c_msg = 33
 
-            elif record.levelno > logging.WARNING:
+            else:
                 c_lvl = 31
                 c_mod = 31
                 c_msg = 31
