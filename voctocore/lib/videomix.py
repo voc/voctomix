@@ -142,16 +142,24 @@ class VideoMix(object):
         return self.composite
 
     def setCompositeEx(self, newComposite=None, newA=None, newB=None):
+        # expect strings or None as parameters
+        assert not newComposite or type(newComposite) == str
+        assert not newA or type(newA) == str
+        assert not newB or type(newB) == str
+
+        self.log.info("request to set new composite to %s(%s,%s)",
+                      newComposite, newA, newB)
+
         curComposite = None
         # check if there is a current composite
         if self.composite:
             curComposite = self.composite
             curA = self.sourceA
             curB = self.sourceB
-            self.log.info("current composite: %s(%s,%s)",
+            self.log.info("current composite is %s(%s,%s)",
                           curComposite, curA, curB)
-            if self.composites[curComposite].covered():
-                curB = newB
+            #if self.composites[curComposite].covered() and newB:
+            #    curB = newB
 
             # use current state if undefined as parameter
             if not newComposite:
@@ -163,16 +171,37 @@ class VideoMix(object):
                     newB = curA
                 else:
                     newB = curB
+        else:
+            self.log.info("no current composite (initial)")
         assert newA != newB
+        assert newA and newB
 
-        self.log.info("setting new composite %s(%s,%s)",
+        self.log.info("setting new composite to %s(%s,%s)",
                       newComposite, newA, newB)
         if (newComposite in self.composites.keys()) and newA and newB:
+            if newComposite[0] == '^':
+                c = c.swapped()
+                newComposite = newComposite[1:]
             c = self.composites[newComposite]
             transition = None
             if useTransitions:
-                if curComposite and ((curA,curB) == (newA,newB) or (curA,curB) == (newB,newA)):
-                    transition = self.transitions.find(self.composites[curComposite], c)
+                if curComposite:
+                    if (curA,curB) == (newA,newB):
+                        x = self.composites[curComposite]
+                    elif (curA,curB) == (newB,newA):
+                        x = self.composites[curComposite]
+                        if x.covered():
+                            c = c.swapped()
+                            newA, newB = newB, newA
+                            self.log.info("swapping new composite from %s to %s", newComposite, c.name)
+                            newComposite = "^" + newComposite
+                        else:
+                            x = x.swapped()
+                            self.log.info("swapping current composite from %s to %s", curComposite, x.name)
+                            curComposite = x.name
+                    transition = self.transitions.find(x, c)
+                if not transition:
+                    self.log.warning("no transition found")
             if transition:
                 self.log.debug(
                     "committing transition '%s' to scene", transition.name())
@@ -183,6 +212,8 @@ class VideoMix(object):
                     "committing composite '%s' to scene", newComposite)
                 self.scene.commit(newA, [c.Az(1)])
                 self.scene.commit(newB, [c.Bz(2)])
+            self.log.info("current composite is now %s(%s,%s)",
+                          newComposite, newA, newB)
             self.composite = newComposite
             self.sourceA = newA
             self.sourceB = newB
@@ -192,7 +223,10 @@ class VideoMix(object):
     def setComposite(self, command):
         ''' parse command and switch to the described composite
         '''
-        self.log.info("setting new composite by string '%s'", command)
+        # expect string as parameter
+        assert type(command) == str
+
+        self.log.debug("setting new composite by string '%s'", command)
         A = None
         B = None
         # match case: c(A,B)

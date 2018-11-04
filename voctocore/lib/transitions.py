@@ -49,15 +49,35 @@ class Transitions:
                                         for x in self.transitions[i]])
         return result
 
-    def find(self, begin, end):
+    def find(self, begin, end, treat_covered_as_invisible=True, by_name=False):
         """ search for a transition in the transition table
         """
-        if begin and end:
+        assert begin and end
+        result = []
+        if by_name:
+            assert type(begin) == str
+            assert type(end) == str
             for b in range(len(self.targets)):
                 for e in range(len(self.targets)):
-                    if self.targets[b].equals(begin, True) and self.targets[e].equals(end, True):
-                        return self.transitions[b][e]
-        return None
+                    if self.targets[b].name == begin and self.targets[e].name == end:
+                        if self.transitions[b][e]:
+                            result.append(self.transitions[b][e])
+        else:
+    #        log.debug("find transition from %s to %s in targets %s", begin.name, end.name, [t.name for t in self.targets])
+            for b in range(len(self.targets)):
+                for e in range(len(self.targets)):
+                    if self.targets[b].equals(begin, treat_covered_as_invisible) and self.targets[e].equals(end, treat_covered_as_invisible):
+                        if self.transitions[b][e]:
+#                            log.debug("b/e = %s/%s",self.targets[b].name, self.targets[e].name)
+                            result.append(self.transitions[b][e])
+        if len(result) > 0:
+            if len(result) > 1:
+                log.warning("multiple transitions found: %s (falling back to %s)", [t.name() for t in result], result[0].name())
+            result = result[0]
+#            log.debug("found transition: %s", result.name())
+        else:
+            log.debug("can not find matching transition")
+        return result
 
     def add(self, transition, frames, overwrite=False):
         """ calculate and add a transition into the transition table
