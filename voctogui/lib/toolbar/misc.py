@@ -19,15 +19,15 @@ class MiscToolbarController(object):
         closebtn.set_visible(Config.getboolean('misc', 'close'))
         closebtn.connect('clicked', self.on_closebtn_clicked)
 
-        cutbtn = uibuilder.find_widget_recursive(toolbar, 'cut')
-        cutbtn.set_visible(Config.getboolean('misc', 'cut'))
-        cutbtn.connect('clicked', self.on_cutbtn_clicked)
+        #cutbtn = uibuilder.find_widget_recursive(toolbar, 'cut')
+        #cutbtn.set_visible(Config.getboolean('misc', 'cut'))
+        #cutbtn.connect('clicked', self.on_cutbtn_clicked)
 
         key, mod = Gtk.accelerator_parse('t')
-        cutbtn.add_accelerator('clicked', accelerators,
-                               key, mod, Gtk.AccelFlags.VISIBLE)
+        #cutbtn.add_accelerator('clicked', accelerators,
+        #                       key, mod, Gtk.AccelFlags.VISIBLE)
         tooltip = Gtk.accelerator_get_label(key, mod)
-        cutbtn.set_tooltip_text(tooltip)
+        #cutbtn.set_tooltip_text(tooltip)
 
     def on_closebtn_clicked(self, btn):
         self.log.info('close-button clicked')

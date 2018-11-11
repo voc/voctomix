@@ -1,6 +1,6 @@
 import logging
 
-from gi.repository import Gtk
+from gi.repository import Gtk, GdkPixbuf
 import lib.connection as Connection
 
 from lib.config import Config
@@ -15,6 +15,10 @@ class CompositionToolbarController(object):
         accelerators = Gtk.AccelGroup()
         win.add_accel_group(accelerators)
 
+        icon_path = Config.get('toolbar', 'icon-path')
+        if len(icon_path) > 1 and icon_path[-1] != '/':
+            icon_path += '/'
+
         buttons = Config.items('toolbar')
 
         self.composite_btns = {}
@@ -22,20 +26,38 @@ class CompositionToolbarController(object):
 
         pos = 0
 
+        accel_f_key = 1
+
         self.commands = dict()
         first_btn = None
         for name, value in buttons:
-            command, label = value.split(':')
-            if not first_btn:
-                first_btn = new_btn = Gtk.RadioToolButton(None)
-            else:
-                new_btn = Gtk.RadioToolButton.new_from_widget(first_btn)
-            new_btn.set_name(name)
-            new_btn.set_label(label)
-            self.commands[name] = command
-            new_btn.connect('toggled', self.on_btn_toggled)
-            toolbar.insert(new_btn, pos)
-            pos += 1
+            if name not in ['icon-path']:
+                key, mod = Gtk.accelerator_parse('F%u' % accel_f_key)
+                command, image_filename = value.split(':')
+                if not first_btn:
+                    first_btn = new_btn = Gtk.RadioToolButton(None)
+                else:
+                    new_btn = Gtk.RadioToolButton.new_from_widget(first_btn)
+                new_btn.set_name(name)
+
+                pixbuf = GdkPixbuf.Pixbuf.new_from_file(icon_path + image_filename.strip())
+                image = Gtk.Image()
+                image.set_from_pixbuf(pixbuf)
+                new_btn.set_icon_widget(image)
+                self.commands[name] = command
+                new_btn.connect('toggled', self.on_btn_toggled)
+    #            new_btn.set_label("F%s" % accel_f_key)
+                tooltip = Gtk.accelerator_get_label(key, mod)
+                new_btn.set_tooltip_text(tooltip)
+
+                new_btn.get_child().add_accelerator(
+                    'clicked', accelerators,
+                    key, mod, Gtk.AccelFlags.VISIBLE)
+
+                self.composite_btns[name] = new_btn
+                toolbar.insert(new_btn, pos)
+                pos += 1
+                accel_f_key  += 1
 
         # connect event-handler and request initial state
         Connection.on('composite_mode_and_video_status',

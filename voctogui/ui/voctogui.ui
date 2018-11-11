@@ -12,6 +12,11 @@
     <property name="can_focus">False</property>
     <property name="pixbuf">stream-live.svg</property>
   </object>
+  <object class="GtkImage" id="voc">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">voc.svg</property>
+  </object>
   <object class="GtkWindow" id="window">
     <property name="can_focus">False</property>
     <property name="default_width">1280</property>
@@ -27,61 +32,9 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="hexpand">True</property>
-            <property name="toolbar_style">both</property>
+            <property name="toolbar_style">icons</property>
             <child>
               <object class="GtkSeparatorToolItem" id="s1">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkRadioToolButton" id="stream_blank">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Blank Stream</property>
-                <property name="use_underline">True</property>
-                <property name="icon_widget">img-blank-stream</property>
-                <property name="group">stream_live</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkRadioToolButton" id="stream_live">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Stream Live</property>
-                <property name="use_underline">True</property>
-                <property name="icon_widget">img-stream-live</property>
-                <property name="active">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToolButton" id="cut">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Cut</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">gtk-cut</property>
-                <property name="no_show_all">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkSeparatorToolItem" id="s2">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="draw">False</property>
@@ -102,10 +55,67 @@
               </packing>
             </child>
             <child>
+              <object class="GtkSeparatorToolItem" id="s2">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="draw">False</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkRadioToolButton" id="stream_blank">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="use_underline">True</property>
+                <property name="icon_widget">img-blank-stream</property>
+                <property name="group">stream_live</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkRadioToolButton" id="stream_live">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="use_underline">True</property>
+                <property name="icon_widget">img-stream-live</property>
+                <property name="active">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSeparatorToolItem" id="s3">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="draw">False</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToolButton" id="voc-btn">
+                <property name="visible">True</property>
+                <property name="icon-widget">voc</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkToolButton" id="close">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Close</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-close</property>
                 <property name="no_show_all">True</property>

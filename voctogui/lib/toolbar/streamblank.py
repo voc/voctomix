@@ -1,6 +1,6 @@
 import logging
 
-from gi.repository import Gtk
+from gi.repository import Gtk, GdkPixbuf
 import lib.connection as Connection
 
 from lib.config import Config
@@ -38,7 +38,7 @@ class StreamblankToolbarController(object):
         key, mod = Gtk.accelerator_parse('F12')
         livebtn.connect('toggled', self.on_btn_toggled)
         livebtn.set_name('live')
-        livebtn.set_label(livebtn.get_label() + "\nF12")
+#        livebtn.set_label("F12")
 
         tooltip = Gtk.accelerator_get_label(key, mod)
         livebtn.set_tooltip_text(tooltip)
@@ -60,10 +60,13 @@ class StreamblankToolbarController(object):
                 new_icon = Gtk.Image.new_from_pixbuf(blankbtn.get_icon_widget()
                                                      .get_pixbuf())
                 new_btn = Gtk.RadioToolButton(group=livebtn)
-                new_btn.set_icon_widget(new_icon)
+                pixbuf = GdkPixbuf.Pixbuf.new_from_file("./voctogui/ui/nostream.svg")
+                image = Gtk.Image()
+                image.set_from_pixbuf(pixbuf)
+                new_btn.set_icon_widget(image)
                 toolbar.insert(new_btn, blankbtn_pos)
 
-            new_btn.set_label("Stream %s\nF%s" % (name, accel_f_key))
+#            new_btn.set_label("F%s" % accel_f_key)
             new_btn.connect('toggled', self.on_btn_toggled)
             new_btn.set_name(name)
 

@@ -23,8 +23,6 @@ class VideoPreviewsController(object):
         self.sources = Config.getlist('mix', 'sources')
         self.preview_players = {}
         self.previews = {}
-        self.a_btns = {}
-        self.b_btns = {}
         self.volume_sliders = {}
 
         self.current_source = {'a': None, 'b': None}
@@ -46,9 +44,6 @@ class VideoPreviewsController(object):
         # Accelerators
         accelerators = Gtk.AccelGroup()
         win.add_accel_group(accelerators)
-
-        group_a = None
-        group_b = None
 
         # Check if there is a fixed audio source configured.
         # If so, we will remove the volume sliders entirely
@@ -73,36 +68,6 @@ class VideoPreviewsController(object):
                                   width=width, height=height)
 
             uibuilder.find_widget_recursive(preview, 'label').set_label(source)
-            btn_a = uibuilder.find_widget_recursive(preview, 'btn_a')
-            btn_b = uibuilder.find_widget_recursive(preview, 'btn_b')
-
-            btn_a.set_name("%c %u" % ('a', idx))
-            btn_b.set_name("%c %u" % ('b', idx))
-
-            if not group_a:
-                group_a = btn_a
-            else:
-                btn_a.join_group(group_a)
-
-            if not group_b:
-                group_b = btn_b
-            else:
-                btn_b.join_group(group_b)
-
-            btn_a.connect('toggled', self.btn_toggled)
-            btn_b.connect('toggled', self.btn_toggled)
-
-            key, mod = Gtk.accelerator_parse('%u' % (idx + 1))
-            btn_a.add_accelerator('activate', accelerators,
-                                  key, mod, Gtk.AccelFlags.VISIBLE)
-            tooltip = Gtk.accelerator_get_label(key, mod)
-            btn_a.set_tooltip_text(tooltip)
-
-            key, mod = Gtk.accelerator_parse('<Ctrl>%u' % (idx + 1))
-            btn_b.add_accelerator('activate', accelerators,
-                                  key, mod, Gtk.AccelFlags.VISIBLE)
-            tooltip = Gtk.accelerator_get_label(key, mod)
-            btn_b.set_tooltip_text(tooltip)
 
             volume_slider = uibuilder.find_widget_recursive(preview,
                                                             'audio_level')
@@ -127,9 +92,6 @@ class VideoPreviewsController(object):
 
             self.preview_players[source] = player
             self.previews[source] = preview
-            self.a_btns[source] = btn_a
-            self.b_btns[source] = btn_b
-
         # connect event-handler and request initial state
         Connection.on('video_status', self.on_video_status)
         Connection.send('get_video')
@@ -170,9 +132,6 @@ class VideoPreviewsController(object):
 
         self.current_source['a'] = source_a
         self.current_source['b'] = source_b
-
-        self.a_btns[source_a].set_active(True)
-        self.b_btns[source_b].set_active(True)
 
     def on_audio_status(self, *volumes):
         volumes_json = "".join(volumes)
