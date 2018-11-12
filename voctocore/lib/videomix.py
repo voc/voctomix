@@ -96,7 +96,7 @@ class VideoMix(object):
         self.composite = None
         self.sourceA = None
         self.sourceB = None
-        self.setComposite("fs-a(cam1,cam2)")
+        self.setComposite("fs(cam,slides)")
 
         bgMixerpad = (self.mixingPipeline.get_by_name('mix')
                       .get_static_pad('sink_0'))
@@ -132,93 +132,88 @@ class VideoMix(object):
         (error, debug) = message.parse_error()
         self.log.debug('Error-Details: #%u: %s', error.code, debug)
 
-    def getVideoSourceA(self):
-        return self.sourceA
-
-    def getVideoSourceB(self):
-        return self.sourceB
-
     def getComposite(self):
-        return self.composite
+        return "%s(%s,%s)" % self.composite, self.sourceA, self.sourceB
 
-    def setCompositeEx(self, newComposite=None, newA=None, newB=None):
+    def setCompositeEx(self, newCompositeName=None, newA=None, newB=None):
         # expect strings or None as parameters
-        assert not newComposite or type(newComposite) == str
+        assert not newCompositeName or type(newCompositeName) == str
         assert not newA or type(newA) == str
         assert not newB or type(newB) == str
 
         self.log.info("request to set new composite to %s(%s,%s)",
-                      newComposite, newA, newB)
+                      newCompositeName, newA, newB)
 
-        curComposite = None
-        # check if there is a current composite
-        if self.composite:
-            curComposite = self.composite
+        # get current composite
+        curCompositeName = None
+        if not self.composite:
+            self.log.info("no current composite (initial)")
+        else:
+            curCompositeName = self.composite
             curA = self.sourceA
             curB = self.sourceB
             self.log.info("current composite is %s(%s,%s)",
-                          curComposite, curA, curB)
-            #if self.composites[curComposite].covered() and newB:
-            #    curB = newB
+                          curCompositeName, curA, curB)
 
+        # check if there is any None parameter and fill it up with
+        # reasonable value from the current scene
+        if curCompositeName and not (newCompositeName and newA and newB):
             # use current state if undefined as parameter
-            if not newComposite:
-                newComposite = self.composite
+            if not newCompositeName:
+                newCompositeName = curCompositeName
             if not newA:
-                newA = curA
+                if newB != curA:
+                    newA = curA
+                else:
+                    newA = curB
             if not newB:
                 if newA == curB:
                     newB = curA
                 else:
                     newB = curB
-        else:
-            self.log.info("no current composite (initial)")
+            self.log.debug("completing new composite to %s(%s,%s)",
+                      newCompositeName, newA, newB)
+        # post condition: we should have all parameters now
         assert newA != newB
-        assert newA and newB
+        assert newCompositeName and newA and newB
+
+        # fetch composites
+        curComposite = self.composites[curCompositeName] if curCompositeName else None
+        newComposite = self.composites[newCompositeName]
 
         self.log.info("setting new composite to %s(%s,%s)",
-                      newComposite, newA, newB)
-        if (newComposite in self.composites.keys()) and newA and newB:
-            if newComposite[0] == '^':
-                c = c.swapped()
-                newComposite = newComposite[1:]
-            c = self.composites[newComposite]
-            transition = None
-            if useTransitions:
-                if curComposite:
-                    if (curA,curB) == (newA,newB):
-                        x = self.composites[curComposite]
-                    elif (curA,curB) == (newB,newA):
-                        x = self.composites[curComposite]
-                        if x.covered():
-                            c = c.swapped()
-                            newA, newB = newB, newA
-                            self.log.info("swapping new composite from %s to %s", newComposite, c.name)
-                            newComposite = "^" + newComposite
-                        else:
-                            x = x.swapped()
-                            self.log.info("swapping current composite from %s to %s", curComposite, x.name)
-                            curComposite = x.name
-                    transition = self.transitions.find(x, c)
-                if not transition:
-                    self.log.warning("no transition found")
-            if transition:
-                self.log.debug(
-                    "committing transition '%s' to scene", transition.name())
-                self.scene.commit(newA, transition.Az(1,2))
-                self.scene.commit(newB, transition.Bz(2,1))
-            else:
-                self.log.debug(
-                    "committing composite '%s' to scene", newComposite)
-                self.scene.commit(newA, [c.Az(1)])
-                self.scene.commit(newB, [c.Bz(2)])
-            self.log.info("current composite is now %s(%s,%s)",
-                          newComposite, newA, newB)
-            self.composite = newComposite
-            self.sourceA = newA
-            self.sourceB = newB
+                      newComposite.name, newA, newB)
+        transition = None
+        targetA, targetB = newA, newB
+        if useTransitions:
+            if curComposite:
+                swap = False
+                if (curA, curB) == (newA, newB):
+                    transition, swap = self.transitions.solve(curComposite, newComposite, False)
+                elif (curA, curB) == (newB, newA):
+                    transition, swap = self.transitions.solve(curComposite, newComposite, True)
+                    if not swap:
+                        targetA, targetB = newB, newA
+            if not transition:
+                self.log.warning("no transition found")
+        if transition:
+            self.log.debug(
+                "committing transition '%s' to scene", transition.name())
+#                if transition.phi():
+#                    newA, newB = newB, newA
+            self.scene.commit(targetA, transition.Az(1,2))
+            self.scene.commit(targetB, transition.Bz(2,1))
         else:
-            self.log.warning("composite '%s' not found in configuration", newComposite)
+            self.log.debug(
+                "committing composite '%s' to scene", newComposite.name)
+            self.scene.commit(targetA, [newComposite.Az(1)])
+            self.scene.commit(targetB, [newComposite.Bz(2)])
+
+        self.log.info("current composite is now %s(%s,%s)",
+                      newComposite.name, newA, newB)
+        self.composite = newComposite.name
+        self.sourceA = newA
+        self.sourceB = newB
 
     def setComposite(self, command):
         ''' parse command and switch to the described composite

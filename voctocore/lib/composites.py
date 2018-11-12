@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # for debug logging
 import logging
 # use Frame
@@ -79,18 +80,29 @@ class Composite:
         return "Key A%s\tB%s  Name" % (Frame.str_title(), Frame.str_title())
 
     def __str__(self):
-        return "%s A%s\tB%s  %s" % (" * " if self.A().key else "   ",
-                                    self.A(), self.B(), self.name)
+        def hidden( x, hidden ):
+            return str(x).replace(' ','_') if hidden else str(x)
 
-    def equals(self, other, treat_covered_as_invisible):
+        return "%s A%s\tB%s  %s" % (" * " if self.A().key else "   ",
+                                    hidden(self.A(), self.A().invisible() or self.covered()),
+                                    hidden(self.B(), self.B().invisible()),
+                                    self.name)
+
+    def equals(self, other, treat_covered_as_invisible, swapped=False):
         """ compare two composites if they are looking the same
             (e.g. a rectangle with size 0x0=looks the same as one with alpha=0
             and so it is treated as equal here)
         """
-        if not (self.A() == other.A() or (treat_covered_as_invisible and self.covered() and other.covered())):
-            return False
-        elif not (self.B() == other.B() or (self.B().invisible() and other.B().invisible())):
-            return False
+        if not swapped:
+            if not (self.A() == other.A() or (treat_covered_as_invisible and self.covered() and other.covered())):
+                return False
+            elif not (self.B() == other.B() or (self.B().invisible() and other.B().invisible())):
+                return False
+        else:
+            if not (self.A() == other.B() or (treat_covered_as_invisible and self.covered() and other.B().invisible())):
+                return False
+            elif not (self.B() == other.A() or (self.B().invisible() and other.covered())):
+                return False
         return True
 
     def A(self):
@@ -176,11 +188,11 @@ class Composite:
         bc = below.cropped()
         ac = above.cropped()
         # return if above is (semi-)transparent or covers below completely
-        return (above.alpha < 255 or
-                (bc[L] >= ac[L] and
-                 bc[T] >= ac[T] and
-                 bc[R] <= ac[R] and
-                 bc[B] <= ac[B]))
+        return (above.alpha == 255 and
+                bc[L] >= ac[L] and
+                bc[T] >= ac[T] and
+                bc[R] <= ac[R] and
+                bc[B] <= ac[B])
 
 
 def add_swapped_targets(composites):

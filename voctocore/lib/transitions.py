@@ -15,99 +15,29 @@ import copy
 V = 2  # distance (velocity) index
 
 log = logging.getLogger('Transitions')
-
+logKeyFramesOnly = True
 
 class Transitions:
     """ transition table and interface
     """
 
     def __init__(self, targets):
-        self.transitions = [[None] * len(targets) for n in targets]
+        self.transitions = []
         self.targets = targets
 
     def __str__(self):
         """ write transition table into a string
         """
-        # measure column width for first column
-        cw = 1
-        for t in self.targets:
-            cw = max(cw, len(t.name))
-        # and measure column width for other columns
-        tw = 1
-        for tt in self.transitions:
-            for t in tt:
-                tw = max(tw, len(t.name()))
-        # write transition table header into a string
-        result = "%s\n\n" % "".join([("%" + str(cw) + "s  ") % ""] +
-                                    [("%-" + str(tw) + "s ") % t.name
-                                     for t in self.targets])
-
-        # write transition table into a string
-        for i in range(len(self.transitions)):
-            result += "%s\n" % "".join([("%" + str(cw) + "s  ") % self.targets[i].name] +
-                                       [("%-" + str(tw) + "s ") % (x.name() if x else "-")
-                                        for x in self.transitions[i]])
-        return result
-
-    def find(self, begin, end, treat_covered_as_invisible=True, by_name=False):
-        """ search for a transition in the transition table
-        """
-        assert begin and end
-        result = []
-        if by_name:
-            assert type(begin) == str
-            assert type(end) == str
-            for b in range(len(self.targets)):
-                for e in range(len(self.targets)):
-                    if self.targets[b].name == begin and self.targets[e].name == end:
-                        if self.transitions[b][e]:
-                            result.append(self.transitions[b][e])
-        else:
-    #        log.debug("find transition from %s to %s in targets %s", begin.name, end.name, [t.name for t in self.targets])
-            for b in range(len(self.targets)):
-                for e in range(len(self.targets)):
-                    if self.targets[b].equals(begin, treat_covered_as_invisible) and self.targets[e].equals(end, treat_covered_as_invisible):
-                        if self.transitions[b][e]:
-#                            log.debug("b/e = %s/%s",self.targets[b].name, self.targets[e].name)
-                            result.append(self.transitions[b][e])
-        if len(result) > 0:
-            if len(result) > 1:
-                log.warning("multiple transitions found: %s (falling back to %s)", [t.name() for t in result], result[0].name())
-            result = result[0]
-#            log.debug("found transition: %s", result.name())
-        else:
-            log.debug("can not find matching transition")
-        return result
-
-    def add(self, transition, frames, overwrite=False):
-        """ calculate and add a transition into the transition table
-        """
-        # check if we already added a equivalent transition
-        calculated = self.find(transition.begin(), transition.end())
-        for begin in range(len(self.targets)):
-            for end in range(len(self.targets)):
-                # check if transition matches that place within the table
-                if (self.targets[begin].equals(transition.begin(), True)
-                        and self.targets[end].equals(transition.end(), True)):
-                    # check if place is empty
-                    if overwrite or not self.transitions[begin][end]:
-                        log.debug("adding transition %s = %s -> %s\n%s" %
-                                  (transition.name(), self.targets[begin].name, self.targets[end].name, transition))
-                        # calculate transition if necessary
-                        if not calculated:
-                            transition.calculate(frames)
-                        # add transition to table
-                        self.transitions[begin][end] = transition
+        return "\n".join([t.name() for t in self.transitions])
 
     def count(self):
         """ count available transition
         """
-        n = 0
-        for tt in self.transitions:
-            for t in tt:
-                if t:
-                    n += 1
-        return n
+        return len(self.transitions)
+
+    def add(self,transition,frames):
+        transition.calculate(frames - 1)
+        self.transitions.append(transition)
 
     def configure(cfg, composites, targets=None, fps=25):
         """ generate all transitions configured in the INI-like configuration
@@ -119,9 +49,6 @@ class Transitions:
                 if composites[targets[i]].equals(composite, True):
                     return i
             return None
-
-        def convert(keys, conv):
-            return [keys, keys.reversed(), keys.swapped(), keys.reversed().swapped()][conv]
 
         # filter target composites from given composites
         if not targets:
@@ -138,30 +65,47 @@ class Transitions:
             frames = fps * float(time) / 1000.0
             # split sequence list into key frames
             sequence = [x.strip() for x in sequence.split('/')]
-            for conversion in range(4):
-                for seq in parse_asterisk(sequence, targets):
-                    if "*" in sequence:
-                        name = "%s(%s)" % (t_name, "/".join(seq))
-                    else:
-                        name = t_name
-                    # prepare list of key frame composites
-                    keys = Transition(name)
-                    try:
-                        # walk trough composite sequence
-                        for c_name in seq:
-                            if c_name[0] == '^':
-                                # find a composite with that name
-                                keys.append(composites[c_name[1:]].swapped())
-                            else:
-                                # find a composite with that name
-                                keys.append(composites[c_name])
-                    # log any failed find
-                    except KeyError as err:
-                        raise RuntimeError(
-                            'composite "{}" could not be found in transition {}'.format(err, name))
-                    transitions.add(convert(keys, conversion), frames - 1)
+            for seq in parse_asterisk(sequence, targets):
+                if "*" in sequence:
+                    name = "%s(%s)" % (t_name, "/".join(seq))
+                else:
+                    name = t_name
+                # prepare list of key frame composites
+                transition = Transition(name)
+                try:
+                    # walk trough composite sequence
+                    for c_name in seq:
+                        if c_name[0] == '^':
+                            # find a composite with that name
+                            transition.append(composites[c_name[1:]].swapped())
+                        else:
+                            # find a composite with that name
+                            transition.append(composites[c_name])
+                # log any failed find
+                except KeyError as err:
+                    raise RuntimeError(
+                        'composite "{}" could not be found in transition {}'.format(err, name))
+                transitions.add(transition,frames - 1)
         # return dictonary
         return transitions
+
+    def solve(self, begin, end, flip):
+        log.debug("solving transition %s(A,B) -> %s(%s)\n\t    %s\n\t    %s", begin.name, end.name, "B,A" if flip else "A,B", begin, end)
+        for transition in self.transitions:
+            # try to find original transition
+            if transition.begin().equals(begin, True) and transition.end().equals(end, True, flip):
+                log.debug("solved #1 %s\n%s", transition.name(), transition)
+                return transition, False
+            if transition.begin().equals(begin, True, flip) and transition.end().equals(end, True):
+                log.debug("solved #2 %s\n%s", transition.name(), transition)
+                return transition, True
+            # try reverse
+            if transition.begin().equals(end, True) and transition.end().equals(begin, True, flip):
+                log.debug("solved #3 %s\n%s", transition.name(), transition)
+                return transition.reversed(), True
+            if transition.begin().equals(end, True, flip) and transition.end().equals(begin, True):
+                log.debug("solved #4 %s\n%s", transition.name(), transition)
+                return transition.reversed(), False
 
     def travel(composites, previous=None):
         """ return a list of pairs of composites along all possible transitions
@@ -191,7 +135,6 @@ class Transitions:
         # no findings
         return None
 
-
 class Transition:
 
     def __init__(self, name, a=None, b=None):
@@ -216,16 +159,23 @@ class Transition:
         self.flip = None
 
     def __str__(self):
+        def hidden( x, hidden ):
+            return str(x).replace(' ','_') if hidden else str(x)
+
         # remember index when to flip sources A/B
-        str = "\t%s = %s -> %s:\n" % (self.name(),
+        result = "\t%s = %s -> %s:\n" % (self.name(),
                                       self.begin().name, self.end().name)
         # add table title
-        str += "\tNo. %s\n" % Composite.str_title()
+        result += "\tNo. %s\n" % Composite.str_title()
         # add composites until flipping point
         for i in range(self.frames()):
-            str += ("\t%3d %s A%s\tB%s  %s\n" %
-                    (i, " * " if self.A(i).key else "   ", self.A(i), self.B(i), self.composites[i].name))
-        return str
+            if (not logKeyFramesOnly) or self.A(i).key:
+                result += (("\t%3d %s " + ("B%s\tA%s" if self.flip and i >= self.flip else "A%s\tB%s") + "  %s\n") %
+                        (i, " * " if self.A(i).key else "   ",
+                            hidden(self.A(i), self.A(i).invisible() or self.composites[i].covered()),
+                            hidden(self.B(i), self.B(i).invisible()),
+                            self.composites[i].name))
+        return result
 
     def phi(self):
         return self.begin().equals(self.end().swapped(), False)
@@ -314,8 +264,9 @@ class Transition:
                 log.warning("recalculating transition %s" % self.name())
                 self.composites = self.keys()
             # calculate that transition and place it into the dictonary
-            log.debug("calculating transition %s = %s" %
-                      (self.name(), "/".join([c.name for c in self.composites])))
+            log.debug("calculating transition %s\t= %s" %
+                      (self.name(), " / ".join([c.name for c in self.composites])))
+            #log.debug(self)
 
             # extract two lists of frames for use with interpolate()
             a = [c.A() for c in self.composites]

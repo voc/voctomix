@@ -202,15 +202,13 @@ def draw_composite(size, composite, swap=False):
 
 
 def draw_transition(size, transition, info=None):
-    # get where to flip sources
-    flip_at = transition.flip()
     # animation as a list of images
     images = []
     # render all frames
     for i in range(transition.frames()):
         # create an image to draw into
         imageBg = draw_composite(size, transition.composites[i],
-                                 flip_at is not None and i >= flip_at)
+                                 transition.flip is not None and i >= transition.flip)
         imageDesc = Image.new('RGBA', size, (0, 0, 0, 0))
         imageFg = Image.new('RGBA', size, (0, 0, 0, 0))
         # create a drawing context
@@ -334,7 +332,7 @@ def render_sequence(size, fps, sequence, transitions, composites):
         log.debug("request transition (%d/%d): %s → %s" %
                   (len(found) + 1, len(sequence) - 1, prev_name, c_name))
         # actually search for a transitions that does a fade between prev and c
-        transition = transitions.find(prev, c)
+        transition = transitions.solve(prev, c, prev == c)
         # count findings
         if not transition:
             # report fetched transition
