@@ -46,7 +46,7 @@ class CompositionToolbarController(object):
                 new_btn.set_icon_widget(image)
                 self.commands[name] = command
                 new_btn.connect('toggled', self.on_btn_toggled)
-    #            new_btn.set_label("F%s" % accel_f_key)
+                new_btn.set_label("F%s" % accel_f_key)
                 tooltip = Gtk.accelerator_get_label(key, mod)
                 new_btn.set_tooltip_text(tooltip)
 

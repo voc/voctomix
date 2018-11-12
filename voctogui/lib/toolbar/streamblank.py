@@ -38,7 +38,7 @@ class StreamblankToolbarController(object):
         key, mod = Gtk.accelerator_parse('F12')
         livebtn.connect('toggled', self.on_btn_toggled)
         livebtn.set_name('live')
-#        livebtn.set_label("F12")
+        livebtn.set_label("F12")
 
         tooltip = Gtk.accelerator_get_label(key, mod)
         livebtn.set_tooltip_text(tooltip)
@@ -66,7 +66,7 @@ class StreamblankToolbarController(object):
                 new_btn.set_icon_widget(image)
                 toolbar.insert(new_btn, blankbtn_pos)
 
-#            new_btn.set_label("F%s" % accel_f_key)
+            new_btn.set_label("F%s" % accel_f_key)
             new_btn.connect('toggled', self.on_btn_toggled)
             new_btn.set_name(name)
 

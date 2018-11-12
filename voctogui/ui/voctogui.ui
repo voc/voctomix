@@ -32,7 +32,7 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="hexpand">True</property>
-            <property name="toolbar_style">icons</property>
+            <property name="toolbar_style">both</property>
             <child>
               <object class="GtkSeparatorToolItem" id="s1">
                 <property name="visible">True</property>
