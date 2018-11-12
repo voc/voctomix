@@ -194,15 +194,8 @@ class ControlServerCommands(object):
 
     def set_composite(self, command):
         self.pipeline.vmix.setComposite(command)
-
-        composite_status = self._get_composite_status()
-        video_status = self._get_video_status()
-        return [
-            NotifyResponse('composite_mode', composite_status),
-            NotifyResponse('video_status', *video_status),
-            NotifyResponse('composite_mode_and_video_status',
-                           composite_status, *video_status),
-        ]
+        composite = self.pipeline.vmix.getComposite()
+        return NotifyResponse('composite', composite)
 
     def set_videos_and_composite(self, src_a_name, src_b_name,
                                  mode_name):

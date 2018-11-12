@@ -8,6 +8,7 @@ from lib.config import Config
 from lib.clock import Clock
 from lib.transitions import Composites, Transitions
 from lib.scene import Scene
+from lib.composite_commands import CompositeCommand
 
 useTransitions = True
 
@@ -133,7 +134,7 @@ class VideoMix(object):
         self.log.debug('Error-Details: #%u: %s', error.code, debug)
 
     def getComposite(self):
-        return "%s(%s,%s)" % self.composite, self.sourceA, self.sourceB
+        return "%s(%s,%s)" % (self.composite, self.sourceA, self.sourceB)
 
     def setCompositeEx(self, newCompositeName=None, newA=None, newB=None):
         # expect strings or None as parameters
@@ -199,8 +200,6 @@ class VideoMix(object):
         if transition:
             self.log.debug(
                 "committing transition '%s' to scene", transition.name())
-#                if transition.phi():
-#                    newA, newB = newB, newA
             self.scene.commit(targetA, transition.Az(1,2))
             self.scene.commit(targetB, transition.Bz(2,1))
         else:
@@ -221,29 +220,5 @@ class VideoMix(object):
         # expect string as parameter
         assert type(command) == str
 
-        self.log.debug("setting new composite by string '%s'", command)
-        A = None
-        B = None
-        # match case: c(A,B)
-        r = re.match(
-            r'^\s*([-_\w*]+)\s*\(\s*([-_\w*]+)\s*,\s*([-_\w*]+)\)\s*$', command)
-        if r:
-            A = r.group(2)
-            B = r.group(3)
-        else:
-            # match case: c(A)
-            r = re.match(r'^\s*([-_\w*]+)\s*\(\s*([-_\w*]+)\s*\)\s*$', command)
-            if r:
-                A = r.group(2)
-            else:
-                # match case: c
-                r = re.match(r'^\s*([-_\w*]+)\s*$', command)
-                assert r
-        composite = r.group(1)
-        if composite == '*':
-            composite = None
-        if A == '*':
-            A = None
-        if B == '*':
-            B = None
-        self.setCompositeEx(composite, A, B)
+        command = CompositeCommand.from_str(command)
+        self.setCompositeEx(command.composite, command.A, command.B)
