@@ -87,7 +87,6 @@ class StreamblankToolbarController(object):
         btn_name = btn.get_name()
         if btn_name == 'live':
             self.warning_overlay.disable()
-
         else:
             self.warning_overlay.enable(btn_name)
 
@@ -108,6 +107,8 @@ class StreamblankToolbarController(object):
         self.current_status = source if source is not None else status
         if status == 'live':
             btn = self.livebtn
+            self.warning_overlay.disable()
         else:
             btn = self.blank_btns[source]
+            self.warning_overlay.enable(btn.get_name())
         mark_label(btn)
