@@ -48,6 +48,7 @@ class CompositionToolbarController(object):
                 self.commands[name] = command
                 new_btn.connect('toggled', self.on_btn_toggled)
                 new_btn.set_label("F%s" % accel_f_key)
+                new_btn.set_can_focus(False)
                 new_btn.set_tooltip_text("Switch composite to %s" % command)
                 new_btn.get_child().add_accelerator(
                     'clicked', accelerators,

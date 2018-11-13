@@ -39,6 +39,7 @@ class StreamblankToolbarController(object):
         key, mod = Gtk.accelerator_parse('F12')
         livebtn.connect('toggled', self.on_btn_toggled)
         livebtn.set_name('live')
+        livebtn.set_can_focus(False)
         livebtn.set_label("F12")
         livebtn.set_tooltip_text("Go live")
         livebtn.get_child().add_accelerator('clicked', accelerators,
@@ -64,6 +65,7 @@ class StreamblankToolbarController(object):
                 toolbar.insert(new_btn, blankbtn_pos)
 
             new_btn.set_name(name)
+            new_btn.set_can_focus(False)
             new_btn.set_label("F%s" % accel_f_key)
             new_btn.connect('toggled', self.on_btn_toggled)
             new_btn.set_tooltip_text("Stop streaming by %s" % name)
