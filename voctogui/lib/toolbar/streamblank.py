@@ -80,6 +80,7 @@ class StreamblankToolbarController(object):
 
     def on_btn_toggled(self, btn):
         if not btn.get_active():
+            btn.set_label(btn.get_label().replace('▶ ','').replace(' ◀',''))
             return
 
         btn_name = btn.get_name()
@@ -105,6 +106,8 @@ class StreamblankToolbarController(object):
 
         self.current_status = source if source is not None else status
         if status == 'live':
-            self.livebtn.set_active(True)
+            btn = self.livebtn
         else:
-            self.blank_btns[source].set_active(True)
+            btn = self.blank_btns[source]
+        btn.set_label("▶ " + btn.get_label() + " ◀")
+        btn.set_active(True)
