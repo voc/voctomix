@@ -1,5 +1,5 @@
 import logging
-from gi.repository import Gst
+from gi.repository import Gst, Gdk
 
 from lib.args import Args
 from lib.config import Config
@@ -135,6 +135,7 @@ class VideoDisplay(object):
         self.pipeline = Gst.parse_launch(pipeline)
         self.pipeline.use_clock(Clock)
 
+        self.drawing_area.add_events(Gdk.EventMask.KEY_PRESS_MASK|Gdk.EventMask.KEY_RELEASE_MASK)
         self.drawing_area.realize()
         self.xid = self.drawing_area.get_property('window').get_xid()
         self.log.debug('Realized Drawing-Area with xid %u', self.xid)
