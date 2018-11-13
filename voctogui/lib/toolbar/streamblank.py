@@ -4,6 +4,7 @@ from gi.repository import Gtk, GdkPixbuf
 import lib.connection as Connection
 
 from lib.config import Config
+from lib.toolbar.helpers import mark_label, unmark_label
 
 
 class StreamblankToolbarController(object):
@@ -80,7 +81,7 @@ class StreamblankToolbarController(object):
 
     def on_btn_toggled(self, btn):
         if not btn.get_active():
-            btn.set_label(btn.get_label().replace('▶ ','').replace(' ◀',''))
+            unmark_label(btn)
             return
 
         btn_name = btn.get_name()
@@ -109,5 +110,4 @@ class StreamblankToolbarController(object):
             btn = self.livebtn
         else:
             btn = self.blank_btns[source]
-        btn.set_label("▶ " + btn.get_label() + " ◀")
-        btn.set_active(True)
+        mark_label(btn)
