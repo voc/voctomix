@@ -37,7 +37,7 @@ class CompositeCommand:
         return CompositeCommand(composite,A,B)
 
     def __str__(self):
-        return "%s(%s,%s)'" % (self.composite if self.composite else "*",
+        return "%s(%s,%s)" % (self.composite if self.composite else "*",
                                self.A if self.A else "*",
                                self.B if self.B else "*")
 

@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import logging
 import re
 
@@ -11,6 +12,7 @@ from lib.scene import Scene
 from lib.composite_commands import CompositeCommand
 
 useTransitions = True
+
 
 class VideoMix(object):
     log = logging.getLogger('VideoMix')
@@ -94,7 +96,7 @@ class VideoMix(object):
         self.log.debug('Initializing Mixer-State')
         # initialize pipeline bindings for all sources
         self.scene = Scene(self.sources, self.mixingPipeline, fps)
-        self.composite = None
+        self.compositeMode = None
         self.sourceA = None
         self.sourceB = None
         self.setComposite("fs(cam,slides)")
@@ -133,8 +135,29 @@ class VideoMix(object):
         (error, debug) = message.parse_error()
         self.log.debug('Error-Details: #%u: %s', error.code, debug)
 
+    def getVideoSources(self):
+        return [self.sourceA, self.sourceB]
+
+    def setVideoSourceA(self, source):
+        setCompositeEx(None,source,None)
+
+    def getVideoSourceA(self):
+        return self.sourceA
+
+    def setVideoSourceB(self, source):
+        setCompositeEx(None,None,source)
+
+    def getVideoSourceB(self):
+        return self.sourceB
+
+    def setCompositeMode(self, mode):
+        setCompositeEx(mode,None,None)
+
+    def getCompositeMode(self):
+        return self.compositeMode
+
     def getComposite(self):
-        return "%s(%s,%s)" % (self.composite, self.sourceA, self.sourceB)
+        return str(CompositeCommand(self.compositeMode, self.sourceA, self.sourceB))
 
     def setCompositeEx(self, newCompositeName=None, newA=None, newB=None):
         # expect strings or None as parameters
@@ -147,10 +170,10 @@ class VideoMix(object):
 
         # get current composite
         curCompositeName = None
-        if not self.composite:
+        if not self.compositeMode:
             self.log.info("no current composite (initial)")
         else:
-            curCompositeName = self.composite
+            curCompositeName = self.compositeMode
             curA = self.sourceA
             curB = self.sourceB
             self.log.info("current composite is %s(%s,%s)",
@@ -200,6 +223,8 @@ class VideoMix(object):
         if transition:
             self.log.debug(
                 "committing transition '%s' to scene", transition.name())
+#                if transition.phi():
+#                    newA, newB = newB, newA
             self.scene.commit(targetA, transition.Az(1,2))
             self.scene.commit(targetB, transition.Bz(2,1))
         else:
@@ -210,7 +235,7 @@ class VideoMix(object):
 
         self.log.info("current composite is now %s(%s,%s)",
                       newComposite.name, newA, newB)
-        self.composite = newComposite.name
+        self.compositeMode = newComposite.name
         self.sourceA = newA
         self.sourceB = newB
 
@@ -221,4 +246,5 @@ class VideoMix(object):
         assert type(command) == str
 
         command = CompositeCommand.from_str(command)
+        self.log.debug("setting new composite by string '%s'", command)
         self.setCompositeEx(command.composite, command.A, command.B)
