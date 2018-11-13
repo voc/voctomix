@@ -106,6 +106,7 @@
               <object class="GtkToolButton" id="voc-btn">
                 <property name="visible">True</property>
                 <property name="icon-widget">voc</property>
+                <property name="label">voctomix2</property>
               </object>
               <packing>
                 <property name="expand">False</property>
