@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 import logging
 
 from gi.repository import Gtk, GdkPixbuf
@@ -6,7 +7,7 @@ import lib.connection as Connection
 
 from lib.config import Config
 from lib.composite_commands import CompositeCommand
-from lib.toolbar.helpers import mark_label, unmark_label
+from lib.toolbar.helpers import mark_label, unmark_label, icon_path
 
 class CompositionToolbarController(object):
     """Manages Accelerators and Clicks on the Composition Toolbar-Buttons"""
@@ -16,10 +17,6 @@ class CompositionToolbarController(object):
 
         accelerators = Gtk.AccelGroup()
         win.add_accel_group(accelerators)
-
-        icon_path = Config.get('toolbar', 'icon-path')
-        if len(icon_path) > 1 and icon_path[-1] != '/':
-            icon_path += '/'
 
         buttons = Config.items('toolbar')
 
@@ -41,7 +38,8 @@ class CompositionToolbarController(object):
                     new_btn = Gtk.RadioToolButton.new_from_widget(first_btn)
                 new_btn.set_name(name)
 
-                pixbuf = GdkPixbuf.Pixbuf.new_from_file(icon_path + image_filename.strip())
+                pixbuf = GdkPixbuf.Pixbuf.new_from_file(os.path.join(icon_path(),
+                                                        image_filename.strip()))
                 image = Gtk.Image()
                 image.set_from_pixbuf(pixbuf)
                 new_btn.set_icon_widget(image)

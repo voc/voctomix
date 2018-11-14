@@ -1,10 +1,11 @@
 import logging
+import os
 
 from gi.repository import Gtk, GdkPixbuf
 import lib.connection as Connection
 
 from lib.config import Config
-from lib.toolbar.helpers import mark_label, unmark_label
+from lib.toolbar.helpers import mark_label, unmark_label, top_dir_path
 
 
 class StreamblankToolbarController(object):
@@ -58,7 +59,8 @@ class StreamblankToolbarController(object):
                 new_icon = Gtk.Image.new_from_pixbuf(blankbtn.get_icon_widget()
                                                      .get_pixbuf())
                 new_btn = Gtk.RadioToolButton(group=livebtn)
-                pixbuf = GdkPixbuf.Pixbuf.new_from_file("./voctogui/ui/nostream.svg")
+                pixbuf = GdkPixbuf.Pixbuf.new_from_file(os.path.join(icon_path(),
+                                                        "nostream.svg"))
                 image = Gtk.Image()
                 image.set_from_pixbuf(pixbuf)
                 new_btn.set_icon_widget(image)
