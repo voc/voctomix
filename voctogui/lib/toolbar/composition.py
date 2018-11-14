@@ -29,32 +29,35 @@ class CompositionToolbarController(object):
         self.commands = dict()
         first_btn = None
         for name, value in buttons:
-            key, mod = Gtk.accelerator_parse('F%u' % accel_f_key)
-            command, image_filename = value.split(':')
-            if not first_btn:
-                first_btn = new_btn = Gtk.RadioToolButton(None)
+            if value == "-":
+                toolbar.insert(Gtk.SeparatorToolItem(), pos)
             else:
-                new_btn = Gtk.RadioToolButton.new_from_widget(first_btn)
-            new_btn.set_name(name)
+                key, mod = Gtk.accelerator_parse('F%u' % accel_f_key)
+                command, image_filename = value.split(':')
+                if not first_btn:
+                    first_btn = new_btn = Gtk.RadioToolButton(None)
+                else:
+                    new_btn = Gtk.RadioToolButton.new_from_widget(first_btn)
+                new_btn.set_name(name)
 
-            pixbuf = GdkPixbuf.Pixbuf.new_from_file(os.path.join(icon_path(),
-                                                    image_filename.strip()))
-            image = Gtk.Image()
-            image.set_from_pixbuf(pixbuf)
-            new_btn.set_icon_widget(image)
-            self.commands[name] = command
-            new_btn.connect('toggled', self.on_btn_toggled)
-            new_btn.set_label("F%s" % accel_f_key)
-            new_btn.set_can_focus(False)
-            new_btn.set_tooltip_text("Switch composite to %s" % command)
-            new_btn.get_child().add_accelerator(
-                'clicked', accelerators,
-                key, mod, Gtk.AccelFlags.VISIBLE)
+                pixbuf = GdkPixbuf.Pixbuf.new_from_file(os.path.join(icon_path(),
+                                                        image_filename.strip()))
+                image = Gtk.Image()
+                image.set_from_pixbuf(pixbuf)
+                new_btn.set_icon_widget(image)
+                self.commands[name] = command
+                new_btn.connect('toggled', self.on_btn_toggled)
+                new_btn.set_label("F%s" % accel_f_key)
+                new_btn.set_can_focus(False)
+                new_btn.set_tooltip_text("Switch composite to %s" % command)
+                new_btn.get_child().add_accelerator(
+                    'clicked', accelerators,
+                    key, mod, Gtk.AccelFlags.VISIBLE)
 
-            self.composite_btns[name] = new_btn
-            toolbar.insert(new_btn, pos)
+                self.composite_btns[name] = new_btn
+                toolbar.insert(new_btn, pos)
+                accel_f_key  += 1
             pos += 1
-            accel_f_key  += 1
 
         # mark the first button which is active initially
         mark_label(first_btn)
