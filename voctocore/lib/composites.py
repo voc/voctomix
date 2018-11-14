@@ -40,6 +40,7 @@ class Composites:
                 raise RuntimeError(
                     "syntax error in composite config value at '{}':\n{}"
                     .format(name, err))
+        add_mirrored_composites(composites)
         if add_swap:
             # add any useful swapped targets
             add_swapped_targets(composites)
@@ -74,6 +75,7 @@ class Composite:
         self.default = [None, None]
         self.inter = False
         self.noswap = False
+        self.mirror = False
         self.order = order
 
     def str_title():
@@ -121,16 +123,6 @@ class Composite:
         frame.zorder = zorder
         return frame
 
-    def swap(self):
-        """ swap A and B source items
-        """
-        if self.noswap:
-            return self
-        else:
-            # then swap frames
-            self.frame = self.frame[::-1]
-            self.name = swap_name(self.name)
-
     def swapped(self):
         """ swap A and B source items
         """
@@ -140,8 +132,19 @@ class Composite:
             # deep copy everything
             s = copy.deepcopy(self)
             # then swap frames
-            s.swap()
+            s.frame = self.frame[::-1]
+            s.name = swap_name(self.name)
             return s
+
+    def mirrored(self):
+        """ mirror A and B source items
+        """
+        # deep copy everything
+        s = copy.copy(self)
+        # then mirror frames
+        s.frame = [f.mirrored() for f in self.frame]
+        s.name = mirror_name(self.name)
+        return s
 
     def key(self):
         for f in self.frame:
@@ -173,6 +176,8 @@ class Composite:
             self.inter = value
         elif attr == 'noswap':
             self.noswap = value
+        elif attr == 'mirror':
+            self.mirror = value
         self.frame[0].original_size = size
         self.frame[1].original_size = size
 
@@ -198,7 +203,7 @@ class Composite:
 def add_swapped_targets(composites):
     result = dict()
     for c_name, c in composites.items():
-        if not c.inter:
+        if not (c.inter or c.noswap):
             inc = True
             for v_name, v in composites.items():
                 if v.equals(c.swapped(), True) and not v.inter:
@@ -212,8 +217,18 @@ def add_swapped_targets(composites):
                 result[swap_name(c_name)] = r
     return composites.update(result)
 
+def add_mirrored_composites(composites):
+    result = dict()
+    for c_name, c in composites.items():
+        if c.mirror:
+            r = c.mirrored()
+            r.order = len(composites) + len(result)
+            result[mirror_name(c_name)] = r
+    return composites.update(result)
+
 
 def swap_name(name): return name[1:] if name[0] == '^' else "^" + name
+def mirror_name(name): return name[1:] if name[0] == '|' else "|" + name
 
 
 def absolute(str, max):

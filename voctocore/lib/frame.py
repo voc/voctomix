@@ -1,5 +1,8 @@
+#!/usr/bin/env python3
 # for debug logging
 import logging
+# for cloning objects
+import copy
 
 # substitute array coordinate mappings fer better reading
 X, Y = 0, 1
@@ -84,3 +87,10 @@ class Frame:
                 self.rect[R] == self.rect[L] or
                 self.rect[T] == self.rect[B] or
                 self.alpha == 0)
+
+    def mirrored(self):
+        # deep copy everything
+        f = copy.deepcopy(self)
+        # then mirror frame
+        f.rect[L], f.rect[R] = f.original_size[X] - f.rect[R], f.original_size[X] - f.rect[L]
+        return f
