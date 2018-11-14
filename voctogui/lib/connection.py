@@ -117,8 +117,10 @@ def on_loop():
 
     signal = words[0]
     args = words[1:]
-
-    log.info('received signal %s, dispatching', signal)
+    if signal == "error":
+        log.error('received error: %s', line )
+    else:
+        log.info('received signal %s, dispatching', signal)
     if signal not in signal_handlers:
         return True
 
