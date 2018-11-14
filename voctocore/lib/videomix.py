@@ -223,8 +223,6 @@ class VideoMix(object):
         if transition:
             self.log.debug(
                 "committing transition '%s' to scene", transition.name())
-#                if transition.phi():
-#                    newA, newB = newB, newA
             self.scene.commit(targetA, transition.Az(1,2))
             self.scene.commit(targetB, transition.Bz(2,1))
         else:

@@ -5,7 +5,7 @@ from gi.repository import Gtk, GdkPixbuf
 import lib.connection as Connection
 
 from lib.config import Config
-from lib.toolbar.helpers import mark_label, unmark_label, top_dir_path
+from lib.toolbar.helpers import mark_label, unmark_label, icon_path
 
 
 class StreamblankToolbarController(object):

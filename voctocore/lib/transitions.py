@@ -106,7 +106,8 @@ class Transitions:
             if transition.begin().equals(end, True, flip) and transition.end().equals(begin, True):
                 log.debug("solved #4 %s\n%s", transition.name(), transition)
                 return transition.reversed(), False
-
+        return None, False
+        
     def travel(composites, previous=None):
         """ return a list of pairs of composites along all possible transitions
             between all given composites by walking the tree of all combinations
