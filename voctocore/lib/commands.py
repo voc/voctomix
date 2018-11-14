@@ -188,10 +188,16 @@ class ControlServerCommands(object):
         ]
 
     def set_composite(self, command):
+        """sets the composite and sources by using the composite command format
+           (e.g. 'sbs(cam1,cam2)') as the only parameter
+        """
         self.pipeline.vmix.setComposite(command)
         return NotifyResponse('composite', self.pipeline.vmix.getComposite())
 
     def get_composite(self):
+        """fetch current composite and sources using the composite command format
+           (e.g. 'sbs(cam1,cam2)') as return value
+        """
         return OkResponse('composite', self.pipeline.vmix.getComposite())
 
     def set_videos_and_composite(self, src_a_name, src_b_name,
