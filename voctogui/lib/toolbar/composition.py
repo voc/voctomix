@@ -68,19 +68,21 @@ class CompositionToolbarController(object):
         Connection.send('get_composite_mode_and_video_status')
 
     def on_btn_toggled(self, btn):
-        if not btn.get_active():
+        if btn.get_active():
+            command = self.commands[btn.get_name()]
+            self.log.info('sending new composite: %s', command)
+            Connection.send('set_composite', command)
+            mark_label(btn)
+        else:
             unmark_label(btn)
-            return
-        command = self.commands[btn.get_name()]
-        self.log.info('sending new composite: %s', command)
-        Connection.send('set_composite', command)
 
     def on_composite(self, command):
         self.log.info('on_composite callback %s', command)
         command = CompositeCommand.from_str(command)
         for name, btn in self.composite_btns.items():
             if CompositeCommand.from_str(self.commands[btn.get_name()]) == command:
-                mark_label(btn)
+                if not btn.get_active():
+                    btn.set_active(True)
 
     def on_composite_mode_and_video_status(self, mode, source_a, source_b):
         self.on_composite( str(CompositeCommand(mode, source_a, source_b)) )

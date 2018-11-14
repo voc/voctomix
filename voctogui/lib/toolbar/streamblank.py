@@ -82,25 +82,26 @@ class StreamblankToolbarController(object):
         Connection.send('get_stream_status')
 
     def on_btn_toggled(self, btn):
-        if not btn.get_active():
+        if btn.get_active():
+            mark_label(btn)
+            btn_name = btn.get_name()
+            if btn_name == 'live':
+                self.warning_overlay.disable()
+            else:
+                self.warning_overlay.enable(btn_name)
+
+            if self.current_status == btn_name:
+                self.log.info('stream-status already activate: %s', btn_name)
+                return
+
+            self.log.info('stream-status activated: %s', btn_name)
+            if btn_name == 'live':
+                Connection.send('set_stream_live')
+            else:
+                Connection.send('set_stream_blank', btn_name)
+        else:
             unmark_label(btn)
-            return
 
-        btn_name = btn.get_name()
-        if btn_name == 'live':
-            self.warning_overlay.disable()
-        else:
-            self.warning_overlay.enable(btn_name)
-
-        if self.current_status == btn_name:
-            self.log.info('stream-status already activate: %s', btn_name)
-            return
-
-        self.log.info('stream-status activated: %s', btn_name)
-        if btn_name == 'live':
-            Connection.send('set_stream_live')
-        else:
-            Connection.send('set_stream_blank', btn_name)
 
     def on_stream_status(self, status, source=None):
         self.log.info('on_stream_status callback w/ status %s and source %s',
@@ -113,4 +114,5 @@ class StreamblankToolbarController(object):
         else:
             btn = self.blank_btns[source]
             self.warning_overlay.enable(btn.get_name())
-        mark_label(btn)
+        if not btn.get_active():
+            btn.set_active(True)
