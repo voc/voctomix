@@ -318,6 +318,7 @@ def render_sequence(size, fps, sequence, transitions, composites):
     global log
     log.debug("rendering generated sequence (%d items):\n\t%s\t" %
               (len(sequence), '\n\t'.join(sequence)))
+
     # begin at first transition
     prev_name = sequence[0]
     prev = composites[prev_name]
@@ -332,7 +333,7 @@ def render_sequence(size, fps, sequence, transitions, composites):
         log.debug("request transition (%d/%d): %s → %s" %
                   (len(found) + 1, len(sequence) - 1, prev_name, c_name))
         # actually search for a transitions that does a fade between prev and c
-        transition = transitions.solve(prev, c, prev == c)
+        transition, swap = transitions.solve(prev, c, prev == c)
         # count findings
         if not transition:
             # report fetched transition
