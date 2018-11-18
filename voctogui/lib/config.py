@@ -10,7 +10,6 @@ Config = None
 
 
 class VocConfigParser(SafeConfigParser):
-
     def getlist(self, section, option):
         option = self.get(section, option).strip()
         if len(option) == 0:
@@ -34,9 +33,9 @@ def load():
 
     files = [
         os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                     '../config.ini'),
-        os.path.join(os.path.dirname(os.path.realpath(__file__)),
                      '../default-config.ini'),
+        os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                     '../config.ini'),
         '/etc/voctomix/voctogui.ini',
         '/etc/voctogui.ini',
         os.path.expanduser('~/.voctogui.ini'),
