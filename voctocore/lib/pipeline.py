@@ -64,7 +64,7 @@ class Pipeline(object):
                 preview = AVPreviewOutput('%s_preview' % name, port)
                 self.previews.append(preview)
 
-        self.log.info('Creating Videmixer')
+        self.log.info('Creating Videomixer')
         self.vmix = VideoMix()
 
         self.log.info('Creating Audiomixer')
