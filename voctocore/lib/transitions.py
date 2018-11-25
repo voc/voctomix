@@ -21,9 +21,10 @@ class Transitions:
     """ transition table and interface
     """
 
-    def __init__(self, targets):
+    def __init__(self, targets, fps):
         self.transitions = []
         self.targets = targets
+        self.fps = fps
 
     def __str__(self):
         """ write transition table into a string
@@ -54,7 +55,7 @@ class Transitions:
         if not targets:
             targets = Composites.targets(composites)
         # prepare result
-        transitions = Transitions(targets)
+        transitions = Transitions(targets,fps)
 
         # walk through all items within the configuration string
         for t_name, t in cfg:
@@ -107,7 +108,7 @@ class Transitions:
                 log.debug("solved #4 %s\n%s", transition.name(), transition)
                 return transition.reversed(), False
         return None, False
-        
+
     def travel(composites, previous=None):
         """ return a list of pairs of composites along all possible transitions
             between all given composites by walking the tree of all combinations

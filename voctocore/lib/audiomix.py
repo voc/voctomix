@@ -19,6 +19,8 @@ class AudioMix(object):
 
         # initialize all sources to silent
         self.volumes = [0.0] * len(self.names)
+
+    def launch(self):
         is_configured = False
 
         # try per-source volume-setting
@@ -119,7 +121,6 @@ class AudioMix(object):
         self.log.debug('Initializing Mixer-State')
         self.updateMixerState()
 
-    def launch(self):
         self.log.debug('Launching Mixing-Pipeline')
         self.mixingPipeline.set_state(Gst.State.PLAYING)
 

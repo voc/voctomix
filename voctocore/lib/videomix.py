@@ -38,6 +38,8 @@ class VideoMix(object):
         self.transitions = Transitions.configure(Config.items(
             'transitions'), self.composites, fps=fps)
 
+    def launch(self):
+
         # build GStreamer mixing pipeline descriptor
         pipeline = """
             compositor name=mix !
@@ -95,7 +97,7 @@ class VideoMix(object):
 
         self.log.debug('Initializing Mixer-State')
         # initialize pipeline bindings for all sources
-        self.scene = Scene(self.sources, self.mixingPipeline, fps)
+        self.scene = Scene(self.sources, self.mixingPipeline, self.transitions.fps)
         self.compositeMode = None
         self.sourceA = None
         self.sourceB = None
@@ -105,7 +107,6 @@ class VideoMix(object):
                       .get_static_pad('sink_0'))
         bgMixerpad.set_property('zorder', 0)
 
-    def launch(self):
         self.log.debug('Launching Mixing-Pipeline')
         self.mixingPipeline.set_state(Gst.State.PLAYING)
 

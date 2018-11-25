@@ -15,6 +15,7 @@ class AVRawOutput(TCPMultiConnection):
 
         self.channel = channel
 
+    def launch(self):
         pipeline = """
             intervideosrc channel=video_{channel} !
             {vcaps} !
@@ -49,7 +50,7 @@ class AVRawOutput(TCPMultiConnection):
                 sync-method=next-keyframe
                 name=fd
         """.format(
-            buffers_max=Config.getint('output-buffers', channel, fallback=500)
+            buffers_max=Config.getint('output-buffers', self.channel, fallback=500)
         )
         self.log.debug('Creating Output-Pipeline:\n%s', pipeline)
         self.outputPipeline = Gst.parse_launch(pipeline)
@@ -61,7 +62,6 @@ class AVRawOutput(TCPMultiConnection):
         self.outputPipeline.bus.connect("message::eos", self.on_eos)
         self.outputPipeline.bus.connect("message::error", self.on_error)
 
-    def launch(self):
         self.log.debug('Launching Output-Pipeline')
         self.outputPipeline.set_state(Gst.State.PLAYING)
 

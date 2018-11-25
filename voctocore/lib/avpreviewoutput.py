@@ -15,6 +15,7 @@ class AVPreviewOutput(TCPMultiConnection):
 
         self.channel = channel
 
+    def launch(self):
         if Config.has_option('previews', 'videocaps'):
             target_caps = Config.get('previews', 'videocaps')
         else:
@@ -67,7 +68,6 @@ class AVPreviewOutput(TCPMultiConnection):
         self.outputPipeline.bus.connect("message::eos", self.on_eos)
         self.outputPipeline.bus.connect("message::error", self.on_error)
 
-    def launch(self):
         self.log.debug('Launching Output-Pipeline')
         self.outputPipeline.set_state(Gst.State.PLAYING)
 
