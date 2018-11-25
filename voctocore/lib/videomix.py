@@ -99,7 +99,7 @@ class VideoMix(object):
         self.compositeMode = None
         self.sourceA = None
         self.sourceB = None
-        self.setComposite("fs(cam,slides)")
+        self.setCompositeEx(Composites.targets(self.composites)[0].name, self.sources[0], self.sources[1] )
 
         bgMixerpad = (self.mixingPipeline.get_by_name('mix')
                       .get_static_pad('sink_0'))
