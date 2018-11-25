@@ -66,6 +66,7 @@ class AVPreviewOutput(TCPMultiConnection):
         self.outputPipeline.bus.connect("message::eos", self.on_eos)
         self.outputPipeline.bus.connect("message::error", self.on_error)
 
+    def launch(self):
         self.log.debug('Launching Output-Pipeline')
         self.outputPipeline.set_state(Gst.State.PLAYING)
 

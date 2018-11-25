@@ -151,6 +151,7 @@ class StreamBlanker(object):
         self.blankSource = 0 if len(self.names) > 0 else None
         self.applyMixerState()
 
+    def launch(self):
         self.log.debug('Launching Mixing-Pipeline')
         self.mixingPipeline.set_state(Gst.State.PLAYING)
 

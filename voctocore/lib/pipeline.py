@@ -29,6 +29,9 @@ class Pipeline(object):
         self.previews = []
         self.sbsources = []
 
+        # launch all modules at once
+        launch = []
+
         self.log.info('Creating %u AVSources: %s', len(names), names)
         for idx, name in enumerate(names):
             port = 10000 + idx
@@ -54,6 +57,7 @@ class Pipeline(object):
                               'at tcp-port %u', name, port)
 
                 mirror = AVRawOutput('%s_mirror' % name, port)
+                launch.append(mirror)
                 self.mirrors.append(mirror)
 
             if Config.getboolean('previews', 'enabled'):
@@ -62,13 +66,16 @@ class Pipeline(object):
                               'at tcp-port %u', name, port)
 
                 preview = AVPreviewOutput('%s_preview' % name, port)
+                launch.append(preview)
                 self.previews.append(preview)
 
         self.log.info('Creating Videomixer')
         self.vmix = VideoMix()
+        launch.append(self.vmix)
 
         self.log.info('Creating Audiomixer')
         self.amix = AudioMix()
+        launch.append(self.amix)
 
         port = 16000
         self.bgsrc = spawn_source('background', port, has_audio=False)
@@ -77,6 +84,7 @@ class Pipeline(object):
         port = 11000
         self.log.info('Creating Mixer-Output at tcp-port %u', port)
         self.mixout = AVRawOutput('mix_out', port)
+        launch.append(self.mixout)
 
         if Config.getboolean('previews', 'enabled'):
             port = 12000
@@ -84,7 +92,7 @@ class Pipeline(object):
                           'at tcp-port %u', port)
 
             self.mixpreview = AVPreviewOutput('mix_preview', port)
-
+            launch.append(self.mixpreview)
         if Config.getboolean('stream-blanker', 'enabled'):
             names = Config.getlist('stream-blanker', 'sources')
             if len(names) < 1:
@@ -112,14 +120,18 @@ class Pipeline(object):
 
             self.log.info('Creating StreamBlanker')
             self.streamblanker = StreamBlanker()
-
+            launch.append(self.streamblanker)
             port = 15000
             self.log.info('Creating StreamBlanker-Output at tcp-port %u', port)
             self.streamout = AVRawOutput('stream-blanker_out', port)
-
+            launch.append(self.streamout)
             if Config.has_option('mix', 'slides_source_name'):
                 port = 15001
                 self.log.info(
                     'Creating SlideStreamBlanker-Output at tcp-port %u', port)
                 self.slides_streamout = AVRawOutput(
                     'slides_stream-blanker_out', port)
+
+        # launch all modules at once
+        for l in launch:
+            l.launch()
