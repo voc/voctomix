@@ -205,31 +205,39 @@ class VideoMix(object):
         curComposite = self.composites[curCompositeName] if curCompositeName else None
         newComposite = self.composites[newCompositeName]
 
-        self.log.info("setting new composite to %s(%s,%s)",
-                      newComposite.name, newA, newB)
-        transition = None
-        targetA, targetB = newA, newB
-        if useTransitions:
-            if curComposite:
-                swap = False
-                if (curA, curB) == (newA, newB):
-                    transition, swap = self.transitions.solve(curComposite, newComposite, False)
-                elif (curA, curB) == (newB, newA):
-                    transition, swap = self.transitions.solve(curComposite, newComposite, True)
-                    if not swap:
-                        targetA, targetB = newB, newA
-            if not transition:
-                self.log.warning("no transition found")
-        if transition:
-            self.log.debug(
-                "committing transition '%s' to scene", transition.name())
-            self.scene.commit(targetA, transition.Az(1,2))
-            self.scene.commit(targetB, transition.Bz(2,1))
+        if newComposite and newA in self.sources and newB in self.sources:
+            self.log.info("setting new composite to %s(%s,%s)",
+                          newComposite.name, newA, newB)
+            transition = None
+            targetA, targetB = newA, newB
+            if useTransitions:
+                if curComposite:
+                    swap = False
+                    if (curA, curB) == (newA, newB):
+                        transition, swap = self.transitions.solve(curComposite, newComposite, False)
+                    elif (curA, curB) == (newB, newA):
+                        transition, swap = self.transitions.solve(curComposite, newComposite, True)
+                        if not swap:
+                            targetA, targetB = newB, newA
+                if not transition:
+                    self.log.warning("no transition found")
+            if transition:
+                self.log.debug(
+                    "committing transition '%s' to scene", transition.name())
+                self.scene.commit(targetA, transition.Az(1,2))
+                self.scene.commit(targetB, transition.Bz(2,1))
+            else:
+                self.log.debug(
+                    "committing composite '%s' to scene", newComposite.name)
+                self.scene.commit(targetA, [newComposite.Az(1)])
+                self.scene.commit(targetB, [newComposite.Bz(2)])
         else:
-            self.log.debug(
-                "committing composite '%s' to scene", newComposite.name)
-            self.scene.commit(targetA, [newComposite.Az(1)])
-            self.scene.commit(targetB, [newComposite.Bz(2)])
+            if not newComposite:
+                self.log.error("unknown composite '%s'", newCompositeName)
+            if not newA in self.sources:
+                self.log.error("unknown source '%s'", newA)
+            if not newB in self.sources:
+                self.log.error("unknown source '%s'", newB)
 
         self.log.info("current composite is now %s(%s,%s)",
                       newComposite.name, newA, newB)
