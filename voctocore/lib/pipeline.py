@@ -132,6 +132,7 @@ class Pipeline(object):
                     'Creating SlideStreamBlanker-Output at tcp-port %u', port)
                 self.slides_streamout = AVRawOutput(
                     'slides_stream-blanker_out', port)
+                launch.append(self.slides_streamout)
 
         # launch all modules at once
         for l in launch:
