@@ -45,6 +45,9 @@ class Transitions:
             if t.begin().equals(transition.begin(), True) and t.end().equals(transition.end(), True):
                 # skip if found
                 return
+            elif t.begin().equals(transition.end(), True) and t.end().equals(transition.begin(), True):
+                self.transitions.append(t.reversed())
+                return
         # otherwise calculate transition and add it to out pool
         transition.calculate(frames - 1)
         self.transitions.append(transition)
