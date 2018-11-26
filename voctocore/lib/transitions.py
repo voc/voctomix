@@ -31,12 +31,21 @@ class Transitions:
         """
         return "\n".join([t.name() for t in self.transitions])
 
+    def __len__(self):
+        return len(self.transitions)
+
     def count(self):
         """ count available transition
         """
         return len(self.transitions)
 
     def add(self,transition,frames):
+        # check if a compatible transition is already in our pool
+        for t in self.transitions:
+            if t.begin().equals(transition.begin(), True) and t.end().equals(transition.end(), True):
+                # skip if found
+                return
+        # otherwise calculate transition and add it to out pool
         transition.calculate(frames - 1)
         self.transitions.append(transition)
 
@@ -87,6 +96,7 @@ class Transitions:
                     raise RuntimeError(
                         'composite "{}" could not be found in transition {}'.format(err, name))
                 transitions.add(transition,frames - 1)
+        log.debug("loaded %d transitions from configuration.", len(transitions))
         # return dictonary
         return transitions
 
