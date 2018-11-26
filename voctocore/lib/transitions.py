@@ -280,13 +280,15 @@ class Transition:
             b_corner of frames in B to interpolate the animation movement.
         """
         if len(self.composites) != frames:
-            if len(self.composites) != len(self.keys()):
+            num_keys = len(self.keys())
+            if len(self.composites) != num_keys:
                 log.warning("recalculating transition %s" % self.name())
                 self.composites = self.keys()
             # calculate that transition and place it into the dictonary
-            log.debug("calculating transition %s\t= %s" %
-                      (self.name(), " / ".join([c.name for c in self.composites])))
-            #log.debug(self)
+            log.debug("calculating transition %s\t= %s \t(%s key frames)" %
+                      (self.name(),
+                       " / ".join([c.name for c in self.composites]),
+                       num_keys))
 
             # extract two lists of frames for use with interpolate()
             a = [c.A() for c in self.composites]
