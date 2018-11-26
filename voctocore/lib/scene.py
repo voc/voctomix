@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import logging
 import gi
 gi.require_version('GstController', '1.0')
@@ -79,7 +80,7 @@ class Scene:
         for source, frames in self.frames.items():
             if not frames:
                 frames = [Frame(zorder=-1,alpha=0)]
-            self.log.info("pushing %d frame(s) to source %s at time %dms", len(
+            self.log.info("pushing %d frame(s) to source '%s' at time %dms", len(
                 frames), source, at_time / Gst.MSECOND)
             # reset time
             time = at_time
