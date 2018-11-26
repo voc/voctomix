@@ -171,12 +171,10 @@ class VideoMix(object):
                       newCompositeName, newA, newB)
 
         # get current composite
-        curCompositeName = None
         if not self.compositeMode:
-            initial = True
+            curCompositeName = None
             self.log.info("no current composite (initial)")
         else:
-            initial = False
             curCompositeName = self.compositeMode
             curA = self.sourceA
             curB = self.sourceB
@@ -223,8 +221,8 @@ class VideoMix(object):
                         transition, swap = self.transitions.solve(curComposite, newComposite, True)
                         if not swap:
                             targetA, targetB = newB, newA
-                if not initial and not transition:
-                    self.log.warning("no transition found")
+                    if not transition:
+                        self.log.warning("no transition found")
             if transition:
                 self.log.debug(
                     "committing transition '%s' to scene", transition.name())
