@@ -70,13 +70,13 @@ class Pipeline(object):
                 launch.append(preview)
                 self.previews.append(preview)
 
-        self.log.info('Creating Videomixer')
-        self.vmix = VideoMix()
-        launch.append(self.vmix)
-
         self.log.info('Creating Audiomixer')
         self.amix = AudioMix()
         launch.append(self.amix)
+
+        self.log.info('Creating Videomixer')
+        self.vmix = VideoMix()
+        launch.append(self.vmix)
 
         port = 16000
         self.bgsrc = spawn_source('background', port, has_audio=False)
