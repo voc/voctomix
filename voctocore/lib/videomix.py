@@ -30,6 +30,7 @@ class VideoMix(object):
         # load transitions from configuration
         self.transitions = Transitions.configure(Config.items(
             'transitions'), self.composites, fps=self.getFramesPerSecond())
+        self.scene = None
 
     def launch(self):
 
@@ -123,7 +124,7 @@ class VideoMix(object):
             self.mixingPipeline.get_base_time()
 
     def on_handoff(self, object, buffer):
-        if self.scene.dirty:
+        if self.scene and self.scene.dirty:
             self.log.debug('[Streaming-Thread]: Pad-State is Dirty, '
                            'applying new Mixer-State')
             self.scene.push(self.playTime())
