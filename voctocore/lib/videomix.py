@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import logging
-import re
 
 from configparser import NoOptionError
 from enum import Enum, unique
@@ -23,20 +22,14 @@ class VideoMix(object):
         self.sources = Config.getlist('mix', 'sources')
         self.log.info('Configuring Mixer for %u Sources', len(self.sources))
 
-        # get fps from video capabilities
-        r = re.match(
-            r'^.*framerate=(\d+)/(\d+).*$', self.caps)
-        assert r
-        fps = float(r.group(1)) / float(r.group(2))
-
         # load composites from config
         self.log.info("reading transitions configuration...")
         self.composites = Composites.configure(
-            Config.items('composites'), self.getInputVideoSize())
+            Config.items('composites'), self.getVideoSize())
 
         # load transitions from configuration
         self.transitions = Transitions.configure(Config.items(
-            'transitions'), self.composites, fps=fps)
+            'transitions'), self.composites, fps=self.getFramesPerSecond())
 
     def launch(self):
 
@@ -110,13 +103,19 @@ class VideoMix(object):
         self.log.debug('Launching Mixing-Pipeline')
         self.mixingPipeline.set_state(Gst.State.PLAYING)
 
-    def getInputVideoSize(self):
+    def getVideoSize(self):
         caps = Gst.Caps.from_string(self.caps)
         struct = caps.get_structure(0)
         _, width = struct.get_int('width')
         _, height = struct.get_int('height')
 
         return width, height
+
+    def getFramesPerSecond(self):
+        caps = Gst.Caps.from_string(self.caps)
+        struct = caps.get_structure(0)
+        _, num, denom = struct.get_fraction('framerate')
+        return float(num) / float(denom)
 
     def playTime(self):
         # get play time from mixing pipeline or assume zero
