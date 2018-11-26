@@ -31,6 +31,7 @@ class VideoMix(object):
         self.transitions = Transitions.configure(Config.items(
             'transitions'), self.composites, fps=self.getFramesPerSecond())
         self.scene = None
+        self.launched = False
 
     def launch(self):
 
@@ -103,6 +104,7 @@ class VideoMix(object):
 
         self.log.debug('Launching Mixing-Pipeline')
         self.mixingPipeline.set_state(Gst.State.PLAYING)
+        self.launched = True
 
     def getVideoSize(self):
         caps = Gst.Caps.from_string(self.caps)
@@ -124,10 +126,11 @@ class VideoMix(object):
             self.mixingPipeline.get_base_time()
 
     def on_handoff(self, object, buffer):
-        if self.scene and self.scene.dirty:
-            self.log.debug('[Streaming-Thread]: Pad-State is Dirty, '
-                           'applying new Mixer-State')
-            self.scene.push(self.playTime())
+        if self.launched:
+            if self.scene and self.scene.dirty:
+                self.log.debug('[Streaming-Thread]: Pad-State is Dirty, '
+                               'applying new Mixer-State at %d ms', self.playTime() / Gst.MSECOND)
+                self.scene.push(self.playTime())
 
     def on_eos(self, bus, message):
         self.log.debug('Received End-of-Stream-Signal on Mixing-Pipeline')
