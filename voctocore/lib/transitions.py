@@ -21,6 +21,11 @@ class Transitions:
     """ transition table and interface
     """
 
+    # interpolation resolution
+    HiRes       = 0.001
+    LoRes       = 0.01
+    resolution  = HiRes
+
     def __init__(self, targets, fps):
         self.transitions = []
         self.targets = targets
@@ -343,18 +348,17 @@ def bspline(points):
     assert type(points) is np.ndarray
     assert type(points[0]) is np.ndarray and len(points[0]) == 2
     assert type(points[1]) is np.ndarray and len(points[1]) == 2
-    # calculation resolution
-    resolution = 0.001
+    resolution = Transitions.resolution
     # check if we have more than two points
     if len(points) > 2:
         # do interpolation
         tck, u = spi.splprep(points.transpose(), s=0, k=2)
-        unew = np.arange(0, 1.001, resolution)
+        unew = np.arange(0, 1.0 + resolution, resolution)
         return spi.splev(unew, tck)
     elif len(points) == 2:
         # throw points on direct line
         x, y = [], []
-        for i in frange(0.0, 1.001, resolution):
+        for i in frange(0.0, 1.0 + resolution, resolution):
             x.append(points[0][X] + (points[1][X] - points[0][X]) * i)
             y.append(points[0][Y] + (points[1][Y] - points[0][Y]) * i)
         return [np.array(x), np.array(y)]
