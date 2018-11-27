@@ -8,7 +8,8 @@ from lib.config import Config
 from lib.clock import Clock
 from lib.transitions import Composites, Transitions
 from lib.scene import Scene
-from lib.composite_commands import CompositeCommand
+
+from vocto.composite_commands import CompositeCommand
 
 useTransitions = True
 

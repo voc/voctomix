@@ -6,7 +6,7 @@ from gi.repository import Gtk, GdkPixbuf
 import lib.connection as Connection
 
 from lib.config import Config
-from lib.composite_commands import CompositeCommand
+from vocto.composite_commands import CompositeCommand
 from lib.toolbar.helpers import mark_label, unmark_label, icon_path
 
 class CompositionToolbarController(object):

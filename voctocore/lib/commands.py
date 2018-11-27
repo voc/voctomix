@@ -6,7 +6,7 @@ import inspect
 from lib.config import Config
 from lib.response import NotifyResponse, OkResponse
 from lib.sources import restart_source
-from lib.composite_commands import CompositeCommand
+from vocto.composite_commands import CompositeCommand
 
 
 class ControlServerCommands(object):
