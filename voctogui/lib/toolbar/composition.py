@@ -69,7 +69,7 @@ class CompositionToolbarController(object):
                       self.on_composite)
 
         Connection.send('get_composite')
-        self.dont_set_composite = True
+        self.dont_set_composite = False
 
     def on_btn_toggled(self, btn):
         if btn.get_active():
