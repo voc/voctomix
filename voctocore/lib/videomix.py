@@ -143,30 +143,6 @@ class VideoMix(object):
         (error, debug) = message.parse_error()
         self.log.debug('Error-Details: #%u: %s', error.code, debug)
 
-    def getVideoSources(self):
-        return [self.sourceA, self.sourceB]
-
-    def setVideoSourceA(self, source):
-        setCompositeEx(None,source,None)
-
-    def getVideoSourceA(self):
-        return self.sourceA
-
-    def setVideoSourceB(self, source):
-        setCompositeEx(None,None,source)
-
-    def getVideoSourceB(self):
-        return self.sourceB
-
-    def setCompositeMode(self, mode):
-        setCompositeEx(mode,None,None)
-
-    def getCompositeMode(self):
-        return self.compositeMode
-
-    def getComposite(self):
-        return str(CompositeCommand(self.compositeMode, self.sourceA, self.sourceB))
-
     def setCompositeEx(self, newCompositeName=None, newA=None, newB=None):
         # expect strings or None as parameters
         assert not newCompositeName or type(newCompositeName) == str
@@ -190,19 +166,13 @@ class VideoMix(object):
         # check if there is any None parameter and fill it up with
         # reasonable value from the current scene
         if curCompositeName and not (newCompositeName and newA and newB):
-            # use current state if undefined as parameter
+            # use current state if not defined by parameter
             if not newCompositeName:
                 newCompositeName = curCompositeName
             if not newA:
-                if newB != curA:
-                    newA = curA
-                else:
-                    newA = curB
+                newA = curA if newB != curA else curB
             if not newB:
-                if newA == curB:
-                    newB = curA
-                else:
-                    newB = curB
+                newB = curA if newA == curB else curB
             self.log.debug("Completing wildcarded composite to %s(%s,%s)",
                       newCompositeName, newA, newB)
         # post condition: we should have all parameters now
@@ -213,9 +183,11 @@ class VideoMix(object):
         curComposite = self.composites[curCompositeName] if curCompositeName else None
         newComposite = self.composites[newCompositeName]
 
+        # if new scene is complete
         if newComposite and newA in self.sources and newB in self.sources:
             self.log.info("Setting new composite to %s(%s,%s)",
                           newComposite.name, newA, newB)
+            # try to find a matching transition from current to new scene
             transition = None
             targetA, targetB = newA, newB
             if useTransitions:
@@ -230,16 +202,19 @@ class VideoMix(object):
                     if not transition:
                         self.log.warning("No transition found")
             if transition:
+                # apply found transition
                 self.log.debug(
                     "committing transition '%s' to scene", transition.name())
                 self.scene.commit(targetA, transition.Az(1,2))
                 self.scene.commit(targetB, transition.Bz(2,1))
             else:
+                # apply new scene (hard cut)
                 self.log.debug(
-                    "committing composite '%s' to scene", newComposite.name)
-                self.scene.commit(targetA, [newComposite.Az(1)])
-                self.scene.commit(targetB, [newComposite.Bz(2)])
+                    "setting composite '%s' to scene", newComposite.name)
+                self.scene.set(targetA, newComposite.Az(1))
+                self.scene.set(targetB, newComposite.Bz(2))
         else:
+            # report unknown elements of the target scene
             if not newComposite:
                 self.log.error("Unknown composite '%s'", newCompositeName)
             if not newA in self.sources:
@@ -247,19 +222,47 @@ class VideoMix(object):
             if not newB in self.sources:
                 self.log.error("Unknown source '%s'", newB)
 
+        # remember scene we've set
         self.compositeMode = newComposite.name
         self.sourceA = newA
         self.sourceB = newB
 
     def setComposite(self, command):
-        ''' parse command and switch to the described composite
-        '''
+        ''' parse switch to the composite described by string command '''
         # expect string as parameter
         assert type(command) == str
 
+        # parse command
         command = CompositeCommand.from_str(command)
         self.log.debug("Setting new composite by string '%s'", command)
         self.setCompositeEx(command.composite, command.A, command.B)
+
+    def getVideoSources(self):
+        ''' legacy command '''
+        return [self.sourceA, self.sourceB]
+
+    def setVideoSourceA(self, source):
+        ''' legacy command '''
+        setCompositeEx(None,source,None)
+
+    def getVideoSourceA(self):
+        ''' legacy command '''
+        return self.sourceA
+
+    def setVideoSourceB(self, source):
+        ''' legacy command '''
+        setCompositeEx(None,None,source)
+
+    def getVideoSourceB(self):
+        ''' legacy command '''
+        return self.sourceB
+
+    def setCompositeMode(self, mode):
+        ''' legacy command '''
+        setCompositeEx(mode,None,None)
+
+    def getCompositeMode(self):
+        ''' legacy command '''
         return self.compositeMode
 
     def getComposite(self):
