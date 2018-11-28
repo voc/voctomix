@@ -61,7 +61,7 @@ class Voctogui(object):
                 self.log.debug('trying to load ui-file from file %s', path)
 
                 if os.path.isfile(path):
-                    self.log.info('loading ui-file from file %s', path)
+                    self.log.info('Loading ui-file from file %s', path)
                     self.ui = Ui(path)
                     break
 
@@ -86,7 +86,7 @@ class Voctogui(object):
             self.log.debug('trying to load css-file from file %s', path)
 
             if os.path.isfile(path):
-                self.log.info('loading css-file from file %s', path)
+                self.log.info('Loading css-file from file %s', path)
                 css_provider.load_from_path(path)
                 break
         else:
@@ -102,18 +102,18 @@ class Voctogui(object):
         self.ui.setup()
 
     def run(self):
-        self.log.info('setting UI visible')
+        self.log.info('Setting UI visible')
         self.ui.show()
 
         try:
-            self.log.info('running Gtk-MainLoop')
+            self.log.info('Running Gtk-MainLoop')
             Gtk.main()
             self.log.info('Gtk-MainLoop ended')
         except KeyboardInterrupt:
             self.log.info('Terminated via Ctrl-C')
 
     def quit(self):
-        self.log.info('quitting Gtk-MainLoop')
+        self.log.info('Quitting Gtk-MainLoop')
         Gtk.main_quit()
 
 

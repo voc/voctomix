@@ -68,8 +68,7 @@ class Scene:
         self.dirty = True
 
     def commit(self, source, frames):
-        self.log.debug("commiting %d frame(s) to source %s",
-                       len(frames), source)
+        self.log.debug("Commit %d frame(s) to source %s", len(frames), source)
         self.frames[source] = frames
         self.dirty = True
 
@@ -80,7 +79,7 @@ class Scene:
         for source, frames in self.frames.items():
             if not frames:
                 frames = [Frame(zorder=-1,alpha=0)]
-            self.log.info("pushing %d frame(s) to source '%s' at time %dms", len(
+            self.log.info("Pushing %d frame(s) to source '%s' at time %dms", len(
                 frames), source, at_time / Gst.MSECOND)
             # reset time
             time = at_time

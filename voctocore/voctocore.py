@@ -41,25 +41,26 @@ class Voctocore(object):
         from lib.controlserver import ControlServer
 
         self.log = logging.getLogger('Voctocore')
-        self.log.debug('creating GObject-MainLoop')
+        self.log.debug('Creating GObject-MainLoop')
         self.mainloop = GObject.MainLoop()
 
         # initialize subsystem
-        self.log.debug('creating A/V-Pipeline')
+        self.log.debug('Creating A/V-Pipeline')
         self.pipeline = Pipeline()
 
-        self.log.debug('creating ControlServer')
+        self.log.debug('Creating ControlServer')
         self.controlserver = ControlServer(self.pipeline)
 
     def run(self):
-        self.log.info('running GObject-MainLoop')
+        self.log.info('Running GObject-MainLoop')
+        self.log.debug('\n\n====================== UP AN RUNNING ======================\n')
         try:
             self.mainloop.run()
         except KeyboardInterrupt:
             self.log.info('Terminated via Ctrl-C')
 
     def quit(self):
-        self.log.info('quitting GObject-MainLoop')
+        self.log.info('Quitting GObject-MainLoop')
         self.mainloop.quit()
 
 

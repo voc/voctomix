@@ -77,7 +77,7 @@ class CompositionToolbarController(object):
                 self.dont_set_composite = False
             else:
                 command = self.commands[btn.get_name()]
-                self.log.info('sending new composite: %s', command)
+                self.log.info('Sending new composite: %s', command)
                 Connection.send('set_composite', command)
             mark_label(btn)
         else:

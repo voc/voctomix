@@ -104,26 +104,26 @@ class Transitions:
                     raise RuntimeError(
                         'composite "{}" could not be found in transition {}'.format(err, name))
                 transitions.add(transition,frames - 1)
-        log.debug("loaded %d transitions from configuration.", len(transitions))
+        log.debug("Loaded %d transitions from configuration.", len(transitions))
         # return dictonary
         return transitions
 
     def solve(self, begin, end, flip):
-        log.debug("solving transition %s(A,B) -> %s(%s)\n\t    %s\n\t    %s", begin.name, end.name, "B,A" if flip else "A,B", begin, end)
+        log.debug("Solving transition %s(A,B) -> %s(%s)\n\t    %s\n\t    %s", begin.name, end.name, "B,A" if flip else "A,B", begin, end)
         for transition in self.transitions:
             # try to find original transition
             if transition.begin().equals(begin, True) and transition.end().equals(end, True, flip):
-                log.debug("solved #1 %s\n%s", transition.name(), transition)
+                log.debug("Solved #1 %s\n%s", transition.name(), transition)
                 return transition, False
             if transition.begin().equals(begin, True, flip) and transition.end().equals(end, True):
-                log.debug("solved #2 %s\n%s", transition.name(), transition)
+                log.debug("Solved #2 %s\n%s", transition.name(), transition)
                 return transition, True
             # try reverse
             if transition.begin().equals(end, True) and transition.end().equals(begin, True, flip):
-                log.debug("solved #3 %s\n%s", transition.name(), transition)
+                log.debug("Solved #3 %s\n%s", transition.name(), transition)
                 return transition.reversed(), True
             if transition.begin().equals(end, True, flip) and transition.end().equals(begin, True):
-                log.debug("solved #4 %s\n%s", transition.name(), transition)
+                log.debug("Solved #4 %s\n%s", transition.name(), transition)
                 return transition.reversed(), False
         return None, False
 
@@ -282,10 +282,10 @@ class Transition:
         if len(self.composites) != frames:
             num_keys = len(self.keys())
             if len(self.composites) != num_keys:
-                log.warning("recalculating transition %s" % self.name())
+                log.warning("Recalculating transition %s" % self.name())
                 self.composites = self.keys()
             # calculate that transition and place it into the dictonary
-            log.debug("calculating transition %s\t= %s \t(%s key frames)" %
+            log.debug("Calculating transition %s\t= %s \t(%s key frames)" %
                       (self.name(),
                        " / ".join([c.name for c in self.composites]),
                        num_keys))

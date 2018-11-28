@@ -210,7 +210,7 @@ def add_swapped_targets(composites):
                     inc = False
                     break
             if inc:
-                log.debug("adding auto-swapped target %s from %s" %
+                log.debug("Adding auto-swapped target %s from %s" %
                           (swap_name(c_name), c_name))
                 r = c.swapped()
                 r.order = len(composites) + len(result)

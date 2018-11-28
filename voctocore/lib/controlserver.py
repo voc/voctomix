@@ -91,22 +91,22 @@ class ControlServer(TCPMultiConnection):
                            'stopping on_loop scheduling')
             return True
 
+        self.log.info("processing command '%s'", ' '.join(words))
+
         command = words[0]
         args = words[1:]
-
-        self.log.info("processing command %r with args %s", command, args)
 
         response = None
         try:
             # deny calling private methods
             if command[0] == '_':
-                self.log.info('private methods are not callable')
+                self.log.info('Private methods are not callable')
                 raise KeyError()
 
             command_function = self.commands.__class__.__dict__[command]
 
         except KeyError as e:
-            self.log.info("received unknown command %s", command)
+            self.log.info("Received unknown command %s", command)
             response = "error unknown command %s\n" % command
 
         else:
@@ -158,9 +158,10 @@ class ControlServer(TCPMultiConnection):
             return False
 
         message = queue.get()
+        self.log.info("Responding message '%s'", message.strip())
         try:
             conn.send(message.encode())
         except Exception as e:
-            self.log.warning('failed to send message', exc_info=True)
+            self.log.warning('Failed to send message', exc_info=True)
 
         return True
