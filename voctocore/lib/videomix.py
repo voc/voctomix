@@ -121,17 +121,19 @@ class VideoMix(object):
         _, num, denom = struct.get_fraction('framerate')
         return float(num) / float(denom)
 
-    def playTime(self):
+    def getPlayTime(self):
         # get play time from mixing pipeline or assume zero
         return self.mixingPipeline.get_pipeline_clock().get_time() - \
             self.mixingPipeline.get_base_time()
 
     def on_handoff(self, object, buffer):
+        # sync with self.launch()
         if self.launched:
             if self.scene and self.scene.dirty:
-                self.scene.push(self.playTime())
                 # push scene to gstreamer
+                playTime = self.getPlayTime()
                 self.log.debug('Applying new Mixer-State at %d ms', playTime / Gst.MSECOND)
+                self.scene.push(playTime)
 
     def on_eos(self, bus, message):
         self.log.debug('Received End-of-Stream-Signal on Mixing-Pipeline')

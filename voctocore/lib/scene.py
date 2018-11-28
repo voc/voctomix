@@ -65,16 +65,22 @@ class Scene:
                 'cropright': bind(cropperpad, 'right')
             }
         # ready to initialize gstreamer
-        self.dirty = True
+        self.dirty = False
 
     def commit(self, source, frames):
+        ''' commit multiple frames to the current gstreamer scene '''
         self.log.debug("Commit %d frame(s) to source %s", len(frames), source)
         self.frames[source] = frames
         self.dirty = True
 
+    def set(self, source, frame):
+        ''' commit single frame to the current gstreamer scene '''
+        self.log.debug("Set frame to source %s", source)
+        self.frames[source] = [frame]
+        self.dirty = True
+
     def push(self, at_time=0):
-        """ apply all committed frames to GStreamer pipeline
-        """
+        ''' apply all committed frames to GStreamer pipeline '''
         # get pad for given source
         for source, frames in self.frames.items():
             if not frames:
