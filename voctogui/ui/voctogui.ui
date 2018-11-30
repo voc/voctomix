@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.20.0 -->
+<!-- Generated with glade 3.18.3 -->
 <interface>
   <requires lib="gtk+" version="3.4"/>
   <object class="GtkImage" id="img-blank-stream">
@@ -19,14 +19,13 @@
   </object>
   <object class="GtkWindow" id="window">
     <property name="can_focus">False</property>
+    <property name="title" translatable="yes">Voctomix GUI</property>
     <property name="default_width">1280</property>
     <property name="default_height">720</property>
-    <property name="title" translatable="yes">Voctomix GUI</property>
     <child>
       <object class="GtkBox" id="box_preview">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
-        <property name="orientation">horizontal</property>
         <child>
           <object class="GtkBox" id="box_left">
             <property name="visible">True</property>
@@ -42,7 +41,6 @@
             <property name="position">0</property>
           </packing>
         </child>
-
         <child>
           <object class="GtkBox" id="box_toolbar">
             <property name="visible">True</property>
@@ -68,6 +66,9 @@
                         <property name="can_focus">False</property>
                         <property name="double_buffered">False</property>
                       </object>
+                      <packing>
+                        <property name="index">-1</property>
+                      </packing>
                     </child>
                     <child type="overlay">
                       <object class="GtkDrawingArea" id="video_overlay_drawingarea">
@@ -105,11 +106,12 @@
               <packing>
                 <property name="expand">True</property>
                 <property name="fill">True</property>
-                <property name="position">1</property>
+                <property name="position">0</property>
               </packing>
             </child>
             <child>
               <object class="GtkToolbar" id="toolbar">
+                <property name="height_request">300</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="hexpand">True</property>
@@ -119,16 +121,6 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="draw">False</property>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="homogeneous">True</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="StudioClock" id="studioclock">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -186,8 +178,9 @@
                 <child>
                   <object class="GtkToolButton" id="voc-btn">
                     <property name="visible">True</property>
-                    <property name="icon-widget">voc</property>
+                    <property name="can_focus">False</property>
                     <property name="label">voctomix2</property>
+                    <property name="icon_widget">voc</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -198,9 +191,9 @@
                   <object class="GtkToolButton" id="close">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="no_show_all">True</property>
                     <property name="use_underline">True</property>
                     <property name="stock_id">gtk-close</property>
-                    <property name="no_show_all">True</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -214,10 +207,15 @@
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="position">0</property>
+                <property name="position">1</property>
               </packing>
             </child>
           </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
         </child>
       </object>
     </child>
