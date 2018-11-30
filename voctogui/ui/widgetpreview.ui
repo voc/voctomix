@@ -66,7 +66,7 @@
                     <property name="show_fill_level">True</property>
                     <property name="restrict_to_fill_level">False</property>
                     <property name="round_digits">1</property>
-                    <property name="value_pos">bottom</property>
+                    <property name="value_pos">top</property>
                     <property name="width_request">100</property>
                   </object>
                   <packing>
