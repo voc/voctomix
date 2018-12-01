@@ -82,6 +82,9 @@ class VideoPreviewsController(object):
                 volume_slider.set_name("volume {}".format(source))
                 volume_signal = volume_slider.connect('value-changed',
                                                       self.slider_changed)
+                volume_slider.add_mark(-20.0,Gtk.PositionType.LEFT,"")
+                volume_slider.add_mark(0.0,Gtk.PositionType.LEFT,"0")
+                volume_slider.add_mark(10.0,Gtk.PositionType.LEFT,"")
 
                 def slider_format(scale, value):
                     if value == -20.0:
