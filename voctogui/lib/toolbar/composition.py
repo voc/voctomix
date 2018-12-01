@@ -39,7 +39,8 @@ class CompositionToolbarController(object):
                 else:
                     new_btn = Gtk.RadioToolButton.new_from_widget(first_btn)
                 new_btn.set_name(name)
-
+                context = new_btn.get_style_context()
+                context.add_class("bigfont")
                 #pixbuf = GdkPixbuf.Pixbuf.new_from_file(os.path.join(icon_path(),
                 #                                        image_filename.strip()))
                 #image = Gtk.Image()
