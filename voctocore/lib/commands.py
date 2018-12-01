@@ -2,6 +2,8 @@ import logging
 import json
 import inspect
 
+from gi.repository import GLib
+
 from lib.config import Config
 from lib.videomix import CompositeModes
 from lib.response import NotifyResponse, OkResponse
@@ -9,11 +11,14 @@ from lib.sources import restart_source
 
 
 class ControlServerCommands(object):
-    def __init__(self, pipeline):
+    def __init__(self, control_server, pipeline):
         self.log = logging.getLogger('ControlServerCommands')
 
+        self.control_server = control_server
         self.pipeline = pipeline
         self.stored_values = {}
+
+        self.notification_timeout = None
 
         self.sources = Config.getlist('mix', 'sources')
         if Config.getboolean('stream-blanker', 'enabled'):
@@ -94,6 +99,33 @@ class ControlServerCommands(object):
             helplines.append("\t" + mode.name)
 
         return OkResponse("\n".join(helplines))
+
+    def show_notification(self, *args):
+        self._cancel_scheduled_hide_notification()
+        return NotifyResponse('show_notification', *args)
+
+    def hide_notification(self):
+        self._cancel_scheduled_hide_notification()
+        return NotifyResponse('hide_notification')
+
+    def show_notification_for(self, seconds, *args):
+        self._cancel_scheduled_hide_notification()
+
+        def hide_notification_callback():
+            self.log.debug("Sending scheduled hide of Notification")
+            self.control_server.send_notification(NotifyResponse('hide_notification'))
+            self.notification_timeout = None
+
+        self.log.debug("Scheduling hide of Notification")
+        self.notification_timeout = GLib.timeout_add(int(seconds) * 1000, hide_notification_callback)
+        return NotifyResponse('show_notification', *args)
+
+    def _cancel_scheduled_hide_notification(self):
+        if self.notification_timeout is not None:
+            self.log.debug("Canceling active scheduled hide of Notification")
+
+            GLib.source_remove(self.notification_timeout)
+            self.notification_timeout = None
 
     def _get_video_status(self):
         a = self.sources[self.pipeline.vmix.getVideoSourceA()]

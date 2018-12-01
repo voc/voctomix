@@ -16,7 +16,7 @@ class ControlServer(TCPMultiConnection):
 
         self.command_queue = Queue()
 
-        self.commands = ControlServerCommands(pipeline)
+        self.commands = ControlServerCommands(self, pipeline)
 
     def on_accepted(self, conn, addr):
         '''Asynchronous connection listener.
@@ -122,10 +122,8 @@ class ControlServer(TCPMultiConnection):
                     responseObject = [responseObject]
 
                 if isinstance(responseObject, list):
-                    for obj in responseObject:
-                        signal = "%s\n" % str(obj)
-                        for conn in self.currentConnections:
-                            self._schedule_write(conn, signal)
+                    for notification in responseObject:
+                        self.send_notification(notification)
                 else:
                     response = "%s\n" % str(responseObject)
 
@@ -134,6 +132,11 @@ class ControlServer(TCPMultiConnection):
                 self._schedule_write(requestor, response)
 
         return False
+
+    def send_notification(self, notification):
+        signal = "%s\n" % str(notification)
+        for conn in self.currentConnections:
+            self._schedule_write(conn, signal)
 
     def _schedule_write(self, conn, message):
         queue = self.currentConnections[conn]
