@@ -47,9 +47,7 @@ class VideoWarningOverlay(object):
         cr.rectangle(0, 0, w, h)
         cr.fill()
 
-        text = "Stream is Blanked"
-        if self.text:
-            text += ": " + self.text
+        text = self.text
 
         cr.set_font_size(h * 0.75)
         (xbearing, ybearing,
