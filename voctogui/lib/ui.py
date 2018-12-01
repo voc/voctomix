@@ -79,13 +79,14 @@ class Ui(UiBuilder):
         )
 
         # Setup Toolbar Controllers
-        toolbar = self.find_widget_recursive(self.win, 'toolbar')
+        toolbar = self.find_widget_recursive(self.win, 'toolbar_preview')
         self.composition_toolbar_controller = CompositionToolbarController(
             toolbar,
             win=self.win,
             uibuilder=self
         )
 
+        toolbar = self.find_widget_recursive(self.win, 'toolbar_main')
         self.streamblank_toolbar_controller = StreamblankToolbarController(
             toolbar,
             win=self.win,

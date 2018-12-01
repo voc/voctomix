@@ -40,14 +40,14 @@ class CompositionToolbarController(object):
                     new_btn = Gtk.RadioToolButton.new_from_widget(first_btn)
                 new_btn.set_name(name)
 
-                pixbuf = GdkPixbuf.Pixbuf.new_from_file(os.path.join(icon_path(),
-                                                        image_filename.strip()))
-                image = Gtk.Image()
-                image.set_from_pixbuf(pixbuf)
-                new_btn.set_icon_widget(image)
+                #pixbuf = GdkPixbuf.Pixbuf.new_from_file(os.path.join(icon_path(),
+                #                                        image_filename.strip()))
+                #image = Gtk.Image()
+                #image.set_from_pixbuf(pixbuf)
+                #new_btn.set_icon_widget(image)
                 self.commands[name] = command
                 new_btn.connect('toggled', self.on_btn_toggled)
-                new_btn.set_label("F%s" % accel_f_key)
+                new_btn.set_label("%s\nF%s" % (name,accel_f_key))
                 new_btn.set_can_focus(False)
                 new_btn.set_tooltip_text("Switch composite to %s" % command)
                 new_btn.get_child().add_accelerator(
