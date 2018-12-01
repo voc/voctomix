@@ -66,6 +66,7 @@ class AudioLevelDisplay(Gtk.DrawingArea):
             self.peak_lg = self.gradient(0.75, 0.0, height)
             self.decay_lg = self.gradient(1.0, 0.5, height)
 
+        first_col = True
         # draw all level bars for all channels
         for channel in range(0, channels):
             # start-coordinate for this channel
@@ -95,10 +96,11 @@ class AudioLevelDisplay(Gtk.DrawingArea):
             cr.fill()
 
             # draw medium grey margin bar
-            if margin > 0:
-                cr.rectangle(x + channel_width, 0, margin, height)
+            if margin > 0 and not first_col:
+                cr.rectangle(x-margin, 0, margin, height)
                 cr.set_source_rgb(0.5, 0.5, 0.5)
                 cr.fill()
+            first_col = False
 
         if width >= 20:
             # draw db text-markers
