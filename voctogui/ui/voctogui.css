@@ -1,1 +1,9 @@
 /* set font size for UHD screens */
+
+
+.name { font-size: 15px; }
+.button {
+  font-size: 20px;
+  border-style: inset;
+  border-width: 10px;
+}
