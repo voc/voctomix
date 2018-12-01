@@ -64,8 +64,11 @@ class VideoPreviewsController(object):
             preview_box.pack_start(preview, fill=False,
                                    expand=False, padding=0)
 
+            audio_level = uibuilder.find_widget_recursive(preview, 'audio_level_display')
             player = VideoDisplay(video, port=13000 + idx,
-                                  width=width, height=height)
+                                  width=width, height=height,
+                                  level_callback=audio_level.level_callback
+                                  )
 
             uibuilder.find_widget_recursive(preview, 'label').set_label(source)
 

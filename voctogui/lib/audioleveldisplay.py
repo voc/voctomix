@@ -42,7 +42,7 @@ class AudioLevelDisplay(Gtk.DrawingArea):
         height = self.get_allocated_height()
 
         # space between the channels in px
-        margin = 2
+        margin = 1
 
         # 1 channel -> 0 margins, 2 channels -> 1 margin, 3 channels…
         channel_width = int((width - (margin * (channels - 1))) / channels)
@@ -100,20 +100,21 @@ class AudioLevelDisplay(Gtk.DrawingArea):
                 cr.set_source_rgb(0.5, 0.5, 0.5)
                 cr.fill()
 
-        # draw db text-markers
-        for db in [-40, -20, -10, -5, -4, -3, -2, -1]:
-            text = str(db)
-            (xbearing, ybearing,
-             textwidth, textheight,
-             xadvance, yadvance) = cr.text_extents(text)
+        if width >= 20:
+            # draw db text-markers
+            for db in [-40, -20, -10, -5, -4, -3, -2, -1]:
+                text = str(db)
+                (xbearing, ybearing,
+                 textwidth, textheight,
+                 xadvance, yadvance) = cr.text_extents(text)
 
-            y = self.normalize_db(db) * height
-            if y > peak_px[channels - 1]:
-                cr.set_source_rgb(1, 1, 1)
-            else:
-                cr.set_source_rgb(0, 0, 0)
-            cr.move_to((width - textwidth) - 2, height - y - textheight)
-            cr.show_text(text)
+                y = self.normalize_db(db) * height
+                if y > peak_px[channels - 1]:
+                    cr.set_source_rgb(1, 1, 1)
+                else:
+                    cr.set_source_rgb(0, 0, 0)
+                cr.move_to((width - textwidth) - 2, height - y - textheight)
+                cr.show_text(text)
 
         return True
 
