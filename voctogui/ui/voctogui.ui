@@ -124,8 +124,7 @@
                     <property name="can_focus">False</property>
                     <property name="orientation">vertical</property>
                     <child>
-                      <object class="GtkToolbar" id="toolbar_preview">
-                        <property name="height_request">300</property>
+                      <object class="GtkToolbar" id="toolbar_live">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="hexpand">True</property>
@@ -141,14 +140,13 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkToolbar" id="toolbar_live">
-                        <property name="height_request">300</property>
+                      <object class="GtkToolbar" id="toolbar_preview">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="hexpand">True</property>
                         <property name="toolbar_style">text</property>
                         <style>
-                          <class name="primary-toolbar"/>
+                          <class name="secondary-toolbar"/>
                         </style>
                       </object>
                       <packing>
@@ -156,6 +154,9 @@
                         <property name="fill">True</property>
                         <property name="position">1</property>
                       </packing>
+                    </child>
+                    <child>
+                      <placeholder/>
                     </child>
                   </object>
                   <packing>
