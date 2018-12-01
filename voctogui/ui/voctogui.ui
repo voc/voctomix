@@ -17,11 +17,6 @@
     <property name="can_focus">False</property>
     <property name="pixbuf">voc.svg</property>
   </object>
-  <object class="GtkImage" id="voc">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">voc.svg</property>
-  </object>
   <object class="GtkWindow" id="window">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Voctomix GUI</property>
@@ -47,7 +42,7 @@
           </packing>
         </child>
         <child>
-          <object class="GtkBox" id="box_toolbar">
+          <object class="GtkBox" id="box_main">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="orientation">vertical</property>
@@ -59,14 +54,10 @@
                   <object class="GtkOverlay" id="video_overlay">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="margin_left">5</property>
-                    <property name="margin_right">5</property>
-                    <property name="margin_top">5</property>
-                    <property name="margin_bottom">5</property>
                     <child>
                       <object class="GtkDrawingArea" id="video_main">
-                        <property name="width_request">800</property>
-                        <property name="height_request">450</property>
+                        <property name="width_request">568</property>
+                        <property name="height_request">320</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="double_buffered">False</property>
@@ -77,11 +68,15 @@
                     </child>
                     <child type="overlay">
                       <object class="GtkDrawingArea" id="video_overlay_drawingarea">
-                        <property name="height_request">32</property>
+                        <property name="width_request">300</property>
+                        <property name="height_request">50</property>
                         <property name="app_paintable">True</property>
                         <property name="can_focus">False</property>
                         <property name="no_show_all">True</property>
-                        <property name="valign">start</property>
+                        <property name="halign">center</property>
+                        <property name="valign">center</property>
+                        <property name="margin_top">10</property>
+                        <property name="margin_bottom">10</property>
                         <property name="vexpand">False</property>
                       </object>
                     </child>
@@ -94,7 +89,7 @@
                 </child>
                 <child>
                   <object class="AudioLevelDisplay" id="audiolevel_main">
-                    <property name="width_request">30</property>
+                    <property name="width_request">20</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="margin_right">5</property>
@@ -115,7 +110,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkBox" id="box_top">
+              <object class="GtkBox" id="box_panel">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
@@ -275,5 +270,10 @@
         </child>
       </object>
     </child>
+  </object>
+  <object class="GtkImage" id="voc">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">voc.svg</property>
   </object>
 </interface>
