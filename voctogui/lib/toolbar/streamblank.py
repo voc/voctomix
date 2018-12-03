@@ -87,10 +87,10 @@ class StreamblankToolbarController(object):
 
         btn_name = btn.get_name()
         if btn_name == 'live':
-            self.warning_overlay.disable()
+            self.warning_overlay.disable_streamblank_warning()
 
         else:
-            self.warning_overlay.enable(btn_name)
+            self.warning_overlay.enable_streamblank_warning(btn_name)
 
         if self.current_status == btn_name:
             self.log.info('stream-status already activate: %s', btn_name)
