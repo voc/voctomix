@@ -70,7 +70,11 @@ class VideoPreviewsController(object):
                                   level_callback=audio_level.level_callback
                                   )
 
-            uibuilder.find_widget_recursive(preview, 'label').set_label(source)
+            try:
+                source_name = Config.get('toolbar.sources.a','%s.name' % source)
+            except NoOptionError:
+                source_name = source
+            uibuilder.find_widget_recursive(preview, 'label').set_label(source_name)
 
             volume_slider = uibuilder.find_widget_recursive(preview,
                                                             'audio_level')

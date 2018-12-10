@@ -10,7 +10,9 @@ from lib.warningoverlay import VideoWarningOverlay
 
 from lib.videopreviews import VideoPreviewsController
 
-from lib.toolbar.composition import CompositionToolbarController
+from lib.toolbar.mix import MixToolbarController
+from lib.toolbar.output import OutputToolbarController
+from lib.toolbar.preview import PreviewToolbarController
 from lib.toolbar.streamblank import StreamblankToolbarController
 from lib.toolbar.misc import MiscToolbarController
 
@@ -79,26 +81,37 @@ class Ui(UiBuilder):
         )
 
         # Setup Toolbar Controllers
-        toolbar = self.find_widget_recursive(self.win, 'toolbar_preview')
-        self.composition_toolbar_controller = CompositionToolbarController(
-            toolbar,
+        self.output_toolbar_controller = OutputToolbarController(
             win=self.win,
             uibuilder=self
         )
 
-        toolbar = self.find_widget_recursive(self.win, 'toolbar_main')
-        self.streamblank_toolbar_controller = StreamblankToolbarController(
-            toolbar,
+        self.preview_toolbar_controller = PreviewToolbarController(
+            win=self.win,
+            uibuilder=self
+        )
+
+        self.mix_toolbar_controller = MixToolbarController(
             win=self.win,
             uibuilder=self,
-            warning_overlay=self.video_warning_overlay
+            output_controller = self.output_toolbar_controller,
+            preview_controller = self.preview_toolbar_controller
         )
 
-        self.misc_controller = MiscToolbarController(
-            toolbar,
-            win=self.win,
-            uibuilder=self
-        )
+#
+#        toolbar = self.find_widget_recursive(self.win, 'toolbar_main')
+#        self.streamblank_toolbar_controller = StreamblankToolbarController(
+#            toolbar,
+#            win=self.win,
+#            uibuilder=self,
+#            warning_overlay=self.video_warning_overlay
+#        )
+#
+#        self.misc_controller = MiscToolbarController(
+#            toolbar,
+#            win=self.win,
+#            uibuilder=self
+#        )
 
         # Setup Shortcuts window
         self.win.connect('key-press-event', self.handle_keypress)

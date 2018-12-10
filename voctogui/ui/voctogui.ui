@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.18.3 -->
+<!-- Generated with glade 3.22.1 -->
 <interface>
   <requires lib="gtk+" version="3.4"/>
-  <object class="GtkImage" id="img-blank-stream">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">blank-stream.svg</property>
-  </object>
-  <object class="GtkImage" id="img-stream-live">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">stream-live.svg</property>
-  </object>
   <object class="GtkImage" id="img-voc">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">voc.svg</property>
+    <property name="tooltip_text" translatable="yes">voctomix 2
+
+Full-HD Software Live-Video-Mixer in python 
+
+To get in touch with us we'd ask to join #voctomix on the hackint IRC network, mail to voc AT c3voc DOT de or meet us on one of the many conferences we're at. You may also want to watch MaZderMinds talk about Voctomix and a presentation some of us gave about C3VOCs video infrastructure.
+
+https://c3voc.de/
+https://github.com/voc/voctomix </property>
+    <property name="pixbuf">voc2.svg</property>
   </object>
   <object class="GtkWindow" id="window">
     <property name="can_focus">False</property>
@@ -23,7 +21,10 @@
     <property name="default_width">1280</property>
     <property name="default_height">720</property>
     <child>
-      <object class="GtkBox" id="box_preview">
+      <placeholder/>
+    </child>
+    <child>
+      <object class="GtkBox" id="box_main">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <child>
@@ -42,12 +43,12 @@
           </packing>
         </child>
         <child>
-          <object class="GtkBox" id="box_main">
+          <object class="GtkBox" id="box_mix">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="orientation">vertical</property>
             <child>
-              <object class="GtkBox" id="box_left_right">
+              <object class="GtkBox" id="box_output">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
@@ -110,23 +111,20 @@
               </packing>
             </child>
             <child>
-              <object class="GtkBox" id="box_panel">
+              <object class="GtkBox" id="box_mixer_panel">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="orientation">vertical</property>
                 <child>
-                  <object class="GtkBox" id="box_mixer_panel">
+                  <object class="GtkBox">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="orientation">vertical</property>
+                    <property name="spacing">6</property>
                     <child>
-                      <object class="GtkToolbar" id="toolbar_live">
+                      <object class="GtkLabel">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="hexpand">True</property>
-                        <property name="toolbar_style">text</property>
-                        <style>
-                          <class name="primary-toolbar"/>
-                        </style>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -135,20 +133,484 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkToolbar" id="toolbar_preview">
+                      <object class="GtkBox">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="hexpand">True</property>
-                        <property name="toolbar_style">text</property>
-                        <style>
-                          <class name="secondary-toolbar"/>
-                        </style>
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="spacing">6</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">OUTPUT</property>
+                                <property name="angle">90</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkFrame">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="hexpand">True</property>
+                                <property name="label_xalign">0.5</property>
+                                <property name="shadow_type">in</property>
+                                <child>
+                                  <object class="GtkAlignment">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="xalign">0</property>
+                                    <property name="bottom_padding">6</property>
+                                    <property name="left_padding">4</property>
+                                    <property name="right_padding">4</property>
+                                    <child>
+                                      <object class="GtkToolbar" id="toolbar_output">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="halign">center</property>
+                                        <property name="toolbar_style">text</property>
+                                        <property name="show_arrow">False</property>
+                                        <style>
+                                          <class name="secondary-toolbar"/>
+                                        </style>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child type="label">
+                                  <object class="GtkLabel">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="label" translatable="yes">COMPOSITE</property>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkFrame">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label_xalign">0.5</property>
+                                <property name="shadow_type">in</property>
+                                <child>
+                                  <object class="GtkAlignment">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="xalign">0</property>
+                                    <property name="bottom_padding">6</property>
+                                    <property name="left_padding">4</property>
+                                    <property name="right_padding">4</property>
+                                    <child>
+                                      <object class="GtkToolbar" id="toolbar_preview_composite2">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="halign">center</property>
+                                        <property name="toolbar_style">text</property>
+                                        <property name="show_arrow">False</property>
+                                        <child>
+                                          <object class="GtkRadioToolButton" id="stream_live">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <property name="tooltip_text" translatable="yes">Put output on air</property>
+                                            <property name="label" translatable="yes">LIVE</property>
+                                            <property name="use_underline">True</property>
+                                            <property name="active">True</property>
+                                            <style>
+                                              <class name="mode"/>
+                                              <class name="output"/>
+                                              <class name="live"/>
+                                            </style>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="homogeneous">True</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkRadioToolButton" id="stream_blank">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <property name="tooltip_text" translatable="yes">Put pause stream on air</property>
+                                            <property name="label" translatable="yes">PAUSE</property>
+                                            <property name="use_underline">True</property>
+                                            <property name="active">True</property>
+                                            <property name="group">stream_live</property>
+                                            <style>
+                                              <class name="mode"/>
+                                              <class name="output"/>
+                                            </style>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="homogeneous">True</property>
+                                          </packing>
+                                        </child>
+                                        <style>
+                                          <class name="secondary-toolbar"/>
+                                        </style>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child type="label">
+                                  <object class="GtkLabel">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="label" translatable="yes">MODE</property>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">2</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="spacing">6</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">PREVIEW</property>
+                                <property name="angle">90</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="orientation">vertical</property>
+                                <child>
+                                  <object class="GtkFrame">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="label_xalign">0.5</property>
+                                    <property name="shadow_type">in</property>
+                                    <child>
+                                      <object class="GtkAlignment">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="xalign">0</property>
+                                        <property name="bottom_padding">6</property>
+                                        <property name="left_padding">4</property>
+                                        <property name="right_padding">4</property>
+                                        <child>
+                                          <object class="GtkToolbar" id="toolbar_preview_a">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <property name="halign">center</property>
+                                            <property name="show_arrow">False</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child type="label">
+                                      <object class="GtkLabel">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="label" translatable="yes">CHANNEL A</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkFrame">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="label_xalign">0.5</property>
+                                    <property name="shadow_type">in</property>
+                                    <child>
+                                      <object class="GtkAlignment">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="xalign">0</property>
+                                        <property name="bottom_padding">6</property>
+                                        <property name="left_padding">4</property>
+                                        <property name="right_padding">4</property>
+                                        <child>
+                                          <object class="GtkToolbar" id="toolbar_preview_b">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <property name="halign">center</property>
+                                            <property name="show_arrow">False</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child type="label">
+                                      <object class="GtkLabel">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="label" translatable="yes">CHANNEL B</property>
+                                        <property name="angle">2.2351741811588166e-10</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkFrame">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label_xalign">0.5</property>
+                                <property name="shadow_type">in</property>
+                                <child>
+                                  <object class="GtkAlignment">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="xalign">0</property>
+                                    <property name="bottom_padding">6</property>
+                                    <property name="left_padding">4</property>
+                                    <property name="right_padding">4</property>
+                                    <child>
+                                      <object class="GtkToolbar" id="toolbar_preview_composite">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="halign">center</property>
+                                        <property name="toolbar_style">text</property>
+                                        <property name="show_arrow">False</property>
+                                        <style>
+                                          <class name="secondary-toolbar"/>
+                                        </style>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child type="label">
+                                  <object class="GtkLabel">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="label" translatable="yes">COMPOSITE</property>
+                                    <property name="justify">center</property>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
+                                <property name="position">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkFrame">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label_xalign">0.5</property>
+                                <property name="shadow_type">in</property>
+                                <child>
+                                  <object class="GtkAlignment">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="xalign">0</property>
+                                    <property name="bottom_padding">6</property>
+                                    <property name="left_padding">4</property>
+                                    <property name="right_padding">4</property>
+                                    <child>
+                                      <object class="GtkToolbar" id="toolbar_preview_mod">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="halign">center</property>
+                                        <property name="show_arrow">False</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child type="label">
+                                  <object class="GtkLabel">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="label" translatable="yes">MODIFY</property>
+                                    <property name="justify">center</property>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
+                                <property name="position">3</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
                       </object>
                       <packing>
-                        <property name="expand">True</property>
+                        <property name="expand">False</property>
                         <property name="fill">True</property>
                         <property name="position">1</property>
                       </packing>
+                    </child>
+                    <child>
+                      <object class="GtkFrame">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label_xalign">0.5</property>
+                        <property name="shadow_type">in</property>
+                        <child>
+                          <object class="GtkAlignment">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="xalign">0</property>
+                            <property name="bottom_padding">6</property>
+                            <property name="left_padding">4</property>
+                            <property name="right_padding">4</property>
+                            <child>
+                              <object class="GtkToolbar" id="toolbar_mix">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="halign">center</property>
+                                <property name="orientation">vertical</property>
+                                <property name="show_arrow">False</property>
+                                <child>
+                                  <object class="GtkToolButton" id="mix_retake">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="tooltip_text" translatable="yes">Copy output composite to preview for modification
+(output remains untouched)
+Key: Backspace</property>
+                                    <property name="label" translatable="yes">RETAKE</property>
+                                    <property name="use_underline">True</property>
+                                    <accelerator key="BackSpace" signal="clicked"/>
+                                    <style>
+                                      <class name="mix"/>
+                                    </style>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="homogeneous">True</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkToolButton" id="mix_cut">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="tooltip_text" translatable="yes">Hard cut preview composite to output.
+Key: Return </property>
+                                    <property name="label" translatable="yes">CUT</property>
+                                    <property name="use_underline">True</property>
+                                    <accelerator key="Return" signal="clicked"/>
+                                    <style>
+                                      <class name="mix"/>
+                                    </style>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">True</property>
+                                    <property name="homogeneous">True</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkToolButton" id="mix_trans">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="tooltip_text" translatable="yes">Use transition to cut preview composite to output
+Key: &lt;Shift&gt;Return</property>
+                                    <property name="label" translatable="yes">TRANS</property>
+                                    <property name="use_underline">True</property>
+                                    <accelerator key="Return" signal="clicked" modifiers="GDK_SHIFT_MASK"/>
+                                    <style>
+                                      <class name="mix"/>
+                                    </style>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">True</property>
+                                    <property name="homogeneous">True</property>
+                                  </packing>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child type="label">
+                          <object class="GtkLabel">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">MIX	</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="hexpand">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">3</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
                     </child>
                     <child>
                       <placeholder/>
@@ -157,108 +619,79 @@
                   <packing>
                     <property name="expand">True</property>
                     <property name="fill">True</property>
-                    <property name="position">0</property>
+                    <property name="position">1</property>
                   </packing>
                 </child>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkBox" id="box_toolbar_main">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="orientation">vertical</property>
                 <child>
-                  <object class="GtkBox" id="box_toolbar_main">
+                  <object class="GtkToolbar" id="toolbar_main">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="orientation">vertical</property>
+                    <property name="hexpand">True</property>
+                    <property name="toolbar_style">icons</property>
+                    <property name="show_arrow">False</property>
                     <child>
-                      <object class="GtkToolbar" id="toolbar_main">
+                      <object class="GtkSeparatorToolItem" id="s6">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="vexpand">True</property>
-                        <property name="orientation">vertical</property>
-                        <property name="toolbar_style">icons</property>
-                        <child>
-                          <object class="GtkRadioToolButton" id="stream_live">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">LIVE</property>
-                            <property name="use_underline">True</property>
-                            <property name="icon_widget">img-stream-live</property>
-                            <property name="active">True</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="homogeneous">True</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkRadioToolButton" id="stream_blank">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">BLANK</property>
-                            <property name="use_underline">True</property>
-                            <property name="icon_widget">img-blank-stream</property>
-                            <property name="active">True</property>
-                            <property name="group">stream_live</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="homogeneous">True</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkSeparatorToolItem" id="s6">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="draw">False</property>
-                          </object>
-                          <packing>
-                            <property name="expand">True</property>
-                            <property name="homogeneous">True</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkToolButton" id="voc-btn">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="label">voctomix2</property>
-                            <property name="icon_widget">img-voc</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="homogeneous">True</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkToolButton" id="close">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="no_show_all">True</property>
-                            <property name="use_underline">True</property>
-                            <property name="stock_id">gtk-close</property>
-                          </object>
-                          <packing>
-                            <property name="expand">True</property>
-                            <property name="homogeneous">True</property>
-                          </packing>
-                        </child>
-                        <style>
-                          <class name="primary-toolbar"/>
-                        </style>
+                        <property name="draw">False</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
+                        <property name="homogeneous">True</property>
                       </packing>
                     </child>
+                    <child>
+                      <object class="GtkToolButton" id="voc-btn">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label">voctomix2</property>
+                        <property name="icon_widget">img-voc</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToolButton" id="close">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="no_show_all">True</property>
+                        <property name="use_underline">True</property>
+                        <property name="stock_id">gtk-close</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                    <style>
+                      <class name="primary-toolbar"/>
+                    </style>
                   </object>
                   <packing>
-                    <property name="expand">False</property>
+                    <property name="expand">True</property>
                     <property name="fill">True</property>
-                    <property name="position">1</property>
+                    <property name="position">0</property>
                   </packing>
                 </child>
               </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="position">1</property>
+                <property name="position">2</property>
               </packing>
             </child>
           </object>

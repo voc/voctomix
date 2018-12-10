@@ -2,8 +2,38 @@
 
 
 .name { font-size: 15px; }
-.button {
+button {
   font-size: 20px;
-  border-style: inset;
-  border-width: 10px;
+  border-radius: 15px;
+  background-color: #505050;
+  margin-left:2px;
+  margin-top:2px;
+  margin-bottom:5px;
+  margin-right:5px;
+}
+
+button:checked, button:active {
+  background-image: none;
+  background-color: #ddbb00;
+  color: #000000;
+}
+
+button:checked:backdrop label {
+  color: #997700;
+}
+
+.output:disabled:backdrop label {
+  color: #106610;
+}
+
+.output:disabled button {
+  background-color: #40CC40;
+}
+
+.output:disabled label {
+  color: #000000;
+}
+
+.mode.output.live button:checked {
+  background-color: #FF4040;
 }
