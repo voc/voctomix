@@ -14,12 +14,12 @@ class Buttons(dict):
                 self[id]['id'] = id
             self[id][attr] = cfg_value
 
-    def create(self, toolbar, accelerators=None, toggled_callback=None, css=[], group=True, sensitive=True, visible=True):
+    def create(self, toolbar, accelerators=None, toggled_callback=None, css=[], group=True, sensitive=True, visible=True, multiline_names=True):
         def decode(text, multiline=True):
             if multiline:
-                text = text.replace('\\n','\n')
+                text = text.replace('\\n', '\n')
             else:
-                text = text.replace('\\n',' ')
+                text = text.replace('\\n', ' ')
             return text
 
         buttons = []
@@ -44,7 +44,7 @@ class Buttons(dict):
                 context.add_class(c)
 
             if 'name' in attr:
-                name = decode(attr['name'])
+                name = decode(attr['name'], multiline_names)
             else:
                 name = id
             new_btn.set_label(name)
@@ -52,7 +52,7 @@ class Buttons(dict):
             if 'tip' in attr:
                 tip = decode(attr['tip'])
             else:
-                tip = "Select source %s" % decode(name,False)
+                tip = "Select source %s" % decode(name, False)
 
             if toggled_callback:
                 new_btn.connect('toggled', toggled_callback)
