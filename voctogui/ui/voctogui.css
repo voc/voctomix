@@ -37,3 +37,7 @@ button:checked:backdrop label {
 .mode.output.live button:checked {
   background-color: #FF4040;
 }
+
+.mode.output.live button:checked label:backdrop  {
+  color: #801010;
+}

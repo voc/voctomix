@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import logging
 from gi.repository import Gtk
 
@@ -8,14 +9,15 @@ import lib.connection as Connection
 class MiscToolbarController(object):
     """Manages Accelerators and Clicks Misc buttons"""
 
-    def __init__(self, toolbar, win, uibuilder):
+    def __init__(self, win, uibuilder):
         self.log = logging.getLogger('MiscToolbarController')
+        self.toolbar = uibuilder.find_widget_recursive(win, 'toolbar_main')
 
         # Accelerators
         accelerators = Gtk.AccelGroup()
         win.add_accel_group(accelerators)
 
-        closebtn = uibuilder.find_widget_recursive(toolbar, 'close')
+        closebtn = uibuilder.find_widget_recursive(self.toolbar, 'close')
         closebtn.set_visible(Config.getboolean('misc', 'close'))
         closebtn.connect('clicked', self.on_closebtn_clicked)
 

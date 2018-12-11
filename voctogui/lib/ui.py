@@ -98,20 +98,16 @@ class Ui(UiBuilder):
             preview_controller = self.preview_toolbar_controller
         )
 
-#
-#        toolbar = self.find_widget_recursive(self.win, 'toolbar_main')
-#        self.streamblank_toolbar_controller = StreamblankToolbarController(
-#            toolbar,
-#            win=self.win,
-#            uibuilder=self,
-#            warning_overlay=self.video_warning_overlay
-#        )
-#
-#        self.misc_controller = MiscToolbarController(
-#            toolbar,
-#            win=self.win,
-#            uibuilder=self
-#        )
+        self.streamblank_toolbar_controller = StreamblankToolbarController(
+            win=self.win,
+            uibuilder=self,
+            warning_overlay=self.video_warning_overlay
+        )
+
+        self.misc_controller = MiscToolbarController(
+            win=self.win,
+            uibuilder=self
+        )
 
         # Setup Shortcuts window
         self.win.connect('key-press-event', self.handle_keypress)
