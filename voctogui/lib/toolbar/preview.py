@@ -40,13 +40,9 @@ class PreviewToolbarController(object):
         self.mods.create(toolbar_mods, accelerators, self.on_btn_toggled, group=False)
 
         # initialize source buttons
-        self.sourceA = self.sourcesA.ids[0]
-        self.sourceB = self.sourcesB.ids[1]
-        self.sourcesA[self.sourceA]['button'].set_active(True)
-        self.sourcesB[self.sourceB]['button'].set_active(True)
-
-        self.target = self.targets.ids[0]
-        self.targets[self.target]['button'].set_active(True)
+        self.sourceA = None
+        self.sourceB = None
+        self.target = None
 
         self.modstates = dict()
         for id in self.mods.ids:
