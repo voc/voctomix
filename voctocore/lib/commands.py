@@ -187,11 +187,18 @@ class ControlServerCommands(object):
                            composite_status, *video_status),
         ]
 
-    def set_composite(self, command):
+    def transition(self, command):
         """sets the composite and sources by using the composite command format
            (e.g. 'sbs(cam1,cam2)') as the only parameter
         """
-        self.pipeline.vmix.setComposite(command)
+        self.pipeline.vmix.setComposite(command,True)
+        return NotifyResponse('composite', self.pipeline.vmix.getComposite())
+
+    def cut(self, command):
+        """sets the composite and sources by using the composite command format
+           (e.g. 'sbs(cam1,cam2)') as the only parameter
+        """
+        self.pipeline.vmix.setComposite(command,False)
         return NotifyResponse('composite', self.pipeline.vmix.getComposite())
 
     def get_composite(self):

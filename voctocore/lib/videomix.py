@@ -11,9 +11,6 @@ from lib.scene import Scene
 
 from vocto.composite_commands import CompositeCommand
 
-useTransitions = True
-
-
 class VideoMix(object):
     log = logging.getLogger('VideoMix')
 
@@ -143,7 +140,7 @@ class VideoMix(object):
         (error, debug) = message.parse_error()
         self.log.debug('Error-Details: #%u: %s', error.code, debug)
 
-    def setCompositeEx(self, newCompositeName=None, newA=None, newB=None):
+    def setCompositeEx(self, newCompositeName=None, newA=None, newB=None, useTransitions = False):
         # expect strings or None as parameters
         assert not newCompositeName or type(newCompositeName) == str
         assert not newA or type(newA) == str
@@ -227,15 +224,14 @@ class VideoMix(object):
         self.sourceA = newA
         self.sourceB = newB
 
-    def setComposite(self, command):
+    def setComposite(self, command, useTransitions=False):
         ''' parse switch to the composite described by string command '''
         # expect string as parameter
         assert type(command) == str
-
         # parse command
         command = CompositeCommand.from_str(command)
         self.log.debug("Setting new composite by string '%s'", command)
-        self.setCompositeEx(command.composite, command.A, command.B)
+        self.setCompositeEx(command.composite, command.A, command.B, useTransitions)
 
     def getVideoSources(self):
         ''' legacy command '''
@@ -243,7 +239,7 @@ class VideoMix(object):
 
     def setVideoSourceA(self, source):
         ''' legacy command '''
-        setCompositeEx(None,source,None)
+        setCompositeEx(None,source,None, useTransitions=False)
 
     def getVideoSourceA(self):
         ''' legacy command '''
@@ -251,7 +247,7 @@ class VideoMix(object):
 
     def setVideoSourceB(self, source):
         ''' legacy command '''
-        setCompositeEx(None,None,source)
+        setCompositeEx(None,None,source, useTransitions=False)
 
     def getVideoSourceB(self):
         ''' legacy command '''
@@ -259,7 +255,7 @@ class VideoMix(object):
 
     def setCompositeMode(self, mode):
         ''' legacy command '''
-        setCompositeEx(mode,None,None)
+        setCompositeEx(mode,None,None, useTransitions=False)
 
     def getCompositeMode(self):
         ''' legacy command '''
