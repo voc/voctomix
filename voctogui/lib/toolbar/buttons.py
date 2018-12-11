@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from gi.repository import Gtk
+import sys
 
 class Buttons(dict):
 
@@ -13,19 +14,17 @@ class Buttons(dict):
                 self[id]['id'] = id
             self[id][attr] = cfg_value
 
-    def create(self, toolbar, pos, accelerators=None, toggled_callback=None, css=[], group=True, sensitive=True, visible=True):
-        def decode( text, multiline=True ):
+    def create(self, toolbar, accelerators=None, toggled_callback=None, css=[], group=True, sensitive=True, visible=True):
+        def decode(text, multiline=True):
             if multiline:
                 text = text.replace('\\n','\n')
             else:
                 text = text.replace('\\n',' ')
             return text
 
-        def key( x ):
-            return x[1]['pos']
-
+        buttons = []
         first_btn = None
-        for id, attr in sorted(self.items(),key=key):
+        for id, attr in self.items():
             if group:
                 if not first_btn:
                     first_btn = new_btn = Gtk.RadioToolButton(None)
@@ -68,10 +67,13 @@ class Buttons(dict):
                 else:
                     new_btn.set_tooltip_text(tip)
 
-            if 'pos' in attr:
-                pos = int(attr['pos'])
+            buttons.append(
+                (int(attr['pos']) if 'pos' in attr else sys.maxsize, new_btn))
 
-            toolbar.insert(new_btn, pos)
+        def key(x):
+            return x[0]
+
+        pos = toolbar.get_n_items()
+        for btn in sorted(buttons, key=key):
+            toolbar.insert(btn[1], pos)
             pos += 1
-
-        return pos

@@ -34,12 +34,10 @@ class PreviewToolbarController(object):
         toolbar_mods = uibuilder.find_widget_recursive(
             win, 'toolbar_preview_mod')
 
-        self.targets.create(toolbar_composites, 0,
-                            accelerators, self.on_btn_toggled)
-        self.sourcesA.create(toolbar_a, 0, accelerators, self.on_btn_toggled)
-        self.sourcesB.create(toolbar_b, 0, accelerators, self.on_btn_toggled)
-        self.mods.create(toolbar_mods, 0, accelerators,
-                         self.on_btn_toggled, group=False)
+        self.targets.create(toolbar_composites,accelerators, self.on_btn_toggled)
+        self.sourcesA.create(toolbar_a, accelerators, self.on_btn_toggled)
+        self.sourcesB.create(toolbar_b, accelerators, self.on_btn_toggled)
+        self.mods.create(toolbar_mods, accelerators, self.on_btn_toggled, group=False)
 
         # initialize source buttons
         self.sourceA = self.sourcesA.ids[0]
