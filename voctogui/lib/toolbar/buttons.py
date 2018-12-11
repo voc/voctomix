@@ -65,6 +65,9 @@ class Buttons(dict):
                 else:
                     new_btn.set_tooltip_text(tip)
 
+            if 'pos' in attr:
+                pos = int(attr['pos'])
+
             toolbar.insert(new_btn, pos)
             pos += 1
 
