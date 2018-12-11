@@ -21,8 +21,11 @@ class Buttons(dict):
                 text = text.replace('\\n',' ')
             return text
 
+        def key( x ):
+            return x[1]['pos']
+
         first_btn = None
-        for id, attr in self.items():
+        for id, attr in sorted(self.items(),key=key):
             if group:
                 if not first_btn:
                     first_btn = new_btn = Gtk.RadioToolButton(None)
