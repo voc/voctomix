@@ -40,5 +40,5 @@ class MixToolbarController(object):
 
     def on_trans_clicked(self, btn):
         command = self.preview_controller.command()
-        self.log.info('Sending new composite: %s', command)
+        self.log.info('Sending new composite (using transition): %s', command)
         Connection.send('transition', str(command))
