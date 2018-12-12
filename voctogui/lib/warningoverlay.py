@@ -47,7 +47,7 @@ class VideoWarningOverlay(object):
         cr.rectangle(0, 0, w, h)
         cr.fill()
 
-        text = self.text
+        text = self.text.upper()
 
         cr.set_font_size(h * 0.75)
         (xbearing, ybearing,
