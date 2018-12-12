@@ -58,7 +58,6 @@ https://github.com/voc/voctomix </property>
                     <child>
                       <object class="GtkDrawingArea" id="video_main">
                         <property name="width_request">568</property>
-                        <property name="height_request">320</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="double_buffered">False</property>
@@ -603,30 +602,9 @@ Key: &lt;Shift&gt;Return</property>
                     <property name="position">0</property>
                   </packing>
                 </child>
-                <child>
-                  <object class="GtkBox">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="orientation">vertical</property>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
               </object>
               <packing>
-                <property name="expand">True</property>
+                <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="position">1</property>
               </packing>
