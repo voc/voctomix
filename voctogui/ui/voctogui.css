@@ -18,6 +18,14 @@ button:checked, button:active {
   color: #000000;
 }
 
+button:checked:disabled {
+  background-color: #aa9944;
+}
+
+button:checked:disabled label {
+  color: #997700;
+}
+
 button:checked:backdrop label {
   color: #997700;
 }

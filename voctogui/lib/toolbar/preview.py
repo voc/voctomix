@@ -52,6 +52,8 @@ class PreviewToolbarController(object):
         for id in self.mods.ids:
             self.modstates[id] = False
 
+        self.enable_modifiers()
+
         self.initialized = True
 
     def on_btn_toggled(self, btn):
@@ -79,6 +81,7 @@ class PreviewToolbarController(object):
                         "Selected '%s' for preview source B", self.sourceB)
             elif id in self.targets:
                 self.target = id
+                self.enable_modifiers()
                 self.log.info(
                     "Selected '%s' for preview target composite", self.target)
 
@@ -87,6 +90,11 @@ class PreviewToolbarController(object):
             self.log.info("Turned preview modifier '%s' %s", id,
                           'on' if self.modstates[id] else 'off')
         self.log.debug("current command is '%s", self.command())
+
+    def enable_modifiers(self):
+        command = CompositeCommand(self.target, self.sourceA, self.sourceB)
+        for id, attr in self.mods.items():
+            attr['button'].set_sensitive( command.modify(attr['replace']) )
 
     def command(self):
         # process all selected replactions

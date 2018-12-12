@@ -22,9 +22,9 @@ class OutputToolbarController(object):
         self.targets = Buttons(Config['toolbar.targets'])
         self.mods = Buttons(Config['toolbar.mods'])
 
-        self.sources.create(self.toolbar, css=["output", "source"], sensitive=False, visible=False, multiline_names=False)
-        self.targets.create(self.toolbar, css=["output", "composite"], sensitive=False, visible=False, multiline_names=False)
-        self.mods.create(self.toolbar, css=["output", "mod"], sensitive=False, visible=False, multiline_names=False)
+        self.sources.create(self.toolbar, css=["output", "source"], group=False, sensitive=False, visible=False, multiline_names=False)
+        self.targets.create(self.toolbar, css=["output", "composite"], group=False, sensitive=False, visible=False, multiline_names=False)
+        self.mods.create(self.toolbar, css=["output", "mod"], group=False, sensitive=False, visible=False, multiline_names=False)
 
         # connect event-handler and request initial state
         Connection.on('composite_mode_and_video_status',
