@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import logging
+import copy
 
 from gi.repository import Gtk, GdkPixbuf
 import lib.connection as Connection
@@ -38,13 +39,12 @@ class OutputToolbarController(object):
     def set_command(self,command):
         if type(command) == str:
             command = CompositeCommand.from_str(command)
+        self._command = copy.deepcopy(command)
         selection = []
         for id, attr in self.mods.items():
             if command.modify(attr['replace'], reverse=True):
                 selection.append(id)
         selection = [command.A, command.B, command.composite] + selection
-
-        self._command = command
 
         for id, attr in {**self.sources, **self.targets, **self.mods}.items():
             visible = id in selection

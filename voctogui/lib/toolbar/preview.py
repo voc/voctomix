@@ -108,9 +108,9 @@ class PreviewToolbarController(object):
     def set_command(self, command):
         if type(command) == str:
             command = CompositeCommand.from_str(command)
-        self.targets[command.composite]['button'].set_active(True)
-        self.sourcesA[command.A]['button'].set_active(True)
-        self.sourcesB[command.B]['button'].set_active(True)
         for id, attr in self.mods.items():
             attr['button'].set_active(
                 command.modify(attr['replace'], reverse=True))
+        self.targets[command.composite]['button'].set_active(True)
+        self.sourcesA[command.A]['button'].set_active(True)
+        self.sourcesB[command.B]['button'].set_active(True)
