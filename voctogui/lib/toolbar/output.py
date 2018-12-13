@@ -70,7 +70,7 @@ class OutputToolbarController(object):
         self.toolbar_composite.rebuild_menu()
         self.toolbar_a.rebuild_menu()
         self.toolbar_b.rebuild_menu()
-        self.toolbar_mods.rebuild_menu()
+        self.toolbar_mod.rebuild_menu()
 
     def command(self):
         return self._command
