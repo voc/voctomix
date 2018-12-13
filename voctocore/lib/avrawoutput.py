@@ -5,6 +5,7 @@ from gi.repository import Gst
 from lib.config import Config
 from lib.tcpmulticonnection import TCPMultiConnection
 from lib.clock import Clock
+from lib.args import Args
 
 
 class AVRawOutput(TCPMultiConnection):
@@ -54,8 +55,10 @@ class AVRawOutput(TCPMultiConnection):
         self.log.debug('Creating Output-Pipeline:\n%s', pipeline)
         self.outputPipeline = Gst.parse_launch(pipeline)
 
-        Gst.debug_bin_to_dot_file(
-            self.outputPipeline, Gst.DebugGraphDetails.ALL, "avrawoutput")
+        if Args.dot:
+            self.log.debug('Generating DOT image of avrawoutput pipeline')
+            Gst.debug_bin_to_dot_file(
+                self.outputPipeline, Gst.DebugGraphDetails.ALL, "avrawoutput")
 
         self.outputPipeline.use_clock(Clock)
 

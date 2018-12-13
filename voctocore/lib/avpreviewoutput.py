@@ -5,6 +5,7 @@ from gi.repository import Gst
 from lib.config import Config
 from lib.tcpmulticonnection import TCPMultiConnection
 from lib.clock import Clock
+from lib.args import Args
 
 
 class AVPreviewOutput(TCPMultiConnection):
@@ -60,8 +61,10 @@ class AVPreviewOutput(TCPMultiConnection):
         self.log.debug('Creating Output-Pipeline:\n%s', pipeline)
         self.outputPipeline = Gst.parse_launch(pipeline)
 
-        Gst.debug_bin_to_dot_file(
-            self.outputPipeline, Gst.DebugGraphDetails.ALL, "avpreviewoutput")
+        if Args.dot:
+            self.log.debug('Generating DOT image of avpreviewoutput pipeline')
+            Gst.debug_bin_to_dot_file(
+                self.outputPipeline, Gst.DebugGraphDetails.ALL, "avpreviewoutput")
 
         self.outputPipeline.use_clock(Clock)
 

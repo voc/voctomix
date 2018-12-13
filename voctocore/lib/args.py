@@ -24,4 +24,7 @@ def parse():
     parser.add_argument('-i', '--ini-file', action='store',
                         help="Load a custom config.ini-File")
 
+    parser.add_argument('-d', '--dot', action='store_true',
+                        help="Generate dot files of pipelines")
+
     Args = parser.parse_args()
