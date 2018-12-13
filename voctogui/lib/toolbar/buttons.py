@@ -37,7 +37,7 @@ class Buttons(dict):
                 self[id]['id'] = id
             self[id][attr] = cfg_value
 
-    def create(self, toolbar, accelerators=None, toggled_callback=None, css=[], group=True, sensitive=True, visible=True, multiline_names=True):
+    def create(self, toolbar, accelerators=None, callback=None, css=[], group=True, radio=True, sensitive=True, visible=True, multiline_names=True):
         ''' create toolbar from read configuration items '''
 
         def decode(text, multiline=True):
@@ -52,14 +52,17 @@ class Buttons(dict):
         buttons = []
         first_btn = None
         for id, attr in self.items():
-            # create button and manage grouping of radio buttons
-            if group:
-                if not first_btn:
-                    first_btn = btn = Gtk.RadioToolButton(None)
+            if radio:
+                # create button and manage grouping of radio buttons
+                if group:
+                    if not first_btn:
+                        first_btn = btn = Gtk.RadioToolButton(None)
+                    else:
+                        btn = Gtk.RadioToolButton.new_from_widget(first_btn)
                 else:
-                    btn = Gtk.RadioToolButton.new_from_widget(first_btn)
+                    btn = Gtk.ToggleToolButton()
             else:
-                btn = Gtk.ToggleToolButton()
+                btn = Gtk.ToolButton()
 
             # set button properties
             btn.set_can_focus(False)
@@ -90,8 +93,11 @@ class Buttons(dict):
                 tip = "Select source %s" % decode(name, False)
 
             # set interaction callback
-            if toggled_callback:
-                btn.connect('toggled', toggled_callback)
+            if callback:
+                if radio:
+                    btn.connect('toggled', callback)
+                else:
+                    btn.connect('clicked', callback)
 
             # set accelerator key and tooltip
             if accelerators and 'key' in attr:
@@ -103,6 +109,10 @@ class Buttons(dict):
                     key, mod, Gtk.AccelFlags.VISIBLE)
             else:
                 btn.set_tooltip_text(tip)
+
+            # set button tooltip
+            if 'expand' in attr:
+                btn.set_expand(True)
 
             # store button
             buttons.append(

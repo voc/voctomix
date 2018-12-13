@@ -20,27 +20,25 @@ class MixToolbarController(object):
         self.preview_controller = preview_controller
         self.log = logging.getLogger('PreviewToolbarController')
 
+        accelerators = Gtk.AccelGroup()
+        win.add_accel_group(accelerators)
+
+        self.mix = Buttons(Config['toolbar.mix'])
+
         self.toolbar = uibuilder.find_widget_recursive(
             win, 'toolbar_mix')
 
-        uibuilder.find_widget_recursive(
-            win, 'mix_retake').connect('clicked', self.on_retake_clicked)
-        uibuilder.find_widget_recursive(
-            win, 'mix_cut').connect('clicked', self.on_cut_clicked)
-        uibuilder.find_widget_recursive(
-            win, 'mix_trans').connect('clicked', self.on_trans_clicked)
+        self.mix.create(self.toolbar, accelerators,
+                        self.on_btn_clicked, radio=False)
 
-    def on_retake_clicked(self, btn):
-        self.preview_controller.set_command(self.output_controller.command())
-
-    def on_cut_clicked(self, btn):
+    def on_btn_clicked(self, btn):
+        id = btn.get_name()
         command = self.preview_controller.command()
         self.preview_controller.set_command(self.output_controller.command())
-        self.log.info('Sending new composite: %s', command)
-        Connection.send('cut', str(command))
-
-    def on_trans_clicked(self, btn):
-        command = self.preview_controller.command()
-        self.preview_controller.set_command(self.output_controller.command())
-        self.log.info('Sending new composite (using transition): %s', command)
-        Connection.send('transition', str(command))
+        if id == 'cut':
+            self.log.info('Sending new composite: %s', command)
+            Connection.send('cut', str(command))
+        elif id == 'trans':
+            self.log.info(
+                'Sending new composite (using transition): %s', command)
+            Connection.send('transition', str(command))
