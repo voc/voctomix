@@ -17,15 +17,21 @@ class OutputToolbarController(object):
 
     def __init__(self, win, uibuilder):
         self.log = logging.getLogger('OutputToolbarController')
-        self.toolbar = uibuilder.find_widget_recursive(win, 'toolbar_output')
 
-        self.sources = Buttons(Config['toolbar.sources.a'])
-        self.targets = Buttons(Config['toolbar.targets'])
+        self.sourcesA = Buttons(Config['toolbar.sources.a'])
+        self.sourcesB = Buttons(Config['toolbar.sources.b'])
+        self.composites = Buttons(Config['toolbar.composites'])
         self.mods = Buttons(Config['toolbar.mods'])
 
-        self.sources.create(self.toolbar, css=["output", "source"], group=False, sensitive=False, visible=False, multiline_names=False)
-        self.targets.create(self.toolbar, css=["output", "composite"], group=False, sensitive=False, visible=False, multiline_names=False)
-        self.mods.create(self.toolbar, css=["output", "mod"], group=False, sensitive=False, visible=False, multiline_names=False)
+        self.toolbar_composite = uibuilder.find_widget_recursive(win, 'toolbar_output_composite')
+        self.toolbar_a = uibuilder.find_widget_recursive(win, 'toolbar_output_a')
+        self.toolbar_b = uibuilder.find_widget_recursive(win, 'toolbar_output_b')
+        self.toolbar_mod = uibuilder.find_widget_recursive(win, 'toolbar_output_mod')
+
+        self.composites.create(self.toolbar_composite, css=["output", "composite"], group=False, sensitive=False, visible=False, multiline_names=False)
+        self.sourcesA.create(self.toolbar_a, css=["output", "source"], group=False, sensitive=False, visible=False, multiline_names=False)
+        self.sourcesB.create(self.toolbar_b, css=["output", "source"], group=False, sensitive=False, visible=False, multiline_names=False)
+        self.mods.create(self.toolbar_mod, css=["output", "mod"], group=False, sensitive=False, visible=False, multiline_names=False)
 
         # connect event-handler and request initial state
         Connection.on('composite_mode_and_video_status',
@@ -44,13 +50,27 @@ class OutputToolbarController(object):
         for id, attr in self.mods.items():
             if command.modify(attr['replace'], reverse=True):
                 selection.append(id)
-        selection = [command.A, command.B, command.composite] + selection
+        selection = [command.composite] + selection
 
-        for id, attr in {**self.sources, **self.targets, **self.mods}.items():
+        for id, attr in self.sourcesA.items():
+            visible = id == command.A
+            attr['button'].set_visible_horizontal(visible)
+            attr['button'].set_visible_vertical(visible)
+
+        for id, attr in self.sourcesB.items():
+            visible = id == command.B
+            attr['button'].set_visible_horizontal(visible)
+            attr['button'].set_visible_vertical(visible)
+
+        for id, attr in {**self.composites, **self.mods}.items():
             visible = id in selection
             attr['button'].set_visible_horizontal(visible)
             attr['button'].set_visible_vertical(visible)
-        self.toolbar.rebuild_menu()
+
+        self.toolbar_composite.rebuild_menu()
+        self.toolbar_a.rebuild_menu()
+        self.toolbar_b.rebuild_menu()
+        self.toolbar_mods.rebuild_menu()
 
     def command(self):
         return self._command

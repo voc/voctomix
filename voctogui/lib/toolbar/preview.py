@@ -24,20 +24,20 @@ class PreviewToolbarController(object):
 
         self.sourcesA = Buttons(Config['toolbar.sources.a'])
         self.sourcesB = Buttons(Config['toolbar.sources.b'])
-        self.targets = Buttons(Config['toolbar.targets'])
+        self.composites = Buttons(Config['toolbar.composites'])
         self.mods = Buttons(Config['toolbar.mods'])
 
-        toolbar_composites = uibuilder.find_widget_recursive(
+        toolbar_composite = uibuilder.find_widget_recursive(
             win, 'toolbar_preview_composite')
         toolbar_a = uibuilder.find_widget_recursive(win, 'toolbar_preview_a')
         toolbar_b = uibuilder.find_widget_recursive(win, 'toolbar_preview_b')
-        toolbar_mods = uibuilder.find_widget_recursive(
+        toolbar_mod = uibuilder.find_widget_recursive(
             win, 'toolbar_preview_mod')
 
-        self.targets.create(toolbar_composites,accelerators, self.on_btn_toggled)
+        self.composites.create(toolbar_composite,accelerators, self.on_btn_toggled)
         self.sourcesA.create(toolbar_a, accelerators, self.on_btn_toggled)
         self.sourcesB.create(toolbar_b, accelerators, self.on_btn_toggled)
-        self.mods.create(toolbar_mods, accelerators, self.on_btn_toggled, group=False)
+        self.mods.create(toolbar_mod, accelerators, self.on_btn_toggled, group=False)
 
         # initialize source buttons
         self.sourceA = self.sourcesA.ids[0]
@@ -45,8 +45,8 @@ class PreviewToolbarController(object):
         self.sourcesA[self.sourceA]['button'].set_active(True)
         self.sourcesB[self.sourceB]['button'].set_active(True)
 
-        self.target = self.targets.ids[0]
-        self.targets[self.target]['button'].set_active(True)
+        self.composite = self.composites.ids[0]
+        self.composites[self.composite]['button'].set_active(True)
 
         self.modstates = dict()
         for id in self.mods.ids:
@@ -79,11 +79,11 @@ class PreviewToolbarController(object):
                     self.sourceB = id
                     self.log.info(
                         "Selected '%s' for preview source B", self.sourceB)
-            elif id in self.targets:
-                self.target = id
+            elif id in self.composites:
+                self.composite = id
                 self.enable_modifiers()
                 self.log.info(
-                    "Selected '%s' for preview target composite", self.target)
+                    "Selected '%s' for preview target composite", self.composite)
 
         if id in self.mods:
             self.modstates[id] = btn.get_active()
@@ -92,13 +92,13 @@ class PreviewToolbarController(object):
         self.log.debug("current command is '%s", self.command())
 
     def enable_modifiers(self):
-        command = CompositeCommand(self.target, self.sourceA, self.sourceB)
+        command = CompositeCommand(self.composite, self.sourceA, self.sourceB)
         for id, attr in self.mods.items():
             attr['button'].set_sensitive( command.modify(attr['replace']) )
 
     def command(self):
         # process all selected replactions
-        command = CompositeCommand(self.target, self.sourceA, self.sourceB)
+        command = CompositeCommand(self.composite, self.sourceA, self.sourceB)
         for id, attr in self.mods.items():
             if self.modstates[id]:
                 command.modify(attr['replace'])
@@ -111,6 +111,6 @@ class PreviewToolbarController(object):
         for id, attr in self.mods.items():
             attr['button'].set_active(
                 command.modify(attr['replace'], reverse=True))
-        self.targets[command.composite]['button'].set_active(True)
+        self.composites[command.composite]['button'].set_active(True)
         self.sourcesA[command.A]['button'].set_active(True)
         self.sourcesB[command.B]['button'].set_active(True)
