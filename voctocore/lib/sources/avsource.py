@@ -5,6 +5,7 @@ from gi.repository import Gst
 
 from lib.config import Config
 from lib.clock import Clock
+from lib.args import Args
 
 
 class AVSource(object, metaclass=ABCMeta):
@@ -85,7 +86,7 @@ class AVSource(object, metaclass=ABCMeta):
         self.log.debug('Launching Source-Pipeline:\n%s', pipeline)
         self.pipeline = Gst.parse_launch(pipeline)
 
-        if Config.getboolean('debug', 'generate-dot-of-pipes'):
+        if Args.dot:
             self.log.debug('Generating DOT image of avsource pipeline')
             Gst.debug_bin_to_dot_file(
                 self.pipeline, Gst.DebugGraphDetails.ALL, "avsource")
