@@ -1,13 +1,10 @@
 /* set font size for UHD screens */
 
 
-* {
-  font-family: Roboto Condensed;
-}
-
+.name { font-size: 15px; }
 button {
-  font-size: 25px;
-  border-radius: 20px;
+  font-size: 20px;
+  border-radius: 15px;
   background-color: #505050;
   margin-left:2px;
   margin-top:2px;

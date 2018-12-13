@@ -74,8 +74,8 @@ class AudioMix(object):
                 queue !
                 tee name=tee_{audiostream}
 
-                tee_{audiostream}. ! queue ! interaudiosink
-                    channel=audio_mix_out_stream{audiostream}
+                tee_{audiostream}. ! queue ! interpipesink
+                    name=audio_mix_out_stream{audiostream}
             """.format(
                 caps=self.caps,
                 audiostream=audiostream,
@@ -83,25 +83,25 @@ class AudioMix(object):
 
             if Config.getboolean('previews', 'enabled'):
                 pipeline += """
-                    tee_{audiostream}. ! queue ! interaudiosink
-                        channel=audio_mix_preview_stream{audiostream}
+                    tee_{audiostream}. ! queue ! interpipesink
+                        name=audio_mix_preview_stream{audiostream}
                 """.format(
                     audiostream=audiostream,
                 )
 
             if Config.getboolean('stream-blanker', 'enabled'):
                 pipeline += """
-                    tee_{audiostream}. ! queue ! interaudiosink
-                        channel=audio_mix_stream{audiostream}_stream-blanker
+                    tee_{audiostream}. ! queue ! interpipesink
+                        name=audio_mix_stream{audiostream}_stream-blanker
                 """.format(
                     audiostream=audiostream,
                 )
 
             for idx, name in enumerate(self.names):
                 pipeline += """
-                    interaudiosrc
-                        channel=audio_{name}_mixer_stream{audiostream} !
-                    {caps} !
+                    interpipesrc
+                        listen-to=audio_{name}_mixer_stream{audiostream}
+                        caps={caps} !
                     mix_{audiostream}.
                 """.format(
                     name=name,
@@ -160,6 +160,6 @@ class AudioMix(object):
         self.log.debug('Received End-of-Stream-Signal on Mixing-Pipeline')
 
     def on_error(self, bus, message):
-        self.log.debug('Received Error-Signal on Mixing-Pipeline')
+        self.log.error('Received Error-Signal on Mixing-Pipeline')
         (error, debug) = message.parse_error()
         self.log.debug('Error-Details: #%u: %s', error.code, debug)

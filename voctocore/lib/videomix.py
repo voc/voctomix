@@ -42,29 +42,31 @@ class VideoMix(object):
             queue !
             tee name=tee
 
-            intervideosrc channel=video_background !
-            {caps} !
+            interpipesrc
+                listen-to=video_background
+                caps={caps} !
             mix.
 
-            tee. ! queue ! intervideosink channel=video_mix_out
+            tee. ! queue ! interpipesink name=video_mix_out
         """.format(
             caps=self.caps
         )
 
         if Config.getboolean('previews', 'enabled'):
             pipeline += """
-                tee. ! queue ! intervideosink channel=video_mix_preview
+                tee. ! queue ! interpipesink name=video_mix_preview
             """
 
         if Config.getboolean('stream-blanker', 'enabled'):
             pipeline += """
-                tee. ! queue ! intervideosink channel=video_mix_stream-blanker
+                tee. ! queue ! interpipesink name=video_mix_stream-blanker
             """
 
         for idx, name in enumerate(self.sources):
             pipeline += """
-                intervideosrc channel=video_{name}_mixer !
-                {caps} !
+                interpipesrc
+                    listen-to=video_{name}_mixer
+                    caps={caps} !
                 videobox name=video_{idx}_cropper !
                 mix.
             """.format(
@@ -143,7 +145,7 @@ class VideoMix(object):
         self.log.debug('Received End-of-Stream-Signal on Mixing-Pipeline')
 
     def on_error(self, bus, message):
-        self.log.debug('Received Error-Signal on Mixing-Pipeline')
+        self.log.error('Received Error-Signal on Mixing-Pipeline')
         (error, debug) = message.parse_error()
         self.log.debug('Error-Details: #%u: %s', error.code, debug)
 

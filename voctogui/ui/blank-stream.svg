@@ -13,7 +13,7 @@
    height="48"
    id="svg3052"
    version="1.1"
-   inkscape:version="0.91 r13725"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
    sodipodi:docname="blank-stream.svg">
   <defs
      id="defs3054" />
@@ -31,9 +31,9 @@
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1912"
-     inkscape:window-height="1156"
+     inkscape:window-height="1171"
      inkscape:window-x="0"
-     inkscape:window-y="20"
+     inkscape:window-y="0"
      inkscape:window-maximized="0"
      showguides="true"
      inkscape:guide-bbox="true"
@@ -109,7 +109,8 @@
     </g>
     <g
        id="g18452"
-       transform="matrix(1.9041916,0,0,1.9041916,2.711969,-945.99225)">
+       transform="matrix(1.9041916,0,0,1.9041916,2.711969,-945.99225)"
+       style="fill:#ff4500">
       <rect
          ry="0"
          rx="0"
@@ -118,9 +119,9 @@
          height="11.289488"
          width="4.6332374"
          id="rect18448"
-         style="opacity:1;fill:#ffd700;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1.4917624;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+         style="opacity:1;fill:#ff4500;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1.4917624;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
       <rect
-         style="opacity:1;fill:#ffd700;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1.4917624;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         style="opacity:1;fill:#ff4500;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1.4917624;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
          id="rect18450"
          width="4.6332374"
          height="11.289488"
@@ -129,5 +130,5 @@
          rx="0"
          ry="0" />
     </g>
-</g>
+  </g>
 </svg>

@@ -165,7 +165,7 @@ class VideoDisplay(object):
             msg.src.set_window_handle(self.xid)
 
     def on_error(self, bus, message):
-        self.log.debug('Received Error-Signal on Display-Pipeline')
+        self.log.error('Received Error-Signal on Display-Pipeline')
         (error, debug) = message.parse_error()
         self.log.debug('Error-Details: #%u: %s', error.code, debug)
 

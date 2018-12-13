@@ -56,8 +56,8 @@ class AVSource(object, metaclass=ABCMeta):
 
                 for output in self.outputs:
                     pipeline += """
-                        atee_stream{audiostream}. ! queue ! interaudiosink
-                            channel=audio_{output}_stream{audiostream}
+                        atee_stream{audiostream}. ! queue ! interpipesink
+                            name=audio_{output}_stream{audiostream}
                     """.format(
                         output=output,
                         audiostream=audiostream,
@@ -77,7 +77,7 @@ class AVSource(object, metaclass=ABCMeta):
 
             for output in self.outputs:
                 pipeline += """
-                    vtee. ! queue ! intervideosink channel=video_{output}
+                    vtee. ! queue ! interpipesink name=video_{output}
                 """.format(
                     output=output
                 )
@@ -124,7 +124,7 @@ class AVSource(object, metaclass=ABCMeta):
         self.log.debug('Received End-of-Stream-Signal on Source-Pipeline')
 
     def on_error(self, bus, message):
-        self.log.warning('Received Error-Signal on Source-Pipeline')
+        self.log.error('Received Error-Signal on Source-Pipeline')
         (error, debug) = message.parse_error()
         self.log.debug('Error-Details: #%u: %s', error.code, debug)
 

@@ -24,8 +24,9 @@ class AVPreviewOutput(TCPMultiConnection):
             target_caps = Config.get('mix', 'videocaps')
 
         pipeline = """
-            intervideosrc channel=video_{channel} !
-            {vcaps} !
+            interpipesrc
+                listen-to=video_{channel}
+                caps={vcaps} !
             {vpipeline} !
             queue !
             mux.
@@ -37,8 +38,9 @@ class AVPreviewOutput(TCPMultiConnection):
 
         for audiostream in range(0, Config.getint('mix', 'audiostreams')):
             pipeline += """
-                interaudiosrc channel=audio_{channel}_stream{audiostream} !
-                {acaps} !
+                interpipesrc
+                    listen-to=audio_{channel}_stream{audiostream}
+                    caps={acaps} !
                 queue !
                 mux.
             """.format(
@@ -177,6 +179,6 @@ class AVPreviewOutput(TCPMultiConnection):
         self.log.debug('Received End-of-Stream-Signal on Output-Pipeline')
 
     def on_error(self, bus, message):
-        self.log.debug('Received Error-Signal on Output-Pipeline')
+        self.log.error('Received Error-Signal on Output-Pipeline')
         (error, debug) = message.parse_error()
         self.log.debug('Error-Details: #%u: %s', error.code, debug)

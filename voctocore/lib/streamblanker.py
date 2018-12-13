@@ -27,15 +27,16 @@ class StreamBlanker(object):
             compositor name=vmix !
             {vcaps} !
             queue !
-            intervideosink channel=video_stream-blanker_out
+            interpipesink name=video_stream-blanker_out
         """.format(
             vcaps=self.vcaps,
         )
 
         # Source from the Main-Mix
         pipeline += """
-            intervideosrc channel=video_mix_stream-blanker !
-            {vcaps} !
+            interpipesrc
+                listen-to=video_mix_stream-blanker
+                caps={vcaps} !
             vmix.
         """.format(
             vcaps=self.vcaps,
@@ -46,14 +47,15 @@ class StreamBlanker(object):
                 compositor name=vmix-slides !
                 {vcaps} !
                 queue !
-                intervideosink channel=video_slides_stream-blanker_out
+                interpipesink name=video_slides_stream-blanker_out
             """.format(
                 vcaps=self.vcaps,
             )
 
             pipeline += """
-                intervideosrc channel=video_slides_stream-blanker !
-                {vcaps} !
+                interpipesrc
+                    listen-to=video_slides_stream-blanker
+                    caps={vcaps} !
                 vmix-slides.
             """.format(
                 vcaps=self.vcaps,
@@ -67,8 +69,8 @@ class StreamBlanker(object):
                 queue !
                 tee name=amix_{audiostream}-tee !
                 queue !
-                interaudiosink
-                    channel=audio_stream-blanker_out_stream{audiostream}
+                interpipesink
+                    name=audio_stream-blanker_out_stream{audiostream}
             """.format(
                 acaps=self.acaps,
                 audiostream=audiostream,
@@ -78,17 +80,17 @@ class StreamBlanker(object):
                 pipeline += """
                 amix_{audiostream}-tee. !
                 queue !
-                interaudiosink
-                    channel=audio_slides_stream-blanker_out_stream{audiostream}
+                interpipesink
+                    name=audio_slides_stream-blanker_out_stream{audiostream}
             """.format(
                     audiostream=audiostream,
                 )
 
             # Source from the Main-Mix
             pipeline += """
-                interaudiosrc
-                    channel=audio_mix_stream{audiostream}_stream-blanker !
-                {acaps} !
+                interpipesrc
+                    listen-to=audio_mix_stream{audiostream}_stream-blanker
+                    caps={acaps} !
                 amix_{audiostream}.
             """.format(
                 acaps=self.acaps,
@@ -99,8 +101,9 @@ class StreamBlanker(object):
 
         # Source from the Blank-Audio into a tee
         pipeline += """
-            interaudiosrc channel=audio_stream-blanker_stream0 !
-            {acaps} !
+            interpipesrc
+                listen-to=audio_stream-blanker_stream0
+                caps={acaps} !
             queue !
             tee name=atee
         """.format(
@@ -120,8 +123,8 @@ class StreamBlanker(object):
         for name in self.names:
             # Source from the named Blank-Video
             pipeline += """
-                intervideosrc channel=video_stream-blanker-{name} !
-                {vcaps} !
+                interpipesrc listen-to=video_stream-blanker-{name}
+                caps={vcaps} !
                 queue !
                 tee name=video_stream-blanker-tee-{name} !
                 queue !
@@ -167,7 +170,7 @@ class StreamBlanker(object):
         self.log.debug('Received End-of-Stream-Signal on Mixing-Pipeline')
 
     def on_error(self, bus, message):
-        self.log.debug('Received Error-Signal on Mixing-Pipeline')
+        self.log.error('Received Error-Signal on Mixing-Pipeline')
         (error, debug) = message.parse_error()
         self.log.debug('Error-Details: #%u: %s', error.code, debug)
 
