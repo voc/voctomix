@@ -5,6 +5,7 @@ from gi.repository import Gst
 
 from lib.config import Config
 from lib.clock import Clock
+from lib.args import Args
 
 
 class StreamBlanker(object):
@@ -141,6 +142,12 @@ class StreamBlanker(object):
 
         self.log.debug('Creating Mixing-Pipeline:\n%s', pipeline)
         self.mixingPipeline = Gst.parse_launch(pipeline)
+
+        if Args.dot:
+            self.log.debug('Generating DOT image of streamblanker pipeline')
+            Gst.debug_bin_to_dot_file(
+                self.mixingPipeline, Gst.DebugGraphDetails.ALL, "streamblanker")
+
         self.mixingPipeline.use_clock(Clock)
 
         self.log.debug('Binding Error & End-of-Stream-Signal '

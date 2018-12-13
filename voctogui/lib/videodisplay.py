@@ -133,6 +133,12 @@ class VideoDisplay(object):
 
         self.log.debug('Creating Display-Pipeline:\n%s', pipeline)
         self.pipeline = Gst.parse_launch(pipeline)
+
+        if Args.dot:
+            self.log.debug('Generating DOT image of videodisplay pipeline')
+            Gst.debug_bin_to_dot_file(
+                self.pipeline, Gst.DebugGraphDetails.ALL, "videodisplay")
+
         self.pipeline.use_clock(Clock)
 
         self.drawing_area.add_events(Gdk.EventMask.KEY_PRESS_MASK|Gdk.EventMask.KEY_RELEASE_MASK)

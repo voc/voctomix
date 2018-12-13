@@ -31,4 +31,7 @@ def parse():
                         help="Connect to this host "
                              "instead of the configured one.")
 
+    parser.add_argument('-d', '--dot', action='store_true',
+                        help="Generate dot files of pipelines")
+
     Args = parser.parse_args()

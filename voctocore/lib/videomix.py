@@ -8,6 +8,7 @@ from lib.config import Config
 from lib.clock import Clock
 from lib.transitions import Composites, Transitions
 from lib.scene import Scene
+from lib.args import Args
 
 from vocto.composite_commands import CompositeCommand
 
@@ -75,6 +76,12 @@ class VideoMix(object):
         # create pipeline
         self.log.debug('Creating Mixing-Pipeline:\n%s', pipeline)
         self.mixingPipeline = Gst.parse_launch(pipeline)
+
+        if Args.dot:
+            self.log.debug('Generating DOT image of videomix pipeline')
+            Gst.debug_bin_to_dot_file(
+                self.mixingPipeline, Gst.DebugGraphDetails.ALL, "videomix")
+
         self.mixingPipeline.use_clock(Clock)
 
         self.log.debug('Binding Error & End-of-Stream-Signal '

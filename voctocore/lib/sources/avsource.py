@@ -8,6 +8,7 @@ from lib.clock import Clock
 
 
 class AVSource(object, metaclass=ABCMeta):
+
     def __init__(self, name, outputs=None,
                  has_audio=True, has_video=True,
                  force_num_streams=None):
@@ -83,6 +84,12 @@ class AVSource(object, metaclass=ABCMeta):
 
         self.log.debug('Launching Source-Pipeline:\n%s', pipeline)
         self.pipeline = Gst.parse_launch(pipeline)
+
+        if Config.getboolean('debug', 'generate-dot-of-pipes'):
+            self.log.debug('Generating DOT image of avsource pipeline')
+            Gst.debug_bin_to_dot_file(
+                self.pipeline, Gst.DebugGraphDetails.ALL, "avsource")
+
         self.pipeline.use_clock(Clock)
 
         self.log.debug('Binding End-of-Stream-Signal on Source-Pipeline')

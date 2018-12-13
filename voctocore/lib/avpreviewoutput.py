@@ -6,9 +6,11 @@ from gi.repository import Gst
 from lib.config import Config
 from lib.tcpmulticonnection import TCPMultiConnection
 from lib.clock import Clock
+from lib.args import Args
 
 
 class AVPreviewOutput(TCPMultiConnection):
+
     def __init__(self, channel, port):
         self.log = logging.getLogger('AVPreviewOutput[{}]'.format(channel))
         super().__init__(port)
@@ -60,6 +62,12 @@ class AVPreviewOutput(TCPMultiConnection):
 
         self.log.debug('Creating Output-Pipeline:\n%s', pipeline)
         self.outputPipeline = Gst.parse_launch(pipeline)
+
+        if Args.dot:
+            self.log.debug('Generating DOT image of avpreviewoutput pipeline')
+            Gst.debug_bin_to_dot_file(
+                self.outputPipeline, Gst.DebugGraphDetails.ALL, "avpreviewoutput")
+
         self.outputPipeline.use_clock(Clock)
 
         self.log.debug('Binding Error & End-of-Stream-Signal '

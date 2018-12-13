@@ -7,9 +7,10 @@ from gi.repository import Gst
 from lib.config import Config
 from lib.clock import Clock
 from lib.errors.configuration_error import ConfigurationError
-
+from lib.args import Args
 
 class AudioMix(object):
+
     def __init__(self):
         self.log = logging.getLogger('AudioMix')
 
@@ -110,6 +111,12 @@ class AudioMix(object):
 
         self.log.debug('Creating Mixing-Pipeline:\n%s', pipeline)
         self.mixingPipeline = Gst.parse_launch(pipeline)
+
+        if Args.dot:
+            self.log.debug('Generating DOT image of audiomix pipeline')
+            Gst.debug_bin_to_dot_file(
+                self.mixingPipeline, Gst.DebugGraphDetails.ALL, "audiomix")
+
         self.mixingPipeline.use_clock(Clock)
 
         self.log.debug('Binding Error & End-of-Stream-Signal '
