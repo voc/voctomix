@@ -68,7 +68,7 @@ class AVPreviewOutput(TCPMultiConnection):
         if Args.dot:
             self.log.debug('Generating DOT image of avpreviewoutput pipeline')
             Gst.debug_bin_to_dot_file(
-                self.outputPipeline, Gst.DebugGraphDetails.ALL, "avpreviewoutput")
+                self.outputPipeline, Gst.DebugGraphDetails.ALL, "avpreviewoutput-%s" % channel)
 
         self.outputPipeline.use_clock(Clock)
 
