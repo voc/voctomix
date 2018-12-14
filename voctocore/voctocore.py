@@ -64,6 +64,24 @@ class Voctocore(object):
         self.mainloop.quit()
 
 
+def logGstMessages():
+    gstLog = logging.getLogger('Gst')
+
+    def logFunction(category, level, file, function, line, object, message, *user_data):
+        if level == Gst.DebugLevel.WARNING:
+            gstLog.warning(message.get())
+        elif level == Gst.DebugLevel.ERROR:
+            gstLog.error(message.get())
+        elif level == Gst.DebugLevel.INFO:
+            gstLog.info(message.get())
+        else:
+            gstLog.debug(message.get())
+
+    Gst.debug_remove_log_function(None)
+    Gst.debug_add_log_function(logFunction,None)
+    Gst.debug_set_default_threshold(Gst.DebugLevel.WARNING)
+    Gst.debug_set_active(True)
+
 # run mainclass
 def main():
     # parse command-line args
@@ -85,6 +103,9 @@ def main():
         level = logging.WARNING
 
     logging.root.setLevel(level)
+
+    if Args.gstreamer_log:
+        logGstMessages()
 
     # make killable by ctrl-c
     logging.debug('setting SIGINT handler')
