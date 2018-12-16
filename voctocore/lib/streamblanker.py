@@ -24,10 +24,12 @@ class StreamBlanker(object):
     def launch(self):
         # Videomixer
         pipeline = """
-            compositor name=vmix !
-            {vcaps} !
-            queue !
-            interpipesink name=video_stream-blanker_out
+            compositor
+                name=vmix
+            ! {vcaps}
+            ! queue
+            ! interpipesink
+                name=video_stream-blanker_out
         """.format(
             vcaps=self.vcaps,
         )
@@ -36,18 +38,20 @@ class StreamBlanker(object):
         pipeline += """
             interpipesrc
                 listen-to=video_mix_stream-blanker
-                caps={vcaps} !
-            vmix.
+                caps={vcaps}
+            ! vmix.
         """.format(
             vcaps=self.vcaps,
         )
 
         if Config.has_option('mix', 'slides_source_name'):
             pipeline += """
-                compositor name=vmix-slides !
-                {vcaps} !
-                queue !
-                interpipesink name=video_slides_stream-blanker_out
+                compositor
+                    name=vmix-slides
+                ! {vcaps}
+                ! queue
+                ! interpipesink
+                    name=video_slides_stream-blanker_out
             """.format(
                 vcaps=self.vcaps,
             )
@@ -55,8 +59,8 @@ class StreamBlanker(object):
             pipeline += """
                 interpipesrc
                     listen-to=video_slides_stream-blanker
-                    caps={vcaps} !
-                vmix-slides.
+                    caps={vcaps}
+                ! vmix-slides.
             """.format(
                 vcaps=self.vcaps,
             )
@@ -64,12 +68,14 @@ class StreamBlanker(object):
         for audiostream in range(0, Config.getint('mix', 'audiostreams')):
             # Audiomixer
             pipeline += """
-                audiomixer name=amix_{audiostream} !
-                {acaps} !
-                queue !
-                tee name=amix_{audiostream}-tee !
-                queue !
-                interpipesink
+                audiomixer
+                    name=amix_{audiostream}
+                ! {acaps}
+                ! queue
+                ! tee
+                    name=amix_{audiostream}-tee
+                ! queue
+                ! interpipesink
                     name=audio_stream-blanker_out_stream{audiostream}
             """.format(
                 acaps=self.acaps,
@@ -78,9 +84,9 @@ class StreamBlanker(object):
 
             if Config.has_option('mix', 'slides_source_name'):
                 pipeline += """
-                amix_{audiostream}-tee. !
-                queue !
-                interpipesink
+                amix_{audiostream}-tee.
+                ! queue
+                ! interpipesink
                     name=audio_slides_stream-blanker_out_stream{audiostream}
             """.format(
                     audiostream=audiostream,
@@ -90,8 +96,8 @@ class StreamBlanker(object):
             pipeline += """
                 interpipesrc
                     listen-to=audio_mix_stream{audiostream}_stream-blanker
-                    caps={acaps} !
-                amix_{audiostream}.
+                    caps={acaps}
+                ! amix_{audiostream}.
             """.format(
                 acaps=self.acaps,
                 audiostream=audiostream,
@@ -103,9 +109,9 @@ class StreamBlanker(object):
         pipeline += """
             interpipesrc
                 listen-to=audio_stream-blanker_stream0
-                caps={acaps} !
-            queue !
-            tee name=atee
+                caps={acaps}
+            ! queue
+            ! tee name=atee
         """.format(
             acaps=self.acaps,
         )
@@ -113,7 +119,9 @@ class StreamBlanker(object):
         for audiostream in range(0, Config.getint('mix', 'audiostreams')):
             # Source from the Blank-Audio-Tee into the Audiomixer
             pipeline += """
-                atee. ! queue ! amix_{audiostream}.
+                atee.
+                ! queue
+                ! amix_{audiostream}.
             """.format(
                 audiostream=audiostream,
             )
@@ -123,12 +131,14 @@ class StreamBlanker(object):
         for name in self.names:
             # Source from the named Blank-Video
             pipeline += """
-                interpipesrc listen-to=video_stream-blanker-{name}
-                caps={vcaps} !
-                queue !
-                tee name=video_stream-blanker-tee-{name} !
-                queue !
-                vmix.
+                interpipesrc
+                    listen-to=video_stream-blanker-{name}
+                caps={vcaps}
+                ! queue
+                ! tee
+                    name=video_stream-blanker-tee-{name}
+                ! queue
+                ! vmix.
             """.format(
                 name=name,
                 vcaps=self.vcaps,
@@ -136,9 +146,9 @@ class StreamBlanker(object):
 
             if Config.has_option('mix', 'slides_source_name'):
                 pipeline += """
-                    video_stream-blanker-tee-{name}. !
-                    queue !
-                    vmix-slides.
+                    video_stream-blanker-tee-{name}.
+                    ! queue
+                    ! vmix-slides.
                 """.format(
                     name=name,
                 )

@@ -26,10 +26,10 @@ class AVPreviewOutput(TCPMultiConnection):
         pipeline = """
             interpipesrc
                 listen-to=video_{channel}
-                caps={vcaps} !
-            {vpipeline} !
-            queue !
-            mux.
+                caps={vcaps}
+            ! {vpipeline}
+            ! queue
+            ! mux.
         """.format(
             channel=self.channel,
             vcaps=Config.get('mix', 'videocaps'),
@@ -40,9 +40,9 @@ class AVPreviewOutput(TCPMultiConnection):
             pipeline += """
                 interpipesrc
                     listen-to=audio_{channel}_stream{audiostream}
-                    caps={acaps} !
-                queue !
-                mux.
+                    caps={acaps}
+                ! queue
+                ! mux.
             """.format(
                 channel=self.channel,
                 acaps=Config.get('mix', 'audiocaps'),
@@ -53,9 +53,8 @@ class AVPreviewOutput(TCPMultiConnection):
             matroskamux
                 name=mux
                 streamable=true
-                writing-app=Voctomix-AVPreviewOutput !
-
-            multifdsink
+                writing-app=Voctomix-AVPreviewOutput
+            ! multifdsink
                 blocksize=1048576
                 buffers-max=500
                 sync-method=next-keyframe
@@ -122,15 +121,15 @@ class AVPreviewOutput(TCPMultiConnection):
          framerate_denominator) = struct.get_fraction('framerate')
 
         return '''
-            capsfilter caps=video/x-raw,interlace-mode=progressive !
-            vaapipostproc
+            capsfilter caps=video/x-raw,interlace-mode=progressive
+            ! vaapipostproc
                 format=i420
                 deinterlace-mode={imode}
                 deinterlace-method=motion-adaptive
                 width={width}
-                height={height} !
-            capssetter caps=video/x-raw,framerate={n}/{d} !
-            {encoder} {options}
+                height={height}
+            ! capssetter caps=video/x-raw,framerate={n}/{d}
+            ! {encoder} {options}
         '''.format(
             imode='interlaced' if do_deinterlace else 'disabled',
             width=width,
@@ -146,16 +145,17 @@ class AVPreviewOutput(TCPMultiConnection):
 
         if do_deinterlace:
             pipeline = '''
-                deinterlace mode={imode} !
-                videorate !
+                deinterlace mode={imode}
+                ! videorate
+                !
             '''
         else:
             pipeline = ''
 
         pipeline += '''
-            videoscale !
-            {target_caps} !
-            jpegenc quality=90
+            videoscale
+            ! {target_caps}
+            ! jpegenc quality=90
         '''
 
         return pipeline.format(

@@ -36,39 +36,52 @@ class VideoMix(object):
 
         # build GStreamer mixing pipeline descriptor
         pipeline = """
-            compositor name=mix !
-            {caps} !
-            identity name=sig !
-            queue !
-            tee name=tee
+            compositor
+                name=mix
+            ! {caps}
+            ! identity
+                name=sig
+            ! queue
+            ! tee
+                name=tee
 
             interpipesrc
                 listen-to=video_background
-                caps={caps} !
-            mix.
+                caps={caps}
+            ! mix.
 
-            tee. ! queue ! interpipesink name=video_mix_out
+            tee.
+            ! queue
+            ! interpipesink
+                name=video_mix_out
         """.format(
             caps=self.caps
         )
 
         if Config.getboolean('previews', 'enabled'):
             pipeline += """
-                tee. ! queue ! interpipesink name=video_mix_preview
+                tee.
+                ! queue
+                ! interpipesink
+                    name=video_mix_preview
             """
 
         if Config.getboolean('stream-blanker', 'enabled'):
             pipeline += """
-                tee. ! queue ! interpipesink name=video_mix_stream-blanker
+                tee.
+                ! queue
+                ! interpipesink
+                    name=video_mix_stream-blanker
             """
 
         for idx, name in enumerate(self.sources):
             pipeline += """
                 interpipesrc
                     listen-to=video_{name}_mixer
-                    caps={caps} !
-                videobox name=video_{idx}_cropper !
-                mix.
+                    caps={caps}
+                ! videobox
+                    name=video_{idx}_cropper
+                ! mix.
             """.format(
                 name=name,
                 caps=self.caps,

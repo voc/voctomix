@@ -29,18 +29,18 @@ class TCPAVSource(AVSource, TCPSingleConnection):
     def on_accepted(self, conn, addr):
         deinterlacer = self.build_deinterlacer()
         pipeline = """
-            fdsrc fd={fd} blocksize=1048576 !
-            queue !
-            matroskademux name=demux
+            fdsrc fd={fd} blocksize=1048576
+            ! queue
+            ! matroskademux name=demux
         """.format(
             fd=conn.fileno()
         )
 
         if deinterlacer:
             pipeline += """
-                demux. !
-                    video/x-raw !
-                    {deinterlacer}
+                demux.
+                ! video/x-raw
+                ! {deinterlacer}
             """.format(
                 deinterlacer=self.build_deinterlacer()
             )

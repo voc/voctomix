@@ -34,10 +34,16 @@ class TestSource(AVSource):
         )
 
     def build_audioport(self, audiostream):
-        return 'audiotestsrc is-live=true'
+        return """
+            audiotestsrc
+                is-live=true
+                """
 
     def build_videoport(self):
-        return 'videotestsrc is-live=true'
+        return """
+            videotestsrc
+                is-live=true
+                """
 
     def restart(self):
         self.pipeline.set_state(Gst.State.NULL)

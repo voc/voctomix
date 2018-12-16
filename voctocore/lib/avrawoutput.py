@@ -21,9 +21,9 @@ class AVRawOutput(TCPMultiConnection):
         pipeline = """
             interpipesrc
                 listen-to=video_{channel}
-                caps={vcaps} !
-            queue !
-            mux.
+                caps={vcaps}
+            ! queue
+            ! mux.
         """.format(
             channel=self.channel,
             vcaps=Config.get('mix', 'videocaps'),
@@ -33,9 +33,9 @@ class AVRawOutput(TCPMultiConnection):
             pipeline += """
                 interpipesrc
                     listen-to=audio_{channel}_stream{audiostream}
-                    caps={acaps} !
-                queue !
-                mux.
+                    caps={acaps}
+                ! queue
+                ! mux.
             """.format(
                 channel=self.channel,
                 acaps=Config.get('mix', 'audiocaps'),
@@ -46,9 +46,8 @@ class AVRawOutput(TCPMultiConnection):
             matroskamux
                 name=mux
                 streamable=true
-                writing-app=Voctomix-AVRawOutput !
-
-            multifdsink
+                writing-app=Voctomix-AVRawOutput
+            ! multifdsink
                 blocksize=1048576
                 buffers-max={buffers_max}
                 sync-method=next-keyframe

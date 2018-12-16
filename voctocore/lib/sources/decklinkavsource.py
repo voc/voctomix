@@ -134,7 +134,7 @@ class DeckLinkAVSource(AVSource):
                 device-number={device}
                 connection={conn}
                 video-format={fmt}
-                mode={mode} !
+                mode={mode}
         """.format(
             device=self.device,
             conn=self.vconn,
@@ -144,16 +144,17 @@ class DeckLinkAVSource(AVSource):
 
         if self.has_video:
             pipeline += """
-                {deinterlacer}
-                videoconvert !
-                videoscale !
-                videorate name=vout
+                ! {deinterlacer}
+
+                videoconvert
+                ! videoscale
+                ! videorate name=vout
             """.format(
                 deinterlacer=self.build_deinterlacer()
             )
         else:
             pipeline += """
-                fakesink
+                ! fakesink
             """
 
         if self.has_audio:
@@ -185,10 +186,16 @@ class DeckLinkAVSource(AVSource):
                                 audiostream=audiostream))
 
                     pipeline += """
-                        interleave name=i{audiostream}
+                        interleave
+                            name=i{audiostream}
 
-                        aout.src_{left} ! queue ! i{audiostream}.sink_0
-                        aout.src_{right} ! queue ! i{audiostream}.sink_1
+                        aout.src_{left}
+                        ! queue
+                        ! i{audiostream}.sink_0
+
+                        aout.src_{right}
+                        ! queue
+                        ! i{audiostream}.sink_1
                     """.format(
                         left=left,
                         right=right,
@@ -202,11 +209,20 @@ class DeckLinkAVSource(AVSource):
                                 audiostream=audiostream))
 
                     pipeline += """
-                        interleave name=i{audiostream}
-                        aout.src_{channel} ! tee name=t{audiostream}
+                        interleave
+                            name=i{audiostream}
 
-                        t{audiostream}. ! queue ! i{audiostream}.sink_0
-                        t{audiostream}. ! queue ! i{audiostream}.sink_1
+                        aout.src_{channel}
+                        ! tee
+                            name=t{audiostream}
+
+                        t{audiostream}.
+                        ! queue
+                        ! i{audiostream}.sink_0
+
+                        t{audiostream}.
+                        ! queue
+                        ! i{audiostream}.sink_1
                     """.format(
                         channel=left,
                         audiostream=audiostream

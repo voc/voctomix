@@ -69,12 +69,16 @@ class AudioMix(object):
         pipeline = ""
         for audiostream in range(0, Config.getint('mix', 'audiostreams')):
             pipeline += """
-                audiomixer name=mix_{audiostream} !
-                {caps} !
-                queue !
-                tee name=tee_{audiostream}
+                audiomixer
+                    name=mix_{audiostream}
+                ! {caps}
+                ! queue
+                ! tee
+                    name=tee_{audiostream}
 
-                tee_{audiostream}. ! queue ! interpipesink
+                tee_{audiostream}.
+                ! queue
+                ! interpipesink
                     name=audio_mix_out_stream{audiostream}
             """.format(
                 caps=self.caps,
@@ -83,7 +87,9 @@ class AudioMix(object):
 
             if Config.getboolean('previews', 'enabled'):
                 pipeline += """
-                    tee_{audiostream}. ! queue ! interpipesink
+                    tee_{audiostream}.
+                    ! queue
+                    ! interpipesink
                         name=audio_mix_preview_stream{audiostream}
                 """.format(
                     audiostream=audiostream,
@@ -91,7 +97,9 @@ class AudioMix(object):
 
             if Config.getboolean('stream-blanker', 'enabled'):
                 pipeline += """
-                    tee_{audiostream}. ! queue ! interpipesink
+                    tee_{audiostream}.
+                    ! queue
+                    ! interpipesink
                         name=audio_mix_stream{audiostream}_stream-blanker
                 """.format(
                     audiostream=audiostream,
@@ -101,8 +109,8 @@ class AudioMix(object):
                 pipeline += """
                     interpipesrc
                         listen-to=audio_{name}_mixer_stream{audiostream}
-                        caps={caps} !
-                    mix_{audiostream}.
+                        caps={caps}
+                    ! mix_{audiostream}.
                 """.format(
                     name=name,
                     caps=self.caps,

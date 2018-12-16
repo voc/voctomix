@@ -27,10 +27,10 @@ class ImgVSource(AVSource):
 
     def launch_pipeline(self):
         pipeline = """
-            uridecodebin uri={uri} !
-            videoconvert !
-            videoscale !
-            imagefreeze name=img
+            uridecodebin uri={uri}
+            ! videoconvert
+            ! videoscale
+            ! imagefreeze name=img
         """.format(
             uri=self.imguri
         )
