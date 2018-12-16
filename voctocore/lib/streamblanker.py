@@ -26,7 +26,6 @@ class StreamBlanker(object):
         pipeline = """
             compositor
                 name=vmix
-            ! queue
             ! interpipesink
                 name=video_stream-blanker_out
         """.format(
@@ -64,7 +63,6 @@ class StreamBlanker(object):
                 ! queue
                 ! tee
                     name=amix_{audiostream}-tee
-                ! queue
                 ! interpipesink
                     name=audio_stream-blanker_out_stream{audiostream}
             """.format(
@@ -75,7 +73,6 @@ class StreamBlanker(object):
             if Config.has_option('mix', 'slides_source_name'):
                 pipeline += """
                 amix_{audiostream}-tee.
-                ! queue
                 ! interpipesink
                     name=audio_slides_stream-blanker_out_stream{audiostream}
             """.format(
@@ -118,7 +115,6 @@ class StreamBlanker(object):
             pipeline += """
                 interpipesrc
                     listen-to=video_stream-blanker-{name}
-                ! queue
                 ! tee
                     name=video_stream-blanker-tee-{name}
                 ! queue

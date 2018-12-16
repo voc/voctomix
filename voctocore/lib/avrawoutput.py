@@ -21,7 +21,6 @@ class AVRawOutput(TCPMultiConnection):
         pipeline = """
             interpipesrc
                 listen-to=video_{channel}
-            ! queue
             ! mux.
         """.format(
             channel=self.channel
@@ -31,7 +30,6 @@ class AVRawOutput(TCPMultiConnection):
             pipeline += """
                 interpipesrc
                     listen-to=audio_{channel}_stream{audiostream}
-                ! queue
                 ! mux.
             """.format(
                 channel=self.channel,

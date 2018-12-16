@@ -40,7 +40,6 @@ class VideoMix(object):
                 name=mix
             ! identity
                 name=sig
-            ! queue
             ! tee
                 name=tee
 
@@ -50,7 +49,6 @@ class VideoMix(object):
             ! mix.
 
             tee.
-            ! queue
             ! interpipesink
                 name=video_mix_out
         """
@@ -58,7 +56,6 @@ class VideoMix(object):
         if Config.getboolean('previews', 'enabled'):
             pipeline += """
                 tee.
-                ! queue
                 ! interpipesink
                     name=video_mix_preview
             """
@@ -66,7 +63,6 @@ class VideoMix(object):
         if Config.getboolean('stream-blanker', 'enabled'):
             pipeline += """
                 tee.
-                ! queue
                 ! interpipesink
                     name=video_mix_stream-blanker
             """

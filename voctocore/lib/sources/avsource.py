@@ -46,7 +46,6 @@ class AVSource(object, metaclass=ABCMeta):
 
                 pipeline += """
                     {audioport}
-                    ! queue
                     ! tee
                         name=atee_stream{audiostream}
                 """.format(
@@ -57,7 +56,6 @@ class AVSource(object, metaclass=ABCMeta):
                 for output in self.outputs:
                     pipeline += """
                         atee_stream{audiostream}.
-                        ! queue
                         ! interpipesink
                             name=audio_{output}_stream{audiostream}
                     """.format(
@@ -68,7 +66,6 @@ class AVSource(object, metaclass=ABCMeta):
         if self.has_video:
             pipeline += """
                 {videoport}
-                ! queue
                 ! tee
                     name=vtee
             """.format(

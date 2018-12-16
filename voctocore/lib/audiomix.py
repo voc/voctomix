@@ -71,12 +71,10 @@ class AudioMix(object):
             pipeline += """
                 audiomixer
                     name=mix_{audiostream}
-                ! queue
                 ! tee
                     name=tee_{audiostream}
 
                 tee_{audiostream}.
-                ! queue
                 ! interpipesink
                     name=audio_mix_out_stream{audiostream}
             """.format(
@@ -86,7 +84,6 @@ class AudioMix(object):
             if Config.getboolean('previews', 'enabled'):
                 pipeline += """
                     tee_{audiostream}.
-                    ! queue
                     ! interpipesink
                         name=audio_mix_preview_stream{audiostream}
                 """.format(
@@ -96,7 +93,6 @@ class AudioMix(object):
             if Config.getboolean('stream-blanker', 'enabled'):
                 pipeline += """
                     tee_{audiostream}.
-                    ! queue
                     ! interpipesink
                         name=audio_mix_stream{audiostream}_stream-blanker
                 """.format(
