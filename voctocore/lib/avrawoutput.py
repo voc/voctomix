@@ -55,7 +55,7 @@ class AVRawOutput(TCPMultiConnection):
         if Args.dot:
             self.log.debug('Generating DOT image of avrawoutput pipeline')
             Gst.debug_bin_to_dot_file(
-                self.outputPipeline, Gst.DebugGraphDetails.ALL, "avrawoutput-%s" % channel)
+                self.outputPipeline, Gst.DebugGraphDetails.ALL, "avrawoutput-%s" % self.channel)
 
         self.outputPipeline.use_clock(Clock)
 
