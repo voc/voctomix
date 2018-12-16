@@ -46,13 +46,11 @@ class AVSource(object, metaclass=ABCMeta):
 
                 pipeline += """
                     {audioport}
-                    ! {acaps}
                     ! queue
                     ! tee
                         name=atee_stream{audiostream}
                 """.format(
                     audioport=audioport,
-                    acaps=Config.get('mix', 'audiocaps'),
                     audiostream=audiostream,
                 )
 
@@ -70,14 +68,12 @@ class AVSource(object, metaclass=ABCMeta):
         if self.has_video:
             pipeline += """
                 {videoport}
-                ! {vcaps}
                 ! queue
                 ! tee
                     name=vtee
             """.format(
                 videoport=self.build_videoport(),
                 deinterlacer=self.build_deinterlacer(),
-                vcaps=Config.get('mix', 'videocaps')
             )
 
             for output in self.outputs:

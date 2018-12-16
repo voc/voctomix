@@ -71,7 +71,6 @@ class AudioMix(object):
             pipeline += """
                 audiomixer
                     name=mix_{audiostream}
-                ! {caps}
                 ! queue
                 ! tee
                     name=tee_{audiostream}
@@ -81,7 +80,6 @@ class AudioMix(object):
                 ! interpipesink
                     name=audio_mix_out_stream{audiostream}
             """.format(
-                caps=self.caps,
                 audiostream=audiostream,
             )
 
@@ -109,11 +107,9 @@ class AudioMix(object):
                 pipeline += """
                     interpipesrc
                         listen-to=audio_{name}_mixer_stream{audiostream}
-                        caps={caps}
                     ! mix_{audiostream}.
                 """.format(
                     name=name,
-                    caps=self.caps,
                     audiostream=audiostream,
                 )
 

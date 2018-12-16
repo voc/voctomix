@@ -38,7 +38,6 @@ class VideoMix(object):
         pipeline = """
             compositor
                 name=mix
-            ! {caps}
             ! identity
                 name=sig
             ! queue
@@ -47,7 +46,6 @@ class VideoMix(object):
 
             interpipesrc
                 listen-to=video_background
-                caps={caps}
                 format=time
             ! mix.
 
@@ -55,9 +53,7 @@ class VideoMix(object):
             ! queue
             ! interpipesink
                 name=video_mix_out
-        """.format(
-            caps=self.caps
-        )
+        """
 
         if Config.getboolean('previews', 'enabled'):
             pipeline += """
@@ -79,14 +75,12 @@ class VideoMix(object):
             pipeline += """
                 interpipesrc
                     listen-to=video_{name}_mixer
-                    caps={caps}
                     format=time
                 ! videobox
                     name=video_{idx}_cropper
                 ! mix.
             """.format(
                 name=name,
-                caps=self.caps,
                 idx=idx
             )
 

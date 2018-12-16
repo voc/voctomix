@@ -21,24 +21,20 @@ class AVRawOutput(TCPMultiConnection):
         pipeline = """
             interpipesrc
                 listen-to=video_{channel}
-                caps={vcaps}
             ! queue
             ! mux.
         """.format(
-            channel=self.channel,
-            vcaps=Config.get('mix', 'videocaps'),
+            channel=self.channel
         )
 
         for audiostream in range(0, Config.getint('mix', 'audiostreams')):
             pipeline += """
                 interpipesrc
                     listen-to=audio_{channel}_stream{audiostream}
-                    caps={acaps}
                 ! queue
                 ! mux.
             """.format(
                 channel=self.channel,
-                acaps=Config.get('mix', 'audiocaps'),
                 audiostream=audiostream,
             )
 

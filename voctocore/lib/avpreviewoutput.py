@@ -26,13 +26,11 @@ class AVPreviewOutput(TCPMultiConnection):
         pipeline = """
             interpipesrc
                 listen-to=video_{channel}
-                caps={vcaps}
             ! {vpipeline}
             ! queue
             ! mux.
         """.format(
             channel=self.channel,
-            vcaps=Config.get('mix', 'videocaps'),
             vpipeline=self.construct_video_pipeline(target_caps)
         )
 
@@ -40,12 +38,10 @@ class AVPreviewOutput(TCPMultiConnection):
             pipeline += """
                 interpipesrc
                     listen-to=audio_{channel}_stream{audiostream}
-                    caps={acaps}
                 ! queue
                 ! mux.
             """.format(
                 channel=self.channel,
-                acaps=Config.get('mix', 'audiocaps'),
                 audiostream=audiostream,
             )
 
