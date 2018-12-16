@@ -82,7 +82,10 @@ class AVSource(object, metaclass=ABCMeta):
 
             for output in self.outputs:
                 pipeline += """
-                    vtee. ! queue ! interpipesink name=video_{output}
+                    vtee.
+                    ! queue
+                    ! interpipesink
+                        name=video_{output}
                 """.format(
                     output=output
                 )

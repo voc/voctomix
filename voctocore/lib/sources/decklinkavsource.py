@@ -148,7 +148,8 @@ class DeckLinkAVSource(AVSource):
 
                 videoconvert
                 ! videoscale
-                ! videorate name=vout
+                ! videorate
+                    name=vout
             """.format(
                 deinterlacer=self.build_deinterlacer()
             )
@@ -172,7 +173,10 @@ class DeckLinkAVSource(AVSource):
                 conn=self.aconn,
                 output="name=aout"
                        if self.fallback_default else
-                       "! deinterleave name=aout",
+                       """
+                        ! deinterleave
+                            name=aout
+                       """,
             )
 
             for audiostream, mapping in self.audiostream_map.items():
