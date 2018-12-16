@@ -48,6 +48,7 @@ class VideoMix(object):
             interpipesrc
                 listen-to=video_background
                 caps={caps}
+                format=time
             ! mix.
 
             tee.
@@ -79,6 +80,7 @@ class VideoMix(object):
                 interpipesrc
                     listen-to=video_{name}_mixer
                     caps={caps}
+                    format=time
                 ! videobox
                     name=video_{idx}_cropper
                 ! mix.
