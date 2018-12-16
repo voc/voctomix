@@ -79,7 +79,15 @@ def logGstMessages():
 
     Gst.debug_remove_log_function(None)
     Gst.debug_add_log_function(logFunction,None)
-    Gst.debug_set_default_threshold(Gst.DebugLevel.WARNING)
+
+    if logging.root.level == logging.DEBUG:
+        Gst.debug_set_default_threshold(Gst.DebugLevel.DEBUG)
+    elif logging.root.level == logging.INFO:
+        Gst.debug_set_default_threshold(Gst.DebugLevel.INFO)
+    elif logging.root.level == logging.WARNING:
+        Gst.debug_set_default_threshold(Gst.DebugLevel.WARNING)
+    else:
+        Gst.debug_set_default_threshold(Gst.DebugLevel.ERROR)
     Gst.debug_set_active(True)
 
 # run mainclass
