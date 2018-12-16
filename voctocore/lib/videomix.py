@@ -32,8 +32,6 @@ class VideoMix(object):
         self.scene = None
         self.launched = False
 
-    def launch(self):
-
         # build GStreamer mixing pipeline descriptor
         pipeline = """
             compositor
@@ -114,6 +112,7 @@ class VideoMix(object):
                       .get_static_pad('sink_0'))
         bgMixerpad.set_property('zorder', 0)
 
+    def launch(self):
         self.log.debug('Launching Mixing-Pipeline')
         self.mixingPipeline.set_state(Gst.State.PLAYING)
         self.launched = True
