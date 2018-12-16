@@ -4,6 +4,7 @@ from lib.config import Config
 from lib.sources.decklinkavsource import DeckLinkAVSource
 from lib.sources.imgvsource import ImgVSource
 from lib.sources.tcpavsource import TCPAVSource
+from lib.sources.testsource import TestSource
 
 log = logging.getLogger('AVSourceManager')
 
@@ -25,6 +26,10 @@ def spawn_source(name, port, outputs=None,
         sources[name] = DeckLinkAVSource(name, outputs, has_audio, has_video)
         return sources[name]
 
+    if kind == 'test':
+        sources[name] = TestSource(name, outputs, has_audio, has_video)
+        return sources[name]
+        
     if kind != 'tcp':
         log.warning('Unknown source kind "%s", defaulting to "tcp"', kind)
 
