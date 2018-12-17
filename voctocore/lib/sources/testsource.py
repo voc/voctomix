@@ -11,12 +11,10 @@ ALL_VIDEO_CAPS = Gst.Caps.from_string('video/x-raw')
 
 
 class TestSource(AVSource):
-    def __init__(self, name, outputs=None,
-                 has_audio=True, has_video=True,
+    def __init__(self, name, has_audio=True, has_video=True,
                  force_num_streams=None):
         self.log = logging.getLogger('TestSource[{}]'.format(name))
-        AVSource.__init__(self, name, outputs,
-                          has_audio, has_video,
+        AVSource.__init__(self, name, has_audio, has_video,
                           force_num_streams)
 
         pipeline = """ """

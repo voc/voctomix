@@ -10,21 +10,16 @@ from lib.args import Args
 
 class AVSource(object, metaclass=ABCMeta):
 
-    def __init__(self, name, outputs=None,
-                 has_audio=True, has_video=True,
+    def __init__(self, name, has_audio=True, has_video=True,
                  force_num_streams=None):
         if not self.log:
             self.log = logging.getLogger('AVSource[{}]'.format(name))
-
-        if outputs is None:
-            outputs = [name]
 
         assert has_audio or has_video
 
         self.name = name
         self.has_audio = has_audio
         self.has_video = has_video
-        self.outputs = outputs
         self.force_num_streams = force_num_streams
         self.pipeline = None
 
@@ -46,42 +41,23 @@ class AVSource(object, metaclass=ABCMeta):
 
                 pipeline += """
                     {audioport}
-                    ! tee
-                        name=atee_stream{audiostream}
+                    ! interpipesink
+                        name=audio_stream-{name}{audiostream}
                 """.format(
                     audioport=audioport,
                     audiostream=audiostream,
+                    name = self.name
                 )
-
-                for output in self.outputs:
-                    pipeline += """
-                        atee_stream{audiostream}.
-                        ! interpipesink
-                            name=audio_{output}_stream{audiostream}
-                    """.format(
-                        output=output,
-                        audiostream=audiostream,
-                    )
 
         if self.has_video:
             pipeline += """
                 {videoport}
-                ! tee
-                    name=vtee
+                ! interpipesink
+                    name=video_{name}
             """.format(
                 videoport=self.build_videoport(),
-                deinterlacer=self.build_deinterlacer(),
+                name = self.name
             )
-
-            for output in self.outputs:
-                pipeline += """
-                    vtee.
-                    ! queue
-                    ! interpipesink
-                        name=video_{output}
-                """.format(
-                    output=output
-                )
 
         self.log.debug('Launching Source-Pipeline:\n%s', pipeline)
         self.pipeline = Gst.parse_launch(pipeline)
@@ -89,7 +65,7 @@ class AVSource(object, metaclass=ABCMeta):
         if Args.dot:
             self.log.debug('Generating DOT image of avsource pipeline')
             Gst.debug_bin_to_dot_file(
-                self.pipeline, Gst.DebugGraphDetails.ALL, "avsource")
+                self.pipeline, Gst.DebugGraphDetails.ALL, "avsource-%s" % self.name)
 
         self.pipeline.use_clock(Clock)
 

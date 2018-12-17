@@ -58,26 +58,12 @@ class StreamBlanker(object):
             pipeline += """
                 audiomixer
                     name=amix_{audiostream}
-                ! {acaps}
-                ! queue
-                ! tee
-                    name=amix_{audiostream}-tee
                 ! interpipesink
                     name=audio_stream-blanker_out_stream{audiostream}
             """.format(
                 acaps=self.acaps,
                 audiostream=audiostream
             )
-
-            if Config.has_option('mix', 'slides_source_name'):
-                pipeline += """
-                amix_{audiostream}-tee.
-                ! interpipesink
-                    name=audio_slides_stream-blanker_out_stream{audiostream}
-            """.format(
-                    audiostream=audiostream
-                )
-
             # Source from the Main-Mix
             pipeline += """
                 interpipesrc
@@ -89,19 +75,11 @@ class StreamBlanker(object):
 
             pipeline += "\n\n"
 
-        # Source from the Blank-Audio into a tee
-        pipeline += """
-            interpipesrc
-                listen-to=audio_stream-blanker_stream0
-            ! queue
-            ! tee name=atee
-        """
-
         for audiostream in range(0, Config.getint('mix', 'audiostreams')):
             # Source from the Blank-Audio-Tee into the Audiomixer
             pipeline += """
-                atee.
-                ! queue
+                interpipesrc
+                    listen-to=audio_stream-blanker_stream0
                 ! amix_{audiostream}.
             """.format(
                 audiostream=audiostream,
@@ -114,9 +92,6 @@ class StreamBlanker(object):
             pipeline += """
                 interpipesrc
                     listen-to=video_stream-blanker-{name}
-                ! tee
-                    name=video_stream-blanker-tee-{name}
-                ! queue
                 ! vmix.
             """.format(
                 name=name
@@ -124,8 +99,8 @@ class StreamBlanker(object):
 
             if Config.has_option('mix', 'slides_source_name'):
                 pipeline += """
-                    video_stream-blanker-tee-{name}.
-                    ! queue
+                    interpipesrc
+                        listen-to=video_stream-blanker-{name}
                     ! vmix-slides.
                 """.format(
                     name=name,

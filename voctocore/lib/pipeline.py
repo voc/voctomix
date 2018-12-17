@@ -37,18 +37,7 @@ class Pipeline(object):
         for idx, name in enumerate(names):
             port = 10000 + idx
 
-            outputs = [name + '_mixer']
-            if Config.getboolean('previews', 'enabled'):
-                outputs.append(name + '_preview')
-
-            if Config.getboolean('mirrors', 'enabled'):
-                outputs.append(name + '_mirror')
-
-            if Config.has_option('mix', 'slides_source_name') and \
-                    Config.get('mix', 'slides_source_name') == name:
-                outputs.append('slides_stream-blanker')
-
-            source = spawn_source(name, port, outputs=outputs)
+            source = spawn_source(name, port)
             self.log.info('Creating AVSource %s as %s', name, source)
             self.sources.append(source)
 
