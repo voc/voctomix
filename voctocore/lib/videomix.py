@@ -38,32 +38,15 @@ class VideoMix(object):
                 name=mix
             ! identity
                 name=sig
-            ! tee
-                name=tee
+            ! interpipesink
+                name=video_mix_out
 
             interpipesrc
                 listen-to=video_background
                 format=time
             ! mix.
 
-            tee.
-            ! interpipesink
-                name=video_mix_out
         """
-
-        if Config.getboolean('previews', 'enabled'):
-            pipeline += """
-                tee.
-                ! interpipesink
-                    name=video_mix_preview
-            """
-
-        if Config.getboolean('stream-blanker', 'enabled'):
-            pipeline += """
-                tee.
-                ! interpipesink
-                    name=video_mix_stream-blanker
-            """
 
         for idx, name in enumerate(self.sources):
             pipeline += """

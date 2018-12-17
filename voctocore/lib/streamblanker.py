@@ -34,7 +34,7 @@ class StreamBlanker(object):
         # Source from the Main-Mix
         pipeline += """
             interpipesrc
-                listen-to=video_mix_stream-blanker
+                listen-to=video_mix_out
             ! vmix.
         """
 
