@@ -63,8 +63,8 @@ video-{name}.
     def attach( self, pipeline ):
         self.log.debug('Binding Handoff-Handler for '
                        'Synchronus mixer manipulation')
-        sig = pipeline.get_by_name('sig')
         self.pipeline = pipeline
+        sig = pipeline.get_by_name('sig')
         sig.connect('handoff', self.on_handoff)
 
         self.log.debug('Initializing Mixer-State')
