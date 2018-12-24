@@ -1,11 +1,8 @@
+#!/usr/bin/env python3
 import logging
 from abc import ABCMeta, abstractmethod
 
-from gi.repository import Gst
-
 from lib.config import Config
-from lib.clock import Clock
-from lib.args import Args
 
 
 class AVSource(object, metaclass=ABCMeta):
@@ -21,12 +18,15 @@ class AVSource(object, metaclass=ABCMeta):
         self.has_audio = has_audio
         self.has_video = has_video
         self.force_num_streams = force_num_streams
-        self.pipeline = None
+        self.pipe = ""
 
     def __str__(self):
         return 'AVSource[{name}]'.format(
             name=self.name
         )
+
+    def attach(self, pipeline):
+        return
 
     def build_pipeline(self, pipeline):
         if self.has_audio:
@@ -39,40 +39,29 @@ class AVSource(object, metaclass=ABCMeta):
                 if not audioport:
                     continue
 
-                pipeline += """
-                    {audioport}
-                    ! interpipesink
-                        name=audio_stream-{name}{audiostream}
+                self.pipe += """
+{audioport}
+    name=audiosrc-{name}-{audiostream}
+! queue
+! tee
+    name=audio-{name}-{audiostream}
                 """.format(
                     audioport=audioport,
                     audiostream=audiostream,
-                    name = self.name
+                    name=self.name
                 )
 
         if self.has_video:
-            pipeline += """
-                {videoport}
-                ! interpipesink
-                    name=video_{name}
+            self.pipe += """
+{videoport}
+    name=videosrc-{name}
+! queue
+! tee
+    name=video-{name}
             """.format(
                 videoport=self.build_videoport(),
-                name = self.name
+                name=self.name
             )
-
-        self.log.debug('Launching Source-Pipeline:\n%s', pipeline)
-        self.pipeline = Gst.parse_launch(pipeline)
-
-        if Args.dot:
-            self.log.debug('Generating DOT image of avsource pipeline')
-            Gst.debug_bin_to_dot_file(
-                self.pipeline, Gst.DebugGraphDetails.ALL, "avsource-%s" % self.name)
-
-        self.pipeline.use_clock(Clock)
-
-        self.log.debug('Binding End-of-Stream-Signal on Source-Pipeline')
-        self.pipeline.bus.add_signal_watch()
-        self.pipeline.bus.connect("message::eos", self.on_eos)
-        self.pipeline.bus.connect("message::error", self.on_error)
 
     def build_deinterlacer(self):
         deinterlace_config = self.get_deinterlace_config()
@@ -96,14 +85,6 @@ class AVSource(object, metaclass=ABCMeta):
         section = 'source.{}'.format(self.name)
         deinterlace_config = Config.get(section, 'deinterlace', fallback="no")
         return deinterlace_config
-
-    def on_eos(self, bus, message):
-        self.log.debug('Received End-of-Stream-Signal on Source-Pipeline')
-
-    def on_error(self, bus, message):
-        self.log.error('Received Error-Signal on Source-Pipeline')
-        (error, debug) = message.parse_error()
-        self.log.debug('Error-Details: #%u: %s', error.code, debug)
 
     @abstractmethod
     def build_audioport(self, audiostream):

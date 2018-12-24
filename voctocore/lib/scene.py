@@ -46,10 +46,10 @@ class Scene:
             self.frames[source] = None
             # get mixer and cropper pad from pipeline
             mixerpad = (pipeline
-                        .get_by_name('mix')
-                        .get_static_pad('sink_%u' % (idx + 1)))
+                        .get_by_name('videomixer')
+                        .get_static_pad('sink_%s' % (idx + 1)))
             cropperpad = (pipeline
-                          .get_by_name("video_%u_cropper" % idx))
+                          .get_by_name("cropper-%s" % source))
             # add dictionary of binds to all properties
             # we vary for this source
             self.pads[source] = {

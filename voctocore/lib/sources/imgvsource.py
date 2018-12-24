@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import logging
 
 from gi.repository import Gst
@@ -27,15 +28,13 @@ class ImgVSource(AVSource):
 
     def launch_pipeline(self):
         pipeline = """
-            uridecodebin uri={uri}
-            ! videoconvert
-            ! videoscale
-            ! imagefreeze name=img
-        """.format(
+uridecodebin uri={uri}
+! videoconvert
+! videoscale
+! imagefreeze name=img""".format(
             uri=self.imguri
         )
         self.build_pipeline(pipeline)
-        self.pipeline.set_state(Gst.State.PLAYING)
 
     def build_audioport(self, audiostream):
         raise NotImplementedError(

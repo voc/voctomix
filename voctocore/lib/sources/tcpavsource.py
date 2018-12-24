@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import logging
 
 from gi.repository import Gst
@@ -27,19 +28,17 @@ class TCPAVSource(AVSource, TCPSingleConnection):
     def on_accepted(self, conn, addr):
         deinterlacer = self.build_deinterlacer()
         pipeline = """
-            fdsrc fd={fd} blocksize=1048576
-            ! queue
-            ! matroskademux name=demux
-        """.format(
+fdsrc fd={fd} blocksize=1048576
+! queue
+! matroskademux name=demux""".format(
             fd=conn.fileno()
         )
 
         if deinterlacer:
             pipeline += """
-                demux.
-                ! video/x-raw
-                ! {deinterlacer}
-            """.format(
+demux.
+! video/x-raw
+! {deinterlacer}""".format(
                 deinterlacer=self.build_deinterlacer()
             )
             self.build_pipeline(pipeline)

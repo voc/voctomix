@@ -9,6 +9,7 @@ from lib.sources.avsource import AVSource
 ALL_AUDIO_CAPS = Gst.Caps.from_string('audio/x-raw')
 ALL_VIDEO_CAPS = Gst.Caps.from_string('video/x-raw')
 
+count = -1
 
 class TestSource(AVSource):
     def __init__(self, name, has_audio=True, has_video=True,
@@ -17,14 +18,10 @@ class TestSource(AVSource):
         AVSource.__init__(self, name, has_audio, has_video,
                           force_num_streams)
 
-        pipeline = """ """
-
-        self.build_pipeline(pipeline)
+        self.build_pipeline("")
 
         self.audio_caps = Gst.Caps.from_string(Config.get('mix', 'audiocaps'))
         self.video_caps = Gst.Caps.from_string(Config.get('mix', 'videocaps'))
-
-        self.pipeline.set_state(Gst.State.PLAYING)
 
     def __str__(self):
         return 'TestSource[{name}]'.format(
@@ -33,15 +30,16 @@ class TestSource(AVSource):
 
     def build_audioport(self, audiostream):
         return """
-            audiotestsrc
-                is-live=true
-                """
+audiotestsrc
+    is-live=true"""
 
     def build_videoport(self):
+        global count
+        count+=1
         return """
-            videotestsrc
-                is-live=true
-                """
+videotestsrc
+    pattern={}
+    is-live=true""".format(count)
 
     def restart(self):
         self.pipeline.set_state(Gst.State.NULL)

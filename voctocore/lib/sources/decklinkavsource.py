@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import logging
 import re
 
@@ -130,11 +131,11 @@ class DeckLinkAVSource(AVSource):
     def launch_pipeline(self):
         # A video source is required even when we only need audio
         pipeline = """
-            decklinkvideosrc
-                device-number={device}
-                connection={conn}
-                video-format={fmt}
-                mode={mode}
+decklinkvideosrc
+    device-number={device}
+    connection={conn}
+    video-format={fmt}
+    mode={mode}
         """.format(
             device=self.device,
             conn=self.vconn,
@@ -144,27 +145,27 @@ class DeckLinkAVSource(AVSource):
 
         if self.has_video:
             pipeline += """
-                ! {deinterlacer}
+! {deinterlacer}
 
-                videoconvert
-                ! videoscale
-                ! videorate
-                    name=vout
+videoconvert
+! videoscale
+! videorate
+    name=vout
             """.format(
                 deinterlacer=self.build_deinterlacer()
             )
         else:
             pipeline += """
-                ! fakesink
+! fakesink
             """
 
         if self.has_audio:
             pipeline += """
-                decklinkaudiosrc
-                    {channels}
-                    device-number={device}
-                    connection={conn}
-                    {output}
+decklinkaudiosrc
+    {channels}
+    device-number={device}
+    connection={conn}
+    {output}
             """.format(
                 channels="channels={}".format(self.required_input_channels)
                          if self.required_input_channels > 2 else
@@ -174,8 +175,8 @@ class DeckLinkAVSource(AVSource):
                 output="name=aout"
                        if self.fallback_default else
                        """
-                        ! deinterleave
-                            name=aout
+! deinterleave
+    name=aout
                        """,
             )
 
@@ -190,16 +191,16 @@ class DeckLinkAVSource(AVSource):
                                 audiostream=audiostream))
 
                     pipeline += """
-                        interleave
-                            name=i{audiostream}
+interleave
+    name=i{audiostream}
 
-                        aout.src_{left}
-                        ! queue
-                        ! i{audiostream}.sink_0
+aout.src_{left}
+! queue
+! i{audiostream}.sink_0
 
-                        aout.src_{right}
-                        ! queue
-                        ! i{audiostream}.sink_1
+aout.src_{right}
+! queue
+! i{audiostream}.sink_1
                     """.format(
                         left=left,
                         right=right,
@@ -213,27 +214,26 @@ class DeckLinkAVSource(AVSource):
                                 audiostream=audiostream))
 
                     pipeline += """
-                        interleave
-                            name=i{audiostream}
+interleave
+    name=i{audiostream}
 
-                        aout.src_{channel}
-                        ! tee
-                            name=t{audiostream}
+aout.src_{channel}
+! tee
+    name=t{audiostream}
 
-                        t{audiostream}.
-                        ! queue
-                        ! i{audiostream}.sink_0
+t{audiostream}.
+! queue
+! i{audiostream}.sink_0
 
-                        t{audiostream}.
-                        ! queue
-                        ! i{audiostream}.sink_1
+t{audiostream}.
+! queue
+! i{audiostream}.sink_1
                     """.format(
                         channel=left,
                         audiostream=audiostream
                     )
 
         self.build_pipeline(pipeline)
-        self.pipeline.set_state(Gst.State.PLAYING)
 
     def build_deinterlacer(self):
         deinterlacer = super().build_deinterlacer()
@@ -253,5 +253,5 @@ class DeckLinkAVSource(AVSource):
         return 'vout.'
 
     def restart(self):
-        self.pipeline.set_state(Gst.State.NULL)
+        self.pipe.set_state(Gst.State.NULL)
         self.launch_pipeline()

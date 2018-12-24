@@ -1,12 +1,8 @@
 #!/usr/bin/env python3
 import logging
 
-from gi.repository import Gst
-
 from lib.config import Config
 from lib.tcpmulticonnection import TCPMultiConnection
-from lib.clock import Clock
-from lib.args import Args
 
 
 class AVPreviewOutput(TCPMultiConnection):
@@ -22,59 +18,41 @@ class AVPreviewOutput(TCPMultiConnection):
         else:
             target_caps = Config.get('mix', 'videocaps')
 
-        pipeline = """
-            interpipesrc
-                listen-to=video_{channel}
-            ! {vpipeline}
-            ! queue
-            ! mux.
+        self.pipe = """
+video-{channel}.
+! queue
+! {vpipeline}
+! queue
+! mux-preview-{channel}.
         """.format(
             channel=self.channel,
             vpipeline=self.construct_video_pipeline(target_caps)
         )
 
         for audiostream in range(0, Config.getint('mix', 'audiostreams')):
-            pipeline += """
-                interpipesrc
-                    listen-to=audio_{channel}_stream{audiostream}
-                ! queue
-                ! mux.
+            self.pipe += """
+audio-{channel}-{audiostream}.
+! queue
+! mux-preview-{channel}.
             """.format(
                 channel=self.channel,
-                audiostream=audiostream,
+                audiostream=audiostream
             )
 
-        pipeline += """
-            matroskamux
-                name=mux
-                streamable=true
-                writing-app=Voctomix-AVPreviewOutput
-            ! multifdsink
-                blocksize=1048576
-                buffers-max=500
-                sync-method=next-keyframe
-                name=fd
-        """
-
-        self.log.debug('Creating Output-Pipeline:\n%s', pipeline)
-        self.outputPipeline = Gst.parse_launch(pipeline)
-
-        if Args.dot:
-            self.log.debug('Generating DOT image of avpreviewoutput pipeline')
-            Gst.debug_bin_to_dot_file(
-                self.outputPipeline, Gst.DebugGraphDetails.ALL, "avpreviewoutput-%s" % channel)
-
-        self.outputPipeline.use_clock(Clock)
-
-        self.log.debug('Binding Error & End-of-Stream-Signal '
-                       'on Output-Pipeline')
-        self.outputPipeline.bus.add_signal_watch()
-        self.outputPipeline.bus.connect("message::eos", self.on_eos)
-        self.outputPipeline.bus.connect("message::error", self.on_error)
-
-    def launch(self):
-        self.log.debug('Launching Output-Pipeline')
-        self.outputPipeline.set_state(Gst.State.PLAYING)
+        self.pipe += """
+matroskamux
+    name=mux-preview-{channel}
+    streamable=true
+    writing-app=Voctomix-AVPreviewOutput
+! queue
+! multifdsink
+    blocksize=1048576
+    buffers-max=500
+    sync-method=next-keyframe
+    name=fd-preview-{channel}
+        """.format(
+            channel=self.channel
+        )
 
     def construct_video_pipeline(self, target_caps):
         vaapi_enabled = Config.has_option('previews', 'vaapi')
@@ -117,15 +95,15 @@ class AVPreviewOutput(TCPMultiConnection):
          framerate_denominator) = struct.get_fraction('framerate')
 
         return '''
-            capsfilter caps=video/x-raw,interlace-mode=progressive
-            ! vaapipostproc
-                format=i420
-                deinterlace-mode={imode}
-                deinterlace-method=motion-adaptive
-                width={width}
-                height={height}
-            ! capssetter caps=video/x-raw,framerate={n}/{d}
-            ! {encoder} {options}
+capsfilter caps=video/x-raw,interlace-mode=progressive
+! vaapipostproc
+    format=i420
+    deinterlace-mode={imode}
+    deinterlace-method=motion-adaptive
+    width={width}
+    height={height}
+! capssetter caps=video/x-raw,framerate={n}/{d}
+! {encoder} {options}
         '''.format(
             imode='interlaced' if do_deinterlace else 'disabled',
             width=width,
@@ -140,28 +118,36 @@ class AVPreviewOutput(TCPMultiConnection):
         do_deinterlace = Config.getboolean('previews', 'deinterlace')
 
         if do_deinterlace:
-            pipeline = '''
-                deinterlace mode={imode}
-                ! videorate
-                !
-            '''
+            pipeline = '''deinterlace mode={imode}
+! queue
+! videorate
+! queue
+! videoscale
+! queue
+! {target_caps}
+! queue
+! jpegenc quality=90'''
         else:
-            pipeline = ''
-
-        pipeline += '''
-            videoscale
-            ! {target_caps}
-            ! jpegenc quality=90
-        '''
+            pipeline = '''videoscale
+! queue
+! {target_caps}
+! queue
+! jpegenc quality=90'''
 
         return pipeline.format(
             imode='interlaced' if do_deinterlace else 'disabled',
             target_caps=target_caps,
         )
 
+    def attach(self, pipeline):
+        self.pipeline = pipeline
+
     def on_accepted(self, conn, addr):
         self.log.debug('Adding fd %u to multifdsink', conn.fileno())
-        fdsink = self.outputPipeline.get_by_name('fd')
+        fdsink = self.pipeline.get_by_name(
+            "fd-preview-{channel}".format(
+                channel=self.channel
+            ))
         fdsink.emit('add', conn.fileno())
 
         def on_disconnect(multifdsink, fileno):
@@ -170,11 +156,3 @@ class AVPreviewOutput(TCPMultiConnection):
                 self.close_connection(conn)
 
         fdsink.connect('client-fd-removed', on_disconnect)
-
-    def on_eos(self, bus, message):
-        self.log.debug('Received End-of-Stream-Signal on Output-Pipeline')
-
-    def on_error(self, bus, message):
-        self.log.error('Received Error-Signal on Output-Pipeline')
-        (error, debug) = message.parse_error()
-        self.log.debug('Error-Details: #%u: %s', error.code, debug)

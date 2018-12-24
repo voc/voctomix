@@ -2,12 +2,8 @@
 import logging
 from configparser import NoOptionError, NoSectionError
 
-from gi.repository import Gst
-
 from lib.config import Config
-from lib.clock import Clock
 from lib.errors.configuration_error import ConfigurationError
-from lib.args import Args
 
 class AudioMix(object):
 
@@ -65,71 +61,32 @@ class AudioMix(object):
                           self.names[0], 1.0)
             self.volumes[0] = 1.0
 
-        pipeline = ""
+        self.pipe = ""
         for audiostream in range(0, Config.getint('mix', 'audiostreams')):
-            pipeline += """
-                audiomixer
-                    name=mix_{audiostream}
-                ! tee
-                    name=tee_{audiostream}
-
-                tee_{audiostream}.
-                ! interpipesink
-                    name=audio_mix_out_stream{audiostream}
+            self.pipe += """
+audiomixer
+    name=audiomixer-{audiostream}
+! queue
+! tee
+    name=audio-mix-{audiostream}
             """.format(
                 audiostream=audiostream,
             )
 
-            if Config.getboolean('previews', 'enabled'):
-                pipeline += """
-                    tee_{audiostream}.
-                    ! interpipesink
-                        name=audio_mix_preview_stream{audiostream}
-                """.format(
-                    audiostream=audiostream,
-                )
-
-            if Config.getboolean('stream-blanker', 'enabled'):
-                pipeline += """
-                    tee_{audiostream}.
-                    ! interpipesink
-                        name=audio_mix_stream{audiostream}_stream-blanker
-                """.format(
-                    audiostream=audiostream,
-                )
-
             for idx, name in enumerate(self.names):
-                pipeline += """
-                    interpipesrc
-                        listen-to=audio_{name}_mixer_stream{audiostream}
-                    ! mix_{audiostream}.
+                self.pipe += """
+audio-{name}-{audiostream}.
+! queue
+! audiomixer-{audiostream}.
                 """.format(
                     name=name,
                     audiostream=audiostream,
                 )
 
-        self.log.debug('Creating Mixing-Pipeline:\n%s', pipeline)
-        self.mixingPipeline = Gst.parse_launch(pipeline)
 
-        if Args.dot:
-            self.log.debug('Generating DOT image of audiomix pipeline')
-            Gst.debug_bin_to_dot_file(
-                self.mixingPipeline, Gst.DebugGraphDetails.ALL, "audiomix")
-
-        self.mixingPipeline.use_clock(Clock)
-
-        self.log.debug('Binding Error & End-of-Stream-Signal '
-                       'on Mixing-Pipeline')
-        self.mixingPipeline.bus.add_signal_watch()
-        self.mixingPipeline.bus.connect("message::eos", self.on_eos)
-        self.mixingPipeline.bus.connect("message::error", self.on_error)
-
-        self.log.debug('Initializing Mixer-State')
+    def attach(self, pipeline):
+        self.pipeline = pipeline
         self.updateMixerState()
-
-    def launch(self):
-        self.log.debug('Launching Mixing-Pipeline')
-        self.mixingPipeline.set_state(Gst.State.PLAYING)
 
     def updateMixerState(self):
         self.log.info('Updating Mixer-State')
@@ -139,8 +96,8 @@ class AudioMix(object):
 
             self.log.debug('Setting Mixerpad %u to volume=%0.2f', idx, volume)
             for audiostream in range(0, Config.getint('mix', 'audiostreams')):
-                mixer = self.mixingPipeline.get_by_name(
-                    'mix_{}'.format(audiostream))
+                mixer = self.pipeline.get_by_name(
+                    'audiomixer-{}'.format(audiostream))
 
                 mixerpad = mixer.get_static_pad('sink_%u' % idx)
                 mixerpad.set_property('volume', volume)
@@ -155,11 +112,3 @@ class AudioMix(object):
 
     def getAudioVolumes(self):
         return self.volumes
-
-    def on_eos(self, bus, message):
-        self.log.debug('Received End-of-Stream-Signal on Mixing-Pipeline')
-
-    def on_error(self, bus, message):
-        self.log.error('Received Error-Signal on Mixing-Pipeline')
-        (error, debug) = message.parse_error()
-        self.log.debug('Error-Details: #%u: %s', error.code, debug)

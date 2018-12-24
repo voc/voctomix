@@ -5,10 +5,8 @@ from configparser import NoOptionError
 from enum import Enum, unique
 from gi.repository import Gst
 from lib.config import Config
-from lib.clock import Clock
 from lib.transitions import Composites, Transitions
 from lib.scene import Scene
-from lib.args import Args
 
 from vocto.composite_commands import CompositeCommand
 
@@ -33,72 +31,53 @@ class VideoMix(object):
         self.launched = False
 
         # build GStreamer mixing pipeline descriptor
-        pipeline = """
-            compositor
-                name=mix
-            ! identity
-                name=sig
-            ! interpipesink
-                name=video_mix_out
+        self.pipe = """
+compositor
+    name=videomixer
+! queue
+! identity
+    name=sig
+! queue
+! tee
+    name=video-mix
 
-            interpipesrc
-                listen-to=video_background
-                format=time
-            ! mix.
-
+video-background.
+! queue
+! videomixer.
         """
 
         for idx, name in enumerate(self.sources):
-            pipeline += """
-                interpipesrc
-                    listen-to=video_{name}_mixer
-                    format=time
-                ! videobox
-                    name=video_{idx}_cropper
-                ! mix.
+            self.pipe += """
+video-{name}.
+! queue
+! videobox
+    name=cropper-{name}
+! queue
+! videomixer.
             """.format(
                 name=name,
                 idx=idx
             )
 
-        # create pipeline
-        self.log.debug('Creating Mixing-Pipeline:\n%s', pipeline)
-        self.mixingPipeline = Gst.parse_launch(pipeline)
 
-        if Args.dot:
-            self.log.debug('Generating DOT image of videomix pipeline')
-            Gst.debug_bin_to_dot_file(
-                self.mixingPipeline, Gst.DebugGraphDetails.ALL, "videomix")
-
-        self.mixingPipeline.use_clock(Clock)
-
-        self.log.debug('Binding Error & End-of-Stream-Signal '
-                       'on Mixing-Pipeline')
-        self.mixingPipeline.bus.add_signal_watch()
-        self.mixingPipeline.bus.connect("message::eos", self.on_eos)
-        self.mixingPipeline.bus.connect("message::error", self.on_error)
-
+    def attach( self, pipeline ):
         self.log.debug('Binding Handoff-Handler for '
                        'Synchronus mixer manipulation')
-        sig = self.mixingPipeline.get_by_name('sig')
+        sig = pipeline.get_by_name('sig')
+        self.pipeline = pipeline
         sig.connect('handoff', self.on_handoff)
 
         self.log.debug('Initializing Mixer-State')
         # initialize pipeline bindings for all sources
-        self.scene = Scene(self.sources, self.mixingPipeline, self.transitions.fps)
+        self.scene = Scene(self.sources, pipeline, self.transitions.fps)
         self.compositeMode = None
         self.sourceA = None
         self.sourceB = None
         self.setCompositeEx(Composites.targets(self.composites)[0].name, self.sources[0], self.sources[1] )
 
-        bgMixerpad = (self.mixingPipeline.get_by_name('mix')
+        bgMixerpad = (pipeline.get_by_name('videomixer')
                       .get_static_pad('sink_0'))
         bgMixerpad.set_property('zorder', 0)
-
-    def launch(self):
-        self.log.debug('Launching Mixing-Pipeline')
-        self.mixingPipeline.set_state(Gst.State.PLAYING)
-        self.launched = True
 
     def getVideoSize(self):
         caps = Gst.Caps.from_string(self.caps)
@@ -116,8 +95,8 @@ class VideoMix(object):
 
     def getPlayTime(self):
         # get play time from mixing pipeline or assume zero
-        return self.mixingPipeline.get_pipeline_clock().get_time() - \
-            self.mixingPipeline.get_base_time()
+        return self.pipeline.get_pipeline_clock().get_time() - \
+            self.pipeline.get_base_time()
 
     def on_handoff(self, object, buffer):
         # sync with self.launch()
@@ -127,14 +106,6 @@ class VideoMix(object):
                 playTime = self.getPlayTime()
                 self.log.debug('Applying new Mixer-State at %d ms', playTime / Gst.MSECOND)
                 self.scene.push(playTime)
-
-    def on_eos(self, bus, message):
-        self.log.debug('Received End-of-Stream-Signal on Mixing-Pipeline')
-
-    def on_error(self, bus, message):
-        self.log.error('Received Error-Signal on Mixing-Pipeline')
-        (error, debug) = message.parse_error()
-        self.log.debug('Error-Details: #%u: %s', error.code, debug)
 
     def setCompositeEx(self, newCompositeName=None, newA=None, newB=None, useTransitions = False):
         # expect strings or None as parameters
