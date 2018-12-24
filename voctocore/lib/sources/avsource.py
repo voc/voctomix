@@ -42,12 +42,14 @@ class AVSource(object, metaclass=ABCMeta):
                 self.pipe += """
 {audioport}
     name=audiosrc-{name}-{audiostream}
+! {acaps}
 ! queue
 ! tee
     name=audio-{name}-{audiostream}
                 """.format(
                     audioport=audioport,
                     audiostream=audiostream,
+                    acaps=Config.get('mix', 'audiocaps'),
                     name=self.name
                 )
 
@@ -55,12 +57,14 @@ class AVSource(object, metaclass=ABCMeta):
             self.pipe += """
 {videoport}
     name=videosrc-{name}
+! {vcaps}
 ! queue
 ! tee
     name=video-{name}
             """.format(
                 videoport=self.build_videoport(),
-                name=self.name
+                name=self.name,
+                vcaps=Config.get('mix', 'videocaps')
             )
 
     def build_deinterlacer(self):
