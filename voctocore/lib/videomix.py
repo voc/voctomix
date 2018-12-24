@@ -5,7 +5,7 @@ from configparser import NoOptionError
 from enum import Enum, unique
 from gi.repository import Gst
 from lib.config import Config
-from lib.transitions import Composites, Transitions
+from lib.transitions import Composites, Transitions, Frame
 from lib.scene import Scene
 
 from vocto.composite_commands import CompositeCommand
@@ -177,6 +177,12 @@ video-{name}.
                     "setting composite '%s' to scene", newComposite.name)
                 self.scene.set(targetA, newComposite.Az(1))
                 self.scene.set(targetB, newComposite.Bz(2))
+            # make all other sources invisible
+            for source in self.sources:
+                if source not in [targetA, targetB]:
+                    self.log.debug("making source %s invisible", source)
+                    self.scene.set(source, Frame(True,0,0))
+
         else:
             # report unknown elements of the target scene
             if not newComposite:
