@@ -28,7 +28,6 @@ class VideoMix(object):
         self.transitions = Transitions.configure(Config.items(
             'transitions'), self.composites, fps=self.getFramesPerSecond())
         self.scene = None
-        self.launched = False
 
         # build GStreamer mixing pipeline descriptor
         self.pipe = """
@@ -100,12 +99,11 @@ video-{name}.
 
     def on_handoff(self, object, buffer):
         # sync with self.launch()
-        if self.launched:
-            if self.scene and self.scene.dirty:
-                # push scene to gstreamer
-                playTime = self.getPlayTime()
-                self.log.debug('Applying new Mixer-State at %d ms', playTime / Gst.MSECOND)
-                self.scene.push(playTime)
+        if self.scene and self.scene.dirty:
+            # push scene to gstreamer
+            playTime = self.getPlayTime()
+            self.log.debug('Applying new Mixer-State at %d ms', playTime / Gst.MSECOND)
+            self.scene.push(playTime)
 
     def setCompositeEx(self, newCompositeName=None, newA=None, newB=None, useTransitions = False):
         # expect strings or None as parameters
