@@ -7,16 +7,20 @@ from lib.config import Config
 
 class AVSource(object, metaclass=ABCMeta):
 
-    def __init__(self, name, has_audio=True, has_video=True,
+    def __init__(self, name, outputs=None, has_audio=True, has_video=True,
                  force_num_streams=None):
         if not self.log:
             self.log = logging.getLogger('AVSource[{}]'.format(name))
+
+        if outputs is None:
+            outputs = [name]
 
         assert has_audio or has_video
 
         self.name = name
         self.has_audio = has_audio
         self.has_video = has_video
+        self.outputs = outputs
         self.force_num_streams = force_num_streams
         self.pipe = ""
 
@@ -29,6 +33,7 @@ class AVSource(object, metaclass=ABCMeta):
         return
 
     def build_pipeline(self, pipeline):
+        self.pipe = pipeline
         if self.has_audio:
             num_streams = self.force_num_streams
             if num_streams is None:
@@ -41,7 +46,6 @@ class AVSource(object, metaclass=ABCMeta):
 
                 self.pipe += """
 {audioport}
-    name=audiosrc-{name}-{audiostream}
 ! {acaps}
 ! queue
 ! tee
@@ -53,10 +57,21 @@ class AVSource(object, metaclass=ABCMeta):
                     name=self.name
                 )
 
+                for output in self.outputs:
+                    pipeline += """
+audio-{name}-{audiostream}.
+! queue
+! interaudiosink
+    channel=audio-{output}-{audiostream}
+                    """.format(
+                        output=output,
+                        audiostream=audiostream,
+                        name=self.name
+                    )
+
         if self.has_video:
             self.pipe += """
 {videoport}
-    name=videosrc-{name}
 ! {vcaps}
 ! queue
 ! tee

@@ -43,7 +43,7 @@ video-mix.
 compositor
     name=videomixer-sb-slides
 ! tee
-    video-mix-sb-slides.
+    name=video-mix-sb-slides.
             """
 
             self.pipe += """

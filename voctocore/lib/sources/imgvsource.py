@@ -8,9 +8,9 @@ from lib.sources.avsource import AVSource
 
 
 class ImgVSource(AVSource):
-    def __init__(self, name, has_audio=False, has_video=True):
+    def __init__(self, name, outputs=None, has_audio=False, has_video=True):
         self.log = logging.getLogger('ImgVSource[{}]'.format(name))
-        super().__init__(name, False, has_video)
+        super().__init__(name, outputs, False, has_video)
 
         if has_audio:
             self.log.warning("Audio requested from video-only source")

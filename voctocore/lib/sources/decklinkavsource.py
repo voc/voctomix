@@ -10,9 +10,9 @@ from lib.sources.avsource import AVSource
 
 class DeckLinkAVSource(AVSource):
 
-    def __init__(self, name, has_audio=True, has_video=True):
+    def __init__(self, name, outputs=None, has_audio=True, has_video=True):
         self.log = logging.getLogger('DecklinkAVSource[{}]'.format(name))
-        super().__init__(name, has_audio, has_video)
+        super().__init__(name, outputs, has_audio, has_video)
 
         section = 'source.{}'.format(name)
 
@@ -150,9 +150,10 @@ decklinkvideosrc
 videoconvert
 ! videoscale
 ! videorate
-    name=vout
+    name=vout-{name}
             """.format(
-                deinterlacer=self.build_deinterlacer()
+                deinterlacer=self.build_deinterlacer(),
+                name=self.name
             )
         else:
             pipeline += """
@@ -172,12 +173,12 @@ decklinkaudiosrc
                          "",
                 device=self.device,
                 conn=self.aconn,
-                output="name=aout"
+                output="name=aout-{name}".format(name=self.name)
                        if self.fallback_default else
                        """
 ! deinterleave
-    name=aout
-                       """,
+    name=aout-{name}
+                       """.format(name=self.name),
             )
 
             for audiostream, mapping in self.audiostream_map.items():
@@ -192,18 +193,19 @@ decklinkaudiosrc
 
                     pipeline += """
 interleave
-    name=i{audiostream}
+    name=i-{name}-{audiostream}
 
-aout.src_{left}
+aout-{name}.src_{left}
 ! queue
-! i{audiostream}.sink_0
+! i-{name}-{audiostream}.sink_0
 
-aout.src_{right}
+aout-{name}.src_{right}
 ! queue
-! i{audiostream}.sink_1
+! i-{name}-{audiostream}.sink_1
                     """.format(
                         left=left,
                         right=right,
+                        name=self.name,
                         audiostream=audiostream
                     )
                 else:
@@ -215,21 +217,22 @@ aout.src_{right}
 
                     pipeline += """
 interleave
-    name=i{audiostream}
+    name=i-{name}-{audiostream}
 
-aout.src_{channel}
+aout-{name}.src_{channel}
 ! tee
-    name=t{audiostream}
+    name=t-{name}-{audiostream}
 
-t{audiostream}.
+t-{name}-{audiostream}.
 ! queue
-! i{audiostream}.sink_0
+! i-{name}-{audiostream}.sink_0
 
-t{audiostream}.
+t-{name}-{audiostream}.
 ! queue
-! i{audiostream}.sink_1
+! i-{name}-{audiostream}.sink_1
                     """.format(
                         channel=left,
+                        name=self.name,
                         audiostream=audiostream
                     )
 
@@ -244,13 +247,13 @@ t{audiostream}.
 
     def build_audioport(self, audiostream):
         if self.fallback_default and audiostream == 0:
-            return "aout."
+            return "aout-{}.".format(self.name)
 
         if audiostream in self.audiostream_map:
-            return 'i{}.'.format(audiostream)
+            return 'i-{name}-{audiostream}.'.format(name=self.name,audiostream=audiostream)
 
     def build_videoport(self):
-        return 'vout.'
+        return 'vout-{}.'.format(self.name)
 
     def restart(self):
         self.pipe.set_state(Gst.State.NULL)
