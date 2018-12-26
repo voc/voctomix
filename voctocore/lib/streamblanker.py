@@ -22,113 +22,94 @@ class StreamBlanker(object):
         self.volume = Config.getfloat('stream-blanker', 'volume')
 
         # Videomixer
-        pipeline = """
-            compositor
-                name=vmix
-            ! interpipesink
-                name=video_stream-blanker_out
+        self.pipe = """
+compositor
+    name=videomixer-sb
+! tee
+    name=video-mix-sb
         """.format(
             vcaps=self.vcaps,
         )
 
         # Source from the Main-Mix
-        pipeline += """
-            interpipesrc
-                listen-to=video_mix_out
-            ! vmix.
+        self.pipe += """
+video-mix.
+! queue
+! videomixer-sb.
         """
 
         if Config.has_option('mix', 'slides_source_name'):
-            pipeline += """
-                compositor
-                    name=vmix-slides
-                ! queue
-                ! interpipesink
-                    name=video_slides_stream-blanker_out
+            self.pipe += """
+compositor
+    name=videomixer-sb-slides
+! tee
+    video-mix-sb-slides.
             """
 
-            pipeline += """
-                interpipesrc
-                    listen-to=video_slides_stream-blanker
-                ! vmix-slides.
+            self.pipe += """
+video-sb-slides.
+! queue
+! videomixer-sb-slides.
             """
 
         for audiostream in range(0, Config.getint('mix', 'audiostreams')):
             # Audiomixer
-            pipeline += """
-                audiomixer
-                    name=amix_{audiostream}
-                ! interpipesink
-                    name=audio_stream-blanker_out_stream{audiostream}
+            self.pipe += """
+audiomixer
+    name=audiomixer-sb-{audiostream}
+! tee
+! audio-mix-sb-{audiostream}.
             """.format(
                 acaps=self.acaps,
                 audiostream=audiostream
             )
             # Source from the Main-Mix
-            pipeline += """
-                interpipesrc
-                    listen-to=audio_mix_stream{audiostream}_stream-blanker
-                ! amix_{audiostream}.
+            self.pipe += """
+audio-mix-{audiostream}.
+! queue
+! audiomixer-sb-{audiostream}.
             """.format(
                 audiostream=audiostream
             )
 
-            pipeline += "\n\n"
+            self.pipe += "\n\n"
 
         for audiostream in range(0, Config.getint('mix', 'audiostreams')):
             # Source from the Blank-Audio-Tee into the Audiomixer
-            pipeline += """
-                interpipesrc
-                    listen-to=audio_stream-blanker_stream0
-                ! amix_{audiostream}.
+            self.pipe += """
+audio-sb-{audiostream}.
+! queue
+! audiomixer-sb-{audiostream}.
             """.format(
                 audiostream=audiostream,
             )
 
-        pipeline += "\n\n"
+        self.pipe += "\n\n"
 
         for name in self.names:
             # Source from the named Blank-Video
-            pipeline += """
-                interpipesrc
-                    listen-to=video_stream-blanker-{name}
-                ! vmix.
+            self.pipe += """
+video-sb-{name}.
+! queue
+! videomixer-sb.
             """.format(
                 name=name
             )
 
             if Config.has_option('mix', 'slides_source_name'):
-                pipeline += """
-                    interpipesrc
-                        listen-to=video_stream-blanker-{name}
-                    ! vmix-slides.
+                self.pipe += """
+video-sb-{name}.
+! queue
+! videomixer-sb-slides.
                 """.format(
                     name=name,
                 )
 
-        self.log.debug('Creating Mixing-Pipeline:\n%s', pipeline)
-        self.mixingPipeline = Gst.parse_launch(pipeline)
-
-        if Args.dot:
-            self.log.debug('Generating DOT image of streamblanker pipeline')
-            Gst.debug_bin_to_dot_file(
-                self.mixingPipeline, Gst.DebugGraphDetails.ALL, "streamblanker")
-
-        self.mixingPipeline.use_clock(Clock)
-
-        self.log.debug('Binding Error & End-of-Stream-Signal '
-                       'on Mixing-Pipeline')
-        self.mixingPipeline.bus.add_signal_watch()
-        self.mixingPipeline.bus.connect("message::eos", self.on_eos)
-        self.mixingPipeline.bus.connect("message::error", self.on_error)
-
-        self.log.debug('Initializing Mixer-State')
         self.blankSource = 0 if len(self.names) > 0 else None
-        self.applyMixerState()
 
-    def launch(self):
-        self.log.debug('Launching Mixing-Pipeline')
-        self.mixingPipeline.set_state(Gst.State.PLAYING)
+    def attach(self,pipeline):
+        self.pipeline = pipeline
+        self.applyMixerState()
 
     def on_eos(self, bus, message):
         self.log.debug('Received End-of-Stream-Signal on Mixing-Pipeline')
@@ -140,15 +121,15 @@ class StreamBlanker(object):
 
     def applyMixerState(self):
         self.applyMixerStateAudio()
-        self.applyMixerStateVideo('vmix')
+        self.applyMixerStateVideo('sb-videomixer')
         if Config.has_option('mix', 'slides_source_name'):
-            self.applyMixerStateVideo('vmix-slides')
+            self.applyMixerStateVideo('sb-slides-videomixer')
 
     def applyMixerStateAudio(self):
         is_blanked = self.blankSource is not None
 
         for audiostream in range(0, Config.getint('mix', 'audiostreams')):
-            mixer = self.mixingPipeline.get_by_name(
+            mixer = self.pipeline.get_by_name(
                 'amix_{}'.format(audiostream))
             mixpad = mixer.get_static_pad('sink_0')
             blankpad = mixer.get_static_pad('sink_1')
@@ -162,12 +143,12 @@ class StreamBlanker(object):
                 self.volume if is_blanked else 0.0)
 
     def applyMixerStateVideo(self, mixername):
-        mixpad = (self.mixingPipeline.get_by_name(mixername)
+        mixpad = (self.pipeline.get_by_name(mixername)
                   .get_static_pad('sink_0'))
         mixpad.set_property('alpha', int(self.blankSource is None))
 
         for idx, name in enumerate(self.names):
-            blankpad = (self.mixingPipeline
+            blankpad = (self.pipeline
                         .get_by_name(mixername)
                         .get_static_pad('sink_%u' % (idx + 1)))
             blankpad.set_property('alpha', int(self.blankSource == idx))

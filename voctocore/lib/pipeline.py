@@ -81,14 +81,14 @@ class Pipeline(object):
 
                 self.log.info('Creating StreamBlanker VSource %s at %u',
                               name, port)
-                self.pipes.append(spawn_source('stream-blanker-{}'.format(name),
+                self.pipes.append(spawn_source('video-sb-{}'.format(name),
                                                port,
                                                has_audio=False))
 
             port = 18000
             self.log.info('Creating StreamBlanker ASource at tcp-port %u',
                           port)
-            self.pipes.append(spawn_source('stream-blanker',
+            self.pipes.append(spawn_source('audio-sb',
                                            port,
                                            has_video=False,
                                            force_num_streams=1))
@@ -97,13 +97,13 @@ class Pipeline(object):
             self.pipes.append(StreamBlanker())
             port = 15000
             self.log.info('Creating StreamBlanker-Output at tcp-port %u', port)
-            self.pipes.append(AVRawOutput('stream-blanker_out', port))
+            self.pipes.append(AVRawOutput('sb', port))
             if Config.has_option('mix', 'slides_source_name'):
                 port = 15001
                 self.log.info(
                     'Creating SlideStreamBlanker-Output at tcp-port %u', port)
                 self.pipes.append(AVRawOutput(
-                    'slides_stream-blanker_out', port))
+                    'sb-slides', port))
 
         # concatinate pipeline string
         pipeline = "\n\n".join(pipe.pipe for pipe in self.pipes)
