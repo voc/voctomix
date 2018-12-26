@@ -82,6 +82,13 @@ audio-{name}-{audiostream}.
                 vcaps=Config.get('mix', 'videocaps')
             )
 
+      for output in self.outputs:
+          pipeline += """
+video-{name}.
+! queue
+! video-{output}
+                """.format(name=self.name,output=output)
+
     def build_deinterlacer(self):
         deinterlace_config = self.get_deinterlace_config()
 
