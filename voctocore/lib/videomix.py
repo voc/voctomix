@@ -179,8 +179,7 @@ video-{name}.
             for source in self.sources:
                 if source not in [targetA, targetB]:
                     self.log.debug("making source %s invisible", source)
-                    self.scene.set(source, Frame(True,0,0))
-
+                    self.scene.set(source, Frame(True,alpha=0,zorder=-1))
         else:
             # report unknown elements of the target scene
             if not newComposite:

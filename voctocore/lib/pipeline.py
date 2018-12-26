@@ -112,14 +112,14 @@ class Pipeline(object):
         # launch gstreamer pipeline
         self.pipeline = Gst.parse_launch(pipeline)
 
+        # attach pads
+        for pipe in self.pipes:
+            pipe.attach(self.pipeline)
+
         # make DOT file from pipeline
         if Args.dot:
             self.log.debug('Generating DOT image of avsource pipeline')
             Gst.debug_bin_to_dot_file(self.pipeline, 0, "pipeline")
-
-        # attach pads
-        for pipe in self.pipes:
-            pipe.attach(self.pipeline)
 
         self.pipeline.use_clock(Clock)
 
