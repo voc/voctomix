@@ -96,13 +96,14 @@ class Scene:
             for idx, frame in enumerate(frames):
                 self.log.debug("%2d: %s", idx, frame)
                 cropped = frame.cropped()
+                alpha = frame.float_alpha()
                 # transmit frame properties into mixing pipeline
                 pad['xpos'].set(time, cropped[L])
                 pad['ypos'].set(time, cropped[T])
                 pad['width'].set(time, cropped[R] - cropped[L])
                 pad['height'].set(time, cropped[B] - cropped[T])
-                pad['alpha'].set(time, frame.float_alpha())
-                pad['zorder'].set(time, frame.zorder)
+                pad['alpha'].set(time, alpha)
+                pad['zorder'].set(time, frame.zorder if alpha != 0 else -1)
                 pad['croptop'].set(time, frame.crop[T])
                 pad['cropleft'].set(time, frame.crop[L])
                 pad['cropbottom'].set(time, frame.crop[B])
