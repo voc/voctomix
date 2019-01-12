@@ -20,6 +20,7 @@ class AVSource(object, metaclass=ABCMeta):
         self.force_num_streams = force_num_streams
         self.pipe = ""
 
+    @abstractmethod
     def __str__(self):
         return 'AVSource[{name}]'.format(
             name=self.name

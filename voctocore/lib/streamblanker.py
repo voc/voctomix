@@ -107,6 +107,9 @@ video-sb-{name}.
 
         self.blankSource = 0 if len(self.names) > 0 else None
 
+    def __str__(self):
+        return 'StreamBlanker[{}]'.format(','.join(self.names))
+
     def attach(self,pipeline):
         self.pipeline = pipeline
         self.applyMixerState()

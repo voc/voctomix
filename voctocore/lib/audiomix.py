@@ -87,6 +87,9 @@ audio-{name}-{audiostream}.
         self.pipeline = pipeline
         self.updateMixerState()
 
+    def __str__(self):
+        return 'AudioMix'
+
     def updateMixerState(self):
         self.log.info('Updating Mixer-State')
 

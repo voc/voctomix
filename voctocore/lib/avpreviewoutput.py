@@ -52,6 +52,9 @@ matroskamux
             channel=self.channel
         )
 
+    def __str__(self):
+        return 'AVPreviewOutput[{}]'.format(self.channel)
+
     def construct_video_pipeline(self, target_caps):
         vaapi_enabled = Config.has_option('previews', 'vaapi')
         if vaapi_enabled:

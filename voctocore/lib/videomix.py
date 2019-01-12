@@ -74,6 +74,9 @@ video-{name}.
                       .get_static_pad('sink_0'))
         bgMixerpad.set_property('zorder', 0)
 
+    def __str__(self):
+        return 'VideoMix'
+
     def getVideoSize(self):
         caps = Gst.Caps.from_string(self.caps)
         struct = caps.get_structure(0)

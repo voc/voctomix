@@ -47,6 +47,9 @@ matroskamux
             channel=self.channel
         )
 
+    def __str__(self):
+        return 'AVRawOutput[{}]'.format(self.channel)
+
     def attach(self, pipeline):
         self.pipeline = pipeline
 
