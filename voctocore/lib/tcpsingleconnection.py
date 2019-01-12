@@ -26,7 +26,7 @@ class TCPSingleConnection(object, metaclass=ABCMeta):
 
     def on_connect(self, sock, *args):
         conn, addr = sock.accept()
-        self.log.info('Incomming Connection from %s', addr)
+        self.log.info('Incoming Connection from %s', addr)
 
         if self.currentConnection is not None:
             self.log.warning('Another Source is already connected, '
