@@ -66,7 +66,6 @@ class AudioMix(object):
             self.pipe += """
 audiomixer
     name=audiomixer-{audiostream}
-! queue
 ! tee
     name=audio-mix-{audiostream}
             """.format(

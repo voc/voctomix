@@ -33,10 +33,8 @@ class VideoMix(object):
         self.pipe = """
 compositor
     name=videomixer
-! queue
 ! identity
     name=sig
-! queue
 ! tee
     name=video-mix
 
@@ -51,13 +49,11 @@ video-{name}.
 ! queue
 ! videobox
     name=cropper-{name}
-! queue
 ! videomixer.
             """.format(
                 name=name,
                 idx=idx
             )
-
 
     def attach( self, pipeline ):
         self.log.debug('Binding Handoff-Handler for '

@@ -52,7 +52,6 @@ class VideoDisplay(object):
                 host={host}
                 port={port}
                 blocksize=1048576
-            ! queue
             ! matroskademux
                 name=demux
         """

@@ -20,7 +20,6 @@ class AVPreviewOutput(TCPMultiConnection):
 
         self.pipe = """
 video-{channel}.
-! queue
 ! {vpipeline}
 ! queue
 ! mux-preview-{channel}.
@@ -44,7 +43,6 @@ matroskamux
     name=mux-preview-{channel}
     streamable=true
     writing-app=Voctomix-AVPreviewOutput
-! queue
 ! multifdsink
     blocksize=1048576
     buffers-max=500
@@ -119,19 +117,13 @@ capsfilter caps=video/x-raw,interlace-mode=progressive
 
         if do_deinterlace:
             pipeline = '''deinterlace mode={imode}
-! queue
 ! videorate
-! queue
 ! videoscale
-! queue
 ! {target_caps}
-! queue
 ! jpegenc quality=90'''
         else:
             pipeline = '''videoscale
-! queue
 ! {target_caps}
-! queue
 ! jpegenc quality=90'''
 
         return pipeline.format(

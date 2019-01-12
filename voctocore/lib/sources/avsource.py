@@ -43,7 +43,6 @@ class AVSource(object, metaclass=ABCMeta):
                 self.pipe += """
 {audioport}
 ! {acaps}
-! queue
 ! tee
     name=audio-{name}-{audiostream}
                 """.format(
@@ -57,7 +56,6 @@ class AVSource(object, metaclass=ABCMeta):
             self.pipe += """
 {videoport}
 ! {vcaps}
-! queue
 ! tee
     name=video-{name}
             """.format(

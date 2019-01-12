@@ -36,7 +36,6 @@ matroskamux
     name=mux-{channel}
     streamable=true
     writing-app=Voctomix-AVRawOutput
-! queue
 ! multifdsink
     blocksize=1048576
     buffers-max={buffers_max}
