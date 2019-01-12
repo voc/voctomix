@@ -10,9 +10,9 @@ from lib.sources.avsource import AVSource
 
 class DeckLinkAVSource(AVSource):
 
-    def __init__(self, name, outputs=None, has_audio=True, has_video=True):
+    def __init__(self, name, has_audio=True, has_video=True):
         self.log = logging.getLogger('DecklinkAVSource[{}]'.format(name))
-        super().__init__(name, outputs, has_audio, has_video)
+        super().__init__(name, has_audio, has_video)
 
         section = 'source.{}'.format(name)
 

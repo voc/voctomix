@@ -7,20 +7,16 @@ from lib.config import Config
 
 class AVSource(object, metaclass=ABCMeta):
 
-    def __init__(self, name, outputs=None, has_audio=True, has_video=True,
+    def __init__(self, name, has_audio=True, has_video=True,
                  force_num_streams=None):
         if not self.log:
             self.log = logging.getLogger('AVSource[{}]'.format(name))
-
-        if outputs is None:
-            outputs = [name]
 
         assert has_audio or has_video
 
         self.name = name
         self.has_audio = has_audio
         self.has_video = has_video
-        self.outputs = outputs
         self.force_num_streams = force_num_streams
         self.pipe = ""
 
@@ -57,18 +53,6 @@ class AVSource(object, metaclass=ABCMeta):
                     name=self.name
                 )
 
-                for output in self.outputs:
-                    pipeline += """
-audio-{name}-{audiostream}.
-! queue
-! interaudiosink
-    channel=audio-{output}-{audiostream}
-                    """.format(
-                        output=output,
-                        audiostream=audiostream,
-                        name=self.name
-                    )
-
         if self.has_video:
             self.pipe += """
 {videoport}
@@ -82,12 +66,6 @@ audio-{name}-{audiostream}.
                 vcaps=Config.get('mix', 'videocaps')
             )
 
-            for output in self.outputs:
-                pipeline += """
-video-{name}.
-! queue
-! video-{output}
-                """.format(name=self.name, output=output)
 
     def build_deinterlacer(self):
         deinterlace_config = self.get_deinterlace_config()
