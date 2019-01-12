@@ -48,27 +48,27 @@ class VideoDisplay(object):
 
         # Setup Server-Connection, Demuxing and Decoding
         pipeline = """
-            tcpclientsrc
-                host={host}
-                port={port}
-                blocksize=1048576
-            ! matroskademux
-                name=demux
+tcpclientsrc
+    host={host}
+    port={port}
+    blocksize=1048576
+! matroskademux
+    name=demux
         """
 
         if use_previews:
             pipeline += """
-                demux.
-                ! {vdec}
-                ! {previewcaps}
-                ! queue
+demux.
+! queue
+! {vdec}
+! {previewcaps}
             """
 
         else:
             pipeline += """
-                demux.
-                ! {vcaps}
-                ! queue
+demux.
+! queue
+! {vcaps}
             """
 
         # Video Display
@@ -76,14 +76,14 @@ class VideoDisplay(object):
         self.log.debug('Configuring for Video-System %s', videosystem)
         if videosystem == 'gl':
             pipeline += """
-                ! glupload
-                ! glcolorconvert
-                ! glimagesinkelement
+! glupload
+! glcolorconvert
+! glimagesinkelement
             """
 
         elif videosystem == 'xv':
             pipeline += """
-                ! xvimagesink
+! xvimagesink
             """
 
         elif videosystem == 'x':
@@ -92,10 +92,10 @@ class VideoDisplay(object):
                 prescale_caps += ',width=%u,height=%u' % (width, height)
 
             pipeline += """
-                ! videoconvert
-                ! videoscale
-                ! {prescale_caps}
-                ! ximagesink
+! videoconvert
+! videoscale
+! {prescale_caps}
+! ximagesink
             """.format(prescale_caps=prescale_caps)
 
         else:
@@ -107,24 +107,24 @@ class VideoDisplay(object):
         # add an Audio-Path through a level-Element
         if self.level_callback or play_audio:
             pipeline += """
-                demux.
-                ! {acaps}
-                ! queue
-                ! level
-                    name=lvl
-                    interval=50000000
+demux.
+! queue
+! {acaps}
+! level
+    name=lvl
+    interval=50000000
             """
 
             # If Playback is requested, push fo pulseaudio
             if play_audio:
                 pipeline += """
-                    ! pulsesink
+! pulsesink
                 """
 
             # Otherwise just trash the Audio
             else:
                 pipeline += """
-                    ! fakesink
+! fakesink
                 """
 
         pipeline = pipeline.format(
