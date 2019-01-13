@@ -115,13 +115,8 @@ class Pipeline(object):
         self.pipeline = Gst.parse_launch(pipeline)
 
         # attach pads
-        for pipe in self.pipes:
-            pipe.attach(self.pipeline)
-
-        # make DOT file from pipeline
-        if Args.dot:
-            self.log.debug('Generating DOT image of avsource pipeline')
-            Gst.debug_bin_to_dot_file(self.pipeline, 0, "pipeline")
+        for bin in self.bins:
+            bin.attach(self.pipeline)
 
         self.pipeline.use_clock(Clock)
 
@@ -138,6 +133,10 @@ class Pipeline(object):
         self.pipeline.bus.add_signal_watch()
         self.pipeline.bus.connect("message::eos", self.on_eos)
         self.pipeline.bus.connect("message::error", self.on_error)
+        self.pipeline.bus.connect(
+            "message::state-changed", self.on_state_changed)
+
+        self.draw_pipeline = Args.dot
 
         self.pipeline.set_state(Gst.State.PLAYING)
 
@@ -148,3 +147,12 @@ class Pipeline(object):
         self.log.error('Received Error-Signal on Source-Pipeline')
         (error, debug) = message.parse_error()
         self.log.debug('Error-Details: #%u: %s', error.code, debug)
+
+    def on_state_changed(self, bus, message):
+        if message.parse_state_changed().newstate == Gst.State.PLAYING:
+            # make DOT file from pipeline
+            self.log.debug('Generating DOT image of avsource pipeline')
+            Gst.debug_bin_to_dot_file(self.pipeline, 0, "pipeline")
+            self.draw_pipeline = False
+        elif self.draw_pipeline and message.parse_state_changed().newstate == Gst.State.PAUSED:
+            self.draw_pipeline = True
