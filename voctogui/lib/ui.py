@@ -68,7 +68,7 @@ class Ui(UiBuilder):
         self.main_video_display = VideoDisplay(
             drawing_area,
             port=11000,
-            play_audio=Config.getboolean('audio', 'playaudio'),
+            play_audio=Config.getboolean('audio', 'play'),
             level_callback=self.audio_level_display.level_callback
         )
 
