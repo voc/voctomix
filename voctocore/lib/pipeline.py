@@ -105,9 +105,11 @@ class Pipeline(object):
                 self.pipes.append(AVRawOutput(
                     'sb-slides', port))
 
+        for bin in self.bins:
+            self.log.info("%s\n%s", bin, bin.bin)
+
         # concatinate pipeline string
         pipeline = "\n\n".join(pipe.pipe for pipe in self.pipes)
-        self.log.info(pipeline)
 
         # launch gstreamer pipeline
         self.pipeline = Gst.parse_launch(pipeline)
