@@ -815,6 +815,29 @@ https://github.com/voc/voctomix </property>
                       </packing>
                     </child>
                     <child>
+                      <object class="GtkToggleToolButton" id="mute_button">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="no_show_all">True</property>
+                        <property name="label">Mute Sound</property>
+                        <property name="icon_name">audio-volume-muted</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkSeparatorToolItem" id="s1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                    <child>
                       <object class="GtkToolButton" id="voc-btn">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
@@ -865,10 +888,5 @@ https://github.com/voc/voctomix </property>
         </child>
       </object>
     </child>
-  </object>
-  <object class="GtkImage" id="voc">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">voc.svg</property>
   </object>
 </interface>

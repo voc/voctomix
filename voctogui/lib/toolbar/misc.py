@@ -9,7 +9,7 @@ import lib.connection as Connection
 class MiscToolbarController(object):
     """Manages Accelerators and Clicks Misc buttons"""
 
-    def __init__(self, win, uibuilder, queues_controller):
+    def __init__(self, win, uibuilder, queues_controller, video_display):
         self.log = logging.getLogger('MiscToolbarController')
         self.toolbar = uibuilder.find_widget_recursive(win, 'toolbar_main')
 
@@ -20,6 +20,11 @@ class MiscToolbarController(object):
         closebtn = uibuilder.find_widget_recursive(self.toolbar, 'close')
         closebtn.set_visible(Config.getboolean('misc', 'close'))
         closebtn.connect('clicked', self.on_closebtn_clicked)
+
+        mutebtn = uibuilder.find_widget_recursive(self.toolbar, 'mute_button')
+        mutebtn.set_active(not Config.getboolean('audio', 'playaudio'))
+        mutebtn.connect('clicked', self.on_mutebtn_clicked)
+        self.video_display = video_display
 
         queues_button = uibuilder.find_widget_recursive(self.toolbar, 'queue_button')
         queues_button.set_visible(Config.getboolean('misc', 'debug'))
@@ -35,6 +40,10 @@ class MiscToolbarController(object):
     def on_closebtn_clicked(self, btn):
         self.log.info('close-button clicked')
         Gtk.main_quit()
+
+    def on_mutebtn_clicked(self, btn):
+        self.log.info('mute-button clicked')
+        self.video_display.mute(not btn.get_active())
 
     def on_queues_button_toggled(self, btn):
         self.log.info('queues-button clicked')

@@ -103,29 +103,22 @@ demux.
                 'Invalid Videodisplay-System configured: %s' % videosystem
             )
 
-        # If an Audio-Path is required,
         # add an Audio-Path through a level-Element
-        if self.level_callback or play_audio:
-            pipeline += """
+        pipeline += """
 demux.
 ! queue
 ! {acaps}
 ! level
     name=lvl
     interval=50000000
-            """
-
-            # If Playback is requested, push fo pulseaudio
-            if play_audio:
-                pipeline += """
 ! pulsesink
-                """
-
-            # Otherwise just trash the Audio
-            else:
-                pipeline += """
-! fakesink
-                """
+    name=audiosink
+        """
+        # If Playback is requested, push fo pulseaudio
+        if not play_audio:
+            pipeline += """
+    volume=0
+            """
 
         pipeline = pipeline.format(
             acaps=Config.get('mix', 'audiocaps'),
@@ -173,6 +166,9 @@ demux.
         self.log.error('Received Error-Signal on Display-Pipeline')
         (error, debug) = message.parse_error()
         self.log.debug('Error-Details: #%u: %s', error.code, debug)
+
+    def mute(self, mute):
+        self.pipeline.get_by_name("audiosink").set_property("volume",1 if mute else 0)
 
     def on_level(self, bus, msg):
         if msg.src.name != 'lvl':

@@ -68,7 +68,7 @@ class Ui(UiBuilder):
         self.main_video_display = VideoDisplay(
             drawing_area,
             port=11000,
-            play_audio=Config.getboolean('mainvideo', 'playaudio'),
+            play_audio=Config.getboolean('audio', 'playaudio'),
             level_callback=self.audio_level_display.level_callback
         )
 
@@ -109,7 +109,8 @@ class Ui(UiBuilder):
         self.misc_controller = MiscToolbarController(
             win=self.win,
             uibuilder=self,
-            queues_controller=self.queues_controller
+            queues_controller=self.queues_controller,
+            video_display=self.main_video_display
         )
 
 
