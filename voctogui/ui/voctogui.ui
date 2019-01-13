@@ -2,6 +2,12 @@
 <!-- Generated with glade 3.22.1 -->
 <interface>
   <requires lib="gtk+" version="3.4"/>
+  <object class="GtkImage" id="img-queues">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="tooltip_text" translatable="yes">Show queues' filling levels</property>
+    <property name="pixbuf">queues.svg</property>
+  </object>
   <object class="GtkImage" id="img-voc">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -15,7 +21,16 @@ https://c3voc.de/
 https://github.com/voc/voctomix </property>
     <property name="pixbuf">voc2.svg</property>
   </object>
+  <object class="GtkListStore" id="queue_store">
+    <columns>
+      <!-- column-name Name -->
+      <column type="gchararray"/>
+      <!-- column-name Delay -->
+      <column type="gfloat"/>
+    </columns>
+  </object>
   <object class="GtkWindow" id="window">
+    <property name="name">main</property>
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Voctomix GUI</property>
     <property name="default_width">1280</property>
@@ -52,15 +67,30 @@ https://github.com/voc/voctomix </property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
+                  <object class="GtkDrawingArea" id="video_main">
+                    <property name="width_request">568</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="double_buffered">False</property>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkOverlay" id="video_overlay">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
-                      <object class="GtkDrawingArea" id="video_main">
-                        <property name="width_request">568</property>
+                      <object class="AudioLevelDisplay" id="audiolevel_main">
+                        <property name="width_request">20</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="double_buffered">False</property>
+                        <property name="margin_right">0</property>
+                        <property name="margin_top">0</property>
+                        <property name="margin_bottom">0</property>
                       </object>
                       <packing>
                         <property name="index">-1</property>
@@ -82,19 +112,73 @@ https://github.com/voc/voctomix </property>
                     </child>
                   </object>
                   <packing>
-                    <property name="expand">True</property>
+                    <property name="expand">False</property>
                     <property name="fill">True</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="AudioLevelDisplay" id="audiolevel_main">
-                    <property name="width_request">20</property>
-                    <property name="visible">True</property>
+                  <object class="GtkBox" id="queue_win">
                     <property name="can_focus">False</property>
-                    <property name="margin_right">0</property>
-                    <property name="margin_top">0</property>
-                    <property name="margin_bottom">0</property>
+                    <property name="no_show_all">True</property>
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <object class="GtkHeaderBar">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="title" translatable="yes">Delay Diagnosis</property>
+                        <property name="subtitle" translatable="yes">Queue filling levels in seconds</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkTreeView" id="queue_tree">
+                        <property name="name">queues</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="model">queue_store</property>
+                        <property name="enable_grid_lines">vertical</property>
+                        <child internal-child="selection">
+                          <object class="GtkTreeSelection"/>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn">
+                            <property name="title" translatable="yes">Name</property>
+                            <property name="sort_indicator">True</property>
+                            <property name="sort_column_id">0</property>
+                            <child>
+                              <object class="GtkCellRendererText"/>
+                              <attributes>
+                                <attribute name="text">0</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn">
+                            <property name="title" translatable="yes">Delay</property>
+                            <property name="sort_indicator">True</property>
+                            <property name="sort_order">descending</property>
+                            <property name="sort_column_id">1</property>
+                            <child>
+                              <object class="GtkCellRendererText"/>
+                              <attributes>
+                                <attribute name="text">1</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -111,6 +195,7 @@ https://github.com/voc/voctomix </property>
             </child>
             <child>
               <object class="GtkBox" id="box_mixer_panel">
+                <property name="name">mixer</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="orientation">vertical</property>
@@ -703,6 +788,29 @@ https://github.com/voc/voctomix </property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToggleToolButton" id="queue_button">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="no_show_all">True</property>
+                        <property name="label">Queues</property>
+                        <property name="icon_widget">img-queues</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkSeparatorToolItem" id="s7">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
                         <property name="homogeneous">True</property>
                       </packing>
                     </child>

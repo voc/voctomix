@@ -76,6 +76,7 @@ audiomixer
                 self.pipe += """
 audio-{name}-{audiostream}.
 ! queue
+    name=queue-audio-{name}-{audiostream}
 ! audiomixer-{audiostream}.
                 """.format(
                     name=name,

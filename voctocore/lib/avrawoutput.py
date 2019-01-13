@@ -16,6 +16,7 @@ class AVRawOutput(TCPMultiConnection):
         self.pipe = """
 video-{channel}.
 ! queue
+    name=queue-mux-video-{channel}
 ! mux-{channel}.
         """.format(
             channel=self.channel
@@ -25,6 +26,7 @@ video-{channel}.
             self.pipe += """
 audio-{channel}-{audiostream}.
 ! queue
+    name=queue-mux-audio-{channel}-{audiostream}
 ! mux-{channel}.
             """.format(
                 channel=self.channel,

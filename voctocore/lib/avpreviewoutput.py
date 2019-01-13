@@ -22,6 +22,7 @@ class AVPreviewOutput(TCPMultiConnection):
 video-{channel}.
 ! {vpipeline}
 ! queue
+    name=queue-preview-video-{channel}
 ! mux-preview-{channel}.
         """.format(
             channel=self.channel,
@@ -32,6 +33,7 @@ video-{channel}.
             self.pipe += """
 audio-{channel}-{audiostream}.
 ! queue
+    name=queue-preview-audio-{channel}-{audiostream}
 ! mux-preview-{channel}.
             """.format(
                 channel=self.channel,

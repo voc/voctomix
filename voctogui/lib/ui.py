@@ -7,8 +7,8 @@ from lib.uibuilder import UiBuilder
 from lib.videodisplay import VideoDisplay
 from lib.audioleveldisplay import AudioLevelDisplay
 from lib.warningoverlay import VideoWarningOverlay
-
 from lib.videopreviews import VideoPreviewsController
+from lib.queues import QueuesWindowController
 
 from lib.toolbar.mix import MixToolbarController
 from lib.toolbar.output import OutputToolbarController
@@ -94,8 +94,8 @@ class Ui(UiBuilder):
         self.mix_toolbar_controller = MixToolbarController(
             win=self.win,
             uibuilder=self,
-            output_controller = self.output_toolbar_controller,
-            preview_controller = self.preview_toolbar_controller
+            output_controller=self.output_toolbar_controller,
+            preview_controller=self.preview_toolbar_controller
         )
 
         self.streamblank_toolbar_controller = StreamblankToolbarController(
@@ -104,10 +104,14 @@ class Ui(UiBuilder):
             warning_overlay=self.video_warning_overlay
         )
 
+        self.queues_controller = QueuesWindowController(self)
+
         self.misc_controller = MiscToolbarController(
             win=self.win,
-            uibuilder=self
+            uibuilder=self,
+            queues_controller=self.queues_controller
         )
+
 
         # Setup Shortcuts window
         self.win.connect('key-press-event', self.handle_keypress)

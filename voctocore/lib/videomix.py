@@ -40,6 +40,7 @@ compositor
 
 video-background.
 ! queue
+    name=queue-video-background
 ! videomixer.
         """
 
@@ -47,6 +48,7 @@ video-background.
             self.pipe += """
 video-{name}.
 ! queue
+    name=queue-cropper-{name}
 ! videobox
     name=cropper-{name}
 ! videomixer.

@@ -197,10 +197,12 @@ interleave
 
 aout-{name}.src_{left}
 ! queue
+    name=queue-decklink-audio-{name}-{audiostream}-left
 ! i-{name}-{audiostream}.sink_0
 
 aout-{name}.src_{right}
 ! queue
+    name=queue-decklink-audio-{name}-{audiostream}-right
 ! i-{name}-{audiostream}.sink_1
                     """.format(
                         left=left,
@@ -225,10 +227,12 @@ aout-{name}.src_{channel}
 
 t-{name}-{audiostream}.
 ! queue
+    name=queue-decklink-audio-{name}-{audiostream}-left
 ! i-{name}-{audiostream}.sink_0
 
 t-{name}-{audiostream}.
 ! queue
+    name=queue-decklink-audio-{name}-{audiostream}-right
 ! i-{name}-{audiostream}.sink_1
                     """.format(
                         channel=left,

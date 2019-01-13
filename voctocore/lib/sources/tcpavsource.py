@@ -33,6 +33,7 @@ tcpserversrc
             pipe += """
 demux-{name}.video_0
 ! queue
+    name=queue-tcpsrc-video-{name}
 ! video/x-raw
 ! {deinterlacer}""".format(
                 name=self.name,
@@ -98,7 +99,8 @@ demux-{name}.video_0
     def build_audioport(self, audiostream):
         return """
 demux-{name}.audio_{audiostream}
-! queue""".format(audiostream=audiostream, name=self.name)
+! queue
+    name=queue-tcpsrc-audio-{name}""".format(audiostream=audiostream, name=self.name)
 
     def build_videoport(self):
         deinterlacer = self.build_deinterlacer()

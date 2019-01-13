@@ -9,7 +9,7 @@ import lib.connection as Connection
 class MiscToolbarController(object):
     """Manages Accelerators and Clicks Misc buttons"""
 
-    def __init__(self, win, uibuilder):
+    def __init__(self, win, uibuilder, queues_controller):
         self.log = logging.getLogger('MiscToolbarController')
         self.toolbar = uibuilder.find_widget_recursive(win, 'toolbar_main')
 
@@ -21,9 +21,10 @@ class MiscToolbarController(object):
         closebtn.set_visible(Config.getboolean('misc', 'close'))
         closebtn.connect('clicked', self.on_closebtn_clicked)
 
-        #cutbtn = uibuilder.find_widget_recursive(toolbar, 'cut')
-        #cutbtn.set_visible(Config.getboolean('misc', 'cut'))
-        #cutbtn.connect('clicked', self.on_cutbtn_clicked)
+        queues_button = uibuilder.find_widget_recursive(self.toolbar, 'queue_button')
+        queues_button.set_visible(Config.getboolean('misc', 'debug'))
+        queues_button.connect('toggled', self.on_queues_button_toggled)
+        self.queues_controller = queues_controller
 
         key, mod = Gtk.accelerator_parse('t')
         #cutbtn.add_accelerator('clicked', accelerators,
@@ -35,6 +36,6 @@ class MiscToolbarController(object):
         self.log.info('close-button clicked')
         Gtk.main_quit()
 
-    def on_cutbtn_clicked(self, btn):
-        self.log.info('cut-button clicked')
-        Connection.send('message', 'cut')
+    def on_queues_button_toggled(self, btn):
+        self.log.info('queues-button clicked')
+        self.queues_controller.show(btn.get_active())

@@ -1,10 +1,9 @@
 /* set font size for UHD screens */
+#mixer .name { font-size: 15px; }
 
-
-.name { font-size: 15px; }
-button {
-  font-size: 25px;
-  border-radius: 20px;
+#mixer button {
+  font-size: 20px;
+  border-radius: 15px;
   background-color: #505050;
   margin-left:2px;
   margin-top:2px;
@@ -12,40 +11,42 @@ button {
   margin-right:5px;
 }
 
-button:checked, button:active {
+#mixer button:checked, #mixer button:active {
   background-image: none;
   background-color: #ddbb00;
   color: #000000;
 }
 
-button:checked:disabled {
+#mixer button:checked:disabled {
   background-color: #aa9944;
 }
 
-button:checked:disabled label {
+#mixer button:checked:disabled label {
   color: #997700;
 }
 
-button:checked:backdrop label {
+#mixer button:checked:backdrop label {
   color: #997700;
 }
 
-.output:disabled:backdrop label {
+#mixer .output:disabled:backdrop label {
   color: #106610;
 }
 
-.output:disabled button {
+#mixer .output:disabled button {
   background-color: #40CC40;
 }
 
-.output:disabled label {
+#mixer .output:disabled label {
   color: #000000;
 }
 
-.mode.output.live button:checked {
+#mixer .mode.output.live button:checked {
   background-color: #FF4040;
 }
 
-.mode.output.live button:checked label:backdrop  {
+#mixer .mode.output.live button:checked label:backdrop  {
   color: #801010;
 }
+
+#queues { font-size: 15px; }

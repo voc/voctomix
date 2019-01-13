@@ -267,3 +267,9 @@ class ControlServerCommands(object):
         """restarts the specified source"""
         restart_source(src_name)
         return OkResponse('source_restarted', src_name)
+
+    def report_queues(self):
+        report = dict()
+        for queue in self.pipeline.queues:
+            report[queue.name] = queue.get_property("current-level-time")
+        return OkResponse('queue_report', json.dumps(report))
