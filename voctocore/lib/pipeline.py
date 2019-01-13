@@ -123,6 +123,15 @@ class Pipeline(object):
 
         self.pipeline.use_clock(Clock)
 
+        # fetch all queues
+        self.queues = []
+
+        def query_queues(element):
+            if element.find_property("current-level-time"):
+                self.queues.append(element)
+
+        self.pipeline.iterate_recurse().foreach(query_queues)
+
         self.log.debug('Binding End-of-Stream-Signal on Source-Pipeline')
         self.pipeline.bus.add_signal_watch()
         self.pipeline.bus.connect("message::eos", self.on_eos)
