@@ -22,7 +22,7 @@ class StreamBlanker(object):
         self.volume = Config.getfloat('stream-blanker', 'volume')
 
         # Videomixer
-        self.pipe = """
+        self.bin = """
 compositor
     name=videomixer-sb
 ! tee
@@ -32,21 +32,21 @@ compositor
         )
 
         # Source from the Main-Mix
-        self.pipe += """
+        self.bin += """
 video-mix.
 ! queue
 ! videomixer-sb.
         """
 
         if Config.has_option('mix', 'slides_source_name'):
-            self.pipe += """
+            self.bin += """
 compositor
     name=videomixer-sb-slides
 ! tee
     name=video-mix-sb-slides.
             """
 
-            self.pipe += """
+            self.bin += """
 video-sb-slides.
 ! queue
 ! videomixer-sb-slides.
@@ -54,7 +54,7 @@ video-sb-slides.
 
         for audiostream in range(0, Config.getint('mix', 'audiostreams')):
             # Audiomixer
-            self.pipe += """
+            self.bin += """
 audiomixer
     name=audiomixer-sb-{audiostream}
 ! tee
@@ -64,7 +64,7 @@ audiomixer
                 audiostream=audiostream
             )
             # Source from the Main-Mix
-            self.pipe += """
+            self.bin += """
 audio-mix-{audiostream}.
 ! queue
 ! audiomixer-sb-{audiostream}.
@@ -72,11 +72,11 @@ audio-mix-{audiostream}.
                 audiostream=audiostream
             )
 
-            self.pipe += "\n\n"
+            self.bin += "\n\n"
 
         for audiostream in range(0, Config.getint('mix', 'audiostreams')):
             # Source from the Blank-Audio-Tee into the Audiomixer
-            self.pipe += """
+            self.bin += """
 audio-sb-{audiostream}.
 ! queue
 ! audiomixer-sb-{audiostream}.
@@ -84,11 +84,11 @@ audio-sb-{audiostream}.
                 audiostream=audiostream,
             )
 
-        self.pipe += "\n\n"
+        self.bin += "\n\n"
 
         for name in self.names:
             # Source from the named Blank-Video
-            self.pipe += """
+            self.bin += """
 video-sb-{name}.
 ! queue
 ! videomixer-sb.
@@ -97,7 +97,7 @@ video-sb-{name}.
             )
 
             if Config.has_option('mix', 'slides_source_name'):
-                self.pipe += """
+                self.bin += """
 video-sb-{name}.
 ! queue
 ! videomixer-sb-slides.

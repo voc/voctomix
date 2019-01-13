@@ -19,11 +19,11 @@ class TCPAVSource(AVSource):
 
         deinterlacer = self.build_deinterlacer()
         pipe = """
-tcpserversrc
-    do-timestamp=TRUE
-    port={port}
-    name=tcpsrc-{name}
-! matroskademux name=demux-{name}
+    tcpserversrc
+        do-timestamp=TRUE
+        port={port}
+        name=tcpsrc-{name}
+    ! matroskademux name=demux-{name}
             """.format(
             name=self.name,
             port=port
@@ -31,11 +31,11 @@ tcpserversrc
 
         if deinterlacer:
             pipe += """
-demux-{name}.video_0
-! queue
-    name=queue-tcpsrc-video-{name}
-! video/x-raw
-! {deinterlacer}""".format(
+    demux-{name}.video_0
+    ! queue
+        name=queue-tcpsrc-video-{name}
+    ! video/x-raw
+    ! {deinterlacer}""".format(
                 name=self.name,
                 deinterlacer=deinterlacer
             )
@@ -98,18 +98,18 @@ demux-{name}.video_0
 
     def build_audioport(self, audiostream):
         return """
-demux-{name}.audio_{audiostream}
-! queue
-    name=queue-tcpsrc-audio-{name}""".format(audiostream=audiostream, name=self.name)
+    demux-{name}.audio_{audiostream}
+    ! queue
+        name=queue-tcpsrc-audio-{name}""".format(audiostream=audiostream, name=self.name)
 
     def build_videoport(self):
         deinterlacer = self.build_deinterlacer()
         if deinterlacer:
             return """
-deinter-{name}.""".format(name=self.name)
+    deinter-{name}.""".format(name=self.name)
         else:
             return """
-demux-{name}.""".format(name=self.name)
+    demux-{name}.""".format(name=self.name)
 
     def test_and_warn_interlace_mode(self, caps):
         interlace_mode = caps.get_structure(0).get_string('interlace-mode')

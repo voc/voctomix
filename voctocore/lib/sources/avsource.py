@@ -18,7 +18,7 @@ class AVSource(object, metaclass=ABCMeta):
         self.has_audio = has_audio
         self.has_video = has_video
         self.force_num_streams = force_num_streams
-        self.pipe = ""
+        self.bin = ""
 
     @abstractmethod
     def __str__(self):
@@ -30,7 +30,13 @@ class AVSource(object, metaclass=ABCMeta):
         return
 
     def build_pipeline(self, pipeline):
-        self.pipe = pipeline
+        self.bin = """
+bin.(
+    name=AVSource-{name}
+""".format(name=self.name)
+
+        self.bin += pipeline
+
         if self.has_audio:
             num_streams = self.force_num_streams
             if num_streams is None:
@@ -41,12 +47,11 @@ class AVSource(object, metaclass=ABCMeta):
                 if not audioport:
                     continue
 
-                self.pipe += """
-{audioport}
-! {acaps}
-! tee
-    name=audio-{name}-{audiostream}
-                """.format(
+                self.bin += """
+    {audioport}
+    ! {acaps}
+    ! tee
+        name=audio-{name}-{audiostream}""".format(
                     audioport=audioport,
                     audiostream=audiostream,
                     acaps=Config.get('mix', 'audiocaps'),
@@ -54,17 +59,19 @@ class AVSource(object, metaclass=ABCMeta):
                 )
 
         if self.has_video:
-            self.pipe += """
-{videoport}
-! {vcaps}
-! tee
-    name=video-{name}
-            """.format(
+            self.bin += """
+    {videoport}
+    ! {vcaps}
+    ! tee
+        name=video-{name}""".format(
                 videoport=self.build_videoport(),
                 name=self.name,
                 vcaps=Config.get('mix', 'videocaps')
             )
 
+        self.bin += """
+)
+"""
 
     def build_deinterlacer(self):
         deinterlace_config = self.get_deinterlace_config()

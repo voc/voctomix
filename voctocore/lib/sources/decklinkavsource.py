@@ -260,5 +260,5 @@ t-{name}-{audiostream}.
         return 'vout-{}.'.format(self.name)
 
     def restart(self):
-        self.pipe.set_state(Gst.State.NULL)
+        self.bin.set_state(Gst.State.NULL)
         self.launch_pipeline()

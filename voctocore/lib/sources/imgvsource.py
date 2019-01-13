@@ -28,10 +28,15 @@ class ImgVSource(AVSource):
 
     def launch_pipeline(self):
         pipeline = """
-uridecodebin uri={uri}
-! videoconvert
-! videoscale
-! imagefreeze name=img""".format(
+    uridecodebin
+        name=imgvsrc-{name}
+        uri={uri}
+    ! videoconvert
+    ! videoscale
+    ! imagefreeze
+        name=img
+""".format(
+            name=self.name,
             uri=self.imguri
         )
         self.build_pipeline(pipeline)

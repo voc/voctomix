@@ -61,27 +61,32 @@ class AudioMix(object):
                           self.names[0], 1.0)
             self.volumes[0] = 1.0
 
-        self.pipe = ""
+        self.bin = """
+bin.(
+    name=AudioMix
+        """
+
         for audiostream in range(0, Config.getint('mix', 'audiostreams')):
-            self.pipe += """
-audiomixer
-    name=audiomixer-{audiostream}
-! tee
-    name=audio-mix-{audiostream}
+            self.bin +="""
+    audiomixer
+        name=audiomixer-{audiostream}
+    ! tee
+        name=audio-mix-{audiostream}
             """.format(
                 audiostream=audiostream,
             )
 
             for idx, name in enumerate(self.names):
-                self.pipe += """
-audio-{name}-{audiostream}.
-! queue
-    name=queue-audio-{name}-{audiostream}
-! audiomixer-{audiostream}.
+                self.bin += """
+    audio-{name}-{audiostream}.
+    ! queue
+        name=queue-audio-{name}-{audiostream}
+    ! audiomixer-{audiostream}.
                 """.format(
                     name=name,
                     audiostream=audiostream,
                 )
+        self.bin += ")"
 
 
     def attach(self, pipeline):

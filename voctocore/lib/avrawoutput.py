@@ -13,41 +13,45 @@ class AVRawOutput(TCPMultiConnection):
 
         self.channel = channel
 
-        self.pipe = """
-video-{channel}.
-! queue
-    name=queue-mux-video-{channel}
-! mux-{channel}.
+        self.bin = """
+bin.(
+    name=AVRawOutput.{channel}
+
+    video-{channel}.
+    ! queue
+        name=queue-mux-video-{channel}
+    ! mux-{channel}.
         """.format(
             channel=self.channel
         )
 
         for audiostream in range(0, Config.getint('mix', 'audiostreams')):
-            self.pipe += """
-audio-{channel}-{audiostream}.
-! queue
-    name=queue-mux-audio-{channel}-{audiostream}
-! mux-{channel}.
+            self.bin += """
+    audio-{channel}-{audiostream}.
+    ! queue
+        name=queue-mux-audio-{channel}-{audiostream}
+    ! mux-{channel}.
             """.format(
                 channel=self.channel,
                 audiostream=audiostream,
             )
 
-        self.pipe += """
-matroskamux
-    name=mux-{channel}
-    streamable=true
-    writing-app=Voctomix-AVRawOutput
-! multifdsink
-    blocksize=1048576
-    buffers-max={buffers_max}
-    sync-method=next-keyframe
-    name=fd-{channel}
+        self.bin += """
+    matroskamux
+        name=mux-{channel}
+        streamable=true
+        writing-app=Voctomix-AVRawOutput
+    ! multifdsink
+        blocksize=1048576
+        buffers-max={buffers_max}
+        sync-method=next-keyframe
+        name=fd-{channel}
         """.format(
             buffers_max=Config.getint(
                 'output-buffers', self.channel, fallback=500),
             channel=self.channel
         )
+        self.bin += ")"
 
     def __str__(self):
         return 'AVRawOutput[{}]'.format(self.channel)

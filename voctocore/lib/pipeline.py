@@ -29,7 +29,7 @@ class Pipeline(object):
         if len(names) < 1:
             raise RuntimeError("At least one AVSource must be configured!")
 
-        self.pipes = []
+        self.bins = []
 
         self.log.info('Creating %u AVSources: %s', len(names), names)
         for idx, name in enumerate(names):
@@ -37,7 +37,7 @@ class Pipeline(object):
 
             source = spawn_source(name, port)
             self.log.info('Creating AVSource %s as %s', name, source)
-            self.pipes.append(source)
+            self.bins.append(source)
 
             if Config.getboolean('previews', 'enabled'):
                 port = 14000 + idx
@@ -45,30 +45,30 @@ class Pipeline(object):
                               'at tcp-port %u', name, port)
 
                 preview = AVPreviewOutput(name, port)
-                self.pipes.append(preview)
+                self.bins.append(preview)
 
         self.log.info('Creating Audiomixer')
         self.amix = AudioMix()
-        self.pipes.append(self.amix)
+        self.bins.append(self.amix)
 
         self.log.info('Creating Videomixer')
         self.vmix = VideoMix()
-        self.pipes.append(self.vmix)
+        self.bins.append(self.vmix)
 
         port = 16000
         self.log.info('Creating Mixer-Background VSource at %u', port)
-        self.pipes.append(spawn_source('background', port, has_audio=False))
+        self.bins.append(spawn_source('background', port, has_audio=False))
 
         port = 11000
         self.log.info('Creating Mixer-Output at tcp-port %u', port)
-        self.pipes.append(AVRawOutput('mix', port))
+        self.bins.append(AVRawOutput('mix', port))
 
         if Config.getboolean('previews', 'enabled'):
             port = 12000
             self.log.info('Creating Preview-Output for Mix'
                           'at tcp-port %u', port)
 
-            self.pipes.append(AVPreviewOutput('mix', port))
+            self.bins.append(AVPreviewOutput('mix', port))
 
         if Config.getboolean('stream-blanker', 'enabled'):
             names = Config.getlist('stream-blanker', 'sources')
@@ -81,35 +81,35 @@ class Pipeline(object):
 
                 self.log.info('Creating StreamBlanker VSource %s at %u',
                               name, port)
-                self.pipes.append(spawn_source('video-sb-{}'.format(name),
+                self.bins.append(spawn_source('video-sb-{}'.format(name),
                                                port,
                                                has_audio=False))
 
             port = 18000
             self.log.info('Creating StreamBlanker ASource at tcp-port %u',
                           port)
-            self.pipes.append(spawn_source('audio-sb',
+            self.bins.append(spawn_source('audio-sb',
                                            port,
                                            has_video=False,
                                            force_num_streams=1))
 
             self.log.info('Creating StreamBlanker')
-            self.pipes.append(StreamBlanker())
+            self.bins.append(StreamBlanker())
             port = 15000
             self.log.info('Creating StreamBlanker-Output at tcp-port %u', port)
-            self.pipes.append(AVRawOutput('sb', port))
+            self.bins.append(AVRawOutput('sb', port))
             if Config.has_option('mix', 'slides_source_name'):
                 port = 15001
                 self.log.info(
                     'Creating SlideStreamBlanker-Output at tcp-port %u', port)
-                self.pipes.append(AVRawOutput(
+                self.bins.append(AVRawOutput(
                     'sb-slides', port))
 
         for bin in self.bins:
             self.log.info("%s\n%s", bin, bin.bin)
 
         # concatinate pipeline string
-        pipeline = "\n\n".join(pipe.pipe for pipe in self.pipes)
+        pipeline = "\n\n".join(bin.bin for bin in self.bins)
 
         # launch gstreamer pipeline
         self.pipeline = Gst.parse_launch(pipeline)

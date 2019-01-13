@@ -18,41 +18,46 @@ class AVPreviewOutput(TCPMultiConnection):
         else:
             target_caps = Config.get('mix', 'videocaps')
 
-        self.pipe = """
-video-{channel}.
-! {vpipeline}
-! queue
-    name=queue-preview-video-{channel}
-! mux-preview-{channel}.
+        self.bin = """
+bin.(
+    name=AVPreviewOutput.{channel}
+
+    video-{channel}.
+    ! {vpipeline}
+    ! queue
+        name=queue-preview-video-{channel}
+    ! mux-preview-{channel}.
         """.format(
             channel=self.channel,
             vpipeline=self.construct_video_pipeline(target_caps)
         )
 
         for audiostream in range(0, Config.getint('mix', 'audiostreams')):
-            self.pipe += """
-audio-{channel}-{audiostream}.
-! queue
-    name=queue-preview-audio-{channel}-{audiostream}
-! mux-preview-{channel}.
+            self.bin += """
+    audio-{channel}-{audiostream}.
+    ! queue
+        name=queue-preview-audio-{channel}-{audiostream}
+    ! mux-preview-{channel}.
             """.format(
                 channel=self.channel,
                 audiostream=audiostream
             )
 
-        self.pipe += """
-matroskamux
-    name=mux-preview-{channel}
-    streamable=true
-    writing-app=Voctomix-AVPreviewOutput
-! multifdsink
-    blocksize=1048576
-    buffers-max=500
-    sync-method=next-keyframe
-    name=fd-preview-{channel}
-        """.format(
+        self.bin += """
+    matroskamux
+        name=mux-preview-{channel}
+        streamable=true
+        writing-app=Voctomix-AVPreviewOutput
+    ! multifdsink
+        blocksize=1048576
+        buffers-max=500
+        sync-method=next-keyframe
+        name=fd-preview-{channel}
+""".format(
             channel=self.channel
         )
+        self.bin +=""")
+"""
 
     def __str__(self):
         return 'AVPreviewOutput[{}]'.format(self.channel)
@@ -98,15 +103,15 @@ matroskamux
          framerate_denominator) = struct.get_fraction('framerate')
 
         return '''
-capsfilter caps=video/x-raw,interlace-mode=progressive
-! vaapipostproc
-    format=i420
-    deinterlace-mode={imode}
-    deinterlace-method=motion-adaptive
-    width={width}
-    height={height}
-! capssetter caps=video/x-raw,framerate={n}/{d}
-! {encoder} {options}
+    capsfilter caps=video/x-raw,interlace-mode=progressive
+    ! vaapipostproc
+        format=i420
+        deinterlace-mode={imode}
+        deinterlace-method=motion-adaptive
+        width={width}
+        height={height}
+    ! capssetter caps=video/x-raw,framerate={n}/{d}
+    ! {encoder} {options}
         '''.format(
             imode='interlaced' if do_deinterlace else 'disabled',
             width=width,
@@ -122,14 +127,14 @@ capsfilter caps=video/x-raw,interlace-mode=progressive
 
         if do_deinterlace:
             pipeline = '''deinterlace mode={imode}
-! videorate
-! videoscale
-! {target_caps}
-! jpegenc quality=90'''
+    ! videorate
+    ! videoscale
+    ! {target_caps}
+    ! jpegenc quality=90'''
         else:
             pipeline = '''videoscale
-! {target_caps}
-! jpegenc quality=90'''
+    ! {target_caps}
+    ! jpegenc quality=90'''
 
         return pipeline.format(
             imode='interlaced' if do_deinterlace else 'disabled',

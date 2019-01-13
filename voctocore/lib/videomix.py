@@ -30,32 +30,38 @@ class VideoMix(object):
         self.scene = None
 
         # build GStreamer mixing pipeline descriptor
-        self.pipe = """
-compositor
-    name=videomixer
-! identity
-    name=sig
-! tee
-    name=video-mix
+        self.bin = """
+bin.(
+    name=VideoMix
 
-video-background.
-! queue
-    name=queue-video-background
-! videomixer.
-        """
+    compositor
+        name=videomixer
+    ! identity
+        name=sig
+    ! tee
+        name=video-mix
+
+    video-background.
+    ! queue
+        name=queue-video-background
+    ! videomixer.
+"""
 
         for idx, name in enumerate(self.sources):
-            self.pipe += """
-video-{name}.
-! queue
-    name=queue-cropper-{name}
-! videobox
-    name=cropper-{name}
-! videomixer.
-            """.format(
+            self.bin += """
+    video-{name}.
+    ! queue
+        name=queue-cropper-{name}
+    ! videobox
+        name=cropper-{name}
+    ! videomixer.
+""".format(
                 name=name,
                 idx=idx
             )
+
+        self.bin += """)
+"""
 
     def attach( self, pipeline ):
         self.log.debug('Binding Handoff-Handler for '

@@ -29,17 +29,16 @@ class TestSource(AVSource):
         )
 
     def build_audioport(self, audiostream):
-        return """
-audiotestsrc
-    is-live=true"""
+        return """audiotestsrc
+        is-live=true"""
 
     def build_videoport(self):
         global count
         count+=1
         return """
-videotestsrc
-    pattern={}
-    is-live=true""".format(count)
+    videotestsrc
+        pattern={}
+        is-live=true""".format(count)
 
     def restart(self):
         self.pipeline.set_state(Gst.State.NULL)
