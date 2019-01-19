@@ -16,7 +16,7 @@ ffmpeg -y -nostdin \
 	-preset:v:0 veryfast \
 	\
 	-ac 1 -c:a aac -b:a 96k -ar 44100 \
-	-map 0:a -filter:a:0 pan=mono:c0=FL \
+	-map 0:a -filter:a:0 pan='mono|c0=FL' \
 	-ac:a:2 2 \
 	\
 	-y -f flv rtmp://127.0.0.1:1935/stream/voctomix_hd
