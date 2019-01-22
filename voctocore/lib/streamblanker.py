@@ -14,6 +14,7 @@ class StreamBlanker(object):
         self.vcaps = Config.get('mix', 'videocaps')
 
         self.names = Config.getlist('stream-blanker', 'sources')
+        self.startup = Config.getboolean('stream-blanker', 'startup')
         self.log.info('Configuring StreamBlanker video %u Sources',
                       len(self.names))
 
@@ -148,7 +149,7 @@ class StreamBlanker(object):
         self.mixingPipeline.bus.connect("message::error", self.on_error)
 
         self.log.debug('Initializing Mixer-State')
-        self.blankSource = 0 if len(self.names) > 0 else None
+        self.blankSource = 0 if len(self.names) > 0 and self.startup else None
         self.applyMixerState()
 
         self.log.debug('Launching Mixing-Pipeline')
