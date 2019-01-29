@@ -86,7 +86,7 @@ bin.(
                     name=name,
                     audiostream=audiostream,
                 )
-        self.bin += ")"
+        self.bin += "\n)"
 
 
     def attach(self, pipeline):

@@ -15,7 +15,7 @@ class AVRawOutput(TCPMultiConnection):
 
         self.bin = """
 bin.(
-    name=AVRawOutput.{channel}
+    name=AVRawOutput-{channel}
 
     video-{channel}.
     ! queue
@@ -51,7 +51,7 @@ bin.(
                 'output-buffers', self.channel, fallback=500),
             channel=self.channel
         )
-        self.bin += ")"
+        self.bin += "\n)"
 
     def __str__(self):
         return 'AVRawOutput[{}]'.format(self.channel)

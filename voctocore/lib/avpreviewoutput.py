@@ -20,7 +20,7 @@ class AVPreviewOutput(TCPMultiConnection):
 
         self.bin = """
 bin.(
-    name=AVPreviewOutput.{channel}
+    name=AVPreviewOutput-{channel}
 
     video-{channel}.
     ! {vpipeline}
