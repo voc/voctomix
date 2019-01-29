@@ -14,62 +14,79 @@ from lib.streamblanker import StreamBlanker
 from lib.args import Args
 from lib.clock import Clock
 
+# input ports
+PORT_SOURCES_IN = 10000
+PORT_SOURCE_BACKGROUND = 16000
+# output ports
+PORT_SOURCES_PREVIEW = 14000
+PORT_MIX_OUT = 11000
+PORT_MIX_PREVIEW = 12000
 
 class Pipeline(object):
     """mixing, streaming and encoding pipeline constuction and control"""
 
     def __init__(self):
         self.log = logging.getLogger('Pipeline')
+        # log capabilities
         self.log.info('Video-Caps configured to: %s',
                       Config.get('mix', 'videocaps'))
         self.log.info('Audio-Caps configured to: %s',
                       Config.get('mix', 'audiocaps'))
 
+        # get A/B sources from config
         names = Config.getlist('mix', 'sources')
         if len(names) < 1:
             raise RuntimeError("At least one AVSource must be configured!")
 
+        # collect bins for all modules
         self.bins = []
 
+        # create A/V sources
         self.log.info('Creating %u AVSources: %s', len(names), names)
         for idx, name in enumerate(names):
-            port = 10000 + idx
-
+            # count port and create source
+            port = PORT_SOURCES_IN + idx
             source = spawn_source(name, port)
             self.log.info('Creating AVSource %s as %s', name, source)
             self.bins.append(source)
 
+            # check for source preview selection
             if Config.getboolean('previews', 'enabled'):
-                port = 14000 + idx
+                # count preview port and create source
+                port = PORT_SOURCES_PREVIEW + idx
+                preview = AVPreviewOutput(name, port)
                 self.log.info('Creating Preview-Output for AVSource %s '
                               'at tcp-port %u', name, port)
-
-                preview = AVPreviewOutput(name, port)
                 self.bins.append(preview)
 
+        # create audio mixer
         self.log.info('Creating Audiomixer')
         self.amix = AudioMix()
         self.bins.append(self.amix)
 
+        # create video mixer
         self.log.info('Creating Videomixer')
         self.vmix = VideoMix()
         self.bins.append(self.vmix)
 
-        port = 16000
+        # create background source
+        port = PORT_SOURCE_BACKGROUND
         self.log.info('Creating Mixer-Background VSource at %u', port)
         self.bins.append(spawn_source('background', port, has_audio=False))
 
-        port = 11000
+        # create mix TCP output
+        port = PORT_MIX_OUT
         self.log.info('Creating Mixer-Output at tcp-port %u', port)
         self.bins.append(AVRawOutput('mix', port))
 
+        # create mix preview TCP output
         if Config.getboolean('previews', 'enabled'):
-            port = 12000
+            port = PORT_MIX_PREVIEW
             self.log.info('Creating Preview-Output for Mix'
                           'at tcp-port %u', port)
-
             self.bins.append(AVPreviewOutput('mix', port))
 
+        # create stream blanker sources and mixer
         if Config.getboolean('stream-blanker', 'enabled'):
             names = Config.getlist('stream-blanker', 'sources')
             if len(names) < 1:
@@ -78,7 +95,6 @@ class Pipeline(object):
                                    'StreamBlanker disabled!')
             for idx, name in enumerate(names):
                 port = 17000 + idx
-
                 self.log.info('Creating StreamBlanker VSource %s at %u',
                               name, port)
                 self.bins.append(spawn_source('video-sb-{}'.format(name),
@@ -96,12 +112,12 @@ class Pipeline(object):
             self.log.info('Creating StreamBlanker')
             self.bins.append(StreamBlanker())
             port = 15000
-            self.log.info('Creating StreamBlanker-Output at tcp-port %u', port)
-            self.bins.append(AVRawOutput('sb', port))
+            self.log.info('Creating Stream Blanker Output at tcp-port %u', port)
+            self.bins.append(AVRawOutput('mix-sb', port))
             if Config.has_option('mix', 'slides_source_name'):
                 port = 15001
                 self.log.info(
-                    'Creating SlideStreamBlanker-Output at tcp-port %u', port)
+                    'Creating Slides Stream Blanker Output at tcp-port %u', port)
                 self.bins.append(AVRawOutput(
                     'sb-slides', port))
 
