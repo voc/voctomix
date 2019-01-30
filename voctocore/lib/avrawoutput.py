@@ -7,7 +7,7 @@ from lib.tcpmulticonnection import TCPMultiConnection
 
 class AVRawOutput(TCPMultiConnection):
 
-    def __init__(self, channel, port):
+    def __init__(self, channel, port, has_audio=True):
         self.log = logging.getLogger('AVRawOutput[{}]'.format(channel))
         super().__init__(port)
 
@@ -25,16 +25,17 @@ bin.(
             channel=self.channel
         )
 
-        for audiostream in range(0, Config.getint('mix', 'audiostreams')):
-            self.bin += """
+        if has_audio:
+            for audiostream in range(0, Config.getint('mix', 'audiostreams')):
+                self.bin += """
     audio-{channel}-{audiostream}.
     ! queue
         name=queue-mux-audio-{channel}-{audiostream}
     ! mux-{channel}.
-            """.format(
-                channel=self.channel,
-                audiostream=audiostream,
-            )
+                """.format(
+                        channel=self.channel,
+                        audiostream=audiostream,
+                    )
 
         self.bin += """
     matroskamux
