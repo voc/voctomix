@@ -98,7 +98,6 @@ class StreamblankToolbarController(object):
         if current_time - self.last_draw_time >= 1.0:
             self.last_draw_time = current_time
             for button in list(self.blank_btns.values()) + [self.livebtn]:
-                print(button.get_name())
                 if self.blink:
                     button.get_style_context().add_class("blink")
                 else:
