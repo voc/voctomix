@@ -54,6 +54,8 @@ class StreamblankToolbarController(object):
                 self.toolbar.insert(new_btn, blankbtn_pos)
 
             new_btn.set_name(name)
+            new_btn.get_style_context().add_class("output")
+            new_btn.get_style_context().add_class("mode")
             new_btn.set_can_focus(False)
             new_btn.set_label(name.upper())
             new_btn.connect('toggled', self.on_btn_toggled)
