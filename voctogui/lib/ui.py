@@ -6,7 +6,6 @@ from lib.uibuilder import UiBuilder
 
 from lib.videodisplay import VideoDisplay
 from lib.audioleveldisplay import AudioLevelDisplay
-from lib.warningoverlay import VideoWarningOverlay
 from lib.videopreviews import VideoPreviewsController
 from lib.queues import QueuesWindowController
 
@@ -58,10 +57,6 @@ class Ui(UiBuilder):
         # Get Audio-Level Display
         self.audio_level_display = self.find_widget_recursive(
             self.win, 'audiolevel_main')
-        # Create Main-Video Overlay Controller
-        drawing_area = self.find_widget_recursive(self.win,
-                                                  'video_overlay_drawingarea')
-        self.video_warning_overlay = VideoWarningOverlay(drawing_area)
 
         # Create Main-Video Display
         drawing_area = self.find_widget_recursive(self.win, 'video_main')
@@ -100,8 +95,7 @@ class Ui(UiBuilder):
 
         self.streamblank_toolbar_controller = StreamblankToolbarController(
             win=self.win,
-            uibuilder=self,
-            warning_overlay=self.video_warning_overlay
+            uibuilder=self
         )
 
         self.queues_controller = QueuesWindowController(self)

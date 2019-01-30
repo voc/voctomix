@@ -2,7 +2,9 @@
 import logging
 import os
 
-from gi.repository import Gtk
+import time
+
+from gi.repository import Gtk, GLib
 import lib.connection as Connection
 
 from lib.config import Config
@@ -11,14 +13,16 @@ from lib.config import Config
 class StreamblankToolbarController(object):
     """Manages Accelerators and Clicks on the Composition Toolbar-Buttons"""
 
-    def __init__(self, win, uibuilder, warning_overlay):
+    # set resolution of the blink timer in seconds
+    timer_resolution = 0.5
+
+    def __init__(self, win, uibuilder):
         self.log = logging.getLogger('StreamblankToolbarController')
         self.toolbar = uibuilder.find_widget_recursive(win, 'toolbar_mode')
 
-        self.warning_overlay = warning_overlay
-
         livebtn = uibuilder.find_widget_recursive(self.toolbar, 'stream_live')
-        blankbtn = uibuilder.find_widget_recursive(self.toolbar, 'stream_blank')
+        blankbtn = uibuilder.find_widget_recursive(
+            self.toolbar, 'stream_blank')
 
         blankbtn_pos = self.toolbar.get_item_index(blankbtn)
 
@@ -62,35 +66,40 @@ class StreamblankToolbarController(object):
         Connection.on('stream_status', self.on_stream_status)
         Connection.send('get_stream_status')
 
+        self.blink = True
+        # remember last draw time
+        self.last_draw_time = time.time()
+        # set up timeout for periodic redraw
+        GLib.timeout_add(self.timer_resolution * 1000, self.do_timeout)
+
     def on_btn_toggled(self, btn):
         if btn.get_active():
             btn_name = btn.get_name()
-#            if btn_name == 'live':
-#                self.warning_overlay.disable()
-#            else:
-#                self.warning_overlay.enable(btn_name)
 
-            if self.current_status == btn_name:
-                self.log.info('stream-status already activate: %s', btn_name)
-                return
-
-            self.log.info('stream-status activated: %s', btn_name)
-            if btn_name == 'live':
-                Connection.send('set_stream_live')
-            else:
-                Connection.send('set_stream_blank', btn_name)
-
+            if self.current_status != btn_name:
+                self.log.info('stream-status activated: %s', btn_name)
+                if btn_name == 'live':
+                    Connection.send('set_stream_live')
+                else:
+                    Connection.send('set_stream_blank', btn_name)
 
     def on_stream_status(self, status, source=None):
         self.log.info('on_stream_status callback w/ status %s and source %s',
                       status, source)
 
         self.current_status = source if source is not None else status
-        if status == 'live':
-            btn = self.livebtn
-            self.warning_overlay.disable()
-        else:
-            btn = self.blank_btns[source]
-            self.warning_overlay.enable(btn.get_name())
-        if not btn.get_active():
-            btn.set_active(True)
+
+    def do_timeout(self):
+        # get current time
+        current_time = time.time()
+        # if time did not change since last redraw
+        if current_time - self.last_draw_time >= 1.0:
+            self.last_draw_time = current_time
+            for button in list(self.blank_btns.values()) + [self.livebtn]:
+                print(button.get_name())
+                if self.blink:
+                    button.get_style_context().add_class("blink")
+                else:
+                    button.get_style_context().remove_class("blink")
+            self.blink = not self.blink
+        return True

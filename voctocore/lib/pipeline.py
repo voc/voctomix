@@ -97,20 +97,21 @@ class Pipeline(object):
                 port = 17000 + idx
                 self.log.info('Creating StreamBlanker VSource %s at %u',
                               name, port)
-                self.bins.append(spawn_source('video-sb-{}'.format(name),
+                self.bins.append(spawn_source('sb-{}'.format(name),
                                                port,
                                                has_audio=False))
 
             port = 18000
             self.log.info('Creating StreamBlanker ASource at tcp-port %u',
                           port)
-            self.bins.append(spawn_source('audio-sb',
+            self.bins.append(spawn_source('sb',
                                            port,
                                            has_video=False,
                                            force_num_streams=1))
 
-            self.log.info('Creating StreamBlanker')
-            self.bins.append(StreamBlanker())
+            self.log.info('Creating Stream Blanker Mixer')
+            self.streamblanker = StreamBlanker()
+            self.bins.append(self.streamblanker)
             port = 15000
             self.log.info('Creating Stream Blanker Output at tcp-port %u', port)
             self.bins.append(AVRawOutput('mix-sb', port))
@@ -119,7 +120,7 @@ class Pipeline(object):
                 self.log.info(
                     'Creating Slides Stream Blanker Output at tcp-port %u', port)
                 self.bins.append(AVRawOutput(
-                    'sb-slides', port))
+                    'mix-sb-slides', port))
 
         for bin in self.bins:
             self.log.info("%s\n%s", bin, bin.bin)

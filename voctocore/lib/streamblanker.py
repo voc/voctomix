@@ -23,87 +23,88 @@ class StreamBlanker(object):
 
         # Videomixer
         self.bin = """
-compositor
-    name=videomixer-sb
-! tee
-    name=video-mix-sb
+bin.(
+    name=streamblanker
+
+    compositor
+        name=videomixer-sb
+    ! tee
+        name=video-mix-sb
+
+    video-mix.
+    ! queue
+        name=queue-video-mix-videomixer-sb
+    ! videomixer-sb.
         """.format(
             vcaps=self.vcaps,
         )
 
-        # Source from the Main-Mix
-        self.bin += """
-video-mix.
-! queue
-! videomixer-sb.
-        """
-
         if Config.has_option('mix', 'slides_source_name'):
+            # add slides compositor
             self.bin += """
-compositor
-    name=videomixer-sb-slides
-! tee
-    name=video-mix-sb-slides.
+    compositor
+        name=videomixer-sb-slides
+    ! tee
+        name=video-mix-sb-slides
+
+    video-mix.
+    ! queue
+        name=queue-videomixer-sb-slides
+    ! videomixer-sb-slides.
             """
-
-            self.bin += """
-video-sb-slides.
-! queue
-! videomixer-sb-slides.
-            """
-
-        for audiostream in range(0, Config.getint('mix', 'audiostreams')):
-            # Audiomixer
-            self.bin += """
-audiomixer
-    name=audiomixer-sb-{audiostream}
-! tee
-! audio-mix-sb-{audiostream}.
-            """.format(
-                acaps=self.acaps,
-                audiostream=audiostream
-            )
-            # Source from the Main-Mix
-            self.bin += """
-audio-mix-{audiostream}.
-! queue
-! audiomixer-sb-{audiostream}.
-            """.format(
-                audiostream=audiostream
-            )
-
-            self.bin += "\n\n"
-
-        for audiostream in range(0, Config.getint('mix', 'audiostreams')):
-            # Source from the Blank-Audio-Tee into the Audiomixer
-            self.bin += """
-audio-sb-{audiostream}.
-! queue
-! audiomixer-sb-{audiostream}.
-            """.format(
-                audiostream=audiostream,
-            )
-
-        self.bin += "\n\n"
 
         for name in self.names:
             # Source from the named Blank-Video
             self.bin += """
-video-sb-{name}.
-! queue
-! videomixer-sb.
+    video-sb-{name}.
+    ! queue
+        name=queue-video-sb-{name}
+    ! videomixer-sb.
             """.format(
                 name=name
             )
 
             if Config.has_option('mix', 'slides_source_name'):
                 self.bin += """
-video-sb-{name}.
-! queue
-! videomixer-sb-slides.
+    video-sb-{name}.
+    ! queue
+        name=queue-video-sb-slides-{name}
+    ! videomixer-sb-slides.
                 """.format(
                     name=name,
                 )
+
+        for audiostream in range(0, Config.getint('mix', 'audiostreams')):
+            # Audiomixer
+            self.bin += """
+    audiomixer
+        name=audiomixer-sb-{audiostream}
+    ! tee
+        name=audio-mix-sb-{audiostream}
+    ! tee
+        name=audio-mix-sb-slides-{audiostream}
+
+    audio-mix-{audiostream}.
+    ! queue
+        name=queue-audio-mix-{audiostream}
+    ! audiomixer-sb-{audiostream}.
+            """.format(
+                acaps=self.acaps,
+                audiostream=audiostream
+            )
+
+        for audiostream in range(0, Config.getint('mix', 'audiostreams')):
+            # Source from the Blank-Audio-Tee into the Audiomixer
+            self.bin += """
+    audio-sb-{audiostream}.
+    ! queue
+        name=queue-audio-sb-slides-{audiostream}
+    ! audiomixer-sb-{audiostream}.
+            """.format(
+                audiostream=audiostream,
+            )
+
+        self.bin += "\n)\n"
 
         self.blankSource = 0 if len(self.names) > 0 else None
 
@@ -114,46 +115,21 @@ video-sb-{name}.
         self.pipeline = pipeline
         self.applyMixerState()
 
-    def on_eos(self, bus, message):
-        self.log.debug('Received End-of-Stream-Signal on Mixing-Pipeline')
-
-    def on_error(self, bus, message):
-        self.log.error('Received Error-Signal on Mixing-Pipeline')
-        (error, debug) = message.parse_error()
-        self.log.debug('Error-Details: #%u: %s', error.code, debug)
-
     def applyMixerState(self):
-        self.applyMixerStateAudio()
-        self.applyMixerStateVideo('sb-videomixer')
+        self.applyMixerStateVideo('videomixer-sb')
         if Config.has_option('mix', 'slides_source_name'):
-            self.applyMixerStateVideo('sb-slides-videomixer')
-
-    def applyMixerStateAudio(self):
-        is_blanked = self.blankSource is not None
-
-        for audiostream in range(0, Config.getint('mix', 'audiostreams')):
-            mixer = self.pipeline.get_by_name(
-                'amix_{}'.format(audiostream))
-            mixpad = mixer.get_static_pad('sink_0')
-            blankpad = mixer.get_static_pad('sink_1')
-
-            mixpad.set_property(
-                'volume',
-                0.0 if is_blanked else 1.0)
-
-            blankpad.set_property(
-                'volume',
-                self.volume if is_blanked else 0.0)
+            self.applyMixerStateVideo('videomixer-sb-slides')
 
     def applyMixerStateVideo(self, mixername):
-        mixpad = (self.pipeline.get_by_name(mixername)
-                  .get_static_pad('sink_0'))
-        mixpad.set_property('alpha', int(self.blankSource is None))
-
+        mixer = self.pipeline.get_by_name(mixername)
+        if not mixer:
+            self.log.error("Mixer '%s' not found", mixername)
+        mixer.get_static_pad('sink_0').set_property('alpha', int(self.blankSource is None))
+        blanker = self.pipeline.get_by_name(mixername)
+        if not blanker:
+            self.log.error("Blanger '%s' not found", mixername)
         for idx, name in enumerate(self.names):
-            blankpad = (self.pipeline
-                        .get_by_name(mixername)
-                        .get_static_pad('sink_%u' % (idx + 1)))
+            blankpad = blanker.get_static_pad('sink_%u' % (idx + 1))
             blankpad.set_property('alpha', int(self.blankSource == idx))
 
     def setBlankSource(self, source):
