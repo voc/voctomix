@@ -25,6 +25,9 @@ class MiscToolbarController(object):
         fullscreenbtn = uibuilder.find_widget_recursive(self.toolbar, 'fullscreen')
         fullscreenbtn.set_visible(Config.getboolean('misc', 'fullscreen'))
         fullscreenbtn.connect('clicked', self.on_fullscreenbtn_clicked)
+        key, mod = Gtk.accelerator_parse('F11')
+        fullscreenbtn.add_accelerator('clicked', accelerators,
+                               key, mod, Gtk.AccelFlags.VISIBLE)
 
         mutebtn = uibuilder.find_widget_recursive(self.toolbar, 'mute_button')
         mutebtn.set_active(not Config.getboolean('audio', 'play'))
