@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import gi
+import sdnotify
 import signal
 import logging
 import sys
@@ -129,6 +130,11 @@ def main():
     # init main-class and main-loop
     logging.debug('initializing Voctocore')
     voctocore = Voctocore()
+
+    # Inform systemd that we are ready
+    # for use with the notify service type
+    n = sdnotify.SystemdNotifier()
+    n.notify("READY=1")
 
     logging.debug('running Voctocore')
     voctocore.run()
