@@ -84,7 +84,7 @@ bin.(
                    "caps=video/x-raw,interlace-mode=progressive"
 
         elif deinterlace_config == "no":
-            return ""
+            return None
 
         else:
             raise RuntimeError(
