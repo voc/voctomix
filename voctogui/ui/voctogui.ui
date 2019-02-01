@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Generated with glade 3.22.1 -->
 <interface>
-  <requires lib="gtk+" version="3.4"/>
+  <requires lib="gtk+" version="3.10"/>
+  <object class="GtkImage" id="img-ports">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">ports.svg</property>
+  </object>
   <object class="GtkImage" id="img-queues">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -68,7 +73,7 @@ https://github.com/voc/voctomix </property>
                 <property name="can_focus">False</property>
                 <child>
                   <object class="GtkDrawingArea" id="video_main">
-                    <property name="width_request">568</property>
+                    <property name="width_request">255</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="double_buffered">False</property>
@@ -95,16 +100,110 @@ https://github.com/voc/voctomix </property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkBox" id="queue_win">
+                  <object class="GtkBox" id="info_win">
+                    <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="no_show_all">True</property>
                     <property name="orientation">vertical</property>
+                    <property name="homogeneous">True</property>
                     <child>
-                      <object class="GtkHeaderBar">
-                        <property name="visible">True</property>
+                      <object class="GtkBox" id="ports_win">
                         <property name="can_focus">False</property>
-                        <property name="title" translatable="yes">Delay Diagnosis</property>
-                        <property name="subtitle" translatable="yes">Queue filling levels in seconds</property>
+                        <property name="no_show_all">True</property>
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkHeaderBar">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="title" translatable="yes">Ports</property>
+                            <property name="subtitle" translatable="yes">Input/Output Ports</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkScrolledWindow" id="ports_scroll">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="vexpand">True</property>
+                            <property name="hscrollbar_policy">never</property>
+                            <property name="shadow_type">in</property>
+                            <property name="propagate_natural_width">True</property>
+                            <child>
+                              <object class="GtkTreeView" id="ports_tree">
+                                <property name="name">queues</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="model">queue_store</property>
+                                <property name="search_column">1</property>
+                                <property name="enable_grid_lines">vertical</property>
+                                <child internal-child="selection">
+                                  <object class="GtkTreeSelection"/>
+                                </child>
+                                <child>
+                                  <object class="GtkTreeViewColumn">
+                                    <property name="title" translatable="yes">Name</property>
+                                    <property name="clickable">True</property>
+                                    <property name="sort_indicator">True</property>
+                                    <property name="sort_column_id">0</property>
+                                    <child>
+                                      <object class="GtkCellRendererText"/>
+                                      <attributes>
+                                        <attribute name="text">0</attribute>
+                                      </attributes>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkTreeViewColumn">
+                                    <property name="title" translatable="yes">A</property>
+                                    <child>
+                                      <object class="GtkCellRendererToggle"/>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkTreeViewColumn">
+                                    <property name="title" translatable="yes">V</property>
+                                    <child>
+                                      <object class="GtkCellRendererToggle"/>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkTreeViewColumn">
+                                    <property name="title" translatable="yes">I/O</property>
+                                    <child>
+                                      <object class="GtkCellRendererText"/>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkTreeViewColumn">
+                                    <property name="title" translatable="yes">Delay</property>
+                                    <property name="clickable">True</property>
+                                    <property name="sort_indicator">True</property>
+                                    <property name="sort_order">descending</property>
+                                    <property name="sort_column_id">1</property>
+                                    <child>
+                                      <object class="GtkCellRendererText"/>
+                                      <attributes>
+                                        <attribute name="text">1</attribute>
+                                      </attributes>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -113,52 +212,77 @@ https://github.com/voc/voctomix </property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkScrolledWindow" id="queue_scroll">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="vexpand">True</property>
-                        <property name="hscrollbar_policy">never</property>
-                        <property name="shadow_type">in</property>
-                        <property name="propagate_natural_width">True</property>
+                      <object class="GtkBox" id="queue_win">
+                        <property name="can_focus">False</property>
+                        <property name="no_show_all">True</property>
+                        <property name="orientation">vertical</property>
                         <child>
-                          <object class="GtkTreeView" id="queue_tree">
-                            <property name="name">queues</property>
+                          <object class="GtkHeaderBar">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="title" translatable="yes">Delay Diagnosis</property>
+                            <property name="subtitle" translatable="yes">Queue filling levels in seconds</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkScrolledWindow" id="queue_scroll">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="model">queue_store</property>
-                            <property name="search_column">1</property>
-                            <property name="enable_grid_lines">vertical</property>
-                            <child internal-child="selection">
-                              <object class="GtkTreeSelection"/>
-                            </child>
+                            <property name="vexpand">True</property>
+                            <property name="hscrollbar_policy">never</property>
+                            <property name="shadow_type">in</property>
+                            <property name="propagate_natural_width">True</property>
                             <child>
-                              <object class="GtkTreeViewColumn">
-                                <property name="title" translatable="yes">Name</property>
-                                <property name="sort_indicator">True</property>
-                                <property name="sort_column_id">0</property>
-                                <child>
-                                  <object class="GtkCellRendererText"/>
-                                  <attributes>
-                                    <attribute name="text">0</attribute>
-                                  </attributes>
+                              <object class="GtkTreeView" id="queue_tree">
+                                <property name="name">queues</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="model">queue_store</property>
+                                <property name="search_column">1</property>
+                                <property name="enable_grid_lines">vertical</property>
+                                <child internal-child="selection">
+                                  <object class="GtkTreeSelection"/>
                                 </child>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkTreeViewColumn">
-                                <property name="title" translatable="yes">Delay</property>
-                                <property name="sort_indicator">True</property>
-                                <property name="sort_order">descending</property>
-                                <property name="sort_column_id">1</property>
                                 <child>
-                                  <object class="GtkCellRendererText"/>
-                                  <attributes>
-                                    <attribute name="text">1</attribute>
-                                  </attributes>
+                                  <object class="GtkTreeViewColumn">
+                                    <property name="title" translatable="yes">Name</property>
+                                    <property name="sort_indicator">True</property>
+                                    <property name="sort_column_id">0</property>
+                                    <child>
+                                      <object class="GtkCellRendererText"/>
+                                      <attributes>
+                                        <attribute name="text">0</attribute>
+                                      </attributes>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkTreeViewColumn">
+                                    <property name="title" translatable="yes">Delay</property>
+                                    <property name="sort_indicator">True</property>
+                                    <property name="sort_order">descending</property>
+                                    <property name="sort_column_id">1</property>
+                                    <child>
+                                      <object class="GtkCellRendererText"/>
+                                      <attributes>
+                                        <attribute name="text">1</attribute>
+                                      </attributes>
+                                    </child>
+                                  </object>
                                 </child>
                               </object>
                             </child>
                           </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
                         </child>
                       </object>
                       <packing>
@@ -776,6 +900,19 @@ https://github.com/voc/voctomix </property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToggleToolButton" id="ports_button">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="no_show_all">True</property>
+                        <property name="label">Queues</property>
+                        <property name="icon_widget">img-ports</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
                         <property name="homogeneous">True</property>
                       </packing>
                     </child>
