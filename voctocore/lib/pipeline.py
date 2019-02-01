@@ -22,6 +22,7 @@ PORT_AUDIO_SOURCE_BLANK = 18000
 # output ports
 PORT_MIX_OUT = 11000
 PORT_MIX_PREVIEW = 12000
+PORT_SOURCES_OUT = 13000
 PORT_SOURCES_PREVIEW = 14000
 PORT_LIVE_OUT = 15000
 PORT_SLIDES_LIVE_OUT = 15001
@@ -54,6 +55,12 @@ class Pipeline(object):
             source = spawn_source(name, port)
             self.log.info('Creating AVSource %s as %s', name, source)
             self.bins.append(source)
+
+            if Config.getboolean('mirrors', 'enabled'):
+                port = PORT_SOURCES_OUT + idx
+                self.log.info('Creating Mirror-Output for AVSource %s '
+                              'at tcp-port %u', name, port)
+                self.bins.append(AVRawOutput(name, port))
 
             # check for source preview selection
             if Config.getboolean('previews', 'enabled'):
