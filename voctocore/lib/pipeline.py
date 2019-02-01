@@ -17,10 +17,16 @@ from lib.clock import Clock
 # input ports
 PORT_SOURCES_IN = 10000
 PORT_SOURCE_BACKGROUND = 16000
+PORT_SOURCES_BLANK = 17000
+PORT_AUDIO_SOURCE_BLANK = 18000
 # output ports
-PORT_SOURCES_PREVIEW = 14000
 PORT_MIX_OUT = 11000
 PORT_MIX_PREVIEW = 12000
+PORT_SOURCES_OUT = 13000
+PORT_SOURCES_PREVIEW = 14000
+PORT_LIVE_OUT = 15000
+PORT_SLIDES_LIVE_OUT = 15001
+
 
 class Pipeline(object):
     """mixing, streaming and encoding pipeline constuction and control"""
@@ -50,14 +56,19 @@ class Pipeline(object):
             self.log.info('Creating AVSource %s as %s', name, source)
             self.bins.append(source)
 
+            if Config.getboolean('mirrors', 'enabled'):
+                port = PORT_SOURCES_OUT + idx
+                self.log.info('Creating Mirror-Output for AVSource %s '
+                              'at tcp-port %u', name, port)
+                self.bins.append(AVRawOutput(name, port))
+
             # check for source preview selection
             if Config.getboolean('previews', 'enabled'):
                 # count preview port and create source
                 port = PORT_SOURCES_PREVIEW + idx
-                preview = AVPreviewOutput(name, port)
                 self.log.info('Creating Preview-Output for AVSource %s '
                               'at tcp-port %u', name, port)
-                self.bins.append(preview)
+                self.bins.append(AVPreviewOutput(name, port))
 
         # create audio mixer
         self.log.info('Creating Audiomixer')
@@ -94,29 +105,30 @@ class Pipeline(object):
                                    'be configured or the '
                                    'StreamBlanker disabled!')
             for idx, name in enumerate(names):
-                port = 17000 + idx
+                port = PORT_SOURCES_BLANK = 17000 + idx
                 self.log.info('Creating StreamBlanker VSource %s at %u',
                               name, port)
                 self.bins.append(spawn_source('sb-{}'.format(name),
-                                               port,
-                                               has_audio=False))
+                                              port,
+                                              has_audio=False))
 
-            port = 18000
+            port = PORT_AUDIO_SOURCE_BLANK
             self.log.info('Creating StreamBlanker ASource at tcp-port %u',
                           port)
             self.bins.append(spawn_source('sb',
-                                           port,
-                                           has_video=False,
-                                           force_num_streams=1))
+                                          port,
+                                          has_video=False,
+                                          force_num_streams=1))
 
             self.log.info('Creating Stream Blanker Mixer')
             self.streamblanker = StreamBlanker()
             self.bins.append(self.streamblanker)
-            port = 15000
-            self.log.info('Creating Stream Blanker Output at tcp-port %u', port)
+            port = PORT_LIVE_OUT
+            self.log.info(
+                'Creating Stream Blanker Output at tcp-port %u', port)
             self.bins.append(AVRawOutput('mix-sb', port))
             if Config.has_option('mix', 'slides_source_name'):
-                port = 15001
+                port = PORT_SLIDES_LIVE_OUT
                 self.log.info(
                     'Creating Slides Stream Blanker Output at tcp-port %u', port)
                 self.bins.append(AVRawOutput(
