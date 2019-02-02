@@ -13,6 +13,7 @@ from lib.audiomix import AudioMix
 from lib.streamblanker import StreamBlanker
 from lib.args import Args
 from lib.clock import Clock
+from vocto.port import Port
 
 # input ports
 PORT_SOURCES_IN = 10000
@@ -26,7 +27,6 @@ PORT_SOURCES_OUT = 13000
 PORT_SOURCES_PREVIEW = 14000
 PORT_LIVE_OUT = 15000
 PORT_SLIDES_LIVE_OUT = 15001
-
 
 class Pipeline(object):
     """mixing, streaming and encoding pipeline constuction and control"""
@@ -46,6 +46,7 @@ class Pipeline(object):
 
         # collect bins for all modules
         self.bins = []
+        self.ports = []
 
         # create A/V sources
         self.log.info('Creating %u AVSources: %s', len(names), names)
@@ -55,93 +56,104 @@ class Pipeline(object):
             source = spawn_source(name, port)
             self.log.info('Creating AVSource %s as %s', name, source)
             self.bins.append(source)
+            self.ports.append(Port(name, port, 1, source.num_streams, Port.IN))
 
             if Config.getboolean('mirrors', 'enabled'):
-                port = PORT_SOURCES_OUT + idx
-                self.log.info('Creating Mirror-Output for AVSource %s '
-                              'at tcp-port %u', name, port)
-                self.bins.append(AVRawOutput(name, port))
+                port=PORT_SOURCES_OUT + idx
+                bin = AVRawOutput(name, port)
+                self.log.info('Creating Output of AVSource %s as %s', name, bin)
+                self.bins.append(bin)
+                self.ports.append(Port(name, port, 1, source.num_streams, Port.OUT))
 
             # check for source preview selection
             if Config.getboolean('previews', 'enabled'):
                 # count preview port and create source
-                port = PORT_SOURCES_PREVIEW + idx
+                port=PORT_SOURCES_PREVIEW + idx
+                bin = AVPreviewOutput(name, port)
                 self.log.info('Creating Preview-Output for AVSource %s '
                               'at tcp-port %u', name, port)
-                self.bins.append(AVPreviewOutput(name, port))
+                self.bins.append(bin)
+                self.ports.append(Port("preview-%s" % name, port, 1, source.num_streams, Port.OUT))
 
         # create audio mixer
         self.log.info('Creating Audiomixer')
-        self.amix = AudioMix()
+        self.amix=AudioMix()
         self.bins.append(self.amix)
 
         # create video mixer
         self.log.info('Creating Videomixer')
-        self.vmix = VideoMix()
+        self.vmix=VideoMix()
         self.bins.append(self.vmix)
 
         # create background source
-        port = PORT_SOURCE_BACKGROUND
+        port=PORT_SOURCE_BACKGROUND
         self.log.info('Creating Mixer-Background VSource at %u', port)
         self.bins.append(spawn_source('background', port, has_audio=False))
+        self.ports.append(Port('background', port, 0, 1, Port.IN))
 
         # create mix TCP output
-        port = PORT_MIX_OUT
+        port=PORT_MIX_OUT
         self.log.info('Creating Mixer-Output at tcp-port %u', port)
         self.bins.append(AVRawOutput('mix', port))
+        self.ports.append(Port('mix', port, 1, 1, Port.OUT))
 
         # create mix preview TCP output
         if Config.getboolean('previews', 'enabled'):
-            port = PORT_MIX_PREVIEW
+            port=PORT_MIX_PREVIEW
             self.log.info('Creating Preview-Output for Mix'
                           'at tcp-port %u', port)
             self.bins.append(AVPreviewOutput('mix', port))
+            self.ports.append(Port('preview-mix', port, 1, 1, Port.OUT))
 
         # create stream blanker sources and mixer
         if Config.getboolean('stream-blanker', 'enabled'):
-            names = Config.getlist('stream-blanker', 'sources')
+            names=Config.getlist('stream-blanker', 'sources')
             if len(names) < 1:
                 raise RuntimeError('At least one StreamBlanker-Source must '
                                    'be configured or the '
                                    'StreamBlanker disabled!')
             for idx, name in enumerate(names):
-                port = PORT_SOURCES_BLANK = 17000 + idx
+                port=PORT_SOURCES_BLANK=17000 + idx
                 self.log.info('Creating StreamBlanker VSource %s at %u',
                               name, port)
                 self.bins.append(spawn_source('sb-{}'.format(name),
                                               port,
                                               has_audio=False))
+                self.ports.append(Port('sb-{}'.format(name), port, 0, 1, Port.IN))
 
-            port = PORT_AUDIO_SOURCE_BLANK
+            port=PORT_AUDIO_SOURCE_BLANK
             self.log.info('Creating StreamBlanker ASource at tcp-port %u',
                           port)
             self.bins.append(spawn_source('sb',
                                           port,
                                           has_video=False,
                                           force_num_streams=1))
+            self.ports.append(Port('sb-audio', port, 1, 0, Port.IN))
 
             self.log.info('Creating Stream Blanker Mixer')
-            self.streamblanker = StreamBlanker()
+            self.streamblanker=StreamBlanker()
             self.bins.append(self.streamblanker)
-            port = PORT_LIVE_OUT
+            port=PORT_LIVE_OUT
             self.log.info(
                 'Creating Stream Blanker Output at tcp-port %u', port)
             self.bins.append(AVRawOutput('mix-sb', port))
+            self.ports.append(Port('live-mix', port, 1, 1, Port.OUT))
             if Config.has_option('mix', 'slides_source_name'):
-                port = PORT_SLIDES_LIVE_OUT
+                port=PORT_SLIDES_LIVE_OUT
                 self.log.info(
                     'Creating Slides Stream Blanker Output at tcp-port %u', port)
                 self.bins.append(AVRawOutput(
                     'mix-sb-slides', port))
+                self.ports.append(Port('live-slides', port, 1, 1, Port.OUT))
 
         for bin in self.bins:
             self.log.info("%s\n%s", bin, bin.bin)
 
         # concatinate pipeline string
-        pipeline = "\n\n".join(bin.bin for bin in self.bins)
+        pipeline="\n\n".join(bin.bin for bin in self.bins)
 
         # launch gstreamer pipeline
-        self.pipeline = Gst.parse_launch(pipeline)
+        self.pipeline=Gst.parse_launch(pipeline)
 
         # attach pads
         for bin in self.bins:
@@ -150,7 +162,7 @@ class Pipeline(object):
         self.pipeline.use_clock(Clock)
 
         # fetch all queues
-        self.queues = []
+        self.queues=[]
 
         def query_queues(element):
             if element.find_property("current-level-time"):
@@ -165,7 +177,7 @@ class Pipeline(object):
         self.pipeline.bus.connect(
             "message::state-changed", self.on_state_changed)
 
-        self.draw_pipeline = Args.dot
+        self.draw_pipeline=Args.dot
 
         self.pipeline.set_state(Gst.State.PLAYING)
 
@@ -174,7 +186,7 @@ class Pipeline(object):
 
     def on_error(self, bus, message):
         self.log.error('Received Error-Signal on Source-Pipeline')
-        (error, debug) = message.parse_error()
+        (error, debug)=message.parse_error()
         self.log.debug('Error-Details: #%u: %s', error.code, debug)
 
     def on_state_changed(self, bus, message):
@@ -182,6 +194,6 @@ class Pipeline(object):
             # make DOT file from pipeline
             self.log.debug('Generating DOT image of avsource pipeline')
             Gst.debug_bin_to_dot_file(self.pipeline, 0, "pipeline")
-            self.draw_pipeline = False
+            self.draw_pipeline=False
         elif self.draw_pipeline and message.parse_state_changed().newstate == Gst.State.PAUSED:
-            self.draw_pipeline = True
+            self.draw_pipeline=True

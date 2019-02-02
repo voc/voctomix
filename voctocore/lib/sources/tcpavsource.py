@@ -40,6 +40,7 @@ class TCPAVSource(AVSource):
                 deinterlacer=deinterlacer
             )
         self.build_pipeline(pipe)
+        self.port = port
         self.tcpsrc = None
         self.audio_caps = Gst.Caps.from_string(Config.get('mix', 'audiocaps'))
         self.video_caps = Gst.Caps.from_string(Config.get('mix', 'videocaps'))
@@ -52,8 +53,9 @@ class TCPAVSource(AVSource):
         demux.connect('pad-added', self.on_pad_added)
 
     def __str__(self):
-        return 'TCPAVSource[{name}] on tcp-port {port}'.format(
+        return 'TCPAVSource[{name}] at port {listen}/{port}'.format(
             name=self.name,
+            listen=self.port,
             port=self.tcpsrc.get_protperty(
                 "current-port") if self.tcpsrc else "<disconnected>"
         )

@@ -26,6 +26,20 @@ https://c3voc.de/
 https://github.com/voc/voctomix </property>
     <property name="pixbuf">voc2.svg</property>
   </object>
+  <object class="GtkListStore" id="ports_store">
+    <columns>
+      <!-- column-name name -->
+      <column type="gchararray"/>
+      <!-- column-name audio -->
+      <column type="gint"/>
+      <!-- column-name video -->
+      <column type="gint"/>
+      <!-- column-name io -->
+      <column type="gchararray"/>
+      <!-- column-name port -->
+      <column type="gint"/>
+    </columns>
+  </object>
   <object class="GtkListStore" id="queue_store">
     <columns>
       <!-- column-name Name -->
@@ -136,7 +150,7 @@ https://github.com/voc/voctomix </property>
                                 <property name="name">queues</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="model">queue_store</property>
+                                <property name="model">ports_store</property>
                                 <property name="search_column">1</property>
                                 <property name="enable_grid_lines">vertical</property>
                                 <child internal-child="selection">
@@ -158,39 +172,58 @@ https://github.com/voc/voctomix </property>
                                 </child>
                                 <child>
                                   <object class="GtkTreeViewColumn">
+                                    <property name="sizing">fixed</property>
                                     <property name="title" translatable="yes">A</property>
-                                    <child>
-                                      <object class="GtkCellRendererToggle"/>
-                                    </child>
-                                  </object>
-                                </child>
-                                <child>
-                                  <object class="GtkTreeViewColumn">
-                                    <property name="title" translatable="yes">V</property>
-                                    <child>
-                                      <object class="GtkCellRendererToggle"/>
-                                    </child>
-                                  </object>
-                                </child>
-                                <child>
-                                  <object class="GtkTreeViewColumn">
-                                    <property name="title" translatable="yes">I/O</property>
-                                    <child>
-                                      <object class="GtkCellRendererText"/>
-                                    </child>
-                                  </object>
-                                </child>
-                                <child>
-                                  <object class="GtkTreeViewColumn">
-                                    <property name="title" translatable="yes">Delay</property>
-                                    <property name="clickable">True</property>
-                                    <property name="sort_indicator">True</property>
-                                    <property name="sort_order">descending</property>
                                     <property name="sort_column_id">1</property>
+                                    <child>
+                                      <object class="GtkCellRendererText">
+                                        <property name="alignment">center</property>
+                                      </object>
+                                      <attributes>
+                                        <attribute name="text">1</attribute>
+                                      </attributes>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkTreeViewColumn">
+                                    <property name="sizing">fixed</property>
+                                    <property name="title" translatable="yes">V</property>
+                                    <property name="sort_column_id">2</property>
+                                    <child>
+                                      <object class="GtkCellRendererText">
+                                        <property name="alignment">center</property>
+                                      </object>
+                                      <attributes>
+                                        <attribute name="text">2</attribute>
+                                      </attributes>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkTreeViewColumn">
+                                    <property name="sizing">fixed</property>
+                                    <property name="title" translatable="yes">I/O</property>
+                                    <property name="sort_column_id">3</property>
                                     <child>
                                       <object class="GtkCellRendererText"/>
                                       <attributes>
-                                        <attribute name="text">1</attribute>
+                                        <attribute name="text">3</attribute>
+                                      </attributes>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkTreeViewColumn">
+                                    <property name="title" translatable="yes">Port</property>
+                                    <property name="clickable">True</property>
+                                    <property name="sort_indicator">True</property>
+                                    <property name="sort_order">descending</property>
+                                    <property name="sort_column_id">4</property>
+                                    <child>
+                                      <object class="GtkCellRendererText"/>
+                                      <attributes>
+                                        <attribute name="text">4</attribute>
                                       </attributes>
                                     </child>
                                   </object>

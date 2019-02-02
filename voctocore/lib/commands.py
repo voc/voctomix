@@ -273,3 +273,7 @@ class ControlServerCommands(object):
         for queue in self.pipeline.queues:
             report[queue.name] = queue.get_property("current-level-time")
         return OkResponse('queue_report', json.dumps(report))
+
+    def report_ports(self):
+        report = dict()
+        return OkResponse('port_report', json.dumps(self.pipeline.ports, default=lambda x: x.__dict__))

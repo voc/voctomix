@@ -9,7 +9,7 @@ import lib.connection as Connection
 class MiscToolbarController(object):
     """Manages Accelerators and Clicks Misc buttons"""
 
-    def __init__(self, win, uibuilder, queues_controller, video_display):
+    def __init__(self, win, uibuilder, queues_controller, ports_controller, video_display):
         self.win = win
         self.log = logging.getLogger('MiscToolbarController')
         self.toolbar = uibuilder.find_widget_recursive(win, 'toolbar_main')
@@ -38,6 +38,11 @@ class MiscToolbarController(object):
         queues_button.set_visible(Config.getboolean('misc', 'debug'))
         queues_button.connect('toggled', self.on_queues_button_toggled)
         self.queues_controller = queues_controller
+
+        ports_button = uibuilder.find_widget_recursive(self.toolbar, 'ports_button')
+        ports_button.set_visible(Config.getboolean('misc', 'debug'))
+        ports_button.connect('toggled', self.on_ports_button_toggled)
+        self.ports_controller = ports_controller
 
         key, mod = Gtk.accelerator_parse('t')
         #cutbtn.add_accelerator('clicked', accelerators,
@@ -68,7 +73,9 @@ class MiscToolbarController(object):
         self.log.info('queues-button clicked')
         self.queues_controller.show(btn.get_active())
 
+    def on_ports_button_toggled(self, btn):
+        self.log.info('queues-button clicked')
+        self.ports_controller.show(btn.get_active())
 
     def on_window_state_event(self, widget, ev):
         self.__is_fullscreen = bool(ev.new_window_state & Gdk.WindowState.FULLSCREEN)
-

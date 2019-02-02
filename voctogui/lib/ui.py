@@ -8,6 +8,7 @@ from lib.videodisplay import VideoDisplay
 from lib.audioleveldisplay import AudioLevelDisplay
 from lib.videopreviews import VideoPreviewsController
 from lib.queues import QueuesWindowController
+from lib.ports import PortsWindowController
 
 from lib.toolbar.mix import MixToolbarController
 from lib.toolbar.output import OutputToolbarController
@@ -99,11 +100,13 @@ class Ui(UiBuilder):
         )
 
         self.queues_controller = QueuesWindowController(self)
+        self.ports_controller = PortsWindowController(self)
 
         self.misc_controller = MiscToolbarController(
             win=self.win,
             uibuilder=self,
             queues_controller=self.queues_controller,
+            ports_controller=self.ports_controller,
             video_display=self.main_video_display
         )
 
