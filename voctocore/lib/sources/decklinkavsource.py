@@ -244,8 +244,10 @@ t-{name}-{audiostream}.
 
     def build_deinterlacer(self):
         deinterlacer = super().build_deinterlacer()
-        if deinterlacer != '':
+        if deinterlacer:
             deinterlacer += ' !'
+        else:
+            deinterlacer = ''
 
         return deinterlacer
 
