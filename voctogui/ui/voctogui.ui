@@ -1008,11 +1008,11 @@ https://github.com/voc/voctomix </property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkToolButton" id="fullscreen">
+                      <object class="GtkToggleToolButton" id="fullscreen">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="no_show_all">True</property>
-                        <property name="use_underline">True</property>
+                        <property name="label">True</property>
                         <property name="stock_id">gtk-fullscreen</property>
                       </object>
                       <packing>

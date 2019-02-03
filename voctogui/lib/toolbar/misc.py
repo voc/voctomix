@@ -45,12 +45,9 @@ class MiscToolbarController(object):
         self.ports_controller = ports_controller
 
         key, mod = Gtk.accelerator_parse('t')
-        #cutbtn.add_accelerator('clicked', accelerators,
-        #                       key, mod, Gtk.AccelFlags.VISIBLE)
         tooltip = Gtk.accelerator_get_label(key, mod)
-        #cutbtn.set_tooltip_text(tooltip)
 
-	# Controller for fullscreen behavior
+	    # Controller for fullscreen behavior
         self.__is_fullscreen = False
         win.connect("window-state-event", self.on_window_state_event)
 
