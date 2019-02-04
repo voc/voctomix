@@ -26,6 +26,12 @@ class ImgVSource(AVSource):
             uri=self.imguri
         )
 
+    def port(self):
+        return self.imguri
+
+    def video_channels(self):
+        return 1
+
     def launch_pipeline(self):
         pipeline = """
     uridecodebin

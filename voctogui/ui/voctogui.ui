@@ -5,6 +5,7 @@
   <object class="GtkImage" id="img-ports">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
+    <property name="tooltip_text" translatable="yes">Show TCP ports of inputs and outputs</property>
     <property name="pixbuf">ports.svg</property>
   </object>
   <object class="GtkImage" id="img-queues">
@@ -37,7 +38,7 @@ https://github.com/voc/voctomix </property>
       <!-- column-name io -->
       <column type="gchararray"/>
       <!-- column-name port -->
-      <column type="gint"/>
+      <column type="gchararray"/>
     </columns>
   </object>
   <object class="GtkListStore" id="queue_store">

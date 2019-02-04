@@ -40,7 +40,7 @@ bin.(
         self.bin += pipeline
 
         if self.has_audio:
-            for audiostream in range(0,self.num_streams):
+            for audiostream in range(0, self.num_streams):
                 audioport = self.build_audioport(audiostream)
                 if not audioport:
                     continue
@@ -93,6 +93,20 @@ bin.(
         section = 'source.{}'.format(self.name)
         deinterlace_config = Config.get(section, 'deinterlace', fallback="no")
         return deinterlace_config
+
+    def video_channels(self):
+        return 1 if self.has_video else 0
+
+    def audio_channels(self):
+        return 1 if self.has_audio else 0
+
+    @abstractmethod
+    def port(self):
+        raise NotImplementedError(
+            'port() not implemented for this source')
+
+    def is_input(self):
+        return True
 
     @abstractmethod
     def build_audioport(self, audiostream):

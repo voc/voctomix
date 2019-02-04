@@ -2,6 +2,7 @@
 import logging
 
 from gi.repository import Gst
+import socket
 
 from lib.config import Config
 from lib.sources.avsource import AVSource
@@ -11,7 +12,7 @@ ALL_VIDEO_CAPS = Gst.Caps.from_string('video/x-raw')
 
 
 class TCPAVSource(AVSource):
-    def __init__(self, name, port, has_audio=True, has_video=True,
+    def __init__(self, name, listen_port, has_audio=True, has_video=True,
                  force_num_streams=None):
         self.log = logging.getLogger('TCPAVSource[{}]'.format(name))
         AVSource.__init__(self, name, has_audio, has_video,
@@ -26,7 +27,7 @@ class TCPAVSource(AVSource):
     ! matroskademux name=demux-{name}
             """.format(
             name=self.name,
-            port=port
+            port=listen_port
         )
 
         if deinterlacer:
@@ -40,10 +41,13 @@ class TCPAVSource(AVSource):
                 deinterlacer=deinterlacer
             )
         self.build_pipeline(pipe)
-        self.port = port
+        self.listen_port = listen_port
         self.tcpsrc = None
         self.audio_caps = Gst.Caps.from_string(Config.get('mix', 'audiocaps'))
         self.video_caps = Gst.Caps.from_string(Config.get('mix', 'videocaps'))
+
+    def port(self):
+        return"%s:%d" % (socket.gethostname(), self.listen_port)
 
     def attach(self, pipeline):
         super().attach(pipeline)

@@ -9,15 +9,21 @@ class Port(object):
     IN = 1
     OUT = 2
 
-    def __init__(self, name, port, audio, video, io):
+    def __init__(self, name, source=None):
         self.name = name
-        self.port = port
-        self.audio = audio
-        self.video = video
-        self.io = io
+        if source:
+            self.port = source.port()
+            self.audio = source.audio_channels()
+            self.video = source.video_channels()
+            self.io = self.IN if source.is_input() else self.OUT
 
     def from_str(_str):
-        return Port(_str['name'], _str['port'], _str['audio'], _str['video'], _str['io'])
+        p = Port(_str['name'])
+        p.port = _str['port']
+        p.audio = _str['audio']
+        p.video = _str['video']
+        p.io = _str['io']
+        return p
 
     def is_input(self):
         return self.io == Port.IN

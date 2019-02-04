@@ -21,9 +21,16 @@ class TCPMultiConnection(object, metaclass=ABCMeta):
                                     False)
         self.boundSocket.bind(('::', port))
         self.boundSocket.listen(1)
+        self._port = port
 
         self.log.debug('Setting GObject io-watch on Socket')
         GObject.io_add_watch(self.boundSocket, GObject.IO_IN, self.on_connect)
+
+    def port(self):
+        return "%s:%d" % (socket.gethostname(), self._port)
+
+    def is_input(self):
+        return False
 
     def on_connect(self, sock, *args):
         conn, addr = sock.accept()

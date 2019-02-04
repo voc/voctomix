@@ -11,6 +11,7 @@ ALL_VIDEO_CAPS = Gst.Caps.from_string('video/x-raw')
 
 count = -1
 
+
 class TestSource(AVSource):
     def __init__(self, name, has_audio=True, has_video=True,
                  force_num_streams=None):
@@ -23,6 +24,9 @@ class TestSource(AVSource):
         self.audio_caps = Gst.Caps.from_string(Config.get('mix', 'audiocaps'))
         self.video_caps = Gst.Caps.from_string(Config.get('mix', 'videocaps'))
 
+    def port(self):
+        return "(TEST)"
+
     def __str__(self):
         return 'TestSource[{name}]'.format(
             name=self.name
@@ -34,7 +38,7 @@ class TestSource(AVSource):
 
     def build_videoport(self):
         global count
-        count+=1
+        count += 1
         return """
     videotestsrc
         pattern={}
