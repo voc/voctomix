@@ -1013,6 +1013,8 @@ https://github.com/voc/voctomix </property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="no_show_all">True</property>
+                        <property name="tooltip_text" translatable="yes">Enlarges main window to full screen
+Key: 'F11'</property>
                         <property name="label">True</property>
                         <property name="stock_id">gtk-fullscreen</property>
                       </object>
@@ -1026,6 +1028,8 @@ https://github.com/voc/voctomix </property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="no_show_all">True</property>
+                        <property name="tooltip_text" translatable="yes">Quits voctomix
+Key: 'Alt+F4'</property>
                         <property name="use_underline">True</property>
                         <property name="stock_id">gtk-close</property>
                       </object>
