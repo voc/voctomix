@@ -75,7 +75,7 @@ class StreamblankToolbarController(object):
         self.blink = True
         # remove old time out
         if self.timeout:
-            Glib.source_remove(self.timeout)
+            GLib.source_remove(self.timeout)
         # set up timeout for periodic redraw
         self.timeout = GLib.timeout_add_seconds(self.timer_resolution, self.do_timeout)
 
