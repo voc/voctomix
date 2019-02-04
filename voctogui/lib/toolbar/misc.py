@@ -28,7 +28,7 @@ class MiscToolbarController(object):
         key, mod = Gtk.accelerator_parse('F11')
         fullscreenbtn.add_accelerator('clicked', accelerators,
                                key, mod, Gtk.AccelFlags.VISIBLE)
-
+        self.fullscreen_button = fullscreenbtn
         mutebtn = uibuilder.find_widget_recursive(self.toolbar, 'mute_button')
         mutebtn.set_active(not Config.getboolean('audio', 'play'))
         mutebtn.connect('clicked', self.on_mutebtn_clicked)
@@ -56,11 +56,12 @@ class MiscToolbarController(object):
         Gtk.main_quit()
 
     def on_fullscreenbtn_clicked(self, btn):
-        self.log.info('fullscreen-button clicked')
-        if self.__is_fullscreen:
-            self.win.unfullscreen()
-        else:
-            self.win.fullscreen()
+        if not self.within_state_event:
+            self.log.info('fullscreen-button clicked')
+            if self.__is_fullscreen:
+                self.win.unfullscreen()
+            else:
+                self.win.fullscreen()
 
     def on_mutebtn_clicked(self, btn):
         self.log.info('mute-button clicked')
@@ -75,4 +76,7 @@ class MiscToolbarController(object):
         self.ports_controller.show(btn.get_active())
 
     def on_window_state_event(self, widget, ev):
+        self.within_state_event = True
         self.__is_fullscreen = bool(ev.new_window_state & Gdk.WindowState.FULLSCREEN)
+        self.fullscreen_button.set_active(self.__is_fullscreen)
+        self.within_state_event = False
