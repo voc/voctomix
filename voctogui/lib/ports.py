@@ -38,7 +38,6 @@ class PortsWindowController():
             self.iterators = dict()
             for p in report:
                 port = Port.from_str(p)
-                print(port.port)
                 self.iterators[port.port] = self.store.append((
                     port.name,
                     port.audio,
