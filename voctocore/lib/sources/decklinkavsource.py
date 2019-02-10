@@ -60,6 +60,18 @@ class DeckLinkAVSource(AVSource):
 
         self.launch_pipeline()
 
+    def port(self):
+        return "Decklink #{}".format(self.device)
+
+    def num_connections(self):
+        return 1
+
+    def audio_channels(self):
+        if len(self.audiostream_map) == 0:
+            return 1
+        else:
+            return len(self.audiostream_map)
+
     def _calculate_required_input_channels(self):
         required_input_channels = 0
         for audiostream, mapping in self.audiostream_map.items():
@@ -244,8 +256,10 @@ class DeckLinkAVSource(AVSource):
 
     def build_deinterlacer(self):
         deinterlacer = super().build_deinterlacer()
-        if deinterlacer != '':
+        if deinterlacer:
             deinterlacer += ' !'
+        else:
+            deinterlacer = ''
 
         return deinterlacer
 
@@ -254,7 +268,7 @@ class DeckLinkAVSource(AVSource):
             return "aout-{}.".format(self.name)
 
         if audiostream in self.audiostream_map:
-            return 'i-{name}-{audiostream}.'.format(name=self.name,audiostream=audiostream)
+            return 'i-{name}-{audiostream}.'.format(name=self.name, audiostream=audiostream)
 
     def build_videoport(self):
         return 'vout-{}.'.format(self.name)

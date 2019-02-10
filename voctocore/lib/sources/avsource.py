@@ -17,7 +17,9 @@ class AVSource(object, metaclass=ABCMeta):
         self.name = name
         self.has_audio = has_audio
         self.has_video = has_video
-        self.force_num_streams = force_num_streams
+        self.num_streams = force_num_streams
+        if self.num_streams is force_num_streams:
+            self.num_streams = Config.getint('mix', 'audiostreams')
         self.bin = ""
 
     @abstractmethod
@@ -38,11 +40,7 @@ bin.(
         self.bin += pipeline
 
         if self.has_audio:
-            num_streams = self.force_num_streams
-            if num_streams is None:
-                num_streams = Config.getint('mix', 'audiostreams')
-
-            for audiostream in range(0, num_streams):
+            for audiostream in range(0, self.num_streams):
                 audioport = self.build_audioport(audiostream)
                 if not audioport:
                     continue
@@ -95,6 +93,23 @@ bin.(
         section = 'source.{}'.format(self.name)
         deinterlace_config = Config.get(section, 'deinterlace', fallback="no")
         return deinterlace_config
+
+    def video_channels(self):
+        return 1 if self.has_video else 0
+
+    def audio_channels(self):
+        return 1 if self.has_audio else 0
+
+    @abstractmethod
+    def port(self):
+        raise NotImplementedError(
+            'port() not implemented for this source')
+
+    def num_connections(self):
+        return 0
+
+    def is_input(self):
+        return True
 
     @abstractmethod
     def build_audioport(self, audiostream):

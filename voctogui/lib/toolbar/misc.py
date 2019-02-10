@@ -9,7 +9,7 @@ import lib.connection as Connection
 class MiscToolbarController(object):
     """Manages Accelerators and Clicks Misc buttons"""
 
-    def __init__(self, win, uibuilder, queues_controller, video_display):
+    def __init__(self, win, uibuilder, queues_controller, ports_controller, video_display):
         self.win = win
         self.log = logging.getLogger('MiscToolbarController')
         self.toolbar = uibuilder.find_widget_recursive(win, 'toolbar_main')
@@ -28,7 +28,7 @@ class MiscToolbarController(object):
         key, mod = Gtk.accelerator_parse('F11')
         fullscreenbtn.add_accelerator('clicked', accelerators,
                                key, mod, Gtk.AccelFlags.VISIBLE)
-
+        self.fullscreen_button = fullscreenbtn
         mutebtn = uibuilder.find_widget_recursive(self.toolbar, 'mute_button')
         mutebtn.set_active(not Config.getboolean('audio', 'play'))
         mutebtn.connect('clicked', self.on_mutebtn_clicked)
@@ -39,13 +39,15 @@ class MiscToolbarController(object):
         queues_button.connect('toggled', self.on_queues_button_toggled)
         self.queues_controller = queues_controller
 
-        key, mod = Gtk.accelerator_parse('t')
-        #cutbtn.add_accelerator('clicked', accelerators,
-        #                       key, mod, Gtk.AccelFlags.VISIBLE)
-        tooltip = Gtk.accelerator_get_label(key, mod)
-        #cutbtn.set_tooltip_text(tooltip)
+        ports_button = uibuilder.find_widget_recursive(self.toolbar, 'ports_button')
+        ports_button.set_visible(Config.getboolean('misc', 'debug'))
+        ports_button.connect('toggled', self.on_ports_button_toggled)
+        self.ports_controller = ports_controller
 
-	# Controller for fullscreen behavior
+        key, mod = Gtk.accelerator_parse('t')
+        tooltip = Gtk.accelerator_get_label(key, mod)
+
+	    # Controller for fullscreen behavior
         self.__is_fullscreen = False
         win.connect("window-state-event", self.on_window_state_event)
 
@@ -54,11 +56,12 @@ class MiscToolbarController(object):
         Gtk.main_quit()
 
     def on_fullscreenbtn_clicked(self, btn):
-        self.log.info('fullscreen-button clicked')
-        if self.__is_fullscreen:
-            self.win.unfullscreen()
-        else:
-            self.win.fullscreen()
+        if not self.within_state_event:
+            self.log.info('fullscreen-button clicked')
+            if self.__is_fullscreen:
+                self.win.unfullscreen()
+            else:
+                self.win.fullscreen()
 
     def on_mutebtn_clicked(self, btn):
         self.log.info('mute-button clicked')
@@ -68,7 +71,12 @@ class MiscToolbarController(object):
         self.log.info('queues-button clicked')
         self.queues_controller.show(btn.get_active())
 
+    def on_ports_button_toggled(self, btn):
+        self.log.info('queues-button clicked')
+        self.ports_controller.show(btn.get_active())
 
     def on_window_state_event(self, widget, ev):
+        self.within_state_event = True
         self.__is_fullscreen = bool(ev.new_window_state & Gdk.WindowState.FULLSCREEN)
-
+        self.fullscreen_button.set_active(self.__is_fullscreen)
+        self.within_state_event = False

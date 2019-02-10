@@ -14,7 +14,7 @@ class StreamblankToolbarController(object):
     """Manages Accelerators and Clicks on the Composition Toolbar-Buttons"""
 
     # set resolution of the blink timer in seconds
-    timer_resolution = 0.5
+    timer_resolution = 1.0
 
     def __init__(self, win, uibuilder):
         self.log = logging.getLogger('StreamblankToolbarController')
@@ -67,17 +67,21 @@ class StreamblankToolbarController(object):
         # connect event-handler and request initial state
         Connection.on('stream_status', self.on_stream_status)
         Connection.send('get_stream_status')
+        self.timeout = None
 
+    def start_blink(self):
         self.blink = True
-        # remember last draw time
-        self.last_draw_time = time.time()
+        self.do_timeout()
+        self.blink = True
+        # remove old time out
+        if self.timeout:
+            GLib.source_remove(self.timeout)
         # set up timeout for periodic redraw
-        GLib.timeout_add(self.timer_resolution * 1000, self.do_timeout)
+        self.timeout = GLib.timeout_add_seconds(self.timer_resolution, self.do_timeout)
 
     def on_btn_toggled(self, btn):
         if btn.get_active():
             btn_name = btn.get_name()
-
             if self.current_status != btn_name:
                 self.log.info('stream-status activated: %s', btn_name)
                 if btn_name == 'live':
@@ -90,17 +94,14 @@ class StreamblankToolbarController(object):
                       status, source)
 
         self.current_status = source if source is not None else status
+        self.start_blink()
 
     def do_timeout(self):
-        # get current time
-        current_time = time.time()
         # if time did not change since last redraw
-        if current_time - self.last_draw_time >= 1.0:
-            self.last_draw_time = current_time
-            for button in list(self.blank_btns.values()) + [self.livebtn]:
-                if self.blink:
-                    button.get_style_context().add_class("blink")
-                else:
-                    button.get_style_context().remove_class("blink")
-            self.blink = not self.blink
+        for button in list(self.blank_btns.values()) + [self.livebtn]:
+            if self.blink:
+                button.get_style_context().add_class("blink")
+            else:
+                button.get_style_context().remove_class("blink")
+        self.blink = not self.blink
         return True

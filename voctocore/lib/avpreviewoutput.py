@@ -56,8 +56,17 @@ bin.(
 """.format(
             channel=self.channel
         )
-        self.bin +=""")
+        self.bin += """)
 """
+
+    def audio_channels(self):
+        return Config.getint('mix', 'audiostreams')
+
+    def video_channels(self):
+        return 1
+
+    def is_input(self):
+        return False
 
     def __str__(self):
         return 'AVPreviewOutput[{}]'.format(self.channel)

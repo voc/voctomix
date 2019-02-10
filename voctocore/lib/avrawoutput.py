@@ -25,6 +25,7 @@ bin.(
             channel=self.channel
         )
 
+        self.has_audio = has_audio
         if has_audio:
             for audiostream in range(0, Config.getint('mix', 'audiostreams')):
                 self.bin += """
@@ -53,6 +54,15 @@ bin.(
             channel=self.channel
         )
         self.bin += "\n)"
+
+    def audio_channels(self):
+        return Config.getint('mix', 'audiostreams') if self.has_audio else 0
+
+    def video_channels(self):
+        return 1
+
+    def is_input(self):
+        return False
 
     def __str__(self):
         return 'AVRawOutput[{}]'.format(self.channel)
