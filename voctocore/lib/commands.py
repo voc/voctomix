@@ -275,5 +275,6 @@ class ControlServerCommands(object):
         return OkResponse('queue_report', json.dumps(report))
 
     def report_ports(self):
-        report = dict()
-        return OkResponse('port_report', json.dumps(self.pipeline.ports, default=lambda x: x.__dict__))
+        for p in self.pipeline.ports:
+            p.update()
+        return OkResponse('port_report', json.dumps(self.pipeline.ports, default=lambda x: x.todict()))

@@ -56,6 +56,9 @@ class TestSource(AVSource):
     def port(self):
         return "(TEST)"
 
+    def num_connections(self):
+        return 1
+
     def __str__(self):
         return 'TestSource[{name}]'.format(
             name=self.name

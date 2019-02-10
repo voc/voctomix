@@ -21,9 +21,9 @@ class TCPAVSource(AVSource):
         deinterlacer = self.build_deinterlacer()
         pipe = """
     tcpserversrc
+        name=tcpsrc-{name}
         do-timestamp=TRUE
         port={port}
-        name=tcpsrc-{name}
     ! matroskademux name=demux-{name}
             """.format(
             name=self.name,
@@ -49,6 +49,12 @@ class TCPAVSource(AVSource):
     def port(self):
         return"%s:%d" % (socket.gethostname(), self.listen_port)
 
+    def num_connections(self):
+        if self.tcpsrc:
+            return 1
+        else:
+            return 0
+
     def attach(self, pipeline):
         super().attach(pipeline)
         self.tcpsrc = pipeline.get_by_name(
@@ -57,9 +63,9 @@ class TCPAVSource(AVSource):
         demux.connect('pad-added', self.on_pad_added)
 
     def __str__(self):
-        return 'TCPAVSource[{name}] at port {listen}/{port}'.format(
+        return 'TCPAVSource[{name}] listening at {listen} ({port})'.format(
             name=self.name,
-            listen=self.port,
+            listen=self.port(),
             port=self.tcpsrc.get_protperty(
                 "current-port") if self.tcpsrc else "<disconnected>"
         )

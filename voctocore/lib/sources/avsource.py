@@ -105,6 +105,9 @@ bin.(
         raise NotImplementedError(
             'port() not implemented for this source')
 
+    def num_connections(self):
+        return 0
+
     def is_input(self):
         return True
 

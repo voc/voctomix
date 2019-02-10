@@ -29,6 +29,9 @@ class TCPMultiConnection(object, metaclass=ABCMeta):
     def port(self):
         return "%s:%d" % (socket.gethostname(), self._port)
 
+    def num_connections(self):
+        return len(self.currentConnections)
+
     def is_input(self):
         return False
 

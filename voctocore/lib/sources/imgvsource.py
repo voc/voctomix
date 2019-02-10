@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import logging
+import re
 
 from gi.repository import Gst
 
@@ -27,7 +28,11 @@ class ImgVSource(AVSource):
         )
 
     def port(self):
+        m = re.search('.*/([^/]*)', self.imguri)
         return self.imguri
+
+    def num_connections(self):
+        return 1
 
     def video_channels(self):
         return 1

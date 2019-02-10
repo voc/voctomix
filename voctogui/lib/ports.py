@@ -12,6 +12,10 @@ from vocto.port import Port
 # time interval to re-fetch queue timings
 TIMER_RESOLUTION = 5.0
 
+COLOR_OK = ("white", "darkgreen")
+COLOR_WARN = ("darkred", "darkorange")
+COLOR_ERROR = ("white", "red")
+
 
 class PortsWindowController():
 
@@ -30,6 +34,13 @@ class PortsWindowController():
         Connection.on('port_report', self.on_port_report)
 
     def on_port_report(self, *report):
+
+        def color(port):
+            if port.connections > 0:
+                return COLOR_OK
+            else:
+                return COLOR_ERROR if port.is_input() else COLOR_WARN
+
         # read string report into dictonary
         report = json.loads("".join(report))
         # check if this is the initial report
@@ -43,7 +54,8 @@ class PortsWindowController():
                     port.audio,
                     port.video,
                     "IN" if port.is_input() else "OUT",
-                    port.port
+                    port.port,
+                    *color(port)
                 ))
         else:
             # just update values of second column
@@ -55,6 +67,8 @@ class PortsWindowController():
                 self.store.set_value(it, 2, port.video)
                 self.store.set_value(it, 3, "IN" if port.is_input() else "OUT")
                 self.store.set_value(it, 4, port.port)
+                self.store.set_value(it, 5, color(port)[0])
+                self.store.set_value(it, 6, color(port)[1])
 
     def show(self, visible=True):
         # check if widget is getting visible

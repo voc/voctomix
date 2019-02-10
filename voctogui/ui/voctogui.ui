@@ -39,6 +39,10 @@ https://github.com/voc/voctomix </property>
       <column type="gchararray"/>
       <!-- column-name port -->
       <column type="gchararray"/>
+      <!-- column-name color -->
+      <column type="gchararray"/>
+      <!-- column-name bgcolor -->
+      <column type="gchararray"/>
     </columns>
   </object>
   <object class="GtkListStore" id="queue_store">
@@ -153,9 +157,11 @@ https://github.com/voc/voctomix </property>
                                 <property name="can_focus">True</property>
                                 <property name="model">ports_store</property>
                                 <property name="search_column">1</property>
-                                <property name="enable_grid_lines">vertical</property>
+                                <property name="enable_grid_lines">both</property>
                                 <child internal-child="selection">
-                                  <object class="GtkTreeSelection"/>
+                                  <object class="GtkTreeSelection">
+                                    <property name="mode">none</property>
+                                  </object>
                                 </child>
                                 <child>
                                   <object class="GtkTreeViewColumn">
@@ -164,8 +170,12 @@ https://github.com/voc/voctomix </property>
                                     <property name="sort_indicator">True</property>
                                     <property name="sort_column_id">0</property>
                                     <child>
-                                      <object class="GtkCellRendererText"/>
+                                      <object class="GtkCellRendererText">
+                                        <property name="weight">800</property>
+                                      </object>
                                       <attributes>
+                                        <attribute name="background">6</attribute>
+                                        <attribute name="foreground">5</attribute>
                                         <attribute name="text">0</attribute>
                                       </attributes>
                                     </child>
@@ -177,10 +187,10 @@ https://github.com/voc/voctomix </property>
                                     <property name="title" translatable="yes">A</property>
                                     <property name="sort_column_id">1</property>
                                     <child>
-                                      <object class="GtkCellRendererText">
-                                        <property name="alignment">center</property>
-                                      </object>
+                                      <object class="GtkCellRendererText"/>
                                       <attributes>
+                                        <attribute name="background">6</attribute>
+                                        <attribute name="foreground">5</attribute>
                                         <attribute name="text">1</attribute>
                                       </attributes>
                                     </child>
@@ -192,10 +202,10 @@ https://github.com/voc/voctomix </property>
                                     <property name="title" translatable="yes">V</property>
                                     <property name="sort_column_id">2</property>
                                     <child>
-                                      <object class="GtkCellRendererText">
-                                        <property name="alignment">center</property>
-                                      </object>
+                                      <object class="GtkCellRendererText"/>
                                       <attributes>
+                                        <attribute name="background">6</attribute>
+                                        <attribute name="foreground">5</attribute>
                                         <attribute name="text">2</attribute>
                                       </attributes>
                                     </child>
@@ -209,6 +219,9 @@ https://github.com/voc/voctomix </property>
                                     <child>
                                       <object class="GtkCellRendererText"/>
                                       <attributes>
+                                        <attribute name="background">6</attribute>
+                                        <attribute name="background-gdk">0</attribute>
+                                        <attribute name="foreground">5</attribute>
                                         <attribute name="text">3</attribute>
                                       </attributes>
                                     </child>
@@ -222,8 +235,12 @@ https://github.com/voc/voctomix </property>
                                     <property name="sort_order">descending</property>
                                     <property name="sort_column_id">4</property>
                                     <child>
-                                      <object class="GtkCellRendererText"/>
+                                      <object class="GtkCellRendererText">
+                                        <property name="wrap_width">100</property>
+                                      </object>
                                       <attributes>
+                                        <attribute name="background">6</attribute>
+                                        <attribute name="foreground">5</attribute>
                                         <attribute name="text">4</attribute>
                                       </attributes>
                                     </child>
@@ -278,7 +295,7 @@ https://github.com/voc/voctomix </property>
                                 <property name="can_focus">True</property>
                                 <property name="model">queue_store</property>
                                 <property name="search_column">1</property>
-                                <property name="enable_grid_lines">vertical</property>
+                                <property name="enable_grid_lines">both</property>
                                 <child internal-child="selection">
                                   <object class="GtkTreeSelection"/>
                                 </child>
