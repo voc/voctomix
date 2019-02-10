@@ -12,7 +12,7 @@ class Scene:
     """
     log = logging.getLogger('Scene')
 
-    def __init__(self, sources, pipeline, fps):
+    def __init__(self, sources, pipeline, fps, start_sink):
         """ initialize with a gstreamer pipeline and names
             of the sources to manage
         """
@@ -47,7 +47,7 @@ class Scene:
             # get mixer and cropper pad from pipeline
             mixerpad = (pipeline
                         .get_by_name('videomixer')
-                        .get_static_pad('sink_%s' % (idx + 1)))
+                        .get_static_pad('sink_%s' % (idx + start_sink)))
             cropperpad = (pipeline
                           .get_by_name("cropper-%s" % source))
             # add dictionary of binds to all properties
