@@ -143,11 +143,11 @@ class DeckLinkAVSource(AVSource):
     def launch_pipeline(self):
         # A video source is required even when we only need audio
         pipeline = """
-decklinkvideosrc
-    device-number={device}
-    connection={conn}
-    video-format={fmt}
-    mode={mode}
+    decklinkvideosrc
+        device-number={device}
+        connection={conn}
+        video-format={fmt}
+        mode={mode}
         """.format(
             device=self.device,
             conn=self.vconn,
@@ -157,28 +157,28 @@ decklinkvideosrc
 
         if self.has_video:
             pipeline += """
-! {deinterlacer}
+    ! {deinterlacer}
 
-videoconvert
-! videoscale
-! videorate
-    name=vout-{name}
+    videoconvert
+    ! videoscale
+    ! videorate
+        name=vout-{name}
             """.format(
                 deinterlacer=self.build_deinterlacer(),
                 name=self.name
             )
         else:
             pipeline += """
-! fakesink
+    ! fakesink
             """
 
         if self.has_audio:
             pipeline += """
-decklinkaudiosrc
-    {channels}
-    device-number={device}
-    connection={conn}
-    {output}
+    decklinkaudiosrc
+        {channels}
+        device-number={device}
+        connection={conn}
+        {output}
             """.format(
                 channels="channels={}".format(self.required_input_channels)
                          if self.required_input_channels > 2 else
@@ -188,8 +188,8 @@ decklinkaudiosrc
                 output="name=aout-{name}".format(name=self.name)
                        if self.fallback_default else
                        """
-! deinterleave
-    name=aout-{name}
+    ! deinterleave
+        name=aout-{name}
                        """.format(name=self.name),
             )
 
@@ -204,18 +204,18 @@ decklinkaudiosrc
                                 audiostream=audiostream))
 
                     pipeline += """
-interleave
-    name=i-{name}-{audiostream}
+    interleave
+        name=i-{name}-{audiostream}
 
-aout-{name}.src_{left}
-! queue
-    name=queue-decklink-audio-{name}-{audiostream}-left
-! i-{name}-{audiostream}.sink_0
+    aout-{name}.src_{left}
+    ! queue
+        name=queue-decklink-audio-{name}-{audiostream}-left
+    ! i-{name}-{audiostream}.sink_0
 
-aout-{name}.src_{right}
-! queue
-    name=queue-decklink-audio-{name}-{audiostream}-right
-! i-{name}-{audiostream}.sink_1
+    aout-{name}.src_{right}
+    ! queue
+        name=queue-decklink-audio-{name}-{audiostream}-right
+    ! i-{name}-{audiostream}.sink_1
                     """.format(
                         left=left,
                         right=right,
@@ -230,22 +230,22 @@ aout-{name}.src_{right}
                                 audiostream=audiostream))
 
                     pipeline += """
-interleave
-    name=i-{name}-{audiostream}
+    interleave
+        name=i-{name}-{audiostream}
 
-aout-{name}.src_{channel}
-! tee
-    name=t-{name}-{audiostream}
+    aout-{name}.src_{channel}
+    ! tee
+        name=t-{name}-{audiostream}
 
-t-{name}-{audiostream}.
-! queue
-    name=queue-decklink-audio-{name}-{audiostream}-left
-! i-{name}-{audiostream}.sink_0
+    t-{name}-{audiostream}.
+    ! queue
+        name=queue-decklink-audio-{name}-{audiostream}-left
+    ! i-{name}-{audiostream}.sink_0
 
-t-{name}-{audiostream}.
-! queue
-    name=queue-decklink-audio-{name}-{audiostream}-right
-! i-{name}-{audiostream}.sink_1
+    t-{name}-{audiostream}.
+    ! queue
+        name=queue-decklink-audio-{name}-{audiostream}-right
+    ! i-{name}-{audiostream}.sink_1
                     """.format(
                         channel=left,
                         name=self.name,

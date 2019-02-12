@@ -5,6 +5,7 @@ from lib.sources.decklinkavsource import DeckLinkAVSource
 from lib.sources.imgvsource import ImgVSource
 from lib.sources.tcpavsource import TCPAVSource
 from lib.sources.testsource import TestSource
+from lib.sources.videoloopsource import VideoLoopSource
 
 log = logging.getLogger('AVSourceManager')
 
@@ -27,6 +28,10 @@ def spawn_source(name, port, has_audio=True, has_video=True,
 
     if kind == 'test':
         sources[name] = TestSource(name, has_audio, has_video)
+        return sources[name]
+
+    if kind == 'videoloop':
+        sources[name] = VideoLoopSource(name, has_audio, has_video)
         return sources[name]
 
     if kind != 'tcp':

@@ -72,7 +72,7 @@ bin.(
 
         self.log.debug('Initializing Mixer-State')
         # initialize pipeline bindings for all sources
-        self.scene = Scene(self.sources, pipeline, self.transitions.fps)
+        self.scene = Scene(self.sources, pipeline, self.transitions.fps, 1)
         self.compositeMode = None
         self.sourceA = None
         self.sourceB = None
