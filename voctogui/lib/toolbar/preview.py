@@ -22,10 +22,10 @@ class PreviewToolbarController(object):
         accelerators = Gtk.AccelGroup()
         win.add_accel_group(accelerators)
 
-        self.sourcesA = Buttons(Config['toolbar.sources.a'])
-        self.sourcesB = Buttons(Config['toolbar.sources.b'])
-        self.composites = Buttons(Config['toolbar.composites'])
-        self.mods = Buttons(Config['toolbar.mods'])
+        self.sourcesA = Buttons(Config.getToolbarSourcesA())
+        self.sourcesB = Buttons(Config.getToolbarSourcesB())
+        self.composites = Buttons(Config.getToolbarComposites())
+        self.mods = Buttons(Config.getToolbarMods())
 
         toolbar_composite = uibuilder.find_widget_recursive(
             win, 'toolbar_preview_composite')

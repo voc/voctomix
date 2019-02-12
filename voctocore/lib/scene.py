@@ -3,7 +3,7 @@ import logging
 import gi
 gi.require_version('GstController', '1.0')
 from gi.repository import Gst, GstController
-from lib.transitions import Frame, L, T, R, B
+from vocto.transitions import Frame, L, T, R, B
 
 class Scene:
     """ Scene is the adaptor between the gstreamer compositor

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from configparser import SafeConfigParser
-from lib.transitions import Composites, Transitions, L, T, R, B, X, Y
+from vocto.transitions import Composites, Transitions, L, T, R, B, X, Y
 from PIL import Image, ImageDraw, ImageFont
 # for integer maximum size
 import sys

@@ -1,9 +1,11 @@
+#!/usr/bin/env python3
 import os.path
 import logging
+from gi.repository import Gst
 from configparser import SafeConfigParser
 from lib.args import Args
 import lib.connection as Connection
-
+from vocto.composites import Composites
 __all__ = ['Config']
 
 Config = None
@@ -26,6 +28,65 @@ class VocConfigParser(SafeConfigParser):
 
         log.info("merging server-config %s", server_config)
         self.read_dict(server_config)
+
+    def __trySection(self, section_name, default_result=None):
+        return self[section_name] if self.has_section(section_name) else default_result
+
+    def getVideoCaps(self, section='mix'):
+        return Config.get(section, 'videocaps')
+
+    def getVideoSize(self, section='mix'):
+        caps = Gst.Caps.from_string(
+            self.getVideoCaps(section)).get_structure(0)
+        _, width = caps.get_int('width')
+        _, height = caps.get_int('height')
+        return (width, height)
+
+    def getFramerate(self, section='mix'):
+        caps = Gst.Caps.from_string(
+            self.getVideoCaps(section)).get_structure(0)
+        (_, framerate_numerator,
+         framerate_denominator) = caps.get_fraction('framerate')
+        return (framerate_numerator, framerate_denominator)
+
+    def getComposites(self):
+        return Composites.configure(self.items('composites'), self.getVideoSize())
+
+    def getTargetComposites(self):
+        return Composites.targets(self.getComposites())
+
+    def getToolbarSourcesDefault(self):
+        return {"%s.name" % source:
+                source.upper()
+                for source in Config.getlist('mix', 'sources')
+                }
+
+    def getToolbarSourcesA(self):
+        return self.__trySection('toolbar.sources.a', self.getToolbarSourcesDefault())
+
+    def getToolbarSourcesB(self):
+        return self.__trySection('toolbar.sources.b', self.getToolbarSourcesDefault())
+
+    def getToolbarCompositesDefault(self):
+        return {"%s.name" % composite.name:
+                composite.name.upper()
+                for composite in self.getTargetComposites()
+                }
+
+    def getToolbarComposites(self):
+        return self.__trySection('toolbar.composites', self.getToolbarCompositesDefault())
+
+    def getToolbarMods(self):
+        return self.__trySection('toolbar.mods', {})
+
+    def getToolbarMixDefault(self):
+        return {"retake.name": "RETAKE",
+                "cut.name": "CUT",
+                "trans.name": "TRANS"
+                }
+
+    def getToolbarMix(self):
+        return self.__trySection('toolbar.mix', self.getToolbarMixDefault())
 
 
 def load():

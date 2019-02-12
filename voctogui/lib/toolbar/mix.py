@@ -23,7 +23,7 @@ class MixToolbarController(object):
         accelerators = Gtk.AccelGroup()
         win.add_accel_group(accelerators)
 
-        self.mix = Buttons(Config['toolbar.mix'])
+        self.mix = Buttons(Config.getToolbarMix())
 
         self.toolbar = uibuilder.find_widget_recursive(win, 'toolbar_mix')
 

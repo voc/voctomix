@@ -2,7 +2,7 @@
 # for debug logging
 import logging
 # use Frame
-from lib.frame import Frame, X, Y, L, T, R, B
+from vocto.frame import Frame, X, Y, L, T, R, B
 # for cloning objects
 import copy
 # for parsing configuration items

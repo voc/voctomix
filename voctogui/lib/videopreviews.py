@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import logging
 import json
 import math
@@ -70,11 +71,7 @@ class VideoPreviewsController(object):
                                   level_callback=audio_level.level_callback
                                   )
 
-            try:
-                source_name = Config.get('toolbar.sources.a','%s.name' % source)
-            except NoOptionError:
-                source_name = source
-            uibuilder.find_widget_recursive(preview, 'label').set_label(source_name)
+            uibuilder.find_widget_recursive(preview, 'label').set_label(source.upper())
 
             volume_slider = uibuilder.find_widget_recursive(preview,
                                                             'audio_level')
@@ -118,15 +115,15 @@ class VideoPreviewsController(object):
         self.log.debug('btn_toggled: %s', btn_name)
 
         channel, idx = btn_name.split(' ')[:2]
-        source_name = self.sources[int(idx)]
+        source = self.sources[int(idx)]
 
-        if self.current_source[channel] == source_name:
+        if self.current_source[channel] == source:
             self.log.info('video-channel %s already on %s',
-                          channel, source_name)
+                          channel, source)
             return
 
-        self.log.info('video-channel %s changed to %s', channel, source_name)
-        Connection.send('set_video_' + channel, source_name)
+        self.log.info('video-channel %s changed to %s', channel, source)
+        Connection.send('set_video_' + channel, source)
 
     def slider_changed(self, slider):
         slider_name = slider.get_name()

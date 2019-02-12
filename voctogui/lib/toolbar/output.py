@@ -18,10 +18,10 @@ class OutputToolbarController(object):
     def __init__(self, win, uibuilder):
         self.log = logging.getLogger('OutputToolbarController')
 
-        self.sourcesA = Buttons(Config['toolbar.sources.a'])
-        self.sourcesB = Buttons(Config['toolbar.sources.b'])
-        self.composites = Buttons(Config['toolbar.composites'])
-        self.mods = Buttons(Config['toolbar.mods'])
+        self.sourcesA = Buttons(Config.getToolbarSourcesA())
+        self.sourcesB = Buttons(Config.getToolbarSourcesB())
+        self.composites = Buttons(Config.getToolbarComposites())
+        self.mods = Buttons(Config.getToolbarMods())
 
         self.toolbar_composite = uibuilder.find_widget_recursive(win, 'toolbar_output_composite')
         self.toolbar_a = uibuilder.find_widget_recursive(win, 'toolbar_output_a')

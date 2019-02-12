@@ -10,13 +10,10 @@ class Buttons(dict):
         myitem.name = My Item
         myitem.key = <Shift>F1
         myitem.tip = Some tooltip text
-        myitem.pos = 0
 
         'myitem' will be the ID of the item used to identify the button.
         'name' is an optional attribute which replaces the item ID in the button label
         'tip' is an optional attribute which will be used for a tool tip message
-        'pos' is an optional attribute to set the position of the button within the toolbar.
-            all items without a 'pos' attribute will be added behind in random order.
 
         additional some attributes will be added automatically:
 
@@ -26,16 +23,23 @@ class Buttons(dict):
         an extra member 'ids' becomes a list of all available IDs
     '''
 
+    BUTTONS = "buttons"
+
     def __init__(self, cfg_items):
         # read all config items whit there attributes
         self.ids = []
-        for cfg_name, cfg_value in cfg_items.items():
-            id, attr = cfg_name.rsplit('.', 1)
-            if id not in self:
-                self.ids.append(id)
-                self[id] = dict()
-                self[id]['id'] = id
-            self[id][attr] = cfg_value
+        if cfg_items:
+            filter = cfg_items[self.BUTTONS].split(
+                ',') if self.BUTTONS in cfg_items else None
+            for cfg_name, cfg_value in cfg_items.items():
+                if cfg_name != self.BUTTONS:
+                    id, attr = cfg_name.rsplit('.', 1)
+                    if (filter is None) or id in filter:
+                        if id not in self:
+                            self.ids.append(id)
+                            self[id] = dict()
+                            self[id]['id'] = id
+                        self[id][attr] = cfg_value
 
     def create(self, toolbar, accelerators=None, callback=None, css=[], group=True, radio=True, sensitive=True, visible=True, multiline_names=True):
         ''' create toolbar from read configuration items '''

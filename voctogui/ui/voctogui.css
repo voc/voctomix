@@ -49,6 +49,10 @@
 }
 
 #mixer .mode.output button:checked label:backdrop  {
+  color: #CCAA80;
+}
+
+#mixer .mode.output.blink button:checked label:backdrop  {
   color: #FFFFFF;
 }
 
@@ -60,13 +64,13 @@
 
 #mixer .mode.output.live button:checked {
   background-color: #208020;
-  color: #40FF40;
+  color: #80FF80;
   box-shadow: 0px 0px 5px #80FF80;
   text-shadow: 0px 0px 5px #FFFFFF;
 }
 
 #mixer .mode.output.live button:checked label:backdrop  {
-  color: #70EE70;
+  color: #80FF80;
 }
 
 #queues { font-size: 15px; }

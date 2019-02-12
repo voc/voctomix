@@ -5,7 +5,7 @@ from configparser import NoOptionError
 from enum import Enum, unique
 from gi.repository import Gst
 from lib.config import Config
-from lib.transitions import Composites, Transitions, Frame
+from vocto.transitions import Composites, Transitions, Frame
 from lib.scene import Scene
 
 from vocto.composite_commands import CompositeCommand

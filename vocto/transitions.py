@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # for debug logging
 import logging
-from lib.composites import Composite, Composites, swap_name
-from lib.frame import Frame, L, R, T, B, X, Y
+from vocto.composites import Composite, Composites, swap_name
+from vocto.frame import Frame, L, R, T, B, X, Y
 # for calculating square roots
 import math
 # for generating B-Splines
