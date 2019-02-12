@@ -21,37 +21,17 @@ class VideoPreviewsController(object):
         self.preview_box = preview_box
         self.win = win
 
-        self.sources = Config.getlist('mix', 'sources')
+        self.sources = Config.getSources()
         self.preview_players = {}
         self.previews = {}
         self.volume_sliders = {}
 
         self.current_source = {'a': None, 'b': None}
 
-        try:
-            width = Config.getint('previews', 'width')
-            self.log.debug('Preview-Width configured to %u', width)
-        except NoOptionError:
-            width = 320
-            self.log.debug('Preview-Width selected as %u', width)
-
-        try:
-            height = Config.getint('previews', 'height')
-            self.log.debug('Preview-Height configured to %u', height)
-        except NoOptionError:
-            height = int(width * 9 / 16)
-            self.log.debug('Preview-Height calculated to %u', height)
-
+        previewSize = Config.getPreviewSize()
         # Accelerators
         accelerators = Gtk.AccelGroup()
         win.add_accel_group(accelerators)
-
-        # Check if there is a fixed audio source configured.
-        # If so, we will remove the volume sliders entirely
-        # instead of setting them up.
-        volume_control = \
-            Config.getboolean('audio', 'volumecontrol', fallback=True) or \
-            Config.getboolean('audio', 'forcevolumecontrol', fallback=False)
 
         for idx, source in enumerate(self.sources):
             self.log.info('Initializing Video Preview %s', source)
@@ -61,13 +41,14 @@ class VideoPreviewsController(object):
                 os.path.dirname(uibuilder.uifile) + "/widgetpreview.ui")
             video = uibuilder.find_widget_recursive(preview, 'video')
 
-            video.set_size_request(width, height)
+            video.set_size_request(*previewSize)
             preview_box.pack_start(preview, fill=False,
                                    expand=False, padding=0)
 
             audio_level = uibuilder.find_widget_recursive(preview, 'audio_level_display')
             player = VideoDisplay(video, port=13000 + idx,
-                                  width=width, height=height,
+                                  width=previewSize[0],
+                                  height=previewSize[1],
                                   level_callback=audio_level.level_callback
                                   )
 
@@ -76,7 +57,7 @@ class VideoPreviewsController(object):
             volume_slider = uibuilder.find_widget_recursive(preview,
                                                             'audio_level')
 
-            if not volume_control:
+            if not Config.getVolumeControl():
                 box = uibuilder.find_widget_recursive(preview, 'box')
                 box.remove(volume_slider)
             else:
@@ -103,7 +84,7 @@ class VideoPreviewsController(object):
         Connection.on('video_status', self.on_video_status)
         Connection.send('get_video')
 
-        if volume_control:
+        if Config.getVolumeControl():
             Connection.on('audio_status', self.on_audio_status)
             Connection.send('get_audio')
 

@@ -12,7 +12,7 @@ Config = None
 
 
 class VocConfigParser(SafeConfigParser):
-    def getlist(self, section, option):
+    def __getList(self, section, option):
         option = self.get(section, option).strip()
         if len(option) == 0:
             return []
@@ -32,8 +32,17 @@ class VocConfigParser(SafeConfigParser):
     def __trySection(self, section_name, default_result=None):
         return self[section_name] if self.has_section(section_name) else default_result
 
+    def getHost(self):
+        return Args.host if Args.host else self.get('server', 'host')
+
+    def getSources(self):
+        return self.__getList('mix', 'sources')
+
     def getVideoCaps(self, section='mix'):
-        return Config.get(section, 'videocaps')
+        return self.get(section, 'videocaps')
+
+    def getAudioCaps(self, section='mix'):
+        return self.get(section, 'audiocaps')
 
     def getVideoSize(self, section='mix'):
         caps = Gst.Caps.from_string(
@@ -45,9 +54,51 @@ class VocConfigParser(SafeConfigParser):
     def getFramerate(self, section='mix'):
         caps = Gst.Caps.from_string(
             self.getVideoCaps(section)).get_structure(0)
-        (_, framerate_numerator,
-         framerate_denominator) = caps.get_fraction('framerate')
-        return (framerate_numerator, framerate_denominator)
+        (_, numerator, denominator) = caps.get_fraction('framerate')
+        return (numerator, denominator)
+
+    def getVideoSystem(self):
+        return self.get('videodisplay', 'system', fallback='gl')
+
+    def getPlayAudio(self):
+        return self.getboolean('audio', 'play', fallback=True)
+
+    def getVolumeControl(self):
+        # Check if there is a fixed audio source configured.
+        # If so, we will remove the volume sliders entirely
+        # instead of setting them up.
+        return (self.getboolean('audio', 'volumecontrol', fallback=True) or
+                self.getboolean('audio', 'forcevolumecontrol', fallback=False))
+
+    def getStreamBlankerEnabled(self):
+        return self.getboolean('stream-blanker', 'enabled', fallback=False)
+
+    def getStreamBlankerSources(self):
+        return self.__getList('stream-blanker', 'sources')
+
+    def getPreviewCaps(self):
+        if self.has_option('previews', 'videocaps'):
+            return self.getVideoCaps('previews')
+        else:
+            return self.getVideoCaps()
+
+    def getPreviewSize(self):
+        width = self.getint('previews', 'width') if self.has_option(
+            'previews', 'width') else 320
+        height = self.getint('previews', 'height') if self.has_option(
+            'previews', 'height') else int(width * 9 / 16)
+        return(width, height)
+
+    def getUsePreviews(self):
+        # @TODO: why double boolean?
+        return self.getboolean('previews', 'enabled') \
+            and self.getboolean('previews', 'use')
+
+    def getPreviewDecoder(self):
+        if self.has_option('previews', 'vaapi'):
+            return self.get('previews', 'vaapi')
+        else:
+            return 'jpeg'
 
     def getComposites(self):
         return Composites.configure(self.items('composites'), self.getVideoSize())
@@ -55,10 +106,34 @@ class VocConfigParser(SafeConfigParser):
     def getTargetComposites(self):
         return Composites.targets(self.getComposites())
 
+    def getWindowSize(self):
+        if self.has_option('mainwindow', 'width') \
+                and self.has_option('mainwindow', 'height'):
+            # get size from config
+            return (self.getint('mainwindow', 'width'),
+                    self.getint('mainwindow', 'height'))
+        else:
+            return None
+
+    def getForceFullScreen(self):
+        return self.getboolean('mainwindow', 'forcefullscreen', fallback=False)
+
+    def getShowCloseButton(self):
+        return self.getboolean('misc', 'close')
+
+    def getShowFullScreenButton(self):
+        return self.getboolean('misc', 'fullscreen')
+
+    def getShowQueueButton(self):
+        return self.getboolean('misc', 'debug')
+
+    def getShowPortButton(self):
+        return self.getboolean('misc', 'debug')
+
     def getToolbarSourcesDefault(self):
         return {"%s.name" % source:
                 source.upper()
-                for source in Config.getlist('mix', 'sources')
+                for source in self.__getList('mix', 'sources')
                 }
 
     def getToolbarSourcesA(self):

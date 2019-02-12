@@ -31,13 +31,13 @@ if hasattr(Gtk, "ShortcutsWindow"):
                 compose_group.add(short)
             section.add(compose_group)
 
-            if Config.getboolean('stream-blanker', 'enabled'):
+            if Config.getStreamBlankerEnabled():
                 blank_group = self._build_blank_group()
                 section.add(blank_group)
 
             source_group = Gtk.ShortcutsGroup(title="Source Selection")
             source_group.show()
-            num = len(Config.getlist('mix', 'sources'))
+            num = len(Config.getSources())
             source_items = [
                 ("1...{}".format(num),
                  "Select Source as A-Source"),
@@ -52,21 +52,12 @@ if hasattr(Gtk, "ShortcutsWindow"):
                 source_group.add(short)
             section.add(source_group)
 
-            if Config.getboolean('misc', 'cut'):
-                other_group = Gtk.ShortcutsGroup(title="Other")
-                other_group.show()
-                short = Gtk.ShortcutsShortcut(title="Send Cut message",
-                                              accelerator="t")
-                short.show()
-                other_group.add(short)
-                section.add(other_group)
-
             self.add(section)
 
         def _build_blank_group(self):
             blank_group = Gtk.ShortcutsGroup(title="Stream blanking")
             blank_group.show()
-            blank_sources = Config.getlist('stream-blanker', 'sources')
+            blank_sources = Config.getStreamBlankerSources()
             blank_items = [
                 ("F{}".format(12 - len(blank_sources) + i),
                  "Set stream to {}".format(source))

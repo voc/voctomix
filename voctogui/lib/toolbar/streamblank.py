@@ -26,16 +26,15 @@ class StreamblankToolbarController(object):
 
         blankbtn_pos = self.toolbar.get_item_index(blankbtn)
 
-        if not Config.getboolean('stream-blanker', 'enabled'):
+        if not Config.getStreamBlankerEnabled():
             self.log.info('disabling stream-blanker features '
-                          'because the server does not support them: %s',
-                          Config.getboolean('stream-blanker', 'enabled'))
+                          'because the server does not support them')
 
             self.toolbar.remove(livebtn)
             self.toolbar.remove(blankbtn)
             return
 
-        blank_sources = Config.getlist('stream-blanker', 'sources')
+        blank_sources = Config.getStreamBlankerSources()
 
         self.current_status = None
 

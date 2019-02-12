@@ -5,6 +5,11 @@ from lib.args import Args
 from lib.config import Config
 from lib.clock import Clock
 
+DECODERS = {
+    'h264': 'video/x-h264 ! avdec_h264',
+    'jpeg': 'image/jpeg ! jpegdec',
+    'mpeg2': 'video/mpeg,mpegversion=2 ! mpeg2dec'
+}
 
 class VideoDisplay(object):
     """Displays a Voctomix-Video-Stream into a GtkWidget"""
@@ -16,36 +21,6 @@ class VideoDisplay(object):
         self.drawing_area = drawing_area
         self.level_callback = level_callback
 
-        if Config.has_option('previews', 'videocaps'):
-            previewcaps = Config.get('previews', 'videocaps')
-        else:
-            previewcaps = Config.get('mix', 'videocaps')
-
-        use_previews = Config.getboolean('previews', 'enabled') \
-            and Config.getboolean('previews', 'use')
-
-        # Preview-Ports are Raw-Ports + 1000
-        if use_previews:
-            self.log.info('using encoded previews instead of raw-video')
-            port += 1000
-
-            vdec = 'image/jpeg ! jpegdec'
-            if Config.has_option('previews', 'vaapi'):
-                try:
-                    decoder = Config.get('previews', 'vaapi')
-                    decoders = {
-                        'h264': 'video/x-h264 ! avdec_h264',
-                        'jpeg': 'image/jpeg ! jpegdec',
-                        'mpeg2': 'video/mpeg,mpegversion=2 ! mpeg2dec'
-                    }
-                    vdec = decoders[decoder]
-                except Exception as e:
-                    self.log.error(e)
-
-        else:
-            self.log.info('using raw-video instead of encoded-previews')
-            vdec = None
-
         # Setup Server-Connection, Demuxing and Decoding
         pipeline = """
 tcpclientsrc
@@ -56,15 +31,20 @@ tcpclientsrc
     name=demux
         """
 
-        if use_previews:
+        if Config.getUsePreviews():
+            self.log.info('using encoded previews instead of raw-video')
+            port += 1000
+            vdec = DECODERS[Config.getPreviewDecoder()]
+
             pipeline += """
 demux.
 ! queue
 ! {vdec}
 ! {previewcaps}
             """
-
         else:
+            vdec = None
+            self.log.info('using raw-video instead of encoded-previews')
             pipeline += """
 demux.
 ! queue
@@ -72,7 +52,7 @@ demux.
             """
 
         # Video Display
-        videosystem = Config.get('videodisplay', 'system')
+        videosystem = Config.getVideoSystem()
         self.log.debug('Configuring for Video-System %s', videosystem)
         if videosystem == 'gl':
             pipeline += """
@@ -121,10 +101,10 @@ demux.
             """
 
         pipeline = pipeline.format(
-            acaps=Config.get('mix', 'audiocaps'),
-            vcaps=Config.get('mix', 'videocaps'),
-            previewcaps=previewcaps,
-            host=Args.host if Args.host else Config.get('server', 'host'),
+            acaps=Config.getAudioCaps(),
+            vcaps=Config.getVideoCaps(),
+            previewcaps=Config.getPreviewCaps(),
+            host=Config.getHost(),
             vdec=vdec,
             port=port,
         )

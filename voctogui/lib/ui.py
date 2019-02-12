@@ -34,22 +34,16 @@ class Ui(UiBuilder):
         self.win = self.get_check_widget('window')
 
         # check for configuration option mainwindow/force_fullscreen
-        if Config.getboolean('mainwindow', 'forcefullscreen', fallback=False):
+        if Config.getForceFullScreen():
             self.log.info(
                 'Forcing main window to full screen by configuration')
             # set window into fullscreen mode
             self.win.fullscreen()
         else:
             # check for configuration option mainwindow/width and /height
-            if Config.has_option('mainwindow', 'width') \
-                    and Config.has_option('mainwindow', 'height'):
-                # get size from config
-                width = Config.getint('mainwindow', 'width')
-                height = Config.getint('mainwindow', 'height')
-                self.log.info(
-                    'Set window size by configuration to %d:%d', width, height)
+            if Config.getWindowSize():
                 # set window size
-                self.win.set_size_request(width, height)
+                self.win.set_size_request(Config.getWindowSize())
                 self.win.set_resizable(False)
 
         # Connect Close-Handler
@@ -64,7 +58,7 @@ class Ui(UiBuilder):
         self.main_video_display = VideoDisplay(
             drawing_area,
             port=11000,
-            play_audio=Config.getboolean('audio', 'play'),
+            play_audio=Config.getPlayAudio(),
             level_callback=self.audio_level_display.level_callback
         )
 
@@ -121,7 +115,7 @@ class Ui(UiBuilder):
 
     def handle_state(self, window, event):
         # force full screen if whished by configuration
-        if Config.getboolean('mainwindow', 'forcefullscreen', fallback=False):
+        if Config.getForceFullScreen():
             self.log.info('re-forcing fullscreen mode')
             self.win.fullscreen()
 
