@@ -17,9 +17,8 @@ class ControlServerCommands(object):
         self.pipeline = pipeline
         self.stored_values = {}
 
-        self.sources = Config.getlist('mix', 'sources')
-        if Config.getboolean('stream-blanker', 'enabled'):
-            self.blankerSources = Config.getlist('stream-blanker', 'sources')
+        self.sources = Config.getSources()
+        self.blankerSources = Config.getStreamBlankerSources()
 
     # Commands are defined below. Errors are sent to the clients by throwing
     # exceptions, they will be turned into messages outside.
@@ -84,7 +83,7 @@ class ControlServerCommands(object):
         for source in self.sources:
             helplines.append("\t" + source)
 
-        if Config.getboolean('stream-blanker', 'enabled'):
+        if Config.getStreamBlankerEnabled():
             helplines.append("\n")
             helplines.append("Stream-Blanker Sources-Names:")
             for source in self.blankerSources:
@@ -223,7 +222,7 @@ class ControlServerCommands(object):
                            composite_status, *video_status),
         ]
 
-    if Config.getboolean('stream-blanker', 'enabled'):
+    if Config.getStreamBlankerEnabled():
         def _get_stream_status(self):
             blankSource = self.pipeline.streamblanker.blankSource
             if blankSource is None:

@@ -14,19 +14,16 @@ class VideoMix(object):
     log = logging.getLogger('VideoMix')
 
     def __init__(self):
-        # read capabilites and sources from confg file
-        self.caps = Config.get('mix', 'videocaps')
-        self.sources = Config.getlist('mix', 'sources')
+        # read sources from confg file
+        self.sources = Config.getSources()
         self.log.info('Configuring Mixer for %u Sources', len(self.sources))
 
         # load composites from config
         self.log.info("Reading transitions configuration...")
-        self.composites = Composites.configure(
-            Config.items('composites'), self.getVideoSize())
+        self.composites = Config.getComposites()
 
         # load transitions from configuration
-        self.transitions = Transitions.configure(Config.items(
-            'transitions'), self.composites, fps=self.getFramesPerSecond())
+        self.transitions = Config.getTransitions(self.composites)
         self.scene = None
 
         # build GStreamer mixing pipeline descriptor
@@ -84,20 +81,6 @@ bin.(
 
     def __str__(self):
         return 'VideoMix'
-
-    def getVideoSize(self):
-        caps = Gst.Caps.from_string(self.caps)
-        struct = caps.get_structure(0)
-        _, width = struct.get_int('width')
-        _, height = struct.get_int('height')
-
-        return width, height
-
-    def getFramesPerSecond(self):
-        caps = Gst.Caps.from_string(self.caps)
-        struct = caps.get_structure(0)
-        _, num, denom = struct.get_fraction('framerate')
-        return float(num) / float(denom)
 
     def getPlayTime(self):
         # get play time from mixing pipeline or assume zero

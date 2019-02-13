@@ -10,55 +10,40 @@ class AudioMix(object):
     def __init__(self):
         self.log = logging.getLogger('AudioMix')
 
-        self.caps = Config.get('mix', 'audiocaps')
-        self.names = Config.getlist('mix', 'sources')
-        self.log.info('Configuring Mixer for %u Sources', len(self.names))
+        self.sources = Config.getSources()
+        self.log.info('Configuring Mixer for %u Sources', len(self.sources))
 
         # initialize all sources to silent
-        self.volumes = [0.0] * len(self.names)
-
-        is_configured = False
+        self.volumes = [0.0] * len(self.sources)
 
         # try per-source volume-setting
-        for index, name in enumerate(self.names):
-            section = 'source.{}'.format(name)
-            try:
-                volume = Config.getfloat(section, 'volume')
-                self.log.info('Setting Volume of Source %s to %0.2f',
-                              name, volume)
-                self.volumes[index] = volume
-                is_configured = True
-            except (NoSectionError, NoOptionError):
-                pass
+        for index, source in enumerate(self.sources):
+            self.volumes[index] = Config.getVolume(source)
+            self.log.info('Setting Volume of Source %s to %0.2f',
+                          source, self.volumes[index])
 
         # try [mix]audiosource shortcut
-        try:
-            name = Config.get('mix', 'audiosource')
-            if is_configured:
-                raise ConfigurationError(
-                    'cannot configure [mix]audiosource-shortcut and '
-                    '[source.*]volume at the same time')
+        source = Config.getAudioSource()
+        if source and self.isConfigured():
+            raise ConfigurationError(
+                'cannot configure [mix]audiosource-shortcut and '
+                '[source.*]volume at the same time')
 
-            if name not in self.names:
+            if source not in self.sources:
                 raise ConfigurationError(
-                    'unknown source configured as [mix]audiosource: %s', name)
+                    'unknown source configured as [mix]audiosource: %s', source)
 
-            index = self.names.index(name)
-            self.log.info('Setting Volume of Source %s to %0.2f', name, 1.0)
+            index = self.sources.index(source)
+            self.log.info('Setting Volume of Source %s to %0.2f', source, 1.0)
             self.volumes[index] = 1.0
-            is_configured = True
-        except NoOptionError:
-            pass
 
-        if is_configured:
+        if self.isConfigured():
             self.log.info(
                 'Volume was configured, advising ui not to show a selector')
-            Config.add_section_if_missing('audio')
-            Config.set('audio', 'volumecontrol', 'false')
-
+            Config.setShowVolume(False)
         else:
             self.log.info('Setting Volume of first Source %s to %0.2f',
-                          self.names[0], 1.0)
+                          self.sources[0], 1.0)
             self.volumes[0] = 1.0
 
         self.bin = """
@@ -66,7 +51,7 @@ bin.(
     name=AudioMix
         """
 
-        for audiostream in range(0, Config.getint('mix', 'audiostreams')):
+        for audiostream in range(0, Config.getNumAudioStreams()):
             self.bin +="""
     audiomixer
         name=audiomixer-{audiostream}
@@ -76,7 +61,7 @@ bin.(
                 audiostream=audiostream,
             )
 
-            for idx, name in enumerate(self.names):
+            for idx, name in enumerate(self.sources):
                 self.bin += """
     audio-{name}-{audiostream}.
     ! queue
@@ -96,14 +81,20 @@ bin.(
     def __str__(self):
         return 'AudioMix'
 
+    def isConfigured(self):
+        for v in self.volumes:
+            if v > 0.0:
+                return True
+        return False
+
     def updateMixerState(self):
         self.log.info('Updating Mixer-State')
 
-        for idx, name in enumerate(self.names):
+        for idx, name in enumerate(self.sources):
             volume = self.volumes[idx]
 
             self.log.debug('Setting Mixerpad %u to volume=%0.2f', idx, volume)
-            for audiostream in range(0, Config.getint('mix', 'audiostreams')):
+            for audiostream in range(0, Config.getNumAudioStreams()):
                 mixer = self.pipeline.get_by_name(
                     'audiomixer-{}'.format(audiostream))
 
@@ -111,7 +102,7 @@ bin.(
                 mixerpad.set_property('volume', volume)
 
     def setAudioSource(self, source):
-        self.volumes = [float(idx == source) for idx in range(len(self.names))]
+        self.volumes = [float(idx == source) for idx in range(len(self.sources))]
         self.updateMixerState()
 
     def setAudioSourceVolume(self, source, volume):

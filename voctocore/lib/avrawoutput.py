@@ -27,7 +27,7 @@ bin.(
 
         self.has_audio = has_audio
         if has_audio:
-            for audiostream in range(0, Config.getint('mix', 'audiostreams')):
+            for audiostream in range(0, Config.getNumAudioStreams()):
                 self.bin += """
     audio-{channel}-{audiostream}.
     ! queue
@@ -49,14 +49,13 @@ bin.(
         sync-method=next-keyframe
         name=fd-{channel}
         """.format(
-            buffers_max=Config.getint(
-                'output-buffers', self.channel, fallback=500),
+            buffers_max=Config.getOutputBuffers(self.channel),
             channel=self.channel
         )
         self.bin += "\n)"
 
     def audio_channels(self):
-        return Config.getint('mix', 'audiostreams') if self.has_audio else 0
+        return Config.getNumAudioStreams() if self.has_audio else 0
 
     def video_channels(self):
         return 1

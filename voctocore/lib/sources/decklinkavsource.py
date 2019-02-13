@@ -16,22 +16,13 @@ class DeckLinkAVSource(AVSource):
 
         section = 'source.{}'.format(name)
 
-        # Device number, default: 0
-        self.device = Config.get(section, 'devicenumber', fallback=0)
+        self.device = Config.getDeckLinkDeviceNumber(name)
+        self.aconn = Config.getDeckLinkAudioConnection(name)
+        self.vconn = Config.getDeckLinkVideoConnection(name)
+        self.vmode = Config.getDeckLinkVideoMode(name)
+        self.vfmt = Config.getDeckLinkVideoFormat(name)
 
-        # Audio connection, default: Automatic
-        self.aconn = Config.get(section, 'audio_connection', fallback='auto')
-
-        # Video connection, default: Automatic
-        self.vconn = Config.get(section, 'video_connection', fallback='auto')
-
-        # Video mode, default: 1080i50
-        self.vmode = Config.get(section, 'video_mode', fallback='1080i50')
-
-        # Video format, default: auto
-        self.vfmt = Config.get(section, 'video_format', fallback='auto')
-
-        self.audiostream_map = self._parse_audiostream_map(section)
+        self.audiostream_map = Config.getAudioStreamMap(name)
         self.log.info("audiostream_map: %s", self.audiostream_map)
 
         self.fallback_default = False
@@ -75,7 +66,7 @@ class DeckLinkAVSource(AVSource):
     def _calculate_required_input_channels(self):
         required_input_channels = 0
         for audiostream, mapping in self.audiostream_map.items():
-            left, right = self._parse_audiostream_mapping(mapping)
+            left, right = mapping
             required_input_channels = max(required_input_channels, left + 1)
             if right:
                 required_input_channels = max(required_input_channels,
@@ -103,20 +94,6 @@ class DeckLinkAVSource(AVSource):
 
         return required_input_channels
 
-    def _parse_audiostream_map(self, config_section):
-        audiostream_map = {}
-
-        if config_section not in Config:
-            return audiostream_map
-
-        for key in Config[config_section]:
-            value = Config.get(config_section, key)
-            m = re.match(r'audiostream\[(\d+)\]', key)
-            if m:
-                audiostream = int(m.group(1))
-                audiostream_map[audiostream] = value
-
-        return audiostream_map
 
     def _parse_audiostream_mapping(self, mapping):
         m = re.match(r'(\d+)\+(\d+)', mapping)
@@ -194,7 +171,7 @@ class DeckLinkAVSource(AVSource):
             )
 
             for audiostream, mapping in self.audiostream_map.items():
-                left, right = self._parse_audiostream_mapping(mapping)
+                left, right = mapping
                 if right is not None:
                     self.log.info(
                         "mapping decklink input-channels {left} and {right}"

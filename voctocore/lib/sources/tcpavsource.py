@@ -125,7 +125,7 @@ class TCPAVSource(AVSource):
 
     def test_and_warn_interlace_mode(self, caps):
         interlace_mode = caps.get_structure(0).get_string('interlace-mode')
-        deinterlace_config = self.get_deinterlace_config()
+        deinterlace_config = Config.getSourceDeinterlace(self.name)
 
         if interlace_mode == 'mixed' and deinterlace_config == 'no':
             self.log.warning(

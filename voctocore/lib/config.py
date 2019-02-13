@@ -1,21 +1,15 @@
 import os.path
 import logging
-from configparser import SafeConfigParser, DuplicateSectionError
+from configparser import DuplicateSectionError
 from lib.args import Args
+from vocto.config import VocConfigParser
 
 __all__ = ['Config']
 
 Config = None
 
 
-class VocConfigParser(SafeConfigParser):
-    def getlist(self, section, option):
-        option = self.get(section, option).strip()
-        if len(option) == 0:
-            return []
-
-        unfiltered = [x.strip() for x in option.split(',')]
-        return list(filter(None, unfiltered))
+class VoctocoreConfigParser(VocConfigParser):
 
     def add_section_if_missing(self, section):
         try:
@@ -41,7 +35,7 @@ def load():
     if Args.ini_file is not None:
         files.append(Args.ini_file)
 
-    Config = VocConfigParser()
+    Config = VoctocoreConfigParser()
     readfiles = Config.read(files)
 
     log = logging.getLogger('ConfigParser')

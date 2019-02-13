@@ -8,7 +8,7 @@ from lib.config import Config
 class AVSource(object, metaclass=ABCMeta):
 
     def __init__(self, name, has_audio=True, has_video=True,
-                 force_num_streams=None):
+                 num_streams=None):
         if not self.log:
             self.log = logging.getLogger('AVSource[{}]'.format(name))
 
@@ -17,9 +17,7 @@ class AVSource(object, metaclass=ABCMeta):
         self.name = name
         self.has_audio = has_audio
         self.has_video = has_video
-        self.num_streams = force_num_streams
-        if self.num_streams is force_num_streams:
-            self.num_streams = Config.getint('mix', 'audiostreams')
+        self.num_streams = num_streams if num_streams else Config.getNumAudioStreams()
         self.bin = ""
 
     @abstractmethod
@@ -52,7 +50,7 @@ bin.(
         name=audio-{name}-{audiostream}""".format(
                     audioport=audioport,
                     audiostream=audiostream,
-                    acaps=Config.get('mix', 'audiocaps'),
+                    acaps=Config.getAudioCaps(),
                     name=self.name
                 )
 
@@ -64,7 +62,7 @@ bin.(
         name=video-{name}""".format(
                 videoport=self.build_videoport(),
                 name=self.name,
-                vcaps=Config.get('mix', 'videocaps')
+                vcaps=Config.getVideoCaps()
             )
 
         self.bin += """
@@ -72,27 +70,19 @@ bin.(
 """
 
     def build_deinterlacer(self):
-        deinterlace_config = self.get_deinterlace_config()
+        deinterlace_config = Config.getSourceDeinterlace(self.name)
 
         if deinterlace_config == "yes":
             return "videoconvert ! yadif mode=interlaced"
-
         elif deinterlace_config == "assume-progressive":
             return "capssetter " \
                    "caps=video/x-raw,interlace-mode=progressive"
-
         elif deinterlace_config == "no":
             return None
-
         else:
             raise RuntimeError(
                 "Unknown Deinterlace-Mode on source {} configured: {}".
                 format(self.name, deinterlace_config))
-
-    def get_deinterlace_config(self):
-        section = 'source.{}'.format(self.name)
-        deinterlace_config = Config.get(section, 'deinterlace', fallback="no")
-        return deinterlace_config
 
     def video_channels(self):
         return 1 if self.has_video else 0

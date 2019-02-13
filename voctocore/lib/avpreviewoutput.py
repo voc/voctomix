@@ -13,11 +13,6 @@ class AVPreviewOutput(TCPMultiConnection):
 
         self.channel = channel
 
-        if Config.has_option('previews', 'videocaps'):
-            target_caps = Config.get('previews', 'videocaps')
-        else:
-            target_caps = Config.get('mix', 'videocaps')
-
         self.bin = """
 bin.(
     name=AVPreviewOutput-{channel}
@@ -29,10 +24,10 @@ bin.(
     ! mux-preview-{channel}.
         """.format(
             channel=self.channel,
-            vpipeline=self.construct_video_pipeline(target_caps)
+            vpipeline=self.construct_video_pipeline(Config.getPreviewCaps())
         )
 
-        for audiostream in range(0, Config.getint('mix', 'audiostreams')):
+        for audiostream in range(0, Config.getNumAudioStreams()):
             self.bin += """
     audio-{channel}-{audiostream}.
     ! queue
@@ -60,7 +55,7 @@ bin.(
 """
 
     def audio_channels(self):
-        return Config.getint('mix', 'audiostreams')
+        return Config.getNumAudioStreams()
 
     def video_channels(self):
         return 1
@@ -72,10 +67,8 @@ bin.(
         return 'AVPreviewOutput[{}]'.format(self.channel)
 
     def construct_video_pipeline(self, target_caps):
-        vaapi_enabled = Config.has_option('previews', 'vaapi')
-        if vaapi_enabled:
+        if Config.getPreviewVaapi():
             return self.construct_vaapi_video_pipeline(target_caps)
-
         else:
             return self.construct_native_video_pipeline(target_caps)
 
@@ -101,15 +94,9 @@ bin.(
             'mpeg2': 'keyframe-period=60',
         }
 
-        encoder = Config.get('previews', 'vaapi')
-        do_deinterlace = Config.getboolean('previews', 'deinterlace')
-
-        caps = Gst.Caps.from_string(target_caps)
-        struct = caps.get_structure(0)
-        _, width = struct.get_int('width')
-        _, height = struct.get_int('height')
-        (_, framerate_numerator,
-         framerate_denominator) = struct.get_fraction('framerate')
+        size = Config.getPreviewSize()
+        framerate = Config.getPreviewFramerate()
+        vaapi = Config.getPreviewVaapi()
 
         return '''
     capsfilter caps=video/x-raw,interlace-mode=progressive
@@ -122,19 +109,17 @@ bin.(
     ! capssetter caps=video/x-raw,framerate={n}/{d}
     ! {encoder} {options}
         '''.format(
-            imode='interlaced' if do_deinterlace else 'disabled',
-            width=width,
-            height=height,
-            encoder=vaapi_encoders[encoder],
-            options=vaapi_encoder_options[encoder],
-            n=framerate_numerator,
-            d=framerate_denominator,
+            imode='interlaced' if Config.getDeinterlacePreviews() else 'disabled',
+            width=size[0],
+            height=size[1],
+            encoder=vaapi_encoders[vaapi],
+            options=vaapi_encoder_options[vaapi],
+            n=framerate[0],
+            d=framerate[1],
         )
 
     def construct_native_video_pipeline(self, target_caps):
-        do_deinterlace = Config.getboolean('previews', 'deinterlace')
-
-        if do_deinterlace:
+        if Config.getDeinterlacePreviews():
             pipeline = '''deinterlace mode={imode}
     ! videorate
     ! videoscale
@@ -146,7 +131,7 @@ bin.(
     ! jpegenc quality=90'''
 
         return pipeline.format(
-            imode='interlaced' if do_deinterlace else 'disabled',
+            imode='interlaced' if Config.getDeinterlacePreviews() else 'disabled',
             target_caps=target_caps,
         )
 

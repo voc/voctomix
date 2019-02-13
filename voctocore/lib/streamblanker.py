@@ -12,14 +12,14 @@ class StreamBlanker(object):
     log = logging.getLogger('StreamBlanker')
 
     def __init__(self):
-        self.acaps = Config.get('mix', 'audiocaps')
-        self.vcaps = Config.get('mix', 'videocaps')
+        self.acaps = Config.getAudioCaps()
+        self.vcaps = Config.getVideoCaps()
 
-        self.names = Config.getlist('stream-blanker', 'sources')
+        self.names = Config.getStreamBlankerSources()
         self.log.info('Configuring StreamBlanker video %u Sources',
                       len(self.names))
 
-        self.volume = Config.getfloat('stream-blanker', 'volume')
+        self.volume = Config.getStreamBlankerVolume()
 
         # Videomixer
         self.bin = """
@@ -39,7 +39,7 @@ bin.(
             vcaps=self.vcaps,
         )
 
-        if Config.has_option('mix', 'slides_source_name'):
+        if Config.getSlidesSource():
             # add slides compositor
             self.bin += """
     compositor
@@ -64,7 +64,7 @@ bin.(
                 name=name
             )
 
-            if Config.has_option('mix', 'slides_source_name'):
+            if Config.getSlidesSource():
                 self.bin += """
     video-sb-{name}.
     ! queue
@@ -74,7 +74,7 @@ bin.(
                     name=name,
                 )
 
-        for audiostream in range(0, Config.getint('mix', 'audiostreams')):
+        for audiostream in range(0, Config.getNumAudioStreams()):
             # Audiomixer
             self.bin += """
     audiomixer
@@ -93,7 +93,7 @@ bin.(
                 audiostream=audiostream
             )
 
-        for audiostream in range(0, Config.getint('mix', 'audiostreams')):
+        for audiostream in range(0, Config.getNumAudioStreams()):
             # Source from the Blank-Audio-Tee into the Audiomixer
             self.bin += """
     audio-sb-{audiostream}.
@@ -117,7 +117,7 @@ bin.(
 
     def applyMixerState(self):
         self.applyMixerStateVideo('videomixer-sb')
-        if Config.has_option('mix', 'slides_source_name'):
+        if Config.getSlidesSource():
             self.applyMixerStateVideo('videomixer-sb-slides')
 
     def applyMixerStateVideo(self, mixername):
