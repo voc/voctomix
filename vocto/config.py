@@ -71,6 +71,12 @@ class VocConfigParser(SafeConfigParser):
     def getDeckLinkVideoFormat(self, source):
         return self.get('source.{}'.format(source), 'video_format', fallback='auto')
 
+    def getImageURI(self,source):
+        return self.get('source.{}'.format(source), 'imguri')
+
+    def getLocation(self,source):
+        return self.get('source.{}'.format(source), 'location')
+
     def getAudioStreamMap(self, source):
         result = {}
         section = 'source.{}'.format(source)

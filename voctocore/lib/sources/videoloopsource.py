@@ -15,10 +15,7 @@ class VideoLoopSource(AVSource):
 
         if has_audio:
             self.log.warning("Audio requested from video-only source")
-
-        section = 'source.{}'.format(name)
-        self.location = Config.get(section, 'location')
-
+        self.location = Config.getLocation(name)
         self.launch_pipeline()
 
     def __str__(self):

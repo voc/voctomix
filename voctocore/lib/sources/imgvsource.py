@@ -15,10 +15,7 @@ class ImgVSource(AVSource):
 
         if has_audio:
             self.log.warning("Audio requested from video-only source")
-
-        section = 'source.{}'.format(name)
-        self.imguri = Config.get(section, 'imguri')
-
+        self.imguri = Config.getImageURI(name)
         self.launch_pipeline()
 
     def __str__(self):

@@ -103,7 +103,7 @@ class DeckLinkAVSource(AVSource):
             return (int(mapping), None,)
 
     def _warn_incorrect_number_of_streams(self):
-        num_streams = Config.getint('mix', 'audiostreams')
+        num_streams = Config.getNumAudioStreams()
         for audiostream, mapping in self.audiostream_map.items():
             if audiostream >= num_streams:
                 raise RuntimeError(

@@ -43,8 +43,8 @@ class TCPAVSource(AVSource):
         self.build_pipeline(pipe)
         self.listen_port = listen_port
         self.tcpsrc = None
-        self.audio_caps = Gst.Caps.from_string(Config.get('mix', 'audiocaps'))
-        self.video_caps = Gst.Caps.from_string(Config.get('mix', 'videocaps'))
+        self.audio_caps = Gst.Caps.from_string(Config.getAudioCaps())
+        self.video_caps = Gst.Caps.from_string(Config.getVideoCaps())
 
     def port(self):
         return"%s:%d" % (socket.gethostname(), self.listen_port)
