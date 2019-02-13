@@ -36,7 +36,7 @@ class VocConfigParser(SafeConfigParser):
 
     log = logging.getLogger('VocConfigParser')
 
-    def __getList(self, section, option):
+    def getList(self, section, option):
         option = self.get(section, option).strip()
         if len(option) == 0:
             return []
@@ -44,11 +44,8 @@ class VocConfigParser(SafeConfigParser):
         unfiltered = [x.strip() for x in option.split(',')]
         return list(filter(None, unfiltered))
 
-    def __trySection(self, section_name, default_result=None):
-        return self[section_name] if self.has_section(section_name) else default_result
-
     def getSources(self):
-        return self.__getList('mix', 'sources')
+        return self.getList('mix', 'sources')
 
     def getAudioSource(self):
         return self.get('mix', 'audiosource', fallback=None)
@@ -156,7 +153,7 @@ class VocConfigParser(SafeConfigParser):
 
     def getStreamBlankerSources(self):
         if self.getStreamBlankerEnabled():
-            return self.__getList('stream-blanker', 'sources')
+            return self.getList('stream-blanker', 'sources')
         else:
             return []
 
@@ -213,60 +210,3 @@ class VocConfigParser(SafeConfigParser):
         return Transitions.configure(self.items('transitions'),
                                      composites,
                                      fps=self.getFramesPerSecond())
-
-    def getWindowSize(self):
-        if self.has_option('mainwindow', 'width') \
-                and self.has_option('mainwindow', 'height'):
-            # get size from config
-            return (self.getint('mainwindow', 'width'),
-                    self.getint('mainwindow', 'height'))
-        else:
-            return None
-
-    def getForceFullScreen(self):
-        return self.getboolean('mainwindow', 'forcefullscreen', fallback=False)
-
-    def getShowCloseButton(self):
-        return self.getboolean('misc', 'close')
-
-    def getShowFullScreenButton(self):
-        return self.getboolean('misc', 'fullscreen')
-
-    def getShowQueueButton(self):
-        return self.getboolean('misc', 'debug')
-
-    def getShowPortButton(self):
-        return self.getboolean('misc', 'debug')
-
-    def getToolbarSourcesDefault(self):
-        return {"%s.name" % source:
-                source.upper()
-                for source in self.__getList('mix', 'sources')
-                }
-
-    def getToolbarSourcesA(self):
-        return self.__trySection('toolbar.sources.a', self.getToolbarSourcesDefault())
-
-    def getToolbarSourcesB(self):
-        return self.__trySection('toolbar.sources.b', self.getToolbarSourcesDefault())
-
-    def getToolbarCompositesDefault(self):
-        return {"%s.name" % composite.name:
-                composite.name.upper()
-                for composite in self.getTargetComposites()
-                }
-
-    def getToolbarComposites(self):
-        return self.__trySection('toolbar.composites', self.getToolbarCompositesDefault())
-
-    def getToolbarMods(self):
-        return self.__trySection('toolbar.mods', {})
-
-    def getToolbarMixDefault(self):
-        return {"retake.name": "RETAKE",
-                "cut.name": "CUT",
-                "trans.name": "TRANS"
-                }
-
-    def getToolbarMix(self):
-        return self.__trySection('toolbar.mix', self.getToolbarMixDefault())

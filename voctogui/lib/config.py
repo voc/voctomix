@@ -23,6 +23,66 @@ class VoctoguiConfigParser(VocConfigParser):
     def getHost(self):
         return Args.host if Args.host else self.get('server', 'host')
 
+    def getWindowSize(self):
+        if self.has_option('mainwindow', 'width') \
+                and self.has_option('mainwindow', 'height'):
+            # get size from config
+            return (self.getint('mainwindow', 'width'),
+                    self.getint('mainwindow', 'height'))
+        else:
+            return None
+
+    def getForceFullScreen(self):
+        return self.getboolean('mainwindow', 'forcefullscreen', fallback=False)
+
+    def getShowCloseButton(self):
+        return self.getboolean('misc', 'close')
+
+    def getShowFullScreenButton(self):
+        return self.getboolean('misc', 'fullscreen')
+
+    def getShowQueueButton(self):
+        return self.getboolean('misc', 'debug')
+
+    def getShowPortButton(self):
+        return self.getboolean('misc', 'debug')
+
+    def getToolbarSourcesDefault(self):
+        return {"%s.name" % source:
+                source.upper()
+                for source in self.getList('mix', 'sources')
+                }
+
+    def trySection(self, section_name, default_result=None):
+        return self[section_name] if self.has_section(section_name) else default_result
+
+    def getToolbarSourcesA(self):
+        return self.trySection('toolbar.sources.a', self.getToolbarSourcesDefault())
+
+    def getToolbarSourcesB(self):
+        return self.trySection('toolbar.sources.b', self.getToolbarSourcesDefault())
+
+    def getToolbarCompositesDefault(self):
+        return {"%s.name" % composite.name:
+                composite.name.upper()
+                for composite in self.getTargetComposites()
+                }
+
+    def getToolbarComposites(self):
+        return self.trySection('toolbar.composites', self.getToolbarCompositesDefault())
+
+    def getToolbarMods(self):
+        return self.trySection('toolbar.mods', {})
+
+    def getToolbarMixDefault(self):
+        return {"retake.name": "RETAKE",
+                "cut.name": "CUT",
+                "trans.name": "TRANS"
+                }
+
+    def getToolbarMix(self):
+        return self.trySection('toolbar.mix', self.getToolbarMixDefault())
+
 def load():
     global Config
 
