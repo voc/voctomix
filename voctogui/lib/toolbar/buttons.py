@@ -26,7 +26,7 @@ class Buttons(dict):
     BUTTONS = "buttons"
 
     def __init__(self, cfg_items):
-        # read all config items whit there attributes
+        # read all config items with their attributes
         self.ids = []
         if cfg_items:
             filter = cfg_items[self.BUTTONS].split(
