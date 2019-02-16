@@ -7,13 +7,14 @@ from lib.config import Config
 
 class AVSource(object, metaclass=ABCMeta):
 
-    def __init__(self, name, has_audio=True, has_video=True,
+    def __init__(self, class_name, name,
+                 has_audio=True, has_video=True,
                  num_streams=None):
-        if not self.log:
-            self.log = logging.getLogger('AVSource[{}]'.format(name))
+        self.log = logging.getLogger("%s[%s]" % (class_name, name))
 
         assert has_audio or has_video
 
+        self.class_name = class_name
         self.name = name
         self.has_audio = has_audio
         self.has_video = has_video
@@ -22,20 +23,19 @@ class AVSource(object, metaclass=ABCMeta):
 
     @abstractmethod
     def __str__(self):
-        return 'AVSource[{name}]'.format(
-            name=self.name
-        )
+        raise NotImplementedError(
+            '__str__ not implemented for this source')
 
     def attach(self, pipeline):
         return
 
-    def build_pipeline(self, pipeline):
+    def build_pipeline(self):
         self.bin = """
 bin.(
     name=AVSource-{name}
 """.format(name=self.name)
 
-        self.bin += pipeline
+        self.bin += self.build_source()
 
         if self.has_audio:
             for audiostream in range(0, self.num_streams):
@@ -69,6 +69,9 @@ bin.(
 )
 """
 
+    def build_source(self):
+        return ""
+
     def build_deinterlacer(self):
         deinterlace_config = Config.getSourceDeinterlace(self.name)
 
@@ -90,27 +93,23 @@ bin.(
     def audio_channels(self):
         return 1 if self.has_audio else 0
 
-    @abstractmethod
-    def port(self):
-        raise NotImplementedError(
-            'port() not implemented for this source')
-
     def num_connections(self):
         return 0
 
     def is_input(self):
         return True
 
+    def section(self):
+        return 'source.{}'.format(self.name)
+
+    @abstractmethod
+    def port(self):
+        assert False, "port() not implemented in %s" % self.name
+
     @abstractmethod
     def build_audioport(self, audiostream):
-        raise NotImplementedError(
-            'build_audioport not implemented for this source')
+        assert False, "build_audioport() not implemented in %s" % self.name
 
     @abstractmethod
     def build_videoport(self):
-        raise NotImplementedError(
-            'build_videoport not implemented for this source')
-
-    @abstractmethod
-    def restart(self):
-        raise NotImplementedError('Restarting not implemented for this source')
+        assert False, "build_videoport() not implemented in %s" % self.name

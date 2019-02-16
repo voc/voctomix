@@ -11,25 +11,19 @@ from lib.sources.avsource import AVSource
 class DeckLinkAVSource(AVSource):
 
     def __init__(self, name, has_audio=True, has_video=True):
-        self.log = logging.getLogger('DecklinkAVSource[{}]'.format(name))
-        super().__init__(name, has_audio, has_video)
-
-        section = 'source.{}'.format(name)
+        super().__init__('DecklinkAVSource', name, has_audio, has_video)
 
         self.device = Config.getDeckLinkDeviceNumber(name)
         self.aconn = Config.getDeckLinkAudioConnection(name)
         self.vconn = Config.getDeckLinkVideoConnection(name)
         self.vmode = Config.getDeckLinkVideoMode(name)
         self.vfmt = Config.getDeckLinkVideoFormat(name)
+        self.audiostreams = Config.getAudioStreamMap(name)
 
-        self.audiostream_map = Config.getAudioStreamMap(name)
-        self.log.info("audiostream_map: %s", self.audiostream_map)
-
-        self.fallback_default = False
-        if len(self.audiostream_map) == 0:
+        self.fallback_default = not self.audiostreams
+        if self.fallback_default:
             self.log.info("no audiostream-mapping defined,"
                           "defaulting to mapping channel 0+1 to first stream")
-            self.fallback_default = True
 
         self._warn_incorrect_number_of_streams()
 
@@ -49,7 +43,7 @@ class DeckLinkAVSource(AVSource):
                 'since %s',
                 tuple(Gst.version()), min_gst_multi_channels)
 
-        self.launch_pipeline()
+        self.build_pipeline()
 
     def port(self):
         return "Decklink #{}".format(self.device)
@@ -58,14 +52,14 @@ class DeckLinkAVSource(AVSource):
         return 1
 
     def audio_channels(self):
-        if len(self.audiostream_map) == 0:
+        if len(self.audiostreams) == 0:
             return 1
         else:
-            return len(self.audiostream_map)
+            return len(self.audiostreams)
 
     def _calculate_required_input_channels(self):
         required_input_channels = 0
-        for audiostream, mapping in self.audiostream_map.items():
+        for audiostream, mapping in self.audiostreams.items():
             left, right = mapping
             required_input_channels = max(required_input_channels, left + 1)
             if right:
@@ -94,8 +88,7 @@ class DeckLinkAVSource(AVSource):
 
         return required_input_channels
 
-
-    def _parse_audiostream_mapping(self, mapping):
+    def _parse_audiostreamsping(self, mapping):
         m = re.match(r'(\d+)\+(\d+)', mapping)
         if m:
             return (int(m.group(1)), int(m.group(2)),)
@@ -104,7 +97,7 @@ class DeckLinkAVSource(AVSource):
 
     def _warn_incorrect_number_of_streams(self):
         num_streams = Config.getNumAudioStreams()
-        for audiostream, mapping in self.audiostream_map.items():
+        for audiostream, mapping in self.audiostreams.items():
             if audiostream >= num_streams:
                 raise RuntimeError(
                     "Mapping-Configuration for Stream 0 to {} found,"
@@ -117,9 +110,9 @@ class DeckLinkAVSource(AVSource):
             device=self.device
         )
 
-    def launch_pipeline(self):
+    def build_source(self):
         # A video source is required even when we only need audio
-        pipeline = """
+        pipe = """
     decklinkvideosrc
         device-number={device}
         connection={conn}
@@ -133,7 +126,7 @@ class DeckLinkAVSource(AVSource):
         )
 
         if self.has_video:
-            pipeline += """
+            pipe += """
     ! {deinterlacer}
 
     videoconvert
@@ -145,12 +138,12 @@ class DeckLinkAVSource(AVSource):
                 name=self.name
             )
         else:
-            pipeline += """
+            pipe += """
     ! fakesink
             """
 
         if self.has_audio:
-            pipeline += """
+            pipe += """
     decklinkaudiosrc
         {channels}
         device-number={device}
@@ -170,7 +163,7 @@ class DeckLinkAVSource(AVSource):
                        """.format(name=self.name),
             )
 
-            for audiostream, mapping in self.audiostream_map.items():
+            for audiostream, mapping in self.audiostreams.items():
                 left, right = mapping
                 if right is not None:
                     self.log.info(
@@ -180,7 +173,7 @@ class DeckLinkAVSource(AVSource):
                                 right=right,
                                 audiostream=audiostream))
 
-                    pipeline += """
+                    pipe += """
     interleave
         name=i-{name}-{audiostream}
 
@@ -206,7 +199,7 @@ class DeckLinkAVSource(AVSource):
                         .format(channel=left,
                                 audiostream=audiostream))
 
-                    pipeline += """
+                    pipe += """
     interleave
         name=i-{name}-{audiostream}
 
@@ -229,7 +222,7 @@ class DeckLinkAVSource(AVSource):
                         audiostream=audiostream
                     )
 
-        self.build_pipeline(pipeline)
+        return pipe
 
     def build_deinterlacer(self):
         deinterlacer = super().build_deinterlacer()
@@ -244,12 +237,8 @@ class DeckLinkAVSource(AVSource):
         if self.fallback_default and audiostream == 0:
             return "aout-{}.".format(self.name)
 
-        if audiostream in self.audiostream_map:
+        if audiostream in self.audiostreams:
             return 'i-{name}-{audiostream}.'.format(name=self.name, audiostream=audiostream)
 
     def build_videoport(self):
         return 'vout-{}.'.format(self.name)
-
-    def restart(self):
-        self.bin.set_state(Gst.State.NULL)
-        self.launch_pipeline()

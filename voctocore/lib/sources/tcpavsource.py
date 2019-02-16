@@ -14,37 +14,14 @@ ALL_VIDEO_CAPS = Gst.Caps.from_string('video/x-raw')
 class TCPAVSource(AVSource):
     def __init__(self, name, listen_port, has_audio=True, has_video=True,
                  force_num_streams=None):
-        self.log = logging.getLogger('TCPAVSource[{}]'.format(name))
-        AVSource.__init__(self, name, has_audio, has_video,
-                          force_num_streams)
+        super().__init__('TCPAVSource', name, has_audio, has_video,
+                         force_num_streams)
 
-        deinterlacer = self.build_deinterlacer()
-        pipe = """
-    tcpserversrc
-        name=tcpsrc-{name}
-        do-timestamp=TRUE
-        port={port}
-    ! matroskademux name=demux-{name}
-            """.format(
-            name=self.name,
-            port=listen_port
-        )
-
-        if deinterlacer:
-            pipe += """
-    demux-{name}.video_0
-    ! queue
-        name=queue-tcpsrc-video-{name}
-    ! video/x-raw
-    ! {deinterlacer}""".format(
-                name=self.name,
-                deinterlacer=deinterlacer
-            )
-        self.build_pipeline(pipe)
         self.listen_port = listen_port
         self.tcpsrc = None
         self.audio_caps = Gst.Caps.from_string(Config.getAudioCaps())
         self.video_caps = Gst.Caps.from_string(Config.getVideoCaps())
+        self.build_pipeline()
 
     def port(self):
         return"%s:%d" % (socket.gethostname(), self.listen_port)
@@ -69,6 +46,31 @@ class TCPAVSource(AVSource):
             port=self.tcpsrc.get_protperty(
                 "current-port") if self.tcpsrc else "<disconnected>"
         )
+
+    def build_source(self):
+        deinterlacer = self.build_deinterlacer()
+        pipe = """
+    tcpserversrc
+        name=tcpsrc-{name}
+        do-timestamp=TRUE
+        port={port}
+    ! matroskademux name=demux-{name}
+            """.format(
+            name=self.name,
+            port=self.listen_port
+        )
+
+        if deinterlacer:
+            pipe += """
+    demux-{name}.video_0
+    ! queue
+        name=queue-tcpsrc-video-{name}
+    ! video/x-raw
+    ! {deinterlacer}""".format(
+                name=self.name,
+                deinterlacer=deinterlacer
+            )
+        return pipe
 
     def build_deinterlacer(self):
         deinterlacer = super().build_deinterlacer()
@@ -103,10 +105,6 @@ class TCPAVSource(AVSource):
                                  self.video_caps.to_string())
 
             self.test_and_warn_interlace_mode(caps)
-
-    def restart(self):
-        # TODO: reconnect
-        return
 
     def build_audioport(self, audiostream):
         return """

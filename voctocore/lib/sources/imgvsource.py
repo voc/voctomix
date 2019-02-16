@@ -9,14 +9,10 @@ from lib.sources.avsource import AVSource
 
 
 class ImgVSource(AVSource):
-    def __init__(self, name, has_audio=False, has_video=True):
-        self.log = logging.getLogger('ImgVSource[{}]'.format(name))
-        super().__init__(name, False, has_video)
-
-        if has_audio:
-            self.log.warning("Audio requested from video-only source")
+    def __init__(self, name):
+        super().__init__('ImgVSource', name, False, True)
         self.imguri = Config.getImageURI(name)
-        self.launch_pipeline()
+        self.build_pipeline()
 
     def __str__(self):
         return 'ImgVSource[{name}] displaying {uri}'.format(
@@ -34,8 +30,8 @@ class ImgVSource(AVSource):
     def video_channels(self):
         return 1
 
-    def launch_pipeline(self):
-        pipeline = """
+    def build_source(self):
+        return """
     uridecodebin
         name=imgvsrc-{name}
         uri={uri}
@@ -47,7 +43,6 @@ class ImgVSource(AVSource):
             name=self.name,
             uri=self.imguri
         )
-        self.build_pipeline(pipeline)
 
     def build_audioport(self, audiostream):
         raise NotImplementedError(

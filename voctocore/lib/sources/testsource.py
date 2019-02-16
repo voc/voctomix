@@ -11,13 +11,11 @@ from lib.sources.avsource import AVSource
 class TestSource(AVSource):
     def __init__(self, name, has_audio=True, has_video=True,
                  force_num_streams=None):
-        self.log = logging.getLogger('TestSource[{}]'.format(name))
-        AVSource.__init__(self, name, has_audio, has_video,
-                          force_num_streams)
+        super().__init__('TestSource', name, has_audio, has_video,
+                         force_num_streams)
 
         self.pattern = Config.getTestPattern(name)
-
-        self.build_pipeline("")
+        self.build_pipeline()
 
     def port(self):
         return "(TEST)"
@@ -26,8 +24,9 @@ class TestSource(AVSource):
         return 1
 
     def __str__(self):
-        return 'TestSource[{name}]'.format(
-            name=self.name
+        return 'TestSource[{name}] (pattern #{pattern})'.format(
+            name=self.name,
+            pattern=self.pattern
         )
 
     def build_audioport(self, audiostream):
@@ -39,7 +38,3 @@ class TestSource(AVSource):
     videotestsrc
         pattern={}
         is-live=true""".format(self.pattern)
-
-    def restart(self):
-        self.pipeline.set_state(Gst.State.NULL)
-        self.launch_pipeline()

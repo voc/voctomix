@@ -9,14 +9,10 @@ from lib.sources.avsource import AVSource
 
 
 class VideoLoopSource(AVSource):
-    def __init__(self, name, has_audio=False, has_video=True):
-        self.log = logging.getLogger('VideoLoopSource[{}]'.format(name))
-        super().__init__(name, False, has_video)
-
-        if has_audio:
-            self.log.warning("Audio requested from video-only source")
+    def __init__(self, name):
+        super().__init__('VideoLoopSource', name, False, True)
         self.location = Config.getLocation(name)
-        self.launch_pipeline()
+        self.build_pipeline()
 
     def __str__(self):
         return 'VideoLoopSource[{name}] displaying {location}'.format(
@@ -34,8 +30,8 @@ class VideoLoopSource(AVSource):
     def video_channels(self):
         return 1
 
-    def launch_pipeline(self):
-        pipeline = """
+    def build_source(self):
+        return """
      multifilesrc
         name=videoloop-{name}
        location={location}
@@ -48,15 +44,6 @@ class VideoLoopSource(AVSource):
             name=self.name,
             location=self.location
         )
-        self.build_pipeline(pipeline)
-
-    def build_audioport(self, audiostream):
-        raise NotImplementedError(
-            'build_audioport not implemented for this source')
 
     def build_videoport(self):
         return 'videoloop.'
-
-    def restart(self):
-        self.pipeline.set_state(Gst.State.NULL)
-        self.launch_pipeline()
