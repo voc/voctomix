@@ -14,7 +14,7 @@ DECODERS = {
 class VideoDisplay(object):
     """Displays a Voctomix-Video-Stream into a GtkWidget"""
 
-    def __init__(self, drawing_area, port, width=None, height=None,
+    def __init__(self, drawing_area, port, name=None, width=None, height=None,
                  play_audio=False, level_callback=None):
         self.log = logging.getLogger('VideoDisplay[%u]' % port)
 
@@ -51,18 +51,29 @@ demux.
 ! {vcaps}
             """
 
+        if not name:
+            textoverlay = ""
+        else:
+            textoverlay = """
+! textoverlay
+    text=\"{name}\"
+    valignment=bottom
+    halignment=center
+    shaded-background=yes
+    font-desc="Roboto, 22" """.format(name=name)
+
         # Video Display
         videosystem = Config.getVideoSystem()
         self.log.debug('Configuring for Video-System %s', videosystem)
         if videosystem == 'gl':
-            pipeline += """
+            pipeline += textoverlay + """
 ! glupload
 ! glcolorconvert
 ! glimagesinkelement
             """
 
         elif videosystem == 'xv':
-            pipeline += """
+            pipeline += textoverlay + """
 ! xvimagesink
             """
 
@@ -73,10 +84,10 @@ demux.
 
             pipeline += """
 ! videoconvert
-! videoscale
+! videoscale {textoverlay}
 ! {prescale_caps}
 ! ximagesink
-            """.format(prescale_caps=prescale_caps)
+            """.format(prescale_caps=prescale_caps, textoverlay=textoverlay)
 
         else:
             raise Exception(

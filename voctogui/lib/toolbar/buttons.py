@@ -87,7 +87,7 @@ class Buttons(dict):
             if 'name' in attr:
                 name = decode(attr['name'], multiline_names)
             else:
-                name = id
+                name = id.upper()
             btn.set_label(name)
 
             # set button tooltip

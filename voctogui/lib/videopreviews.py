@@ -49,7 +49,8 @@ class VideoPreviewsController(object):
             player = VideoDisplay(video, port=13000 + idx,
                                   width=previewSize[0],
                                   height=previewSize[1],
-                                  level_callback=audio_level.level_callback
+                                  level_callback=audio_level.level_callback,
+                                  name=source.upper()
                                   )
 
             uibuilder.find_widget_recursive(preview, 'label').set_label(source.upper())
