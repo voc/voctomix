@@ -51,16 +51,16 @@ demux.
 ! {vcaps}
             """
 
-        if not name:
-            textoverlay = ""
-        else:
+        if Config.getPreviewNameOverlay() and name:
             textoverlay = """
 ! textoverlay
     text=\"{name}\"
     valignment=bottom
     halignment=center
     shaded-background=yes
-    font-desc="Roboto, 22" """.format(name=name)
+    font-desc="Roboto, 22" """
+        else:
+            textoverlay = ""
 
         # Video Display
         videosystem = Config.getVideoSystem()
@@ -112,6 +112,7 @@ demux.
             """
 
         pipeline = pipeline.format(
+            name=name,
             acaps=Config.getAudioCaps(),
             vcaps=Config.getVideoCaps(),
             previewcaps=Config.getPreviewCaps(),

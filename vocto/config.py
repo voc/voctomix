@@ -216,3 +216,6 @@ class VocConfigParser(SafeConfigParser):
         return Transitions.configure(self.items('transitions'),
                                      composites,
                                      fps=self.getFramesPerSecond())
+
+    def getPreviewNameOverlay(self):
+        return self.getboolean('previews', 'nameoverlay',fallback=True)
