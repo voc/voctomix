@@ -22,7 +22,7 @@ class VideoDisplay(object):
         self.level_callback = level_callback
 
         # Setup Server-Connection, Demuxing and Decoding
-        pipeline = """
+        pipe = """
 tcpclientsrc
     host={host}
     port={port}
@@ -36,7 +36,7 @@ tcpclientsrc
             port += 1000
             vdec = DECODERS[Config.getPreviewDecoder()]
 
-            pipeline += """
+            pipe += """
 demux.
 ! queue
 ! {vdec}
@@ -44,7 +44,7 @@ demux.
         else:
             vdec = None
             self.log.info('using raw-video instead of encoded-previews')
-            pipeline += """
+            pipe += """
 demux.
 ! queue
 ! {vcaps}"""
@@ -64,14 +64,14 @@ demux.
         videosystem = Config.getVideoSystem()
         self.log.debug('Configuring for Video-System %s', videosystem)
         if videosystem == 'gl':
-            pipeline += textoverlay + """
+            pipe += textoverlay + """
 ! glupload
 ! glcolorconvert
 ! glimagesinkelement
             """
 
         elif videosystem == 'xv':
-            pipeline += textoverlay + """
+            pipe += textoverlay + """
 ! xvimagesink
             """
 
@@ -80,7 +80,7 @@ demux.
             if width and height:
                 prescale_caps += ',width=%u,height=%u' % (width, height)
 
-            pipeline += """
+            pipe += """
 ! videoconvert
 ! videoscale {textoverlay}
 ! {prescale_caps}
@@ -93,7 +93,7 @@ demux.
             )
 
         # add an Audio-Path through a level-Element
-        pipeline += """
+        pipe += """
 demux.
 ! queue
 ! {acaps}
@@ -104,11 +104,11 @@ demux.
     name=audiosink"""
         # If Playback is requested, push fo pulseaudio
         if not play_audio:
-            pipeline += """
+            pipe += """
     volume=0
             """
 
-        pipeline = pipeline.format(
+        pipe = pipe.format(
             name=name,
             acaps=Config.getAudioCaps(),
             vcaps=Config.getVideoCaps(),
@@ -118,8 +118,8 @@ demux.
             port=port,
         )
 
-        self.log.info('Creating Display-Pipeline:\n%s', pipeline)
-        self.pipeline = Gst.parse_launch(pipeline)
+        self.log.info('Creating Display-Pipeline:\n%s', pipe)
+        self.pipeline = Gst.parse_launch(pipe)
 
         if Args.dot:
             self.log.debug('Generating DOT image of videodisplay pipeline')
