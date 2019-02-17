@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
-from gi.repository import Gtk, Gdk, Gst, GObject, GdkX11, GstVideo
 import gi
-import signal
-import logging
-import sys
-import os
 
 # import GStreamer and GLib-Helper classes
 gi.require_version('Gtk', '3.0')
@@ -12,6 +7,12 @@ gi.require_version('Gst', '1.0')
 gi.require_version('GdkX11', '3.0')
 gi.require_version('GstVideo', '1.0')
 gi.require_version('GstNet', '1.0')
+
+from gi.repository import Gtk, Gdk, Gst, GObject, GdkX11, GstVideo
+import signal
+import logging
+import sys
+import os
 
 # check min-version
 minGst = (1, 5)
