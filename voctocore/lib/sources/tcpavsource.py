@@ -43,7 +43,7 @@ class TCPAVSource(AVSource):
         return 'TCPAVSource[{name}] listening at {listen} ({port})'.format(
             name=self.name,
             listen=self.port(),
-            port=self.tcpsrc.get_protperty(
+            port=self.tcpsrc.get_property(
                 "current-port") if self.tcpsrc else "<disconnected>"
         )
 

@@ -32,8 +32,8 @@ class AVSource(object, metaclass=ABCMeta):
     def build_pipeline(self):
         self.bin = """
 bin.(
-    name=AVSource-{name}
-""".format(name=self.name)
+    name={class_name}-{name}
+""".format(class_name=self.class_name,name=self.name)
 
         self.bin += self.build_source()
 

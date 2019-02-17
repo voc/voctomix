@@ -40,16 +40,14 @@ tcpclientsrc
 demux.
 ! queue
 ! {vdec}
-! {previewcaps}
-            """
+! {previewcaps}"""
         else:
             vdec = None
             self.log.info('using raw-video instead of encoded-previews')
             pipeline += """
 demux.
 ! queue
-! {vcaps}
-            """
+! {vcaps}"""
 
         if Config.getPreviewNameOverlay() and name:
             textoverlay = """
@@ -103,8 +101,7 @@ demux.
     name=lvl
     interval=50000000
 ! pulsesink
-    name=audiosink
-        """
+    name=audiosink"""
         # If Playback is requested, push fo pulseaudio
         if not play_audio:
             pipeline += """
@@ -121,7 +118,7 @@ demux.
             port=port,
         )
 
-        self.log.debug('Creating Display-Pipeline:\n%s', pipeline)
+        self.log.info('Creating Display-Pipeline:\n%s', pipeline)
         self.pipeline = Gst.parse_launch(pipeline)
 
         if Args.dot:
