@@ -131,6 +131,10 @@ class VocConfigParser(SafeConfigParser):
         _, height = caps.get_int('height')
         return (width, height)
 
+    def getVideoRatio(self, section='mix'):
+        width, height = self.getVideoSize(section)
+        return float(width)/float(height)
+
     def getFramerate(self, section='mix'):
         caps = Gst.Caps.from_string(
             self.getVideoCaps(section)).get_structure(0)

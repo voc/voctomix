@@ -53,6 +53,9 @@ class Ui(UiBuilder):
         self.audio_level_display = self.find_widget_recursive(
             self.win, 'audiolevel_main')
 
+        output_aspect_ratio = self.find_widget_recursive(self.win, 'output_aspect_ratio')
+        output_aspect_ratio.props.ratio = Config.getVideoRatio()
+
         # Create Main-Video Display
         drawing_area = self.find_widget_recursive(self.win, 'video_main')
         self.main_video_display = VideoDisplay(

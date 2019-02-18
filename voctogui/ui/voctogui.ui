@@ -59,6 +59,7 @@ https://github.com/voc/voctomix </property>
     <property name="title" translatable="yes">Voctomix GUI</property>
     <property name="default_width">1280</property>
     <property name="default_height">720</property>
+    <property name="icon">voc.svg</property>
     <child>
       <placeholder/>
     </child>
@@ -91,14 +92,25 @@ https://github.com/voc/voctomix </property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
-                  <object class="GtkDrawingArea" id="video_main">
-                    <property name="width_request">255</property>
+                  <object class="GtkAspectFrame" id="output_aspect_ratio">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="double_buffered">False</property>
+                    <property name="label_xalign">0</property>
+                    <property name="shadow_type">none</property>
+                    <property name="obey_child">False</property>
+                    <child>
+                      <object class="GtkDrawingArea" id="video_main">
+                        <property name="width_request">100</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="double_buffered">False</property>
+                        <property name="hexpand">True</property>
+                        <property name="vexpand">True</property>
+                      </object>
+                    </child>
                   </object>
                   <packing>
-                    <property name="expand">True</property>
+                    <property name="expand">False</property>
                     <property name="fill">True</property>
                     <property name="position">0</property>
                   </packing>
