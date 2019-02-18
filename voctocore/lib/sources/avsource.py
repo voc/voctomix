@@ -56,8 +56,22 @@ bin.(
 
         if self.has_video:
             self.bin += """
+    videotestsrc
+        pattern=black
+    ! textoverlay
+        text=\"NO SIGNAL\"
+        valignment=center
+        halignment=center
+        font-desc="Roboto, 20"
+    ! {vcaps}
+    ! compositor-{name}.
+
     {videoport}
     ! {vcaps}
+    ! compositor-{name}.
+
+    compositor
+        name=compositor-{name}
     ! tee
         name=video-{name}""".format(
                 videoport=self.build_videoport(),
