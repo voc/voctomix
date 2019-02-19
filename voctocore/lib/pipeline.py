@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import logging
+import re
 
 from gi.repository import Gst
 
@@ -142,13 +143,7 @@ class Pipeline(object):
         self.pipeline.use_clock(Clock)
 
         # fetch all queues
-        self.queues = []
-
-        def query_queues(element):
-            if element.find_property("current-level-time"):
-                self.queues.append(element)
-
-        self.pipeline.iterate_recurse().foreach(query_queues)
+        self.queues = self.fetch_elements_by_name(r'^queue-[\w_-]+$')
 
         self.log.debug('Binding End-of-Stream-Signal on Source-Pipeline')
         self.pipeline.bus.add_signal_watch()
@@ -160,6 +155,16 @@ class Pipeline(object):
         self.draw_pipeline = Args.dot
 
         self.pipeline.set_state(Gst.State.PLAYING)
+
+    def fetch_elements_by_name(self, regex):
+        # fetch all watchdogs
+        result = []
+
+        def query(element):
+            if re.match(regex, element.get_name()):
+                result.append(element)
+        self.pipeline.iterate_recurse().foreach(query)
+        return result
 
     def on_eos(self, bus, message):
         self.log.debug('Received End-of-Stream-Signal on Source-Pipeline')
