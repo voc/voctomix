@@ -18,7 +18,7 @@ class DeckLinkAVSource(AVSource):
         self.vconn = Config.getDeckLinkVideoConnection(name)
         self.vmode = Config.getDeckLinkVideoMode(name)
         self.vfmt = Config.getDeckLinkVideoFormat(name)
-        self.audiostreams = Config.getAudioStreamMap(name)
+        self.audiostreams = Config.getDeckLinkAudioStreamMap(name)
 
         self.fallback_default = not self.audiostreams
         if self.fallback_default:
