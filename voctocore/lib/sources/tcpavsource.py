@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import logging
 
-from gi.repository import Gst
+from gi.repository import Gst, GObject
 import socket
 
 from lib.config import Config
@@ -22,22 +22,39 @@ class TCPAVSource(AVSource):
         self.audio_caps = Gst.Caps.from_string(Config.getAudioCaps())
         self.video_caps = Gst.Caps.from_string(Config.getVideoCaps())
         self.build_pipeline()
+        self.connected = False
 
     def port(self):
         return"%s:%d" % (socket.gethostname(), self.listen_port)
 
     def num_connections(self):
-        if self.tcpsrc:
+        if self.connected:
             return 1
         else:
             return 0
 
     def attach(self, pipeline):
         super().attach(pipeline)
+        self.log.debug("connecting to pads")
+
+        # create probe at static tcpserversrc.src to get EOS and trigger a restart
         self.tcpsrc = pipeline.get_by_name(
             'tcpsrc-{name}'.format(name=self.name))
-        demux = pipeline.get_by_name('demux-{name}'.format(name=self.name))
-        demux.connect('pad-added', self.on_pad_added)
+        self.tcpsrc.get_static_pad("src").add_probe(
+            Gst.PadProbeType.EVENT_DOWNSTREAM | Gst.PadProbeType.BLOCK, self.on_pad_event)
+
+        # subscribe to creation of dynamic pads in matroskademux
+        self.demux = pipeline.get_by_name(
+            'demux-{name}'.format(name=self.name))
+        self.demux.connect('pad-added', self.on_pad_added)
+
+        # remember queues the demux is connected to to reconnect them when necessary
+        self.queue_audio = pipeline.get_by_name(
+            'queue-tcpsrc-audio-{name}'.format(name=self.name))
+        self.queue_video = pipeline.get_by_name(
+            'queue-tcpsrc-video-{name}'.format(name=self.name))
+
+        self.src = pipeline.get_by_name('src-{name}'.format(name=self.name))
 
     def __str__(self):
         return 'TCPAVSource[{name}] listening at {listen} ({port})'.format(
@@ -54,7 +71,10 @@ class TCPAVSource(AVSource):
         name=tcpsrc-{name}
         do-timestamp=TRUE
         port={port}
-    ! matroskademux name=demux-{name}
+    ! demux-{name}.
+
+    matroskademux
+        name=demux-{name}
             """.format(
             name=self.name,
             port=self.listen_port
@@ -79,9 +99,10 @@ class TCPAVSource(AVSource):
         else:
             return None
 
-    def on_pad_added(self, demux, src_pad):
-        caps = src_pad.query_caps(None)
+    def on_pad_added(self, demux, pad):
+        caps = pad.query_caps(None)
         self.log.debug('demuxer added pad w/ caps: %s', caps.to_string())
+
         if caps.can_intersect(ALL_AUDIO_CAPS):
             self.log.debug('new demuxer-pad is an audio-pad, '
                            'testing against configured audio-caps')
@@ -105,6 +126,27 @@ class TCPAVSource(AVSource):
                                  self.video_caps.to_string())
 
             self.test_and_warn_interlace_mode(caps)
+
+        # relink demux with following audio and video queues
+        if not pad.is_linked():
+            self.demux.link(self.queue_audio)
+            self.demux.link(self.queue_video)
+        self.connected = True
+
+    def on_pad_event(self, pad, info):
+        if info.get_event().type == Gst.EventType.EOS:
+            self.log.warning('scheduling source restart')
+            self.connected = False
+            GObject.idle_add(self.restart)
+
+        return Gst.PadProbeReturn.PASS
+
+    def restart(self):
+        self.log.debug('restarting source \'%s\'', self.name)
+        self.tcpsrc.set_state(Gst.State.READY)
+        self.demux.set_state(Gst.State.READY)
+        self.demux.set_state(Gst.State.PLAYING)
+        self.tcpsrc.set_state(Gst.State.PLAYING)
 
     def build_audioport(self, audiostream):
         return """
