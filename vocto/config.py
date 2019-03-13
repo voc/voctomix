@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 import logging
+import re
+
 from gi.repository import Gst
 from configparser import SafeConfigParser
 from lib.args import Args
@@ -74,7 +76,7 @@ class VocConfigParser(SafeConfigParser):
     def getDeckLinkAudioStreamMap(self, source):
         result = {}
         section = 'source.{}'.format(source)
-        if section in Config:
+        if section in self:
             for key in self[section]:
                 m = re.match(r'audiostream\[(\d+)\]', key)
                 if m:
