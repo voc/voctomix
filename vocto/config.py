@@ -4,6 +4,7 @@ from gi.repository import Gst
 from configparser import SafeConfigParser
 from lib.args import Args
 from vocto.transitions import Composites, Transitions
+from vocto.version import VOCTO_VERSION
 
 testPatternCount = -1
 

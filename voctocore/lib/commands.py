@@ -7,6 +7,7 @@ from lib.config import Config
 from lib.response import NotifyResponse, OkResponse
 from lib.sources import restart_source
 from vocto.composite_commands import CompositeCommand
+from vocto.config import VOCTO_VERSION
 
 
 class ControlServerCommands(object):
@@ -255,6 +256,10 @@ class ControlServerCommands(object):
         """returns the parsed server-config"""
         confdict = {header: dict(section)
                     for header, section in dict(Config).items()}
+
+        # add server version to config system/version
+        confdict['system'] = {"version": VOCTO_VERSION}
+
         return OkResponse('server_config', json.dumps(confdict))
 
     def get_config_option(self, section, key):
