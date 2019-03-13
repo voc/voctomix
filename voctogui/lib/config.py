@@ -21,14 +21,14 @@ class VoctoguiConfigParser(VocConfigParser):
         log.info("merging server-config %s", server_config)
 
         # check server version for compatibility
+        server_version = 1.0
         if "system" in server_config and "version" in server_config["system"]:
-            self.server_version = server_config["system"]["version"]
-            if self.server_version == VOCTO_VERSION:
-                log.info("Voctomix server version %f is compatible." % self.server_version )
-            else:
-                log.error("GUI version %f is not compatible with server version %f!" % (VOCTO_VERSION, self.server_version) )
+            server_version = server_config["system"]["version"]
+
+        if server_version == VOCTO_VERSION:
+            log.info("Voctomix server version %f is compatible." % server_version )
         else:
-            log.error("Incompatible server version! voctomix 2.x GUI can't run with voctomix 1.x server.")
+            log.error("Voctomix GUI version %f is not compatible with server version %f!" % (VOCTO_VERSION, self.server_version) )
             sys.exit(-1)
 
         self.read_dict(server_config)
