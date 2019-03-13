@@ -13,10 +13,13 @@ Voctomix requires a fairly recent Version of GStreamer (at least 1.5, though we 
 Install the required dependencies:
 ````
 # Requirements
-apt-get install gstreamer1.0-plugins-bad gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-ugly gstreamer1.0-tools libgstreamer1.0-0 python3 python3-gi gir1.2-gstreamer-1.0 gir1.2-gst-plugins-base-1.0
+apt-get install gstreamer1.0-plugins-bad gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-ugly gstreamer1.0-tools libgstreamer1.0-0 python3 python3-gi gir1.2-gstreamer-1.0 gir1.2-gst-plugins-base-1.0 python3-sdnotify
 
 # Optional for the Example-Scripts
 apt-get install python3-pyinotify gstreamer1.0-libav rlwrap fbset ffmpeg netcat gstreamer1.0-vaapi
+
+# Tooling for Development
+apt-get install pycodestyle python-autopep8
 ````
 
 
