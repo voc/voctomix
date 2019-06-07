@@ -47,3 +47,7 @@ class VideoLoopSource(AVSource):
 
     def build_videoport(self):
         return 'videoloop.'
+
+    def build_audioport(self, audiostream):
+        return 'audioloop.'
+
