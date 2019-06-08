@@ -57,6 +57,14 @@ bin.(
                 idx=idx
             )
 
+        if Config.hasSource("overlay"):
+            self.bin += """
+    video-overlay.
+    ! queue
+		name=queue-video-overlay
+    ! videomixer.
+"""
+
         self.bin += """)
 """
 

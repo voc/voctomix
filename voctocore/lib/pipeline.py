@@ -19,6 +19,7 @@ from vocto.port import Port
 # input ports
 PORT_SOURCES_IN = 10000
 PORT_SOURCE_BACKGROUND = 16000
+PORT_SOURCE_OVERLAY= 16001
 PORT_SOURCES_BLANK = 17000
 PORT_AUDIO_SOURCE_BLANK = 18000
 # output ports
@@ -83,6 +84,15 @@ class Pipeline(object):
             'background', PORT_SOURCE_BACKGROUND, has_audio=False)
         self.bins.append(source)
         self.ports.append(Port('background', source))
+
+        # create non-mandatory overlay source if configured
+        if Config.hasSource("overlay"):
+            source = spawn_source(
+                'overlay', PORT_SOURCE_OVERLAY, has_audio=False)
+            self.bins.append(source)
+            self.ports.append(Port('overlay', source))
+        else:
+            self.log.info("No overlay source configured.")
 
         # create mix TCP output
         dest = AVRawOutput('mix', PORT_MIX_OUT)

@@ -225,3 +225,6 @@ class VocConfigParser(SafeConfigParser):
 
     def getPreviewNameOverlay(self):
         return self.getboolean('previews', 'nameoverlay',fallback=True)
+
+    def hasSource(self, source):
+        return self.has_section('source.{}'.format(source))
