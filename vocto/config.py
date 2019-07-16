@@ -206,6 +206,9 @@ class VocConfigParser(SafeConfigParser):
     def getPreviewsEnabled(self):
         return self.getboolean('previews', 'enabled')
 
+    def getLivePreviewEnabled(self):
+        return self.getboolean('previews', 'live', fallback=False)
+
     def getPreviewDecoder(self):
         if self.has_option('previews', 'vaapi'):
             return self.get('previews', 'vaapi')

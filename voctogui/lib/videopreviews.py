@@ -34,6 +34,9 @@ class VideoPreviewsController(object):
         for idx, source in enumerate(self.sources):
             self.addPreview(uibuilder,preview_box, source, Port.SOURCES_OUT + idx)
 
+        if Config.getLivePreviewEnabled():
+            self.addPreview(uibuilder, preview_box, "LIVE", Port.LIVE_OUT )
+
         # connect event-handler and request initial state
         Connection.on('video_status', self.on_video_status)
         Connection.send('get_video')

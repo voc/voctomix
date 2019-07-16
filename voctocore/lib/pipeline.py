@@ -105,9 +105,18 @@ class Pipeline(object):
             self.log.info('Creating Stream Blanker Mixer')
             self.streamblanker = StreamBlanker()
             self.bins.append(self.streamblanker)
+
             dest = AVRawOutput('mix-sb', Port.LIVE_OUT)
             self.bins.append(dest)
             self.ports.append(Port('live-mix', dest))
+
+            # check for source preview selection
+            if Config.getLivePreviewEnabled():
+                # count preview port and create source
+                dest = AVPreviewOutput('mix-sb', Port.LIVE_PREVIEW)
+                self.bins.append(dest)
+                self.ports.append(Port("preview-live-mix", dest))
+
             if Config.getSlidesSource():
                 dest = AVRawOutput('mix-sb-slides', Port.SLIDES_LIVE_OUT)
                 self.bins.append(dest)
