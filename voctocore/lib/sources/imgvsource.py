@@ -38,7 +38,7 @@ class ImgVSource(AVSource):
     ! videoconvert
     ! videoscale
     ! imagefreeze
-        name=img
+        name=img-{name}
 """.format(
             name=self.name,
             uri=self.imguri
@@ -49,7 +49,7 @@ class ImgVSource(AVSource):
             'build_audioport not implemented for this source')
 
     def build_videoport(self):
-        return 'img.'
+        return "img-{name}.".format(name=self.name)
 
     def restart(self):
         self.pipeline.set_state(Gst.State.NULL)
