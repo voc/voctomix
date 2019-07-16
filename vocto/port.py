@@ -9,6 +9,20 @@ class Port(object):
     IN = 1
     OUT = 2
 
+    OFFSET_PREVIEW = 1000
+    # input ports
+    SOURCES_IN = 10000
+    SOURCE_BACKGROUND = 16000
+    SOURCES_BLANK = 17000
+    AUDIO_SOURCE_BLANK = 18000
+    # output ports
+    MIX_OUT = 11000
+    MIX_PREVIEW = MIX_OUT+OFFSET_PREVIEW
+    SOURCES_OUT = 13000
+    SOURCES_PREVIEW = SOURCES_OUT+OFFSET_PREVIEW
+    LIVE_OUT = 15000
+    SLIDES_LIVE_OUT = 15001
+
     def __init__(self, name, source=None, audio=None, video=None):
         self.name = name
         self.source = source
