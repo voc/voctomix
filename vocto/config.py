@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import logging
 import re
+import os
 
 from gi.repository import Gst
 from configparser import SafeConfigParser
@@ -91,7 +92,10 @@ class VocConfigParser(SafeConfigParser):
         return result
 
     def getImageURI(self,source):
-        return self.get('source.{}'.format(source), 'imguri')
+        if self.has_option('source.{}'.format(source), 'imguri'):
+            return self.get('source.{}'.format(source), 'imguri')
+        else:
+            return "file://{}".format(os.path.abspath(self.get('source.{}'.format(source), 'file')))
 
     def getLocation(self,source):
         return self.get('source.{}'.format(source), 'location')
@@ -102,9 +106,9 @@ class VocConfigParser(SafeConfigParser):
         if not pattern:
             global testPatternCount
             testPatternCount += 1
-            pattern = testPatternCount
+            pattern = GST_TYPE_VIDEO_TEST_SRC_PATTERN[testPatternCount]
             self.log.info("Pattern unspecified, picking pattern '{} ({})'"
-                          .format(GST_TYPE_VIDEO_TEST_SRC_PATTERN[testPatternCount], testPatternCount))
+                          .format(pattern, testPatternCount))
         return pattern
 
     def getSourceDeinterlace(self, source):
@@ -205,6 +209,9 @@ class VocConfigParser(SafeConfigParser):
 
     def getPreviewsEnabled(self):
         return self.getboolean('previews', 'enabled')
+
+    def getLivePreviewEnabled(self):
+        return self.getboolean('previews', 'live', fallback=False)
 
     def getPreviewDecoder(self):
         if self.has_option('previews', 'vaapi'):

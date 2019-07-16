@@ -119,18 +119,26 @@ bin.(
         self.applyMixerStateVideo('videomixer-sb')
         if Config.getSlidesSource():
             self.applyMixerStateVideo('videomixer-sb-slides')
+        self.applyMixerStateAudio('audiomixer-sb-0')
 
     def applyMixerStateVideo(self, mixername):
         mixer = self.pipeline.get_by_name(mixername)
         if not mixer:
-            self.log.error("Mixer '%s' not found", mixername)
-        mixer.get_static_pad('sink_0').set_property('alpha', int(self.blankSource is None))
-        blanker = self.pipeline.get_by_name(mixername)
-        if not blanker:
-            self.log.error("Blanger '%s' not found", mixername)
-        for idx, name in enumerate(self.names):
-            blankpad = blanker.get_static_pad('sink_%u' % (idx + 1))
-            blankpad.set_property('alpha', int(self.blankSource == idx))
+            self.log.error("Video mixer '%s' not found", mixername)
+        else:
+            mixer.get_static_pad('sink_0').set_property('alpha', int(self.blankSource is None))
+            for idx, name in enumerate(self.names):
+                blankpad = mixer.get_static_pad('sink_%u' % (idx + 1))
+                blankpad.set_property('alpha', int(self.blankSource == idx))
+
+    def applyMixerStateAudio(self, mixername):
+        mixer = self.pipeline.get_by_name(mixername)
+        if not mixer:
+            self.log.error("Audio mixer '%s' not found", mixername)
+        else:
+            mixer.get_static_pad('sink_0').set_property('volume', int(self.blankSource is None))
+            for audiostream in range(0, Config.getNumAudioStreams()):
+                mixer.get_static_pad('sink_%u' % (audiostream + 1)).set_property('volume', int(self.blankSource is not None))
 
     def setBlankSource(self, source):
         self.blankSource = source

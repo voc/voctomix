@@ -4,6 +4,7 @@ from gi.repository import Gst, Gdk
 from lib.args import Args
 from lib.config import Config
 from lib.clock import Clock
+from vocto.port import Port
 
 DECODERS = {
     'h264': 'video/x-h264 ! avdec_h264',
@@ -33,7 +34,7 @@ tcpclientsrc
 
         if Config.getUsePreviews():
             self.log.info('using encoded previews instead of raw-video')
-            port += 1000
+            port += Port.OFFSET_PREVIEW
             vdec = DECODERS[Config.getPreviewDecoder()]
 
             pipe += """

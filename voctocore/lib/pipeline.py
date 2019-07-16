@@ -16,21 +16,6 @@ from lib.args import Args
 from lib.clock import Clock
 from vocto.port import Port
 
-# input ports
-PORT_SOURCES_IN = 10000
-PORT_SOURCE_BACKGROUND = 16000
-PORT_SOURCE_OVERLAY= 16001
-PORT_SOURCES_BLANK = 17000
-PORT_AUDIO_SOURCE_BLANK = 18000
-# output ports
-PORT_MIX_OUT = 11000
-PORT_MIX_PREVIEW = 12000
-PORT_SOURCES_OUT = 13000
-PORT_SOURCES_PREVIEW = 14000
-PORT_LIVE_OUT = 15000
-PORT_SLIDES_LIVE_OUT = 15001
-
-
 class Pipeline(object):
     """mixing, streaming and encoding pipeline constuction and control"""
 
@@ -53,19 +38,19 @@ class Pipeline(object):
         self.log.info('Creating %u AVSources: %s', len(sources), sources)
         for idx, source_name in enumerate(sources):
             # count port and create source
-            source = spawn_source(source_name, PORT_SOURCES_IN + idx)
+            source = spawn_source(source_name, Port.SOURCES_IN + idx)
             self.bins.append(source)
             self.ports.append(Port(source_name, source))
 
             if Config.getMirrorsEnabled():
-                dest = AVRawOutput(source_name, PORT_SOURCES_OUT + idx)
+                dest = AVRawOutput(source_name, Port.SOURCES_OUT + idx)
                 self.bins.append(dest)
                 self.ports.append(Port(source_name, dest))
 
             # check for source preview selection
             if Config.getPreviewsEnabled():
                 # count preview port and create source
-                dest = AVPreviewOutput(source_name, PORT_SOURCES_PREVIEW + idx)
+                dest = AVPreviewOutput(source_name, Port.SOURCES_PREVIEW + idx)
                 self.bins.append(dest)
                 self.ports.append(Port("preview-%s" % source_name, dest))
 
@@ -81,7 +66,7 @@ class Pipeline(object):
 
         # create background source
         source = spawn_source(
-            'background', PORT_SOURCE_BACKGROUND, has_audio=False)
+            'background', Port.SOURCE_BACKGROUND, has_audio=False)
         self.bins.append(source)
         self.ports.append(Port('background', source))
 
@@ -95,13 +80,13 @@ class Pipeline(object):
             self.log.info("No overlay source configured.")
 
         # create mix TCP output
-        dest = AVRawOutput('mix', PORT_MIX_OUT)
+        dest = AVRawOutput('mix', Port.MIX_OUT)
         self.bins.append(dest)
         self.ports.append(Port('mix', dest))
 
         # create mix preview TCP output
         if Config.getPreviewsEnabled():
-            dest = AVPreviewOutput('mix', PORT_MIX_PREVIEW)
+            dest = AVPreviewOutput('mix', Port.MIX_PREVIEW)
             self.bins.append(dest)
             self.ports.append(Port('preview-mix', dest))
 
@@ -114,13 +99,13 @@ class Pipeline(object):
                                    'StreamBlanker disabled!')
             for idx, source_name in enumerate(sources):
                 source = spawn_source('sb-{}'.format(source_name),
-                                      PORT_SOURCES_BLANK + idx,
+                                      Port.SOURCES_BLANK + idx,
                                       has_audio=False)
                 self.bins.append(source)
                 self.ports.append(Port('sb-{}'.format(source_name), source))
 
             source = spawn_source('sb',
-                                  PORT_AUDIO_SOURCE_BLANK,
+                                  Port.AUDIO_SOURCE_BLANK,
                                   has_video=False,
                                   force_num_streams=1)
             self.bins.append(source)
@@ -129,11 +114,20 @@ class Pipeline(object):
             self.log.info('Creating Stream Blanker Mixer')
             self.streamblanker = StreamBlanker()
             self.bins.append(self.streamblanker)
-            dest = AVRawOutput('mix-sb', PORT_LIVE_OUT)
+
+            dest = AVRawOutput('mix-sb', Port.LIVE_OUT)
             self.bins.append(dest)
             self.ports.append(Port('live-mix', dest))
+
+            # check for source preview selection
+            if Config.getLivePreviewEnabled():
+                # count preview port and create source
+                dest = AVPreviewOutput('mix-sb', Port.LIVE_PREVIEW)
+                self.bins.append(dest)
+                self.ports.append(Port("preview-live-mix", dest))
+
             if Config.getSlidesSource():
-                dest = AVRawOutput('mix-sb-slides', PORT_SLIDES_LIVE_OUT)
+                dest = AVRawOutput('mix-sb-slides', Port.SLIDES_LIVE_OUT)
                 self.bins.append(dest)
                 self.ports.append(Port('live-slides', dest))
 

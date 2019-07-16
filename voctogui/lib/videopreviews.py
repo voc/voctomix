@@ -10,7 +10,7 @@ from lib.videodisplay import VideoDisplay
 import lib.connection as Connection
 
 from lib.config import Config
-
+from vocto.port import Port
 
 class VideoPreviewsController(object):
     """Displays Video-Previews and selection Buttons for them"""
@@ -18,7 +18,6 @@ class VideoPreviewsController(object):
     def __init__(self, preview_box, win, uibuilder):
         self.log = logging.getLogger('VideoPreviewsController')
 
-        self.preview_box = preview_box
         self.win = win
 
         self.sources = Config.getSources()
@@ -28,59 +27,16 @@ class VideoPreviewsController(object):
 
         self.current_source = {'a': None, 'b': None}
 
-        previewSize = Config.getPreviewSize()
         # Accelerators
         accelerators = Gtk.AccelGroup()
         win.add_accel_group(accelerators)
 
         for idx, source in enumerate(self.sources):
-            self.log.info('Initializing Video Preview %s', source)
+            self.addPreview(uibuilder,preview_box, source, Port.SOURCES_OUT + idx)
 
-            preview = uibuilder.load_check_widget(
-                'widget_preview',
-                os.path.dirname(uibuilder.uifile) + "/widgetpreview.ui")
-            video = uibuilder.find_widget_recursive(preview, 'video')
+        if Config.getLivePreviewEnabled():
+            self.addPreview(uibuilder, preview_box, "LIVE", Port.LIVE_OUT )
 
-            video.set_size_request(*previewSize)
-            preview_box.pack_start(preview, fill=False,
-                                   expand=False, padding=0)
-
-            audio_level = uibuilder.find_widget_recursive(preview, 'audio_level_display')
-            player = VideoDisplay(video, port=13000 + idx,
-                                  width=previewSize[0],
-                                  height=previewSize[1],
-                                  level_callback=audio_level.level_callback,
-                                  name=source.upper()
-                                  )
-
-            uibuilder.find_widget_recursive(preview, 'label').set_label(source.upper())
-
-            volume_slider = uibuilder.find_widget_recursive(preview,
-                                                            'audio_level')
-
-            if not Config.getVolumeControl():
-                box = uibuilder.find_widget_recursive(preview, 'box')
-                box.remove(volume_slider)
-            else:
-                volume_slider.set_name("volume {}".format(source))
-                volume_signal = volume_slider.connect('value-changed',
-                                                      self.slider_changed)
-                volume_slider.add_mark(-20.0,Gtk.PositionType.LEFT,"")
-                volume_slider.add_mark(0.0,Gtk.PositionType.LEFT,"0")
-                volume_slider.add_mark(10.0,Gtk.PositionType.LEFT,"")
-
-                def slider_format(scale, value):
-                    if value == -20.0:
-                        return "-\u221e\u202fdB"
-                    else:
-                        return "{:.{}f}\u202fdB".format(value,
-                                                        scale.get_digits())
-
-                volume_slider.connect('format-value', slider_format)
-                self.volume_sliders[source] = (volume_slider, volume_signal)
-
-            self.preview_players[source] = player
-            self.previews[source] = preview
         # connect event-handler and request initial state
         Connection.on('video_status', self.on_video_status)
         Connection.send('get_video')
@@ -88,6 +44,52 @@ class VideoPreviewsController(object):
         if Config.getVolumeControl():
             Connection.on('audio_status', self.on_audio_status)
             Connection.send('get_audio')
+
+    def addPreview(self, uibuilder, preview_box, source, port):
+        self.log.info('Initializing Video Preview %s', source)
+        previewSize = Config.getPreviewSize()
+        preview = uibuilder.load_check_widget(
+            'widget_preview',
+            os.path.dirname(uibuilder.uifile) + "/widgetpreview.ui")
+        video = uibuilder.find_widget_recursive(preview, 'video')
+
+        video.set_size_request(*previewSize)
+        preview_box.pack_start(preview, fill=False,
+                               expand=False, padding=0)
+
+        audio_level = uibuilder.find_widget_recursive(preview, 'audio_level_display')
+        player = VideoDisplay(video, port=port,
+                              width=previewSize[0],
+                              height=previewSize[1],
+                              level_callback=audio_level.level_callback,
+                              name=source.upper()
+                              )
+
+        uibuilder.find_widget_recursive(preview, 'label').set_label(source.upper())
+
+        volume_slider = uibuilder.find_widget_recursive(preview,
+                                                        'audio_level')
+
+        if not Config.getVolumeControl():
+            box = uibuilder.find_widget_recursive(preview, 'box')
+            box.remove(volume_slider)
+        else:
+            volume_slider.set_name("volume {}".format(source))
+            volume_signal = volume_slider.connect('value-changed',
+                                                  self.slider_changed)
+            volume_slider.add_mark(-20.0,Gtk.PositionType.LEFT,"")
+            volume_slider.add_mark(0.0,Gtk.PositionType.LEFT,"0")
+            volume_slider.add_mark(10.0,Gtk.PositionType.LEFT,"")
+
+            def slider_format(scale, value):
+                if value == -20.0:
+                    return "-\u221e\u202fdB"
+                else:
+                    return "{:.{}f}\u202fdB".format(value,
+                                                    scale.get_digits())
+
+            volume_slider.connect('format-value', slider_format)
+            self.volume_sliders[source] = (volume_slider, volume_signal)
 
     def btn_toggled(self, btn):
         if not btn.get_active():
