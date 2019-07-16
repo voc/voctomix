@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import logging
 import re
+import os
 
 from gi.repository import Gst
 from configparser import SafeConfigParser
@@ -91,7 +92,10 @@ class VocConfigParser(SafeConfigParser):
         return result
 
     def getImageURI(self,source):
-        return self.get('source.{}'.format(source), 'imguri')
+        if self.has_option('source.{}'.format(source), 'imguri'):
+            return self.get('source.{}'.format(source), 'imguri')
+        else:
+            return "file://{}".format(os.path.abspath(self.get('source.{}'.format(source), 'file')))
 
     def getLocation(self,source):
         return self.get('source.{}'.format(source), 'location')
