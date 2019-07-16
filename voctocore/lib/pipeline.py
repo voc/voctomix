@@ -73,7 +73,7 @@ class Pipeline(object):
         # create non-mandatory overlay source if configured
         if Config.hasSource("overlay"):
             source = spawn_source(
-                'overlay', PORT_SOURCE_OVERLAY, has_audio=False)
+                'overlay', Port.SOURCE_OVERLAY, has_audio=False)
             self.bins.append(source)
             self.ports.append(Port('overlay', source))
         else:
