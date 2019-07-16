@@ -18,7 +18,15 @@ class TestSource(AVSource):
         self.build_pipeline()
 
     def port(self):
-        return "(TEST)"
+        if self.has_video:
+            if self.has_audio:
+                return "({}+audio)".format(self.pattern)
+            else:
+                return "({})".format(self.pattern)
+        else:
+            if self.has_audio:
+                return "(audio)"
+        return "Test"
 
     def num_connections(self):
         return 1

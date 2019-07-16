@@ -106,9 +106,9 @@ class VocConfigParser(SafeConfigParser):
         if not pattern:
             global testPatternCount
             testPatternCount += 1
-            pattern = testPatternCount
+            pattern = GST_TYPE_VIDEO_TEST_SRC_PATTERN[testPatternCount]
             self.log.info("Pattern unspecified, picking pattern '{} ({})'"
-                          .format(GST_TYPE_VIDEO_TEST_SRC_PATTERN[testPatternCount], testPatternCount))
+                          .format(pattern, testPatternCount))
         return pattern
 
     def getSourceDeinterlace(self, source):
