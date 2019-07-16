@@ -13,7 +13,7 @@ testPatternCount = -1
 GST_TYPE_VIDEO_TEST_SRC_PATTERN = [
     "smpte",
     "snow",
-    "black"
+    "black",
     "white",
     "red",
     "green",
