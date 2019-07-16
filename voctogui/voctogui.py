@@ -4,11 +4,10 @@ import gi
 # import GStreamer and GLib-Helper classes
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gst', '1.0')
-gi.require_version('GdkX11', '3.0')
 gi.require_version('GstVideo', '1.0')
 gi.require_version('GstNet', '1.0')
 
-from gi.repository import Gtk, Gdk, Gst, GObject, GdkX11, GstVideo
+from gi.repository import Gtk, Gdk, Gst, GstVideo
 import signal
 import logging
 import sys
@@ -27,8 +26,6 @@ if sys.version_info < minPy:
     raise Exception('Python version', sys.version_info,
                     'is too old, at least', minPy, 'is required')
 
-# init GObject & Co. before importing local classes
-GObject.threads_init()
 Gdk.init([])
 Gtk.init([])
 

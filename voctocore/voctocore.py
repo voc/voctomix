@@ -8,7 +8,7 @@ import sys
 # import GStreamer and GLib-Helper classes
 gi.require_version('Gst', '1.0')
 gi.require_version('GstNet', '1.0')
-from gi.repository import Gst, GObject
+from gi.repository import Gst, GLib
 
 # import local classes
 from lib.loghandler import LogHandler
@@ -27,10 +27,6 @@ if sys.version_info < minPy:
                     'is too old, at least', minPy, 'is required')
 
 
-# init GObject & Co. before importing local classes
-GObject.threads_init()
-
-
 # main class
 class Voctocore(object):
 
@@ -42,8 +38,8 @@ class Voctocore(object):
         from lib.controlserver import ControlServer
 
         self.log = logging.getLogger('Voctocore')
-        self.log.debug('Creating GObject-MainLoop')
-        self.mainloop = GObject.MainLoop()
+        self.log.debug('Creating GLib-MainLoop')
+        self.mainloop = GLib.MainLoop()
 
         # initialize subsystem
         self.log.debug('Creating A/V-Pipeline')
@@ -53,7 +49,7 @@ class Voctocore(object):
         self.controlserver = ControlServer(self.pipeline)
 
     def run(self):
-        self.log.info('Running GObject-MainLoop')
+        self.log.info('Running GLib-MainLoop')
         self.log.debug('\n\n====================== UP AN RUNNING ======================\n')
         try:
             self.mainloop.run()
@@ -61,7 +57,7 @@ class Voctocore(object):
             self.log.info('Terminated via Ctrl-C')
 
     def quit(self):
-        self.log.info('Quitting GObject-MainLoop')
+        self.log.info('Quitting GLib-MainLoop')
         self.mainloop.quit()
 
 
