@@ -137,7 +137,8 @@ bin.(
             self.log.error("Audio mixer '%s' not found", mixername)
         else:
             mixer.get_static_pad('sink_0').set_property('volume', int(self.blankSource is None))
-            mixer.get_static_pad('sink_1').set_property('volume', int(self.blankSource is not None))
+            for audiostream in range(0, Config.getNumAudioStreams()):
+                mixer.get_static_pad('sink_%u' % (audiostream + 1)).set_property('volume', int(self.blankSource is not None))
 
     def setBlankSource(self, source):
         self.blankSource = source
