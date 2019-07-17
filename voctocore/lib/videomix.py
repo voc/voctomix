@@ -33,6 +33,16 @@ bin.(
 
     compositor
         name=videomixer
+    """
+        if Config.hasOverlay():
+            self.bin += """
+    ! queue
+        name=queue-overlay
+    ! gdkpixbufoverlay
+        location={overlay}
+""".format(overlay=Config.getOverlayFile())
+
+        self.bin += """\
     ! identity
         name=sig
     ! tee
@@ -56,14 +66,6 @@ bin.(
                 name=name,
                 idx=idx
             )
-
-        if Config.hasSource("overlay"):
-            self.bin += """
-    video-overlay.
-    ! queue
-		name=queue-video-overlay
-    ! videomixer.
-"""
 
         self.bin += """)
 """
