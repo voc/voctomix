@@ -85,11 +85,10 @@ class Ui(UiBuilder):
             uibuilder=self
         )
 
-        if Config.hasOverlay():
-            self.overview_toolbar_controller = OverlayToolbarController(
-                win=self.win,
-                uibuilder=self
-            )
+        self.overview_toolbar_controller = OverlayToolbarController(
+            win=self.win,
+            uibuilder=self
+        )
 
         self.mix_toolbar_controller = MixToolbarController(
             win=self.win,

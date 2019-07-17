@@ -20,18 +20,22 @@ class OverlayToolbarController(object):
         accelerators = Gtk.AccelGroup()
         win.add_accel_group(accelerators)
 
-        self.store = uibuilder.get_check_widget('insert-store')
-        for file in Config.getOverlayFiles():
-            self.store.append([file])
+        if Config.hasOverlay():
+            self.store = uibuilder.get_check_widget('insert-store')
+            for file in Config.getOverlayFiles():
+                self.store.append([file])
 
-        self.inserts = uibuilder.get_check_widget('inserts')
-        self.inserts.connect('changed', self.on_insert)
+            self.inserts = uibuilder.get_check_widget('inserts')
+            self.inserts.connect('changed', self.on_insert)
 
-        self.insert  = uibuilder.get_check_widget('insert')
-        self.insert.connect('toggled', self.on_insert)
+            self.insert  = uibuilder.get_check_widget('insert')
+            self.insert.connect('toggled', self.on_insert)
 
-        Connection.on('overlay', self.on_overlay)
-        Connection.send('get_overlay')
+            Connection.on('overlay', self.on_overlay)
+            Connection.send('get_overlay')
+            uibuilder.get_check_widget('box_insert').show()
+        else:
+            uibuilder.get_check_widget('box_insert').hide()
 
         # Hint: self.initialized will be set to True in response to 'get_overlay'
 
