@@ -1024,7 +1024,7 @@ https://github.com/voc/voctomix </property>
                           <object class="GtkLabel">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">MIX	</property>
+                            <property name="label" translatable="yes">MIX</property>
                           </object>
                         </child>
                       </object>
