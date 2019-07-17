@@ -93,6 +93,9 @@ class StreamblankToolbarController(object):
                       status, source)
 
         self.current_status = source if source is not None else status
+        for button in list(self.blank_btns.values()) + [self.livebtn]:
+            if button.get_name() == self.current_status:
+                button.set_active(True)
         self.start_blink()
 
     def do_timeout(self):
