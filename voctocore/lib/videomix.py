@@ -40,7 +40,9 @@ bin.(
         name=queue-overlay
     ! gdkpixbufoverlay
         name=overlay
-"""
+        overlay-width={width}
+        overlay-height={height}
+""".format(width=Config.getVideoSize()[0],height=Config.getVideoSize()[1])
             if Config.getOverlayFile():
                 self.bin += """\
         location={overlay}
