@@ -13,6 +13,7 @@ from lib.ports import PortsWindowController
 from lib.toolbar.mix import MixToolbarController
 from lib.toolbar.output import OutputToolbarController
 from lib.toolbar.preview import PreviewToolbarController
+from lib.toolbar.overlay import OverlayToolbarController
 from lib.toolbar.streamblank import StreamblankToolbarController
 from lib.toolbar.misc import MiscToolbarController
 
@@ -83,6 +84,12 @@ class Ui(UiBuilder):
             win=self.win,
             uibuilder=self
         )
+
+        if Config.hasOverlay():
+            self.overview_toolbar_controller = OverlayToolbarController(
+                win=self.win,
+                uibuilder=self
+            )
 
         self.mix_toolbar_controller = MixToolbarController(
             win=self.win,

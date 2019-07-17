@@ -35,12 +35,18 @@ bin.(
         name=videomixer
     """
         if Config.hasOverlay():
-            self.bin += """
+            self.bin += """\
     ! queue
         name=queue-overlay
     ! gdkpixbufoverlay
+        name=overlay
+"""
+            if Config.getOverlayFile():
+                self.bin += """\
         location={overlay}
 """.format(overlay=Config.getOverlayFile())
+            else:
+                self.log.info("No initial overlay source configured.")
 
         self.bin += """\
     ! identity
@@ -76,6 +82,8 @@ bin.(
         self.pipeline = pipeline
         sig = pipeline.get_by_name('sig')
         sig.connect('handoff', self.on_handoff)
+
+        self.overlay = pipeline.get_by_name('overlay')
 
         self.log.debug('Initializing Mixer-State')
         # initialize pipeline bindings for all sources
@@ -234,3 +242,16 @@ bin.(
     def getComposite(self):
         ''' legacy command '''
         return str(CompositeCommand(self.compositeMode, self.sourceA, self.sourceB))
+
+    def setOverlay(self,overlay_name):
+        if overlay_name is None:
+            self.overlay.set_property('alpha', 0.0 )
+        else:
+            self.overlay.set_property('alpha', 1.0 )
+            self.overlay.set_property('location', overlay_name )
+
+    def getOverlay(self):
+        if self.overlay.get_property('alpha') != 0.0:
+            return self.overlay.get_property('location' )
+        else:
+            return None

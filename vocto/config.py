@@ -235,3 +235,18 @@ class VocConfigParser(SafeConfigParser):
 
     def hasSource(self, source):
         return self.has_section('source.{}'.format(source))
+
+    def hasOverlay(self):
+        return self.has_section('overlay')
+
+    def getOverlayFile(self):
+        if self.has_option('overlay', 'file'):
+            return self.get('overlay','file')
+        else:
+            return None
+
+    def getOverlayFiles(self):
+        if self.has_option('overlay', 'files'):
+            return self.getList('overlay','files')
+        else:
+            return [self.getOverlayFile()]

@@ -70,15 +70,6 @@ class Pipeline(object):
         self.bins.append(source)
         self.ports.append(Port('background', source))
 
-        # create non-mandatory overlay source if configured
-        if Config.hasSource("overlay"):
-            source = spawn_source(
-                'overlay', Port.SOURCE_OVERLAY, has_audio=False)
-            self.bins.append(source)
-            self.ports.append(Port('overlay', source))
-        else:
-            self.log.info("No overlay source configured.")
-
         # create mix TCP output
         dest = AVRawOutput('mix', Port.MIX_OUT)
         self.bins.append(dest)

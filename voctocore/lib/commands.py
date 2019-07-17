@@ -277,3 +277,18 @@ class ControlServerCommands(object):
         for p in self.pipeline.ports:
             p.update()
         return OkResponse('port_report', json.dumps(self.pipeline.ports, default=lambda x: x.todict()))
+
+    if Config.hasOverlay():
+        def set_overlay(self, overlay_name):
+            """set an overlay and show"""
+            self.pipeline.vmix.setOverlay(overlay_name)
+            return NotifyResponse('overlay', overlay_name)
+
+        def hide_overlay(self):
+            """hide any visible overlay"""
+            self.pipeline.vmix.setOverlay(None)
+            return NotifyResponse('overlay', None)
+
+        def get_overlay(self):
+            """respond any visible overlay"""
+            return NotifyResponse('overlay', self.pipeline.vmix.getOverlay())
