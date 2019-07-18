@@ -53,6 +53,7 @@ bin.(
         self.bin += """\
     ! identity
         name=sig
+    ! {vcaps}
     ! tee
         name=video-mix
 
@@ -60,7 +61,9 @@ bin.(
     ! queue
         name=queue-video-background
     ! videomixer.
-"""
+""".format(
+        vcaps=Config.getVideoCaps()
+    )
 
         for idx, name in enumerate(self.sources):
             self.bin += """
