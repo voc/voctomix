@@ -5,7 +5,7 @@ import math
 import os
 from configparser import NoOptionError
 
-from gi.repository import Gtk, GObject
+from gi.repository import Gtk, Gdk, GObject
 from lib.videodisplay import VideoDisplay
 import lib.connection as Connection
 
@@ -31,6 +31,21 @@ class VideoPreviewsController(object):
         accelerators = Gtk.AccelGroup()
         win.add_accel_group(accelerators)
 
+        # count number of previews
+        num_previews = len(self.sources)
+        if Config.getLivePreviewEnabled():
+            num_previews += 1
+
+        # get preview size
+        self.previewSize = Config.getPreviewSize()
+
+        # recalculate preview size if in sum they are too large for screen
+        screen = Gdk.Screen.get_default()
+        if screen.get_height() < self.previewSize[1] * num_previews:
+            height = screen.get_height() / num_previews
+            self.previewSize = (Config.getVideoRatio()*height,height)
+            self.log.warning('Resizing previews so that they fit onto screen to WxH={}x{}'.format(*self.previewSize))
+
         for idx, source in enumerate(self.sources):
             self.addPreview(uibuilder,preview_box, source, Port.SOURCES_OUT + idx)
 
@@ -47,20 +62,20 @@ class VideoPreviewsController(object):
 
     def addPreview(self, uibuilder, preview_box, source, port):
         self.log.info('Initializing Video Preview %s', source)
-        previewSize = Config.getPreviewSize()
+
         preview = uibuilder.load_check_widget(
             'widget_preview',
             os.path.dirname(uibuilder.uifile) + "/widgetpreview.ui")
         video = uibuilder.find_widget_recursive(preview, 'video')
 
-        video.set_size_request(*previewSize)
+        video.set_size_request(*self.previewSize)
         preview_box.pack_start(preview, fill=False,
                                expand=False, padding=0)
 
         audio_level = uibuilder.find_widget_recursive(preview, 'audio_level_display')
         player = VideoDisplay(video, port=port,
-                              width=previewSize[0],
-                              height=previewSize[1],
+                              width=self.previewSize[0],
+                              height=self.previewSize[1],
                               level_callback=audio_level.level_callback,
                               name=source.upper()
                               )
