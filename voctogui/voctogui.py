@@ -29,6 +29,11 @@ if sys.version_info < minPy:
 Gdk.init([])
 Gtk.init([])
 
+# select Awaita:Dark theme
+settings = Gtk.Settings.get_default()
+settings.set_property("gtk-theme-name", "Adwaita")
+settings.set_property("gtk-application-prefer-dark-theme", True)  # if you want use dark theme, set second arg to True
+
 
 # main class
 class Voctogui(object):
