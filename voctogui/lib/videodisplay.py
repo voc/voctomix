@@ -54,6 +54,7 @@ demux.
         if Config.getPreviewNameOverlay() and name:
             textoverlay = """
 ! textoverlay
+    name=title-{name}
     text=\"{name}\"
     valignment=bottom
     halignment=center

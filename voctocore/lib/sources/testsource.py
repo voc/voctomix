@@ -14,6 +14,7 @@ class TestSource(AVSource):
         super().__init__('TestSource', name, has_audio, has_video,
                          force_num_streams)
 
+        self.name = name
         self.pattern = Config.getTestPattern(name)
         self.build_pipeline()
 
@@ -44,5 +45,6 @@ class TestSource(AVSource):
     def build_videoport(self):
         return """
     videotestsrc
-        pattern={}
-        is-live=true""".format(self.pattern)
+        name=testsrc-{name}
+        pattern={pattern}
+        is-live=true""".format(name=self.name, pattern=self.pattern)

@@ -57,8 +57,10 @@ bin.(
         if self.has_video:
             self.bin += """
     videotestsrc
+        name=canvas-{name}
         pattern=black
     ! textoverlay
+        name=nosignal-{name}
         text=\"NO SIGNAL\"
         valignment=center
         halignment=center
