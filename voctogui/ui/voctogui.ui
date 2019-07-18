@@ -925,10 +925,33 @@ https://github.com/voc/voctomix </property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
                                         <child>
+                                          <object class="GtkCheckButton" id="insert-auto-off">
+                                            <property name="label" translatable="yes">AUTO-OFF</property>
+                                            <property name="name">insert-auto-off</property>
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <property name="receives_default">False</property>
+                                            <property name="tooltip_text" translatable="yes">automatically turn off insertion before every mix</property>
+                                            <property name="active">True</property>
+                                            <property name="draw_indicator">False</property>
+                                            <style>
+                                              <class name="option"/>
+                                              <class name="insertion"/>
+                                              <class name="overlay"/>
+                                            </style>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
                                           <object class="GtkComboBox" id="inserts">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
                                             <property name="focus_on_click">False</property>
+                                            <property name="tooltip_text" translatable="yes">Select insert (overlay) from preconfigured ones </property>
                                             <property name="model">insert-store</property>
                                             <property name="column_span_column">0</property>
                                             <property name="active">0</property>
@@ -946,7 +969,7 @@ https://github.com/voc/voctomix </property>
                                           <packing>
                                             <property name="expand">True</property>
                                             <property name="fill">True</property>
-                                            <property name="position">0</property>
+                                            <property name="position">1</property>
                                           </packing>
                                         </child>
                                         <child>
@@ -955,12 +978,13 @@ https://github.com/voc/voctomix </property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
                                             <property name="receives_default">False</property>
+                                            <property name="tooltip_text" translatable="yes">Show or hide current insertion</property>
                                             <property name="draw_indicator">False</property>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
                                             <property name="fill">True</property>
-                                            <property name="position">1</property>
+                                            <property name="position">2</property>
                                           </packing>
                                         </child>
                                       </object>

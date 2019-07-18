@@ -73,4 +73,13 @@
   color: #80FF80;
 }
 
+#mixer button:checked.option {
+  background-color: #C06000;
+  color: #FFDD80;
+}
+
+#mixer button:checked.option label:backdrop {
+  color: #FFDD80;
+}
+
 #queues { font-size: 15px; }

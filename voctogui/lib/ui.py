@@ -85,7 +85,7 @@ class Ui(UiBuilder):
             uibuilder=self
         )
 
-        self.overview_toolbar_controller = OverlayToolbarController(
+        self.overlay_toolbar_controller = OverlayToolbarController(
             win=self.win,
             uibuilder=self
         )
@@ -94,7 +94,8 @@ class Ui(UiBuilder):
             win=self.win,
             uibuilder=self,
             output_controller=self.output_toolbar_controller,
-            preview_controller=self.preview_toolbar_controller
+            preview_controller=self.preview_toolbar_controller,
+            overlay_controller=self.overlay_toolbar_controller
         )
 
         self.streamblank_toolbar_controller = StreamblankToolbarController(

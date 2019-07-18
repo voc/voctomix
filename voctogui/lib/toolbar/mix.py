@@ -14,10 +14,11 @@ from lib.uibuilder import UiBuilder
 class MixToolbarController(object):
     """Manages Accelerators and Clicks on the Preview Composition Toolbar-Buttons"""
 
-    def __init__(self, win, uibuilder, output_controller, preview_controller):
+    def __init__(self, win, uibuilder, output_controller, preview_controller, overlay_controller):
         self.initialized = False
         self.output_controller = output_controller
         self.preview_controller = preview_controller
+        self.overlay_controller = overlay_controller
         self.log = logging.getLogger('PreviewToolbarController')
 
         accelerators = Gtk.AccelGroup()
@@ -32,6 +33,9 @@ class MixToolbarController(object):
 
     def on_btn_clicked(self, btn):
         id = btn.get_name()
+        if self.overlay_controller.isAutoOff() and id != 'retake':
+            Connection.send('hide_overlay')
+
         command = self.preview_controller.command()
         self.preview_controller.set_command(self.output_controller.command())
         if id == 'cut':

@@ -29,7 +29,9 @@ class OverlayToolbarController(object):
             self.inserts.connect('changed', self.on_insert)
 
             self.insert  = uibuilder.get_check_widget('insert')
-            self.insert.connect('toggled', self.on_insert)
+            self.insert.connect('clicked', self.on_insert)
+
+            self.autooff  = uibuilder.get_check_widget('insert-auto-off')
 
             Connection.on('overlay', self.on_overlay)
             Connection.send('get_overlay')
@@ -58,5 +60,10 @@ class OverlayToolbarController(object):
             self.insert.set_active(True)
         else:
             self.insert.set_active(False)
+
+        self.insert.set_sensitive(not self.inserts.get_active_iter() is None)
         self.log.info("overlay is '%s'", overlay_name)
         self.initialized = True
+
+    def isAutoOff(self):
+        return self.autooff.get_active()
