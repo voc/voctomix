@@ -32,6 +32,6 @@ def parse():
                              "instead of the configured one.")
 
     parser.add_argument('-d', '--dot', action='store_true',
-                        help="Generate dot files of pipelines")
+                        help="Generate PNG files of DOT graphs of pipelines")
 
     Args = parser.parse_args()

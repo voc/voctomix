@@ -5,6 +5,9 @@ import signal
 import logging
 import sys
 
+sys.path.insert(0, '.')
+import vocto
+
 # import GStreamer and GLib-Helper classes
 gi.require_version('Gst', '1.0')
 gi.require_version('GstNet', '1.0')

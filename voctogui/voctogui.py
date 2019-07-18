@@ -13,6 +13,9 @@ import logging
 import sys
 import os
 
+sys.path.insert(0, '.')
+import vocto
+
 # check min-version
 minGst = (1, 5)
 minPy = (3, 0)
