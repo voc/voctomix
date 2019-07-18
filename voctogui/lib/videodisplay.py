@@ -5,7 +5,7 @@ from lib.args import Args
 from lib.config import Config
 from lib.clock import Clock
 from vocto.port import Port
-from vocto.debug import gst_generate_png
+from vocto.debug import gst_generate_dot
 
 DECODERS = {
     'h264': 'video/x-h264 ! avdec_h264',
@@ -126,7 +126,7 @@ demux.
 
         if Args.dot:
             self.log.debug('Generating DOT image of videodisplay pipeline')
-            gst_generate_png(self.pipeline, "gui.videodisplay.{}".format(name))
+            gst_generate_dot(self.pipeline, "gui.videodisplay.{}".format(name))
 
         self.pipeline.use_clock(Clock)
 

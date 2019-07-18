@@ -15,7 +15,7 @@ from lib.streamblanker import StreamBlanker
 from lib.args import Args
 from lib.clock import Clock
 from vocto.port import Port
-from vocto.debug import gst_generate_png
+from vocto.debug import gst_generate_dot
 
 class Pipeline(object):
     """mixing, streaming and encoding pipeline constuction and control"""
@@ -173,7 +173,7 @@ class Pipeline(object):
     def on_state_changed(self, bus, message):
         if self.draw_pipeline and message.parse_state_changed().newstate == Gst.State.PLAYING:
             # make DOT file from pipeline
-            gst_generate_png(self.pipeline, "core.pipeline")
+            gst_generate_dot(self.pipeline, "core.pipeline")
             self.draw_pipeline = False
         elif self.draw_pipeline and message.parse_state_changed().newstate == Gst.State.PAUSED:
             self.draw_pipeline = True
