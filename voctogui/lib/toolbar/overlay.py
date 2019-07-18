@@ -33,6 +33,9 @@ class OverlayToolbarController(object):
 
             self.autooff  = uibuilder.get_check_widget('insert-auto-off')
 
+            self.autooff.set_visible(Config.getOverlayUserAutoOff())
+            self.autooff.set_active(Config.getOverlayAutoOff())
+
             Connection.on('overlay', self.on_overlay)
             Connection.send('get_overlay')
             uibuilder.get_check_widget('box_insert').show()

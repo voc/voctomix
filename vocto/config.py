@@ -250,3 +250,9 @@ class VocConfigParser(SafeConfigParser):
             return self.getList('overlay','files')
         else:
             return [self.getOverlayFile()]
+
+    def getOverlayAutoOff(self):
+        return self.getboolean('overlay', 'auto-off', fallback=True)
+
+    def getOverlayUserAutoOff(self):
+        return self.getboolean('overlay', 'user-auto-off', fallback=False)
