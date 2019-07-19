@@ -239,18 +239,6 @@ class VocConfigParser(SafeConfigParser):
     def hasOverlay(self):
         return self.has_section('overlay')
 
-    def getOverlayFile(self):
-        if self.has_option('overlay', 'file'):
-            return self.get('overlay','file')
-        else:
-            return None
-
-    def getOverlayFiles(self):
-        if self.has_option('overlay', 'files'):
-            return self.getList('overlay','files')
-        else:
-            return [self.getOverlayFile()]
-
     def getOverlayAutoOff(self):
         return self.getboolean('overlay', 'auto-off', fallback=True)
 

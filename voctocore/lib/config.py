@@ -17,6 +17,19 @@ class VoctocoreConfigParser(VocConfigParser):
         except DuplicateSectionError:
             pass
 
+    def getOverlayFile(self):
+        if self.has_option('overlay', 'file'):
+            return self.get('overlay','file')
+        else:
+            return None
+
+    def getOverlayFiles(self):
+        if self.has_option('overlay', 'files'):
+            return self.getList('overlay','files')
+        elif self.getOverlayFile():
+            return [self.getOverlayFile()]
+        else:
+            return []
 
 def load():
     global Config

@@ -292,3 +292,7 @@ class ControlServerCommands(object):
         def get_overlay(self):
             """respond any visible overlay"""
             return NotifyResponse('overlay', self.pipeline.vmix.getOverlay())
+
+        def get_overlays(self):
+            """respond with list of all available overlays"""
+            return NotifyResponse('overlays', *Config.getOverlayFiles())

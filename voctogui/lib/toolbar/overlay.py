@@ -22,8 +22,6 @@ class OverlayToolbarController(object):
 
         if Config.hasOverlay():
             self.store = uibuilder.get_check_widget('insert-store')
-            for file in Config.getOverlayFiles():
-                self.store.append([file])
 
             self.inserts = uibuilder.get_check_widget('inserts')
             self.inserts.connect('changed', self.on_insert)
@@ -31,13 +29,15 @@ class OverlayToolbarController(object):
             self.insert  = uibuilder.get_check_widget('insert')
             self.insert.connect('clicked', self.on_insert)
 
-            self.autooff  = uibuilder.get_check_widget('insert-auto-off')
+            self.autooff = uibuilder.get_check_widget('insert-auto-off')
 
             self.autooff.set_visible(Config.getOverlayUserAutoOff())
             self.autooff.set_active(Config.getOverlayAutoOff())
+            self.overlays = []
 
+            Connection.on('overlays', self.on_overlays)
             Connection.on('overlay', self.on_overlay)
-            Connection.send('get_overlay')
+            Connection.send('get_overlays')
             uibuilder.get_check_widget('box_insert').show()
         else:
             uibuilder.get_check_widget('box_insert').hide()
@@ -56,10 +56,9 @@ class OverlayToolbarController(object):
             else:
                 Connection.send('hide_overlay')
 
-
     def on_overlay(self, overlay_name):
-        if overlay_name in Config.getOverlayFiles():
-            self.inserts.set_active(Config.getOverlayFiles().index(overlay_name))
+        if overlay_name in self.overlays :
+            self.inserts.set_active(self.overlays.index(overlay_name))
             self.insert.set_active(True)
         else:
             self.insert.set_active(False)
@@ -67,6 +66,14 @@ class OverlayToolbarController(object):
         self.insert.set_sensitive(not self.inserts.get_active_iter() is None)
         self.log.info("overlay is '%s'", overlay_name)
         self.initialized = True
+
+    def on_overlays(self, *overlays):
+        self.log.info("Got list of overlays from server '%s'", overlays)
+        self.overlays = overlays
+        self.store.clear()
+        for file in overlays:
+            self.store.append([file])
+        Connection.send('get_overlay')
 
     def isAutoOff(self):
         return self.autooff.get_active()
