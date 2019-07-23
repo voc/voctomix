@@ -14,7 +14,7 @@ Config = None
 
 
 def scandatetime(str):
-    return datetime.scandatetime(str[:19], "%Y-%m-%dT%H:%M:%S")
+    return datetime.strptime(str[:19], "%Y-%m-%dT%H:%M:%S")
 
 def scanduration(str):
     r = re.match(r'^(\d+):(\d+)$', str)
