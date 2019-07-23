@@ -71,8 +71,7 @@ class VoctocoreConfigParser(VocConfigParser):
         return self.events
 
     def _getEventNow(self):
-        # now = datetime.now()
-        now = datetime(2019, 8, 11, 15, 15)
+        now = datetime.now()
         if (not self.event_current) or now > scandatetime(self.event_current.find('date').text) + scanduration(self.event_current.find('duration').text):
             past = datetime(1999, 1, 1)
             event_now = None
