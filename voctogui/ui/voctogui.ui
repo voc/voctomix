@@ -893,6 +893,7 @@ https://github.com/voc/voctomix </property>
                           <object class="GtkBox" id="box_insert">
                             <property name="can_focus">False</property>
                             <property name="no_show_all">True</property>
+                            <property name="spacing">6</property>
                             <child>
                               <object class="GtkLabel">
                                 <property name="visible">True</property>
@@ -907,13 +908,10 @@ https://github.com/voc/voctomix </property>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkAlignment">
+                              <object class="GtkBox">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="xalign">0</property>
-                                <property name="bottom_padding">6</property>
-                                <property name="left_padding">4</property>
-                                <property name="right_padding">4</property>
+                                <property name="orientation">vertical</property>
                                 <child>
                                   <object class="GtkFrame">
                                     <property name="visible">True</property>
@@ -921,71 +919,112 @@ https://github.com/voc/voctomix </property>
                                     <property name="label_xalign">0.5</property>
                                     <property name="shadow_type">in</property>
                                     <child>
-                                      <object class="GtkBox">
+                                      <object class="GtkAlignment">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
+                                        <property name="bottom_padding">6</property>
+                                        <property name="left_padding">4</property>
+                                        <property name="right_padding">4</property>
                                         <child>
-                                          <object class="GtkCheckButton" id="insert-auto-off">
-                                            <property name="label" translatable="yes">AUTO-OFF</property>
-                                            <property name="name">insert-auto-off</property>
+                                          <object class="GtkBox">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
-                                            <property name="receives_default">False</property>
-                                            <property name="tooltip_text" translatable="yes">automatically turn off insertion before every mix</property>
-                                            <property name="active">True</property>
-                                            <property name="draw_indicator">False</property>
-                                            <style>
-                                              <class name="option"/>
-                                              <class name="insertion"/>
-                                              <class name="overlay"/>
-                                            </style>
-                                          </object>
-                                          <packing>
-                                            <property name="expand">False</property>
-                                            <property name="fill">True</property>
-                                            <property name="position">0</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkComboBox" id="inserts">
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
-                                            <property name="focus_on_click">False</property>
-                                            <property name="tooltip_text" translatable="yes">Select insert (overlay) from preconfigured ones </property>
-                                            <property name="model">insert-store</property>
-                                            <property name="column_span_column">0</property>
-                                            <property name="active">0</property>
-                                            <property name="has_frame">False</property>
+                                            <property name="orientation">vertical</property>
+                                            <property name="spacing">2</property>
                                             <child>
-                                              <object class="GtkCellRendererText" id="text">
-                                                <property name="alignment">center</property>
-                                                <property name="single_paragraph_mode">True</property>
+                                              <object class="GtkLabel" id="overlay-description">
+                                                <property name="can_focus">False</property>
+                                                <property name="no_show_all">True</property>
+                                                <property name="margin_top">2</property>
+                                                <property name="margin_bottom">2</property>
+                                                <property name="wrap">True</property>
+                                                <attributes>
+                                                  <attribute name="style" value="oblique"/>
+                                                </attributes>
                                               </object>
-                                              <attributes>
-                                                <attribute name="text">0</attribute>
-                                              </attributes>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="fill">True</property>
+                                                <property name="position">0</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkBox">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="margin_left">8</property>
+                                                <property name="margin_right">8</property>
+                                                <property name="spacing">6</property>
+                                                <child>
+                                                  <object class="GtkCheckButton" id="insert-auto-off">
+                                                    <property name="label" translatable="yes">AUTO-OFF</property>
+                                                    <property name="name">insert-auto-off</property>
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="receives_default">False</property>
+                                                    <property name="tooltip_text" translatable="yes">automatically turn off insertion before every mix</property>
+                                                    <property name="active">True</property>
+                                                    <property name="draw_indicator">False</property>
+                                                    <style>
+                                                      <class name="option"/>
+                                                      <class name="insertion"/>
+                                                      <class name="overlay"/>
+                                                    </style>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">0</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkComboBox" id="inserts">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="focus_on_click">False</property>
+                                                    <property name="tooltip_text" translatable="yes">Select insert (overlay) from preconfigured ones </property>
+                                                    <property name="model">insert-store</property>
+                                                    <property name="column_span_column">0</property>
+                                                    <property name="has_frame">False</property>
+                                                    <child>
+                                                      <object class="GtkCellRendererText" id="text">
+                                                        <property name="alignment">center</property>
+                                                        <property name="single_paragraph_mode">True</property>
+                                                      </object>
+                                                      <attributes>
+                                                        <attribute name="text">0</attribute>
+                                                      </attributes>
+                                                    </child>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">True</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">1</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkCheckButton" id="insert">
+                                                    <property name="label" translatable="yes">INSERT</property>
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="receives_default">False</property>
+                                                    <property name="tooltip_text" translatable="yes">Show or hide current insertion</property>
+                                                    <property name="draw_indicator">False</property>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">2</property>
+                                                  </packing>
+                                                </child>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="fill">True</property>
+                                                <property name="position">1</property>
+                                              </packing>
                                             </child>
                                           </object>
-                                          <packing>
-                                            <property name="expand">True</property>
-                                            <property name="fill">True</property>
-                                            <property name="position">1</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkCheckButton" id="insert">
-                                            <property name="label" translatable="yes">INSERT</property>
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
-                                            <property name="receives_default">False</property>
-                                            <property name="tooltip_text" translatable="yes">Show or hide current insertion</property>
-                                            <property name="draw_indicator">False</property>
-                                          </object>
-                                          <packing>
-                                            <property name="expand">False</property>
-                                            <property name="fill">True</property>
-                                            <property name="position">2</property>
-                                          </packing>
                                         </child>
                                       </object>
                                     </child>
@@ -994,9 +1033,15 @@ https://github.com/voc/voctomix </property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
                                         <property name="label" translatable="yes">INSERTION</property>
+                                        <property name="justify">center</property>
                                       </object>
                                     </child>
                                   </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">0</property>
+                                  </packing>
                                 </child>
                               </object>
                               <packing>
@@ -1088,7 +1133,6 @@ https://github.com/voc/voctomix </property>
               <object class="GtkBox" id="box_toolbar_main">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkToolbar" id="toolbar_main">
                     <property name="visible">True</property>

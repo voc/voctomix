@@ -7,7 +7,8 @@ from lib.config import Config
 from lib.response import NotifyResponse, OkResponse
 from lib.sources import restart_source
 from vocto.composite_commands import CompositeCommand
-
+from vocto.command_helpers import quote, dequote
+import os
 
 class ControlServerCommands(object):
 
@@ -175,7 +176,7 @@ class ControlServerCommands(object):
 
     def set_composite_mode(self, mode_name):
         """sets the name of the id of the composite-mode"""
-        self.pipeline.vmix.setComposite(CompositeCommand(mode_name,"*","*"))
+        self.pipeline.vmix.setComposite(CompositeCommand(mode_name, "*", "*"))
 
         composite_status = self.pipeline.vmix.getCompositeMode()
         video_status = self.pipeline.vmix.getVideoSources()
@@ -190,14 +191,14 @@ class ControlServerCommands(object):
         """sets the composite and sources by using the composite command format
            (e.g. 'sbs(cam1,cam2)') as the only parameter
         """
-        self.pipeline.vmix.setComposite(command,True)
+        self.pipeline.vmix.setComposite(command, True)
         return NotifyResponse('composite', self.pipeline.vmix.getComposite())
 
     def cut(self, command):
         """sets the composite and sources by using the composite command format
            (e.g. 'sbs(cam1,cam2)') as the only parameter
         """
-        self.pipeline.vmix.setComposite(command,False)
+        self.pipeline.vmix.setComposite(command, False)
         return NotifyResponse('composite', self.pipeline.vmix.getComposite())
 
     def get_composite(self):
@@ -210,7 +211,8 @@ class ControlServerCommands(object):
                                  mode_name):
         """sets the A- and the B-source synchronously with the composition-mode
            all parametets can be set to "*" which will leave them unchanged."""
-        self.pipeline.vmix.setComposite(str(CompositeCommand(mode_name,src_a_name,src_b_name)))
+        self.pipeline.vmix.setComposite(
+            str(CompositeCommand(mode_name, src_a_name, src_b_name)))
 
         composite_status = self.pipeline.vmix.getCompositeMode()
         video_status = self.pipeline.vmix.getVideoSources()
@@ -281,7 +283,13 @@ class ControlServerCommands(object):
     if Config.hasOverlay():
         def set_overlay(self, overlay_name):
             """set an overlay and show"""
-            self.pipeline.vmix.setOverlay(overlay_name)
+            overlay_name = dequote(overlay_name)
+            if len(overlay_name) > 4 and overlay_name[-4:].lower() != ".png":
+                overlay_name += ".png"
+            if os.path.isfile(overlay_name):
+                self.pipeline.vmix.setOverlay(overlay_name)
+            else:
+                self.log.error("Overlay file '{}' not found".format(overlay_name))
             return NotifyResponse('overlay', overlay_name)
 
         def hide_overlay(self):
@@ -295,4 +303,6 @@ class ControlServerCommands(object):
 
         def get_overlays(self):
             """respond with list of all available overlays"""
-            return NotifyResponse('overlays', *Config.getOverlayFiles())
+            return NotifyResponse('overlays',
+                                  quote(Config.getOverlaysTitle()),
+                                  ",".join([quote(a) for a in Config.getOverlayFiles()]))
