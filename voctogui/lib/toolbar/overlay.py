@@ -22,29 +22,39 @@ class OverlayToolbarController(object):
         win.add_accel_group(accelerators)
 
         if Config.hasOverlay():
-
+            # connect to inserts selection combo box
             self.inserts = uibuilder.get_check_widget('inserts')
             self.inserts_store = uibuilder.get_check_widget('insert-store')
             self.inserts.connect('changed', self.on_inserts_changed)
 
+            # connect to INSERT toggle button
             self.insert = uibuilder.get_check_widget('insert')
             self.insert.connect('toggled', self.on_insert_toggled)
 
+            # initialize to AUTO-OFF toggle button
             self.autooff = uibuilder.get_check_widget('insert-auto-off')
             self.autooff.set_visible(Config.getOverlayUserAutoOff())
             self.autooff.set_active(Config.getOverlayAutoOff())
 
+            # remember overlay description label
             self.overlay_description = uibuilder.get_check_widget(
                 'overlay-description')
 
+            # initialize our overlay list until we get one from the core
             self.overlays = []
 
+            # what we receive from core
             Connection.on('overlays', self.on_overlays)
+            Connection.on('overlays_title', self.on_overlays_title)
             Connection.on('overlay', self.on_overlay)
             Connection.on('overlay_visible', self.on_overlay_visible)
+            # call core for a list of available overlays
             Connection.send('get_overlays')
+            Connection.send('get_overlays_title')
+            # show insert tool bar
             uibuilder.get_check_widget('box_insert').show()
         else:
+            # hide insert tool bar
             uibuilder.get_check_widget('box_insert').hide()
 
         # Hint: self.initialized will be set to True in response to 'get_overlay'
@@ -97,18 +107,10 @@ class OverlayToolbarController(object):
         # enable 'INSERT' button if there is a selection
         self.insert.set_sensitive(not self.inserts.get_active_iter() is None)
 
-    def on_overlays(self, title, overlays):
-        # decode parameters
+    def on_overlays(self, overlays):
+        # decode parameter
         overlays = [dequote(o).split('|') for o in overlays.split(",")]
-        title = dequote(title)
-        # title given?
-        if title:
-            # show title
-            self.overlay_description.set_text(title)
-            self.overlay_description.show()
-        else:
-            # hide title
-            self.overlay_description.hide()
+        overlays = [o if len(o) == 2 else (o[0],o[0]) for o in overlays]
         # tell log about overlay list
         self.log.info("Got list of overlays from server '%s'", overlays)
         # clear inserts storage
@@ -126,6 +128,23 @@ class OverlayToolbarController(object):
         # poll voctocore's current overlay selection
         Connection.send('get_overlay_visible')
         Connection.send('get_overlay')
+
+    def on_overlays_title(self, title):
+        # decode parameter
+        title = [dequote(t) for t in title.split(",")]
+        # title given?
+        if title:
+            # show title
+            if len(title) == 4:
+                self.overlay_description.set_text("{} - {} : #{}  '{}'".format(*title))
+            else:
+                self.overlay_description.set_text(title[0])
+            self.overlay_description.show()
+        else:
+            # hide title
+            self.overlay_description.hide()
+        # tell log about overlay list
+        self.log.info("Got title of overlays from server '%s'", title)
 
     def isAutoOff(self):
         return self.autooff.get_active()

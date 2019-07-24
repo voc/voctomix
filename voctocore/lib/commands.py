@@ -293,7 +293,6 @@ class ControlServerCommands(object):
             """set an overlay and show"""
             # decode parameter to filename
             filename = _make_filename(dequote(overlay))
-            print(filename)
             # check if file exists
             if os.path.isfile(filename):
                 # select overlay in mixing pipeline
@@ -320,8 +319,11 @@ class ControlServerCommands(object):
             """respond any visible overlay"""
             return NotifyResponse('overlay_visible', str(self.pipeline.vmix.getOverlayVisible()))
 
-        def get_overlays(self):
+        def get_overlays_title(self):
             """respond with list of all available overlays"""
+            return NotifyResponse('overlays_title',
+                                  ",".join(quote(t) for t in Config.getOverlaysTitle()))
+
+        def get_overlays(self):
             return NotifyResponse('overlays',
-                                  quote(Config.getOverlaysTitle()),
-                                  ",".join([quote(a) for a in Config.getOverlayFiles()]))
+                                  ",".join([quote(_unmake_filename(a)) for a in Config.getOverlayFiles()]))

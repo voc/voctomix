@@ -110,12 +110,11 @@ class VoctocoreConfigParser(VocConfigParser):
                 event = self._getEventNow()
                 if event:
                     at = scandatetime(event.find('date').text)
-                    return "#{id}   '{title}'    {at} - {until}".format(
-                        at=at.strftime("%H:%M"),
-                        until=(
-                            at + scanduration(event.find('duration').text)).strftime("%H:%M"),
-                        id=event.get('id'),
-                        title=event.find('title').text)
+                    return (at.strftime("%H:%M"),
+                            (at + scanduration(event.find('duration').text)
+                             ).strftime("%H:%M"),
+                            event.get('id'),
+                            event.find('title').text)
             except FileNotFoundError:
                 self.log.error(
                     'schedule file \'%s\' not found', self.getSchedule())
