@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<schedule>
+  <day>
+    <room>
+      <event id='1'>
+        <date>2019-01-01T10:00:00+02:00</date>
+        <duration>01:00</duration>
+        <room>HALL 1</room>
+        <title>Interesting talk in HALL 1 at 10:00</title>
+        <persons>
+          <person id='1'>Alice</person>
+          <person id='2'>Bob</person>
+          <person id='3'>Claire</person>
+        </persons>
+      </event>
+      <event id='2'>
+        <date>2019-01-01T10:00:00+02:00</date>
+        <duration>01:00</duration>
+        <room>HALL 2</room>
+        <title>Interesting talk in HALL 2 at 10:00</title>
+        <persons>
+          <person id='4'>Dick</person>
+        </persons>
+      </event>
+      <event id='3'>
+        <date>2019-01-01T11:15:00+02:00</date>
+        <duration>01:00</duration>
+        <room>HALL 2</room>
+        <title>Interesting talk in HALL 2 at 11:15</title>
+        <persons>
+          <person id='1'>Alice</person>
+          <person id='4'>Dick</person>
+        </persons>
+      </event>
+    </room>
+  </day>
+</schedule>
