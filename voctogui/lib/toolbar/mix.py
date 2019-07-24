@@ -33,8 +33,10 @@ class MixToolbarController(object):
 
     def on_btn_clicked(self, btn):
         id = btn.get_name()
+        
+        # on transition hide overlay if AUTO-OFF is on
         if self.overlay_controller.isAutoOff() and id != 'retake':
-            Connection.send('hide_overlay')
+            Connection.send('show_overlay',str(False))
 
         command = self.preview_controller.command()
         self.preview_controller.set_command(self.output_controller.command())

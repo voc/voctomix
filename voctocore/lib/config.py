@@ -16,16 +16,18 @@ Config = None
 def scandatetime(str):
     return datetime.strptime(str[:19], "%Y-%m-%dT%H:%M:%S")
 
+
 def scanduration(str):
     r = re.match(r'^(\d+):(\d+)$', str)
     return timedelta(hours=int(r.group(1)), minutes=int(r.group(2)))
+
 
 class VoctocoreConfigParser(VocConfigParser):
 
     def __init__(self):
         super().__init__()
         self.events = []
-        self.event_current = None
+        self.event_now = None
         self.events_update = None
         self.default_person = None
 
@@ -36,26 +38,38 @@ class VoctocoreConfigParser(VocConfigParser):
             pass
 
     def getOverlayFile(self):
-        if self.getSchedule():
-            return self.default_person
-        elif self.has_option('overlay', 'file'):
+        ''' return overlay/file or <None> from INI configuration '''
+        if self.has_option('overlay', 'file'):
             return self.get('overlay', 'file')
         else:
             return None
 
     def getScheduleRoom(self):
+        ''' return overlay/schedule-room or <None> from INI configuration '''
         if self.has_option('overlay', 'schedule-room'):
             return self.get('overlay', 'schedule-room')
         else:
             return None
 
-    def getSchedule(self):
-        if self.has_option('overlay', 'schedule-file'):
-            if not self.has_option('overlay', 'schedule-room'):
-                self.log.error("Using configuration option 'overlay'/'schedule-file' without 'overlay'/'schedule-room' may lead to unexpected overlay selection")
-            return self.get('overlay', 'schedule-file')
+    def getScheduleEvent(self):
+        ''' return overlay/schedule-event or <None> from INI configuration '''
+        if self.has_option('overlay', 'schedule-event'):
+            if self.has_option('overlay', 'schedule-room'):
+                self.log.warning("'overlay'/'schedule-event' overwrites 'overlay'/'schedule-room'")
+            return self.get('overlay', 'schedule-event')
         else:
             return None
+
+    def getSchedule(self):
+        ''' return overlay/schedule-file or <None> from INI configuration '''
+        if self.has_option('overlay', 'schedule-file'):
+            if self.has_option('overlay', 'schedule-room'):
+                return self.get('overlay', 'schedule-file')
+            else:
+                # warn if no room has been defined
+                self.log.error(
+                    "configuration option 'overlay'/'schedule-file' ignored when not defining 'overlay'/'schedule-room' too")
+        return None
 
     def _getEvents(self):
         # check if file has been changed before re-read
@@ -72,17 +86,22 @@ class VoctocoreConfigParser(VocConfigParser):
 
     def _getEventNow(self):
         now = datetime.now()
-        if (not self.event_current) or now > scandatetime(self.event_current.find('date').text) + scanduration(self.event_current.find('duration').text):
-            past = datetime(1999, 1, 1)
-            event_now = None
-            nowest = past
+        if self.getScheduleEvent():
             for event in self._getEvents():
-                if event.find('room').text == self.getScheduleRoom() or not self.getScheduleRoom():
-                    time = scandatetime(event.find('date').text)
-                    if now >= time and time > nowest:
-                        nowest = time
-                        self.event_current = event
-        return self.event_current
+                if event.get('id') == self.getScheduleEvent():
+                    self.event_now = event
+        else:
+            if (not self.event_now) or now > scandatetime(self.event_now.find('date').text) + scanduration(self.event_now.find('duration').text):
+                past = datetime(1999, 1, 1)
+                event_now = None
+                nowest = past
+                for event in self._getEvents():
+                    if event.find('room').text == self.getScheduleRoom() or not self.getScheduleRoom():
+                        time = scandatetime(event.find('date').text)
+                        if now >= time and time > nowest:
+                            nowest = time
+                            self.event_now = event
+        return self.event_now
 
     def getOverlaysTitle(self):
         if self.getSchedule():
@@ -92,7 +111,8 @@ class VoctocoreConfigParser(VocConfigParser):
                     at = scandatetime(event.find('date').text)
                     return "#{id}   '{title}'    {at} - {until}".format(
                         at=at.strftime("%H:%M"),
-                        until=(at + scanduration(event.find('duration').text)).strftime("%H:%M"),
+                        until=(
+                            at + scanduration(event.find('duration').text)).strftime("%H:%M"),
                         id=event.get('id'),
                         title=event.find('title').text)
             except FileNotFoundError:
@@ -113,16 +133,23 @@ class VoctocoreConfigParser(VocConfigParser):
                     "persons/person")]
                 if not persons:
                     self.log.warning('schedule file \'%s\' contains no persons for event #%s',
-                                     self.getSchedule(), event.get('id'))
+                                     self.getSchedule(),
+                                     event.get('id'))
                 else:
-                    self.log.info('schedule file \'%s\' contains %d person(s) for event #%s: %s', self.getSchedule(
-                    ), len(persons), event.get('id'), ",".join([p for p in persons]))
+                    if len(persons) > 1:
+                        persons += [", ".join(persons)]
+                    self.log.info('schedule file \'%s\' contains %d person(s) for event #%s: %s',
+                                  self.getSchedule(),
+                                  len(persons),
+                                  event.get('id'),
+                                  ",".join([p for p in persons]))
                     self.default_person = persons[0]
                 return persons
 
             except FileNotFoundError:
                 self.log.error(
-                    'schedule file \'%s\' not found (falling back to configuration options files/file)', self.getSchedule())
+                    'schedule file \'%s\' not found (falling back to configuration options files/file)',
+                    self.getSchedule())
         if self.has_option('overlay', 'files'):
             return self.getList('overlay', 'files')
         if self.getOverlayFile():

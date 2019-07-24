@@ -5,3 +5,6 @@ def quote(str):
 def dequote(str):
     ''' decode spaces and comma '''
     return None if not str else str.replace('\\n','\n').replace('\\c', ',').replace('\\s', ' ').replace('\\\\', '\\')
+
+def str2bool(str):
+    return str.lower() in [ 'true', 'yes', 'visible', 'show', '1' ]

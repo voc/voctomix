@@ -88,7 +88,10 @@ bin.(
         sig = pipeline.get_by_name('sig')
         sig.connect('handoff', self.on_handoff)
 
+        # get overlay element
         self.overlay = pipeline.get_by_name('overlay')
+        # set overlay of by default
+        self.showOverlay(Config.getOverlayFile() != None)
 
         self.log.debug('Initializing Mixer-State')
         # initialize pipeline bindings for all sources
@@ -248,15 +251,18 @@ bin.(
         ''' legacy command '''
         return str(CompositeCommand(self.compositeMode, self.sourceA, self.sourceB))
 
-    def setOverlay(self,overlay_name):
-        if overlay_name is None:
-            self.overlay.set_property('alpha', 0.0 )
-        else:
-            self.overlay.set_property('alpha', 1.0 )
-            self.overlay.set_property('location', overlay_name )
+    def setOverlay(self, location):
+        ''' set up overlay file by location '''
+        self.overlay.set_property('location', location if location else "" )
+
+    def showOverlay(self, visible):
+        ''' set overlay visibility '''
+        self.overlay.set_property('alpha', 1.0 if visible else 0.0 )
 
     def getOverlay(self):
-        if self.overlay.get_property('alpha') != 0.0:
-            return self.overlay.get_property('location' )
-        else:
-            return None
+        ''' get current overlay file location '''
+        return self.overlay.get_property('location' )
+
+    def getOverlayVisible(self):
+        ''' get overlay visibility '''
+        return self.overlay.get_property('alpha') != 0.0

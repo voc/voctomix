@@ -7,8 +7,14 @@ from lib.config import Config
 from lib.response import NotifyResponse, OkResponse
 from lib.sources import restart_source
 from vocto.composite_commands import CompositeCommand
-from vocto.command_helpers import quote, dequote
+from vocto.command_helpers import quote, dequote, str2bool
 import os
+
+def _make_filename(name):
+    return name + ".png" if name and len(name) > 4 and name[-4:].lower() != ".png" else name
+
+def _unmake_filename(filename):
+    return filename[:-4] if filename and len(filename) > 4 and filename[-4:].lower() == ".png" else filename
 
 class ControlServerCommands(object):
 
@@ -280,26 +286,38 @@ class ControlServerCommands(object):
             p.update()
         return OkResponse('port_report', json.dumps(self.pipeline.ports, default=lambda x: x.todict()))
 
+    # only available when overlays are configured
     if Config.hasOverlay():
-        def set_overlay(self, overlay_name):
-            """set an overlay and show"""
-            overlay_name = dequote(overlay_name)
-            if len(overlay_name) > 4 and overlay_name[-4:].lower() != ".png":
-                overlay_name += ".png"
-            if os.path.isfile(overlay_name):
-                self.pipeline.vmix.setOverlay(overlay_name)
-            else:
-                self.log.error("Overlay file '{}' not found".format(overlay_name))
-            return NotifyResponse('overlay', overlay_name)
 
-        def hide_overlay(self):
-            """hide any visible overlay"""
-            self.pipeline.vmix.setOverlay(None)
-            return NotifyResponse('overlay', None)
+        def set_overlay(self, overlay):
+            """set an overlay and show"""
+            # decode parameter to filename
+            filename = _make_filename(dequote(overlay))
+            # check if file exists
+            if os.path.isfile(filename):
+                # select overlay in mixing pipeline
+                self.pipeline.vmix.setOverlay(filename)
+            else:
+                # tell log about file that could not be found
+                self.log.error(
+                    "Overlay file '{}' not found".format(filename))
+            # respond with current overlay notification
+            return self.get_overlay()
+
+        def show_overlay(self, visible):
+            """set an overlay and show"""
+            # show or hide overlay in mixing pipeline
+            self.pipeline.vmix.showOverlay(str2bool(visible))
+            # respond with overlay visibility notification
+            return self.get_overlay_visible()
 
         def get_overlay(self):
             """respond any visible overlay"""
-            return NotifyResponse('overlay', self.pipeline.vmix.getOverlay())
+            return NotifyResponse('overlay', quote(_unmake_filename(self.pipeline.vmix.getOverlay())))
+
+        def get_overlay_visible(self):
+            """respond any visible overlay"""
+            return NotifyResponse('overlay_visible', str(self.pipeline.vmix.getOverlayVisible()))
 
         def get_overlays(self):
             """respond with list of all available overlays"""
