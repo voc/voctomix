@@ -27,14 +27,15 @@ class OverlayToolbarController(object):
             self.inserts_store = uibuilder.get_check_widget('insert-store')
             self.inserts.connect('changed', self.on_inserts_changed)
 
-            self.insert  = uibuilder.get_check_widget('insert')
+            self.insert = uibuilder.get_check_widget('insert')
             self.insert.connect('toggled', self.on_insert_toggled)
 
             self.autooff = uibuilder.get_check_widget('insert-auto-off')
             self.autooff.set_visible(Config.getOverlayUserAutoOff())
             self.autooff.set_active(Config.getOverlayAutoOff())
 
-            self.overlay_description = uibuilder.get_check_widget('overlay-description')
+            self.overlay_description = uibuilder.get_check_widget(
+                'overlay-description')
 
             self.overlays = []
 
@@ -54,7 +55,6 @@ class OverlayToolbarController(object):
             return
         Connection.send('show_overlay', str(self.insert.get_active()))
 
-
     def on_inserts_changed(self, combobox):
         ''' new insert was selected
         '''
@@ -64,12 +64,13 @@ class OverlayToolbarController(object):
         # check if there is any useful selection
         if self.inserts.get_active_iter():
             # get name of the selection
-            selected_overlay = self.inserts_store[self.inserts.get_active_iter()][0]
+            selected_overlay = self.inserts_store[self.inserts.get_active_iter(
+            )][0]
             # tell log about user selection
             self.log.info("setting overlay to '%s'", selected_overlay)
             # hide overlay if 'AUTO-OFF' is selected
             if self.isAutoOff():
-                Connection.send('show_overlay',str(False))
+                Connection.send('show_overlay', str(False))
             # select overlay on voctocore
             Connection.send('set_overlay', quote(str(selected_overlay)))
 
@@ -79,25 +80,26 @@ class OverlayToolbarController(object):
         # set 'insert' button state
         self.insert.set_active(str2bool(visible))
 
-    def on_overlay(self, overlay_name):
+    def on_overlay(self, overlay):
         # decode parameter
-        overlay_name = dequote(overlay_name)
+        overlay = dequote(overlay)
+        overlays = [o for o,t in self.overlays]
         # do we know this overlay?
-        if overlay_name in self.overlays:
+        if overlay in overlays:
             # select overlay by name
-            self.inserts.set_active(self.overlays.index(overlay_name))
+            self.inserts.set_active(overlays.index(overlay))
         else:
             if self.overlays:
                 # select first item as default
                 self.inserts.set_active(0)
         # tell log about new overlay
-        self.log.info("overlay is '%s'", overlay_name)
+        self.log.info("overlay is '%s'", overlay)
         # enable 'INSERT' button if there is a selection
         self.insert.set_sensitive(not self.inserts.get_active_iter() is None)
 
     def on_overlays(self, title, overlays):
         # decode parameters
-        overlays = [dequote(o) for o in overlays.split(",")]
+        overlays = [dequote(o).split('|') for o in overlays.split(",")]
         title = dequote(title)
         # title given?
         if title:
@@ -113,7 +115,8 @@ class OverlayToolbarController(object):
         self.inserts_store.clear()
         # save inserts into storage if there are any
         if overlays:
-            [self.inserts_store.append([o]) for o in overlays]
+            for o in overlays:
+                self.inserts_store.append(o)
         # enable selection widget only if available
         self.inserts.set_sensitive(len(overlays) > 1 if overlays else False)
         # remember overlay list

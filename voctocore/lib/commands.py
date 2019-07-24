@@ -293,6 +293,7 @@ class ControlServerCommands(object):
             """set an overlay and show"""
             # decode parameter to filename
             filename = _make_filename(dequote(overlay))
+            print(filename)
             # check if file exists
             if os.path.isfile(filename):
                 # select overlay in mixing pipeline

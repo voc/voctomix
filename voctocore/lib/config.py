@@ -29,7 +29,7 @@ class VoctocoreConfigParser(VocConfigParser):
         self.events = []
         self.event_now = None
         self.events_update = None
-        self.default_person = None
+        self.default_insert = None
 
     def add_section_if_missing(self, section):
         try:
@@ -55,7 +55,8 @@ class VoctocoreConfigParser(VocConfigParser):
         ''' return overlay/schedule-event or <None> from INI configuration '''
         if self.has_option('overlay', 'schedule-event'):
             if self.has_option('overlay', 'schedule-room'):
-                self.log.warning("'overlay'/'schedule-event' overwrites 'overlay'/'schedule-room'")
+                self.log.warning(
+                    "'overlay'/'schedule-event' overwrites 'overlay'/'schedule-room'")
             return self.get('overlay', 'schedule-event')
         else:
             return None
@@ -128,23 +129,34 @@ class VoctocoreConfigParser(VocConfigParser):
         '''
         if self.getSchedule():
             try:
+
+                def getInserts(event):
+                    ''' return all available insert names for event '''
+                    persons = event.findall("persons/person")
+                    inserts = ["event_{eid}_person_{pid}|{text}".format(
+                        eid=event.get('id'),
+                        pid=person.get('id'),
+                        text=person.text) for person in persons]
+                    if len(persons) > 1:
+                        inserts += ["event_{eid}_persons|{text}".format(
+                            eid=event.get('id'),
+                            text=", ".join([person.text for person in persons]))]
+                    return inserts
+
                 event = self._getEventNow()
-                persons = [person.text for person in event.findall(
-                    "persons/person")]
-                if not persons:
-                    self.log.warning('schedule file \'%s\' contains no persons for event #%s',
+                inserts = getInserts(event)
+                if not inserts:
+                    self.log.warning('schedule file \'%s\' contains no information for inserts of event #%s',
                                      self.getSchedule(),
                                      event.get('id'))
                 else:
-                    if len(persons) > 1:
-                        persons += [", ".join(persons)]
-                    self.log.info('schedule file \'%s\' contains %d person(s) for event #%s: %s',
+                    self.log.info('schedule file \'%s\' provides %d insert(s) for event #%s: %s',
                                   self.getSchedule(),
-                                  len(persons),
+                                  len(inserts),
                                   event.get('id'),
-                                  ",".join([p for p in persons]))
-                    self.default_person = persons[0]
-                return persons
+                                  ",".join([i for i in inserts]))
+                    self.default_insert = inserts[0]
+                return inserts
 
             except FileNotFoundError:
                 self.log.error(
