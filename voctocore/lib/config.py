@@ -63,12 +63,12 @@ class VoctocoreConfigParser(VocConfigParser):
     def getSchedule(self):
         ''' return overlay/schedule-file or <None> from INI configuration '''
         if self.has_option('overlay', 'schedule-file'):
-            if self.has_option('overlay', 'schedule-room'):
+            if self.has_option('overlay', 'schedule-room') or self.has_option('overlay', 'schedule-event'):
                 return self.get('overlay', 'schedule-file')
             else:
                 # warn if no room has been defined
                 self.log.error(
-                    "configuration option 'overlay'/'schedule-file' ignored when not defining 'overlay'/'schedule-room' too")
+                    "configuration option 'overlay'/'schedule-file' ignored when not defining 'schedule-room' or 'schedule-event' too")
         return None
 
     def _getEvents(self):
