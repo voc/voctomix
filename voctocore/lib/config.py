@@ -5,7 +5,7 @@ from configparser import DuplicateSectionError
 from lib.args import Args
 from vocto.config import VocConfigParser
 import xml.etree.ElementTree as ET
-from datetime import date, datetime, timezone, timedelta
+from datetime import date, datetime, timedelta
 import re
 
 __all__ = ['Config']
@@ -110,9 +110,9 @@ class VoctocoreConfigParser(VocConfigParser):
                 event = self._getEventNow()
                 if event:
                     at = scandatetime(event.find('date').text)
-                    return (at.strftime("%H:%M"),
+                    return (at.strftime("%Y-%m-%d %H:%M"),
                             (at + scanduration(event.find('duration').text)
-                             ).strftime("%H:%M"),
+                             ).strftime("%Y-%m-%d %H:%M"),
                             event.get('id'),
                             event.find('title').text)
             except FileNotFoundError:

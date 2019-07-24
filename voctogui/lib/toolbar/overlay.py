@@ -2,13 +2,13 @@
 import os
 import logging
 
-from gi.repository import Gtk
+from gi.repository import Gtk, GLib
 import lib.connection as Connection
 
 from lib.config import Config
 from lib.uibuilder import UiBuilder
+from datetime import datetime, timedelta
 from vocto.command_helpers import quote, dequote, str2bool
-
 
 class OverlayToolbarController(object):
     """Manages Accelerators and Clicks on the Overlay Composition Toolbar-Buttons"""
@@ -31,6 +31,9 @@ class OverlayToolbarController(object):
             self.insert = uibuilder.get_check_widget('insert')
             self.insert.connect('toggled', self.on_insert_toggled)
 
+            self.update_inserts = uibuilder.get_check_widget('update-inserts')
+            self.update_inserts.connect('clicked', self.update_overlays)
+
             # initialize to AUTO-OFF toggle button
             self.autooff = uibuilder.get_check_widget('insert-auto-off')
             self.autooff.set_visible(Config.getOverlayUserAutoOff())
@@ -49,8 +52,7 @@ class OverlayToolbarController(object):
             Connection.on('overlay', self.on_overlay)
             Connection.on('overlay_visible', self.on_overlay_visible)
             # call core for a list of available overlays
-            Connection.send('get_overlays')
-            Connection.send('get_overlays_title')
+            self.update_overlays()
             # show insert tool bar
             uibuilder.get_check_widget('box_insert').show()
         else:
@@ -93,7 +95,7 @@ class OverlayToolbarController(object):
     def on_overlay(self, overlay):
         # decode parameter
         overlay = dequote(overlay)
-        overlays = [o for o,t in self.overlays]
+        overlays = [o for o, t in self.overlays]
         # do we know this overlay?
         if overlay in overlays:
             # select overlay by name
@@ -110,7 +112,7 @@ class OverlayToolbarController(object):
     def on_overlays(self, overlays):
         # decode parameter
         overlays = [dequote(o).split('|') for o in overlays.split(",")]
-        overlays = [o if len(o) == 2 else (o[0],o[0]) for o in overlays]
+        overlays = [o if len(o) == 2 else (o[0], o[0]) for o in overlays]
         # tell log about overlay list
         self.log.info("Got list of overlays from server '%s'", overlays)
         # clear inserts storage
@@ -136,7 +138,12 @@ class OverlayToolbarController(object):
         if title:
             # show title
             if len(title) == 4:
-                self.overlay_description.set_text("{} - {} : #{}  '{}'".format(*title))
+                start, end, id, text = title
+                self.overlay_description.set_text(
+                    "{start} - {end} : #{id}  '{text}'".format(start=start.split(" ")[1],
+                                                               end=end.split(" ")[1],
+                                                               id=id,
+                                                               text=text))
             else:
                 self.overlay_description.set_text(title[0])
             self.overlay_description.show()
@@ -145,6 +152,10 @@ class OverlayToolbarController(object):
             self.overlay_description.hide()
         # tell log about overlay list
         self.log.info("Got title of overlays from server '%s'", title)
+
+    def update_overlays(self,btn=None):
+        Connection.send('get_overlays')
+        Connection.send('get_overlays_title')
 
     def isAutoOff(self):
         return self.autooff.get_active()
