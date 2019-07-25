@@ -95,7 +95,10 @@ class VocConfigParser(SafeConfigParser):
         if self.has_option('source.{}'.format(source), 'imguri'):
             return self.get('source.{}'.format(source), 'imguri')
         else:
-            return "file://{}".format(os.path.abspath(self.get('source.{}'.format(source), 'file')))
+            path = os.path.abspath(self.get('source.{}'.format(source), 'file'))
+            if not os.path.isfile(path):
+                self.log.error("image file '%s' could not be found" % path)
+            return "file://{}".format(path)
 
     def getLocation(self,source):
         return self.get('source.{}'.format(source), 'location')

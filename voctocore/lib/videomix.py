@@ -46,7 +46,7 @@ bin.(
             if Config.getOverlayFile():
                 self.bin += """\
         location={overlay}
-""".format(overlay=Config.getOverlayFile())
+""".format(overlay=Config.getOverlayFilePath(Config.getOverlayFile()))
             else:
                 self.log.info("No initial overlay source configured.")
 

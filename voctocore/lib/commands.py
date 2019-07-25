@@ -10,12 +10,6 @@ from vocto.composite_commands import CompositeCommand
 from vocto.command_helpers import quote, dequote, str2bool
 import os
 
-def _make_filename(name):
-    return name + ".png" if name and len(name) > 4 and name[-4:].lower() != ".png" else name
-
-def _unmake_filename(filename):
-    return filename[:-4] if filename and len(filename) > 4 and filename[-4:].lower() == ".png" else filename
-
 class ControlServerCommands(object):
 
     def __init__(self, pipeline):
@@ -292,7 +286,7 @@ class ControlServerCommands(object):
         def set_overlay(self, overlay):
             """set an overlay and show"""
             # decode parameter to filename
-            filename = _make_filename(dequote(overlay))
+            filename = Config.getOverlayFilePath(dequote(overlay))
             # check if file exists
             if os.path.isfile(filename):
                 # select overlay in mixing pipeline
@@ -313,7 +307,7 @@ class ControlServerCommands(object):
 
         def get_overlay(self):
             """respond any visible overlay"""
-            return NotifyResponse('overlay', quote(_unmake_filename(self.pipeline.vmix.getOverlay())))
+            return NotifyResponse('overlay', quote(Config.getOverlayNameFromFilePath(self.pipeline.vmix.getOverlay())))
 
         def get_overlay_visible(self):
             """respond any visible overlay"""
@@ -326,4 +320,4 @@ class ControlServerCommands(object):
 
         def get_overlays(self):
             return NotifyResponse('overlays',
-                                  ",".join([quote(_unmake_filename(a)) for a in Config.getOverlayFiles()]))
+                                  ",".join([quote(a) for a in Config.getOverlayFiles()]))
