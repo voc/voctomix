@@ -19,6 +19,7 @@ class DeckLinkAVSource(AVSource):
         self.vmode = Config.getDeckLinkVideoMode(name)
         self.vfmt = Config.getDeckLinkVideoFormat(name)
         self.audiostreams = Config.getDeckLinkAudioStreamMap(name)
+        self.name = name
 
         self.fallback_default = not self.audiostreams
         if self.fallback_default:
@@ -43,13 +44,17 @@ class DeckLinkAVSource(AVSource):
                 'since %s',
                 tuple(Gst.version()), min_gst_multi_channels)
 
+        self.signalPad = None
         self.build_pipeline()
 
     def port(self):
         return "Decklink #{}".format(self.device)
 
+    def attach(self, pipeline):
+        self.signalPad = pipeline.get_by_name('decklinkvideosrc-{}'.format(self.name))
+
     def num_connections(self):
-        return 1
+        return 1 if self.signalPad and self.signalPad.get_property('signal') else 0
 
     def audio_channels(self):
         if len(self.audiostreams) == 0:
@@ -114,11 +119,12 @@ class DeckLinkAVSource(AVSource):
         # A video source is required even when we only need audio
         pipe = """
     decklinkvideosrc
+        name=decklinkvideosrc-{name}
         device-number={device}
         connection={conn}
         video-format={fmt}
         mode={mode}
-        """.format(
+""".format( name=self.name,
             device=self.device,
             conn=self.vconn,
             mode=self.vmode,
@@ -126,10 +132,13 @@ class DeckLinkAVSource(AVSource):
         )
 
         if self.has_video:
-            pipe += """
+            if self.build_deinterlacer():
+                pipe += """\
     ! {deinterlacer}
+""".format(deinterlacer=self.build_deinterlacer())
 
-    videoconvert
+            pipe += """\
+    ! videoconvert
     ! videoscale
     ! videorate
         name=vout-{name}
@@ -138,30 +147,34 @@ class DeckLinkAVSource(AVSource):
                 name=self.name
             )
         else:
-            pipe += """
+            pipe += """\
     ! fakesink
             """
 
         if self.has_audio:
             pipe += """
     decklinkaudiosrc
-        {channels}
+        name=decklinkaudiosrc-{name}
+""".format( name=self.name )
+            if self.required_input_channels > 2:
+                pipe += """\
+        channels={}
+""".format(self.required_input_channels)
+
+            pipe += """\
         device-number={device}
         connection={conn}
-        {output}
-            """.format(
-                channels="channels={}".format(self.required_input_channels)
-                         if self.required_input_channels > 2 else
-                         "",
+""".format(
                 device=self.device,
-                conn=self.aconn,
-                output="name=aout-{name}".format(name=self.name)
-                       if self.fallback_default else
-                       """
+                conn=self.aconn)
+
+            if not self.fallback_default:
+                pipe += """\
     ! deinterleave
+"""
+            pipe += """\
         name=aout-{name}
-                       """.format(name=self.name),
-            )
+""".format(name=self.name)
 
             for audiostream, mapping in self.audiostreams.items():
                 left, right = mapping
@@ -186,7 +199,7 @@ class DeckLinkAVSource(AVSource):
     ! queue
         name=queue-decklink-audio-{name}-{audiostream}-right
     ! i-{name}-{audiostream}.sink_1
-                    """.format(
+""".format(
                         left=left,
                         right=right,
                         name=self.name,
@@ -216,22 +229,13 @@ class DeckLinkAVSource(AVSource):
     ! queue
         name=queue-decklink-audio-{name}-{audiostream}-right
     ! i-{name}-{audiostream}.sink_1
-                    """.format(
+""".format(
                         channel=left,
                         name=self.name,
                         audiostream=audiostream
                     )
 
         return pipe
-
-    def build_deinterlacer(self):
-        deinterlacer = super().build_deinterlacer()
-        if deinterlacer:
-            deinterlacer += ' !'
-        else:
-            deinterlacer = ''
-
-        return deinterlacer
 
     def build_audioport(self, audiostream):
         if self.fallback_default and audiostream == 0:

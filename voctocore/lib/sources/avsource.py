@@ -47,7 +47,8 @@ bin.(
     {audioport}
     ! {acaps}
     ! tee
-        name=audio-{name}-{audiostream}""".format(
+        name=audio-{name}-{audiostream}
+""".format(
                     audioport=audioport,
                     audiostream=audiostream,
                     acaps=Config.getAudioCaps(),
