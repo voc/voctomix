@@ -83,6 +83,9 @@ class VoctoguiConfigParser(VocConfigParser):
     def getToolbarMix(self):
         return self.trySection('toolbar.mix', self.getToolbarMixDefault())
 
+    def getToolbarInsert(self):
+        return self.trySection('toolbar.insert', {})
+
 def load():
     global Config
 

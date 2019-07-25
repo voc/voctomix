@@ -2,11 +2,12 @@
 import os
 import logging
 
-from gi.repository import Gtk, GLib
+from gi.repository import Gtk
 import lib.connection as Connection
 
 from lib.config import Config
 from lib.uibuilder import UiBuilder
+from lib.toolbar.widgets import Widgets
 from datetime import datetime, timedelta
 from vocto.command_helpers import quote, dequote, str2bool
 
@@ -22,6 +23,9 @@ class OverlayToolbarController(object):
         win.add_accel_group(accelerators)
 
         if Config.hasOverlay():
+
+            widgets = Widgets(Config.getToolbarInsert())
+
             # connect to inserts selection combo box
             self.inserts = uibuilder.get_check_widget('inserts')
             self.inserts_store = uibuilder.get_check_widget('insert-store')
@@ -29,15 +33,17 @@ class OverlayToolbarController(object):
 
             # connect to INSERT toggle button
             self.insert = uibuilder.get_check_widget('insert')
-            self.insert.connect('toggled', self.on_insert_toggled)
+            print(self.insert)
+            widgets.add(self.insert, 'insert', accelerators, self.on_insert_toggled, signal='toggled' )
 
             self.update_inserts = uibuilder.get_check_widget('update-inserts')
-            self.update_inserts.connect('clicked', self.update_overlays)
+            widgets.add(self.update_inserts, 'update', accelerators, self.update_overlays)
 
             # initialize to AUTO-OFF toggle button
             self.autooff = uibuilder.get_check_widget('insert-auto-off')
             self.autooff.set_visible(Config.getOverlayUserAutoOff())
             self.autooff.set_active(Config.getOverlayAutoOff())
+            widgets.add(self.autooff, 'auto-off', accelerators)
 
             # remember overlay description label
             self.overlay_description = uibuilder.get_check_widget(

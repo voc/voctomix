@@ -1,56 +1,22 @@
 #!/usr/bin/env python3
 from gi.repository import Gtk
 import sys
+from lib.toolbar.widgets import _decode, Widgets
 
-
-class Buttons(dict):
+class Buttons(Widgets):
     ''' reads toolbar buttons from configuration and adds them into a toolbar
         items from INI file can shall look like this:
 
-        myitem.name = My Item
-        myitem.key = <Shift>F1
-        myitem.tip = Some tooltip text
-
-        'myitem' will be the ID of the item used to identify the button.
-        'name' is an optional attribute which replaces the item ID in the button label
-        'tip' is an optional attribute which will be used for a tool tip message
-
         additional some attributes will be added automatically:
 
-        'id' is a copy of the ID within the attributes
         'button' is the created button instance
-
-        an extra member 'ids' becomes a list of all available IDs
     '''
 
-    BUTTONS = "buttons"
-
     def __init__(self, cfg_items):
-        # read all config items with their attributes
-        self.ids = []
-        if cfg_items:
-            filter = cfg_items[self.BUTTONS].split(
-                ',') if self.BUTTONS in cfg_items else None
-            for cfg_name, cfg_value in cfg_items.items():
-                if cfg_name != self.BUTTONS:
-                    id, attr = cfg_name.rsplit('.', 1)
-                    if (filter is None) or id in filter:
-                        if id not in self:
-                            self.ids.append(id)
-                            self[id] = dict()
-                            self[id]['id'] = id
-                        self[id][attr] = cfg_value
+        super().__init__(cfg_items,"buttons")
 
     def create(self, toolbar, accelerators=None, callback=None, css=[], group=True, radio=True, sensitive=True, visible=True, multiline_names=True):
         ''' create toolbar from read configuration items '''
-
-        def decode(text, multiline=True):
-            ''' decode multiline text '''
-            if multiline:
-                text = text.replace('\\n', '\n')
-            else:
-                text = text.replace('\\n', ' ')
-            return text
 
         # generate a list of all buttons
         buttons = []
@@ -69,54 +35,12 @@ class Buttons(dict):
                 btn = Gtk.ToolButton()
 
             # set button properties
-            btn.set_can_focus(False)
-            btn.set_name(id)
-            btn.set_sensitive(sensitive)
+            self.add(btn, id, accelerators, callback, ('toggled' if radio else 'clicked'), css, sensitive, visible, multiline_names)
             btn.set_visible_horizontal(visible)
             btn.set_visible_vertical(visible)
 
-            # set button style class
-            context = btn.get_style_context()
-            for c in css:
-                context.add_class(c)
-
             # remember created button in attributes
             attr['button'] = btn
-
-            # set button label
-            if 'name' in attr:
-                name = decode(attr['name'], multiline_names)
-            else:
-                name = id.upper()
-            btn.set_label(name)
-
-            # set button tooltip
-            if 'tip' in attr:
-                tip = decode(attr['tip'])
-            else:
-                tip = "Select source %s" % decode(name, False)
-
-            # set interaction callback
-            if callback:
-                if radio:
-                    btn.connect('toggled', callback)
-                else:
-                    btn.connect('clicked', callback)
-
-            # set accelerator key and tooltip
-            if accelerators and 'key' in attr:
-                key, mod = Gtk.accelerator_parse(attr['key'])
-                btn.set_tooltip_text(
-                    "%s\nKey: '%s'" % (tip, attr['key'].upper()))
-                btn.get_child().add_accelerator(
-                    'clicked', accelerators,
-                    key, mod, Gtk.AccelFlags.VISIBLE)
-            else:
-                btn.set_tooltip_text(tip)
-
-            # set button tooltip
-            if 'expand' in attr:
-                btn.set_expand(True)
 
             # store button
             buttons.append(
