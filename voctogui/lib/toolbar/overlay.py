@@ -33,7 +33,6 @@ class OverlayToolbarController(object):
 
             # connect to INSERT toggle button
             self.insert = uibuilder.get_check_widget('insert')
-            print(self.insert)
             widgets.add(self.insert, 'insert', accelerators, self.on_insert_toggled, signal='toggled' )
 
             self.update_inserts = uibuilder.get_check_widget('update-inserts')
