@@ -48,19 +48,24 @@ class Widgets(dict):
                         self[id][attr] = cfg_value
 
     def add(self, widget, id, accelerators=None, callback=None, signal='clicked', css=[], sensitive=True, visible=True, multiline_names=True):
+        # set button properties
+        widget.set_can_focus(False)
+        widget.set_sensitive(sensitive)
+        widget.set_visible(visible)
+
+        # set button style class
+        context = widget.get_style_context()
+        for c in css:
+            context.add_class(c)
+
+        # set interaction callback
+        if callback:
+            widget.connect(signal, callback)
+
         if id in self:
             attr = self[id]
 
-            # set button properties
-            widget.set_can_focus(False)
             widget.set_name(id)
-            widget.set_sensitive(sensitive)
-            widget.set_visible(visible)
-
-            # set button style class
-            context = widget.get_style_context()
-            for c in css:
-                context.add_class(c)
 
             # set button label
             if 'name' in attr:
@@ -74,10 +79,6 @@ class Widgets(dict):
                 tip = _decode(attr['tip'])
             else:
                 tip = "Select source %s" % _decode(name, False)
-
-            # set interaction callback
-            if callback:
-                widget.connect(signal, callback)
 
             # set accelerator key and tooltip
             if accelerators and 'key' in attr:
