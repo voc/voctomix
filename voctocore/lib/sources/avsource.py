@@ -27,7 +27,8 @@ class AVSource(object, metaclass=ABCMeta):
             '__str__ not implemented for this source')
 
     def attach(self, pipeline):
-        return
+        if self.has_video:
+            self.inputSink = pipeline.get_by_name('compositor-{}'.format(self.name)).get_static_pad('sink_1')
 
     def build_pipeline(self):
         self.bin = """
@@ -65,7 +66,7 @@ bin.(
         text=\"NO SIGNAL\"
         valignment=center
         halignment=center
-        font-desc="Roboto, 20"
+        font-desc="Roboto Bold, 20"
     ! {vcaps}
     ! compositor-{name}.
 
