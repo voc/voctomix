@@ -3,10 +3,13 @@ import logging
 
 from configparser import NoOptionError
 from enum import Enum, unique
+import gi
+gi.require_version('GstController', '1.0')
 from gi.repository import Gst
 from lib.config import Config
 from vocto.transitions import Composites, Transitions, Frame
 from lib.scene import Scene
+from lib.overlay import Overlay
 
 from vocto.composite_commands import CompositeCommand
 
@@ -25,6 +28,7 @@ class VideoMix(object):
         # load transitions from configuration
         self.transitions = Config.getTransitions(self.composites)
         self.scene = None
+        self.overlay = None
 
         # build GStreamer mixing pipeline descriptor
         self.bin = """
@@ -33,7 +37,7 @@ bin.(
 
     compositor
         name=videomixer
-    """
+"""
         if Config.hasOverlay():
             self.bin += """\
     ! queue
@@ -46,6 +50,7 @@ bin.(
             if Config.getOverlayFile():
                 self.bin += """\
         location={overlay}
+        alpha=1.0
 """.format(overlay=Config.getOverlayFilePath(Config.getOverlayFile()))
             else:
                 self.log.info("No initial overlay source configured.")
@@ -88,11 +93,6 @@ bin.(
         sig = pipeline.get_by_name('sig')
         sig.connect('handoff', self.on_handoff)
 
-        # get overlay element
-        self.overlay = pipeline.get_by_name('overlay')
-        # set overlay of by default
-        self.showOverlay(Config.getOverlayFile() != None)
-
         self.log.debug('Initializing Mixer-State')
         # initialize pipeline bindings for all sources
         self.scene = Scene(self.sources, pipeline, self.transitions.fps, 1)
@@ -100,6 +100,8 @@ bin.(
         self.sourceA = None
         self.sourceB = None
         self.setCompositeEx(Composites.targets(self.composites)[0].name, self.sources[0], self.sources[1] )
+
+        self.overlay = Overlay(pipeline,Config.getOverlayFile(), Config.getOverlayBlendTime())
 
         bgMixerpad = (pipeline.get_by_name('videomixer')
                       .get_static_pad('sink_0'))
@@ -253,16 +255,16 @@ bin.(
 
     def setOverlay(self, location):
         ''' set up overlay file by location '''
-        self.overlay.set_property('location', location if location else "" )
+        self.overlay.set(location)
 
     def showOverlay(self, visible):
         ''' set overlay visibility '''
-        self.overlay.set_property('alpha', 1.0 if visible else 0.0 )
+        self.overlay.show( visible, self.getPlayTime() )
 
     def getOverlay(self):
         ''' get current overlay file location '''
-        return self.overlay.get_property('location' )
+        return self.overlay.get()
 
     def getOverlayVisible(self):
         ''' get overlay visibility '''
-        return self.overlay.get_property('alpha') != 0.0
+        return self.overlay.visible()

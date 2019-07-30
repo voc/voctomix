@@ -251,6 +251,12 @@ class VoctocoreConfigParser(VocConfigParser):
                 'Could not find any availbale overlays in configuration.')
         return valid
 
+    def getOverlayBlendTime(self):
+        ''' return overlay blending time in milliseconds from INI configuration '''
+        if self.has_option('overlay', 'blend'):
+            return int(self.get('overlay', 'blend'))
+        else:
+            return 300
 
 def load():
     global Config
