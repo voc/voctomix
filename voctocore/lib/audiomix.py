@@ -49,16 +49,16 @@ class AudioMix(object):
         self.bin = """
 bin.(
     name=AudioMix
-        """
+"""
 
         for audiostream in range(0, Config.getNumAudioStreams()):
-            self.bin +="""
+            self.bin += """
     audiomixer
         name=audiomixer-{audiostream}
     ! tee
         name=audio-mix-{audiostream}
-            """.format(
-                audiostream=audiostream,
+""".format(
+                audiostream=audiostream
             )
 
             for idx, name in enumerate(self.sources):
@@ -67,12 +67,11 @@ bin.(
     ! queue
         name=queue-audio-{name}-{audiostream}
     ! audiomixer-{audiostream}.
-                """.format(
+""".format(
                     name=name,
-                    audiostream=audiostream,
+                    audiostream=audiostream
                 )
         self.bin += "\n)"
-
 
     def attach(self, pipeline):
         self.pipeline = pipeline
@@ -102,7 +101,8 @@ bin.(
                 mixerpad.set_property('volume', volume)
 
     def setAudioSource(self, source):
-        self.volumes = [float(idx == source) for idx in range(len(self.sources))]
+        self.volumes = [float(idx == source)
+                        for idx in range(len(self.sources))]
         self.updateMixerState()
 
     def setAudioSourceVolume(self, source, volume):

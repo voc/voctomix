@@ -75,7 +75,7 @@ class TCPAVSource(AVSource):
 
     matroskademux
         name=demux-{name}
-            """.format(
+""".format(
             name=self.name,
             port=self.listen_port
         )

@@ -22,7 +22,7 @@ bin.(
     ! queue
         name=queue-preview-video-{channel}
     ! mux-preview-{channel}.
-        """.format(
+""".format(
             channel=self.channel,
             vpipeline=self.construct_video_pipeline(Config.getPreviewCaps())
         )
@@ -33,7 +33,7 @@ bin.(
     ! queue
         name=queue-preview-audio-{channel}-{audiostream}
     ! mux-preview-{channel}.
-            """.format(
+""".format(
                 channel=self.channel,
                 audiostream=audiostream
             )

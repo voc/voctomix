@@ -151,14 +151,14 @@ class DeckLinkAVSource(AVSource):
     ! videoscale
     ! videorate
         name=vout-{name}
-            """.format(
+""".format(
                 deinterlacer=self.build_deinterlacer(),
                 name=self.name
             )
         else:
             pipe += """\
     ! fakesink
-            """
+"""
 
         if self.has_audio:
             pipe += """
