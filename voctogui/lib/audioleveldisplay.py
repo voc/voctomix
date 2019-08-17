@@ -42,7 +42,7 @@ class AudioLevelDisplay(Gtk.DrawingArea):
         height = self.get_allocated_height()
 
         # space between the channels in px
-        margin = 1
+        margin = 1 if channels <= 4 else 0
 
         # 1 channel -> 0 margins, 2 channels -> 1 margin, 3 channels…
         channel_width = int((width - (margin * (channels - 1))) / channels)

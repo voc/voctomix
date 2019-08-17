@@ -22,21 +22,6 @@ class AudioMix(object):
             self.log.info('Setting Volume of Source %s to %0.2f',
                           source, self.volumes[index])
 
-        # try [mix]audiosource shortcut
-        source = Config.getAudioSource()
-        if source and self.isConfigured():
-            raise ConfigurationError(
-                'cannot configure [mix]audiosource-shortcut and '
-                '[source.*]volume at the same time')
-
-            if source not in self.sources:
-                raise ConfigurationError(
-                    'unknown source configured as [mix]audiosource: %s', source)
-
-            index = self.sources.index(source)
-            self.log.info('Setting Volume of Source %s to %0.2f', source, 1.0)
-            self.volumes[index] = 1.0
-
         if self.isConfigured():
             self.log.info(
                 'Volume was configured, advising ui not to show a selector')
@@ -51,26 +36,19 @@ bin.(
     name=AudioMix
 """
 
-        for audiostream in range(0, Config.getNumAudioStreams()):
-            self.bin += """
+        self.bin += """
     audiomixer
-        name=audiomixer-{audiostream}
+        name=audiomixer
     ! tee
-        name=audio-mix-{audiostream}
-""".format(
-                audiostream=audiostream
-            )
-
-            for idx, name in enumerate(self.sources):
-                self.bin += """
-    audio-{name}-{audiostream}.
+        name=audio-mix
+"""
+        for idx, name in enumerate(self.sources):
+            self.bin += """
+    audio-{name}.
     ! queue
-        name=queue-audio-{name}-{audiostream}
-    ! audiomixer-{audiostream}.
-""".format(
-                    name=name,
-                    audiostream=audiostream
-                )
+        name=queue-audio-{name}
+    ! audiomixer.
+""".format(name=name)
         self.bin += "\n)"
 
     def attach(self, pipeline):
@@ -93,12 +71,9 @@ bin.(
             volume = self.volumes[idx]
 
             self.log.debug('Setting Mixerpad %u to volume=%0.2f', idx, volume)
-            for audiostream in range(0, Config.getNumAudioStreams()):
-                mixer = self.pipeline.get_by_name(
-                    'audiomixer-{}'.format(audiostream))
-
-                mixerpad = mixer.get_static_pad('sink_%u' % idx)
-                mixerpad.set_property('volume', volume)
+            mixer = self.pipeline.get_by_name('audiomixer')
+            mixerpad = mixer.get_static_pad('sink_%d' % idx)
+            mixerpad.set_property('volume', volume)
 
     def setAudioSource(self, source):
         self.volumes = [float(idx == source)

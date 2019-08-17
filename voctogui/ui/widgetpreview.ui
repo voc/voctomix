@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.18.3 -->
+<!-- Generated with glade 3.22.1 -->
 <interface>
   <requires lib="gtk+" version="3.0"/>
   <object class="GtkAdjustment" id="audio_level_adjustment">
@@ -50,11 +50,11 @@
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkScale" id="audio_level">
-                        <property name="width_request">42</property>
+                        <property name="width_request">50</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="margin_left">5</property>
-                        <property name="margin_right">5</property>
+                        <property name="margin_left">2</property>
+                        <property name="margin_right">2</property>
                         <property name="margin_top">5</property>
                         <property name="margin_bottom">5</property>
                         <property name="orientation">vertical</property>
@@ -71,10 +71,10 @@
                     </child>
                     <child>
                       <object class="AudioLevelDisplay" id="audio_level_display">
-                        <property name="width_request">8</property>
+                        <property name="width_request">16</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="margin_right">5</property>
+                        <property name="margin_right">2</property>
                         <property name="margin_top">0</property>
                         <property name="margin_bottom">0</property>
                       </object>

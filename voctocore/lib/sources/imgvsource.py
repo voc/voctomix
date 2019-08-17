@@ -45,10 +45,6 @@ class ImgVSource(AVSource):
             uri=self.imguri
         )
 
-    def build_audioport(self, audiostream):
-        raise NotImplementedError(
-            'build_audioport not implemented for this source')
-
     def build_videoport(self):
         return "img-{name}.".format(name=self.name)
 

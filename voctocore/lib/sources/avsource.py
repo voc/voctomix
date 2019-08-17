@@ -28,30 +28,27 @@ class AVSource(object, metaclass=ABCMeta):
 
     def attach(self, pipeline):
         if self.has_video:
-            self.inputSink = pipeline.get_by_name('compositor-{}'.format(self.name)).get_static_pad('sink_1')
+            self.inputSink = pipeline.get_by_name(
+                'compositor-{}'.format(self.name)).get_static_pad('sink_1')
 
     def build_pipeline(self):
         self.bin = """
 bin.(
     name={class_name}-{name}
-""".format(class_name=self.class_name,name=self.name)
+""".format(class_name=self.class_name, name=self.name)
 
         self.bin += self.build_source()
 
         if self.has_audio:
-            for audiostream in range(0, self.num_streams):
-                audioport = self.build_audioport(audiostream)
-                if not audioport:
-                    continue
-
+            audioport = self.build_audioport()
+            if audioport:
                 self.bin += """
     {audioport}
     ! {acaps}
     ! tee
-        name=audio-{name}-{audiostream}
+        name=audio-{name}
 """.format(
                     audioport=audioport,
-                    audiostream=audiostream,
                     acaps=Config.getAudioCaps(),
                     name=self.name
                 )
@@ -124,10 +121,8 @@ bin.(
     def port(self):
         assert False, "port() not implemented in %s" % self.name
 
-    @abstractmethod
-    def build_audioport(self, audiostream):
+    def build_audioport(self):
         assert False, "build_audioport() not implemented in %s" % self.name
 
-    @abstractmethod
     def build_videoport(self):
         assert False, "build_videoport() not implemented in %s" % self.name

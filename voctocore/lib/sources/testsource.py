@@ -38,7 +38,7 @@ class TestSource(AVSource):
             pattern=self.pattern
         )
 
-    def build_audioport(self, audiostream):
+    def build_audioport(self):
         return """audiotestsrc
         is-live=true"""
 

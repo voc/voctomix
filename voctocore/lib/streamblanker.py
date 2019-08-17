@@ -74,35 +74,28 @@ bin.(
                     name=name,
                 )
 
-        for audiostream in range(0, Config.getNumAudioStreams()):
-            # Audiomixer
-            self.bin += """
+        # Audiomixer
+        self.bin += """
     audiomixer
-        name=audiomixer-sb-{audiostream}
+        name=audiomixer-sb
     ! tee
-        name=audio-mix-sb-{audiostream}
+        name=audio-mix-sb
     ! tee
-        name=audio-mix-sb-slides-{audiostream}
+        name=audio-mix-sb-slides
 
-    audio-mix-{audiostream}.
+    audio-mix.
     ! queue
-        name=queue-audio-mix-{audiostream}
-    ! audiomixer-sb-{audiostream}.
-            """.format(
-                acaps=self.acaps,
-                audiostream=audiostream
-            )
+        name=queue-audio-mix
+    ! audiomixer-sb.
+            """.format(acaps=self.acaps)
 
-        for audiostream in range(0, Config.getNumAudioStreams()):
-            # Source from the Blank-Audio-Tee into the Audiomixer
-            self.bin += """
-    audio-sb-{audiostream}.
+        # Source from the Blank-Audio-Tee into the Audiomixer
+        self.bin += """
+    audio-sb.
     ! queue
-        name=queue-audio-sb-slides-{audiostream}
-    ! audiomixer-sb-{audiostream}.
-            """.format(
-                audiostream=audiostream,
-            )
+        name=queue-audio-sb
+    ! audiomixer-sb.
+"""
 
         self.bin += "\n)\n"
 
@@ -119,7 +112,7 @@ bin.(
         self.applyMixerStateVideo('videomixer-sb')
         if Config.getSlidesSource():
             self.applyMixerStateVideo('videomixer-sb-slides')
-        self.applyMixerStateAudio('audiomixer-sb-0')
+        self.applyMixerStateAudio('audiomixer-sb')
 
     def applyMixerStateVideo(self, mixername):
         mixer = self.pipeline.get_by_name(mixername)
@@ -136,9 +129,8 @@ bin.(
         if not mixer:
             self.log.error("Audio mixer '%s' not found", mixername)
         else:
-            mixer.get_static_pad('sink_0').set_property('volume', int(self.blankSource is None))
-            for audiostream in range(0, Config.getNumAudioStreams()):
-                mixer.get_static_pad('sink_%u' % (audiostream + 1)).set_property('volume', int(self.blankSource is not None))
+            mixer.get_static_pad('sink_0').set_property('volume', 1.0 if self.blankSource is None else 0.0)
+            mixer.get_static_pad('sink_1').set_property('volume', 0.0 if self.blankSource is None else 1.0)
 
     def setBlankSource(self, source):
         self.blankSource = source

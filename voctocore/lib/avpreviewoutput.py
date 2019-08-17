@@ -22,23 +22,12 @@ bin.(
     ! queue
         name=queue-preview-video-{channel}
     ! mux-preview-{channel}.
-""".format(
-            channel=self.channel,
-            vpipeline=self.construct_video_pipeline(Config.getPreviewCaps())
-        )
 
-        for audiostream in range(0, Config.getNumAudioStreams()):
-            self.bin += """
-    audio-{channel}-{audiostream}.
+    audio-{channel}.
     ! queue
-        name=queue-preview-audio-{channel}-{audiostream}
+        name=queue-preview-audio-{channel}
     ! mux-preview-{channel}.
-""".format(
-                channel=self.channel,
-                audiostream=audiostream
-            )
 
-        self.bin += """
     matroskamux
         name=mux-preview-{channel}
         streamable=true
@@ -48,11 +37,11 @@ bin.(
         buffers-max=500
         sync-method=next-keyframe
         name=fd-preview-{channel}
+)
 """.format(
-            channel=self.channel
+            channel=self.channel,
+            vpipeline=self.construct_video_pipeline(Config.getPreviewCaps())
         )
-        self.bin += """)
-"""
 
     def audio_channels(self):
         return Config.getNumAudioStreams()

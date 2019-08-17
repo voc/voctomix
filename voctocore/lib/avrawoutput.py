@@ -27,16 +27,12 @@ bin.(
 
         self.has_audio = has_audio
         if has_audio:
-            for audiostream in range(0, Config.getNumAudioStreams()):
-                self.bin += """
-    audio-{channel}-{audiostream}.
+            self.bin += """
+    audio-{channel}.
     ! queue
-        name=queue-mux-audio-{channel}-{audiostream}
+        name=queue-mux-audio-{channel}
     ! mux-{channel}.
-                """.format(
-                        channel=self.channel,
-                        audiostream=audiostream,
-                    )
+                """.format(channel=self.channel)
 
         self.bin += """
     matroskamux

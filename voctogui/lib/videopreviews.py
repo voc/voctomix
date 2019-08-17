@@ -50,7 +50,7 @@ class VideoPreviewsController(object):
             self.addPreview(uibuilder,preview_box, source, Port.SOURCES_OUT + idx)
 
         if Config.getLivePreviewEnabled():
-            self.addPreview(uibuilder, preview_box, "LIVE", Port.LIVE_OUT )
+            self.addPreview(uibuilder, preview_box, "LIVE", Port.LIVE_OUT, volume_control=False )
 
         # connect event-handler and request initial state
         Connection.on('video_status', self.on_video_status)
@@ -60,7 +60,7 @@ class VideoPreviewsController(object):
             Connection.on('audio_status', self.on_audio_status)
             Connection.send('get_audio')
 
-    def addPreview(self, uibuilder, preview_box, source, port):
+    def addPreview(self, uibuilder, preview_box, source, port, volume_control=True):
         self.log.info('Initializing Video Preview %s', source)
 
         preview = uibuilder.load_check_widget(
@@ -85,26 +85,24 @@ class VideoPreviewsController(object):
         volume_slider = uibuilder.find_widget_recursive(preview,
                                                         'audio_level')
 
-        if not Config.getVolumeControl():
-            box = uibuilder.find_widget_recursive(preview, 'box')
-            box.remove(volume_slider)
-        else:
-            volume_slider.set_name("volume {}".format(source))
-            volume_signal = volume_slider.connect('value-changed',
-                                                  self.slider_changed)
-            volume_slider.add_mark(-20.0,Gtk.PositionType.LEFT,"")
-            volume_slider.add_mark(0.0,Gtk.PositionType.LEFT,"0")
-            volume_slider.add_mark(10.0,Gtk.PositionType.LEFT,"")
+        volume_slider.set_name("volume {}".format(source))
+        volume_signal = volume_slider.connect('value-changed',
+                                              self.slider_changed)
+        volume_slider.add_mark(-20.0,Gtk.PositionType.LEFT,"")
+        volume_slider.add_mark(0.0,Gtk.PositionType.LEFT,"0")
+        volume_slider.add_mark(10.0,Gtk.PositionType.LEFT,"")
 
-            def slider_format(scale, value):
-                if value == -20.0:
-                    return "-\u221e\u202fdB"
-                else:
-                    return "{:.{}f}\u202fdB".format(value,
-                                                    scale.get_digits())
+        def slider_format(scale, value):
+            if value == -20.0:
+                return "-\u221e\u202fdB"
+            else:
+                return "{:.{}f}\u202fdB".format(value,
+                                                scale.get_digits())
 
-            volume_slider.connect('format-value', slider_format)
-            self.volume_sliders[source] = (volume_slider, volume_signal)
+        volume_slider.connect('format-value', slider_format)
+        self.volume_sliders[source] = (volume_slider, volume_signal)
+        if not (Config.getVolumeControl() and volume_control):
+            volume_slider.set_sensitive(False)
 
     def btn_toggled(self, btn):
         if not btn.get_active():
