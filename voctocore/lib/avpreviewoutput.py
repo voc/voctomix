@@ -18,6 +18,7 @@ bin.(
     name=AVPreviewOutput-{channel}
 
     video-{channel}.
+    ! {vcaps}
     ! {vpipeline}
     ! queue
         name=queue-preview-video-{channel}
@@ -40,7 +41,8 @@ bin.(
 )
 """.format(
             channel=self.channel,
-            vpipeline=self.construct_video_pipeline(Config.getPreviewCaps())
+            vcaps=Config.getVideoCaps(),
+            vpipeline=self.construct_video_pipeline()
         )
 
     def audio_channels(self):
@@ -55,13 +57,13 @@ bin.(
     def __str__(self):
         return 'AVPreviewOutput[{}]'.format(self.channel)
 
-    def construct_video_pipeline(self, target_caps):
+    def construct_video_pipeline(self):
         if Config.getPreviewVaapi():
-            return self.construct_vaapi_video_pipeline(target_caps)
+            return self.construct_vaapi_video_pipeline()
         else:
-            return self.construct_native_video_pipeline(target_caps)
+            return self.construct_native_video_pipeline()
 
-    def construct_vaapi_video_pipeline(self, target_caps):
+    def construct_vaapi_video_pipeline(self):
         if Gst.version() < (1, 8):
             vaapi_encoders = {
                 'h264': 'vaapiencode_h264',
@@ -88,14 +90,16 @@ bin.(
         vaapi = Config.getPreviewVaapi()
 
         return '''
-    capsfilter caps=video/x-raw,interlace-mode=progressive
+    capsfilter
+        caps=video/x-raw,interlace-mode=progressive
     ! vaapipostproc
         format=i420
         deinterlace-mode={imode}
         deinterlace-method=motion-adaptive
         width={width}
         height={height}
-    ! capssetter caps=video/x-raw,framerate={n}/{d}
+    ! capssetter
+        caps=video/x-raw,framerate={n}/{d}
     ! {encoder} {options}
         '''.format(
             imode='interlaced' if Config.getDeinterlacePreviews() else 'disabled',
@@ -107,21 +111,25 @@ bin.(
             d=framerate[1],
         )
 
-    def construct_native_video_pipeline(self, target_caps):
+    def construct_native_video_pipeline(self):
         if Config.getDeinterlacePreviews():
-            pipeline = '''deinterlace mode={imode}
+            pipeline = '''deinterlace mode=interlaced
     ! videorate
     ! videoscale
-    ! {target_caps}
-    ! jpegenc quality=90'''
+    ! capsfilter
+        caps={target_caps}
+    ! jpegenc
+        quality=90'''
         else:
-            pipeline = '''videoscale
-    ! {target_caps}
-    ! jpegenc quality=90'''
+            pipeline = '''videorate
+    ! videoscale
+    ! capsfilter
+        caps={target_caps}
+    ! jpegenc
+        quality=90'''
 
         return pipeline.format(
-            imode='interlaced' if Config.getDeinterlacePreviews() else 'disabled',
-            target_caps=target_caps,
+            target_caps=Config.getPreviewCaps(),
         )
 
     def attach(self, pipeline):
