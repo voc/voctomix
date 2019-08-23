@@ -103,7 +103,7 @@ class TCPAVSource(AVSource):
         caps = pad.query_caps(None)
         self.log.debug('demuxer added pad w/ caps: %s', caps.to_string())
 
-        if caps.can_intersect(ALL_AUDIO_CAPS):
+        if self.has_audio and caps.can_intersect(ALL_AUDIO_CAPS):
             self.log.debug('new demuxer-pad is an audio-pad, '
                            'testing against configured audio-caps')
             if not caps.can_intersect(self.audio_caps):
@@ -114,7 +114,7 @@ class TCPAVSource(AVSource):
                 self.log.warning('   configured caps: %s',
                                  self.audio_caps.to_string())
 
-        elif caps.can_intersect(ALL_VIDEO_CAPS):
+        elif self.has_video and caps.can_intersect(ALL_VIDEO_CAPS):
             self.log.debug('new demuxer-pad is a video-pad, '
                            'testing against configured video-caps')
             if not caps.can_intersect(self.video_caps):
@@ -150,7 +150,6 @@ class TCPAVSource(AVSource):
 
     def build_audioport(self):
         return """
-    demux-{name}.audio
     ! queue
         name=queue-{name}.audio""".format(name=self.name)
 
