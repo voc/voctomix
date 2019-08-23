@@ -165,6 +165,15 @@ class VocConfigParser(SafeConfigParser):
     def getMirrorsEnabled(self):
         return self.getboolean('mirrors', 'enabled')
 
+    def getMirrorsSources(self):
+        if self.getMirrorsEnabled():
+            if self.has_option('mirrors', 'sources'):
+                return self.getList('mirrors', 'sources')
+            else:
+                return self.getSources()
+        else:
+            return []
+
     def getOutputBuffers(self, channel):
         return self.getint('output-buffers', channel, fallback=500)
 

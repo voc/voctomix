@@ -44,9 +44,10 @@ class Pipeline(object):
             self.ports.append(Port(source_name, source))
 
             if Config.getMirrorsEnabled():
-                dest = AVRawOutput(source_name, Port.SOURCES_OUT + idx)
-                self.bins.append(dest)
-                self.ports.append(Port(source_name, dest))
+                if source_name in Config.getMirrorsSources():
+                    dest = AVRawOutput(source_name, Port.SOURCES_OUT + idx)
+                    self.bins.append(dest)
+                    self.ports.append(Port(source_name, dest))
 
             # check for source preview selection
             if Config.getPreviewsEnabled():
