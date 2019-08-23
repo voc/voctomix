@@ -101,7 +101,8 @@ bin.(
         self.sourceB = None
         self.setCompositeEx(Composites.targets(self.composites)[0].name, self.sources[0], self.sources[1] )
 
-        self.overlay = Overlay(pipeline,Config.getOverlayFile(), Config.getOverlayBlendTime())
+        if Config.hasOverlay():
+            self.overlay = Overlay(pipeline,Config.getOverlayFile(), Config.getOverlayBlendTime())
 
         bgMixerpad = (pipeline.get_by_name('videomixer')
                       .get_static_pad('sink_0'))
