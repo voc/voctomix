@@ -163,4 +163,5 @@ class OverlayToolbarController(object):
         Connection.send('get_overlays_title')
 
     def isAutoOff(self):
-        return self.autooff.get_active()
+        if Config.hasOverlay():
+            return self.autooff.get_active()
