@@ -5,6 +5,8 @@ from gi.repository import Gdk, Gtk
 from lib.config import Config
 import lib.connection as Connection
 
+from lib.shortcuts import show_shortcuts
+
 
 class MiscToolbarController(object):
     """Manages Accelerators and Clicks Misc buttons"""
@@ -44,6 +46,10 @@ class MiscToolbarController(object):
         ports_button.connect('toggled', self.on_ports_button_toggled)
         self.ports_controller = ports_controller
 
+        shortcuts_button = uibuilder.find_widget_recursive(self.toolbar, 'shortcuts_button')
+        shortcuts_button.set_visible(Config.getShowShortcutButton())
+        shortcuts_button.connect('clicked', self.on_shortcuts_button_clicked)
+
         key, mod = Gtk.accelerator_parse('t')
         tooltip = Gtk.accelerator_get_label(key, mod)
 
@@ -72,8 +78,12 @@ class MiscToolbarController(object):
         self.queues_controller.show(btn.get_active())
 
     def on_ports_button_toggled(self, btn):
-        self.log.info('queues-button clicked')
+        self.log.info('ports-button clicked')
         self.ports_controller.show(btn.get_active())
+
+    def on_shortcuts_button_clicked(self, btn):
+        self.log.info('shortcuts-button clicked')
+        show_shortcuts(self.win)
 
     def on_window_state_event(self, widget, ev):
         self.within_state_event = True

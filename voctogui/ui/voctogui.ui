@@ -14,6 +14,12 @@
     <property name="tooltip_text" translatable="yes">Show queues' filling levels</property>
     <property name="pixbuf">queues.svg</property>
   </object>
+  <object class="GtkImage" id="img-shortcuts">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="tooltip_text" translatable="yes">Show Keyboard Shortcuts</property>
+    <property name="pixbuf">shortcuts.svg</property>
+  </object>
   <object class="GtkImage" id="img-voc">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -1175,7 +1181,7 @@ https://github.com/voc/voctomix </property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="no_show_all">True</property>
-                        <property name="label">Queues</property>
+                        <property name="label">Ports</property>
                         <property name="icon_widget">img-ports</property>
                       </object>
                       <packing>
@@ -1228,6 +1234,19 @@ https://github.com/voc/voctomix </property>
                         <property name="expand">False</property>
                         <property name="homogeneous">True</property>
                       </packing>
+                    </child>
+                    <child>
+                        <object class="GtkToolButton" id="shortcuts_button">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="no_show_all">True</property>
+                            <property name="label">Shortcuts</property>
+                            <property name="icon_widget">img-shortcuts</property>
+                        </object>
+                        <packing>
+                            <property name="expand">False</property>
+                            <property name="homogeneous">True</property>
+                        </packing>
                     </child>
                     <child>
                       <object class="GtkToolButton" id="voc-btn">

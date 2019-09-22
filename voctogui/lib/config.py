@@ -47,6 +47,9 @@ class VoctoguiConfigParser(VocConfigParser):
     def getShowPortButton(self):
         return self.getboolean('misc', 'debug')
 
+    def getShowShortcutButton(self):
+        return self.getboolean('misc', 'shortcuts')
+
     def getToolbarSourcesDefault(self):
         return {"%s.name" % source:
                 source.upper()
