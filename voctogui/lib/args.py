@@ -10,7 +10,7 @@ def parse():
 
     parser = argparse.ArgumentParser(description='Voctogui')
     parser.add_argument('-v', '--verbose', action='count', default=0,
-                        help="Also print INFO and DEBUG messages.")
+                        help="Set verbosity level by using -v, -vv or -vvv.")
 
     parser.add_argument('-c', '--color',
                         action='store',

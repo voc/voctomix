@@ -137,12 +137,14 @@ def main():
     handler = LogHandler(docolor, Args.timestamp)
     logging.root.addHandler(handler)
 
-    if Args.verbose >= 2:
+    if Args.verbose > 2:
         level = logging.DEBUG
-    elif Args.verbose == 1:
+    elif Args.verbose == 2:
         level = logging.INFO
-    else:
+    elif Args.verbose == 1:
         level = logging.WARNING
+    else:
+        level = logging.ERROR
 
     logging.root.setLevel(level)
 
