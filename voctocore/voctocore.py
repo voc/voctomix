@@ -64,30 +64,24 @@ class Voctocore(object):
         self.mainloop.quit()
 
 
-def logGstMessages():
+def logGstMessages(max_level=Gst.DebugLevel.INFO):
     gstLog = logging.getLogger('Gst')
 
     def logFunction(category, level, file, function, line, object, message, *user_data):
         if level == Gst.DebugLevel.WARNING:
             gstLog.warning(message.get())
+        if level == Gst.DebugLevel.FIXME:
+            gstLog.warning(message.get())
         elif level == Gst.DebugLevel.ERROR:
             gstLog.error(message.get())
         elif level == Gst.DebugLevel.INFO:
             gstLog.info(message.get())
-        else:
+        elif level == Gst.DebugLevel.DEBUG:
             gstLog.debug(message.get())
 
     Gst.debug_remove_log_function(None)
     Gst.debug_add_log_function(logFunction,None)
-
-    if logging.root.level == logging.DEBUG:
-        Gst.debug_set_default_threshold(Gst.DebugLevel.DEBUG)
-    elif logging.root.level == logging.INFO:
-        Gst.debug_set_default_threshold(Gst.DebugLevel.INFO)
-    elif logging.root.level == logging.WARNING:
-        Gst.debug_set_default_threshold(Gst.DebugLevel.WARNING)
-    else:
-        Gst.debug_set_default_threshold(Gst.DebugLevel.ERROR)
+    Gst.debug_set_default_threshold(min(max_level,logging.root.level))
     Gst.debug_set_active(True)
 
 # run mainclass
@@ -117,6 +111,8 @@ def main():
 
     if Args.gstreamer_log:
         logGstMessages()
+    else:
+        logGstMessages(Gst.DebugLevel.ERROR)
 
     # make killable by ctrl-c
     logging.debug('setting SIGINT handler')
