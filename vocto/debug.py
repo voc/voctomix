@@ -15,20 +15,41 @@ def gst_generate_dot(pipeline, name):
     Gst.debug_bin_to_dot_file(pipeline, Gst.DebugGraphDetails.CAPS_DETAILS, name)
 
 
+gst_log_messages_lastmessage = None
+gst_log_messages_lastlevel = None
+gst_log_messages_repeat = 0
+
 def gst_log_messages(level):
+
     gstLog = logging.getLogger('Gst')
 
-    def logFunction(category, level, file, function, line, object, message, *user_data):
+    def log( level, msg ):
         if level == Gst.DebugLevel.WARNING:
-            gstLog.warning(message.get())
+            gstLog.warning(msg)
         if level == Gst.DebugLevel.FIXME:
-            gstLog.warning(message.get())
+            gstLog.warning(msg)
         elif level == Gst.DebugLevel.ERROR:
-            gstLog.error(message.get())
+            gstLog.error(msg)
         elif level == Gst.DebugLevel.INFO:
-            gstLog.info(message.get())
+            gstLog.info(msg)
         elif level == Gst.DebugLevel.DEBUG:
-            gstLog.debug(message.get())
+            gstLog.debug(msg)
+
+    def logFunction(category, level, file, function, line, object, message, *user_data):
+        global gst_log_messages_lastmessage, gst_log_messages_lastlevel, gst_log_messages_repeat
+
+        msg = message.get()
+        if gst_log_messages_lastmessage != msg:
+            if gst_log_messages_repeat > 2:
+                log(gst_log_messages_lastlevel,"%s [REPEATING %d TIMES]" % (gst_log_messages_lastmessage, gst_log_messages_repeat))
+
+            gst_log_messages_lastmessage = msg
+            gst_log_messages_repeat = 0
+            gst_log_messages_lastlevel = level
+            log(level,msg)
+        else:
+            gst_log_messages_repeat += 1
+
 
     Gst.debug_remove_log_function(None)
     Gst.debug_add_log_function(logFunction,None)
