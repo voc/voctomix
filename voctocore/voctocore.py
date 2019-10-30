@@ -52,7 +52,7 @@ class Voctocore(object):
         self.controlserver = ControlServer(self.pipeline)
 
     def run(self):
-        self.log.info('Running GLib-MainLoop')
+        self.log.info('Running. Waiting for connections....')
         self.log.debug('\n\n====================== UP AN RUNNING ======================\n')
         try:
             self.mainloop.run()
@@ -60,7 +60,7 @@ class Voctocore(object):
             self.log.info('Terminated via Ctrl-C')
 
     def quit(self):
-        self.log.info('Quitting GLib-MainLoop')
+        self.log.info('Quitting.')
         self.mainloop.quit()
 
 

@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 import gi
-
 # import GStreamer and GLib-Helper classes
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gst', '1.0')
 gi.require_version('GstVideo', '1.0')
 gi.require_version('GstNet', '1.0')
-
 from gi.repository import Gtk, Gdk, Gst, GstVideo
+
 import signal
 import logging
 import sys
@@ -112,14 +111,14 @@ class Voctogui(object):
         self.ui.show()
 
         try:
-            self.log.info('Running Gtk-MainLoop')
+            self.log.info('Running.')
             Gtk.main()
-            self.log.info('Gtk-MainLoop ended')
+            self.log.info('Connection lost. Exiting.')
         except KeyboardInterrupt:
             self.log.info('Terminated via Ctrl-C')
 
     def quit(self):
-        self.log.info('Quitting Gtk-MainLoop')
+        self.log.info('Quitting.')
         Gtk.main_quit()
 
 

@@ -1,6 +1,8 @@
 import logging
 import socket
 import json
+import sys
+
 from queue import Queue
 from gi.repository import Gtk, GObject
 
@@ -16,8 +18,12 @@ def establish(host):
     global conn, port, log, ip
 
     log.info('establishing Connection to %s', host)
-    conn = socket.create_connection((host, port))
-    log.debug(r'Connection successful \o/')
+    try:
+        conn = socket.create_connection((host, port))
+        log.info("Connection to host %s at port %d successful" % (host, port) )
+    except ConnectionRefusedError:
+        log.error("Connecting to %s at port %d has failed. Is voctocore running? Can you ping the host?" % (host, port) )
+        sys.exit(-1)
 
     ip = conn.getpeername()[0]
     log.debug('Remote-IP is %s', ip)
