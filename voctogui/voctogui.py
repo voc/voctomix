@@ -14,7 +14,7 @@ import sys
 import os
 
 sys.path.insert(0, '.')
-import vocto
+from vocto.debug import gst_log_messages
 
 # check min-version
 minGst = (1, 5)
@@ -137,16 +137,11 @@ def main():
     handler = LogHandler(docolor, Args.timestamp)
     logging.root.addHandler(handler)
 
-    if Args.verbose > 2:
-        level = logging.DEBUG
-    elif Args.verbose == 2:
-        level = logging.INFO
-    elif Args.verbose == 1:
-        level = logging.WARNING
-    else:
-        level = logging.ERROR
+    levels = { 3 : logging.DEBUG, 2 : logging.INFO, 1 : logging.WARNING, 0 : logging.ERROR }
+    logging.root.setLevel(levels[Args.verbose])
 
-    logging.root.setLevel(level)
+    gst_levels = { 3 : Gst.DebugLevel.DEBUG, 2 : Gst.DebugLevel.INFO, 1 : Gst.DebugLevel.WARNING, 0 : Gst.DebugLevel.ERROR }
+    gst_log_messages(gst_levels[Args.gstreamer_log])
 
     # make killable by ctrl-c
     logging.debug('setting SIGINT handler')

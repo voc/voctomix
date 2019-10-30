@@ -6,7 +6,7 @@ import logging
 import sys
 
 sys.path.insert(0, '.')
-import vocto
+from vocto.debug import gst_log_messages
 
 # import GStreamer and GLib-Helper classes
 gi.require_version('Gst', '1.0')
@@ -64,26 +64,6 @@ class Voctocore(object):
         self.mainloop.quit()
 
 
-def logGstMessages(max_level=Gst.DebugLevel.INFO):
-    gstLog = logging.getLogger('Gst')
-
-    def logFunction(category, level, file, function, line, object, message, *user_data):
-        if level == Gst.DebugLevel.WARNING:
-            gstLog.warning(message.get())
-        if level == Gst.DebugLevel.FIXME:
-            gstLog.warning(message.get())
-        elif level == Gst.DebugLevel.ERROR:
-            gstLog.error(message.get())
-        elif level == Gst.DebugLevel.INFO:
-            gstLog.info(message.get())
-        elif level == Gst.DebugLevel.DEBUG:
-            gstLog.debug(message.get())
-
-    Gst.debug_remove_log_function(None)
-    Gst.debug_add_log_function(logFunction,None)
-    Gst.debug_set_default_threshold(min(max_level,logging.root.level))
-    Gst.debug_set_active(True)
-
 # run mainclass
 def main():
     # parse command-line args
@@ -97,22 +77,11 @@ def main():
     handler = LogHandler(docolor, Args.timestamp)
     logging.root.addHandler(handler)
 
-    if Args.verbose > 2:
-        level = logging.DEBUG
-    elif Args.verbose == 2:
-        level = logging.INFO
-    elif Args.verbose == 1:
-        level = logging.WARNING
-    else:
-        level = logging.ERROR
+    levels = { 3 : logging.DEBUG, 2 : logging.INFO, 1 : logging.WARNING, 0 : logging.ERROR }
+    logging.root.setLevel(levels[Args.verbose])
 
-
-    logging.root.setLevel(level)
-
-    if Args.gstreamer_log:
-        logGstMessages()
-    else:
-        logGstMessages(Gst.DebugLevel.ERROR)
+    gst_levels = { 3 : Gst.DebugLevel.DEBUG, 2 : Gst.DebugLevel.INFO, 1 : Gst.DebugLevel.WARNING, 0 : Gst.DebugLevel.ERROR }
+    gst_log_messages(gst_levels[Args.gstreamer_log])
 
     # make killable by ctrl-c
     logging.debug('setting SIGINT handler')

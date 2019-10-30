@@ -27,7 +27,7 @@ def parse():
     parser.add_argument('-d', '--dot', action='store_true',
                         help="Generate dot files of pipelines")
 
-    parser.add_argument('-g', '--gstreamer-log', action='store_true',
-                        help="Log gstreamer messages into voctocore log")
+    parser.add_argument('-g', '--gstreamer-log', action='count', default=0,
+                        help="Log gstreamer messages into voctocore log (Set log level by using -g, -gg or -ggg).")
 
     Args = parser.parse_args()
