@@ -10,6 +10,7 @@ Config = None
 
 log = logging.getLogger('VoctoguiConfigParser')
 
+
 class VoctoguiConfigParser(VocConfigParser):
 
     def fetchServerConfig(self):
@@ -86,35 +87,17 @@ class VoctoguiConfigParser(VocConfigParser):
     def getToolbarInsert(self):
         return self.trySection('toolbar.insert', {})
 
+
 def load():
     global Config
 
-    files = [
-        os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                     '../default-config.ini'),
-        os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                     '../config.ini'),
-        '/etc/voctomix/voctogui.ini',
-        '/etc/voctogui.ini',
-        os.path.expanduser('~/.voctogui.ini'),
-    ]
-
-    if Args.ini_file is not None:
-        files.append(Args.ini_file)
-
     Config = VoctoguiConfigParser()
-    readfiles = Config.read(files)
 
-    log.debug('considered config-files: \n%s',
-              "\n".join([
-                  "\t\t" + os.path.normpath(file)
-                  for file in files
-              ]))
-    log.debug('successfully parsed config-files: \n%s',
-              "\n".join([
-                  "\t\t" + os.path.normpath(file)
-                  for file in readfiles
-              ]))
+    config_file_name = Args.ini_file if Args.ini_file else os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), '../default-config.ini')
+    readfiles = Config.read([config_file_name])
+
+    log.debug("successfully parsed config-file: '%s'", config_file_name)
 
     if Args.ini_file is not None and Args.ini_file not in readfiles:
         raise RuntimeError('explicitly requested config-file "{}" '
