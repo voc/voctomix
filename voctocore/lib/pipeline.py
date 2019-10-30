@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import logging
 import re
+import sys
 
 from gi.repository import Gst
 
@@ -130,8 +131,13 @@ class Pipeline(object):
         # concatinate pipeline string
         pipeline = "\n\n".join(bin.bin for bin in self.bins)
 
-        # launch gstreamer pipeline
-        self.pipeline = Gst.parse_launch(pipeline)
+        try:
+            # launch gstreamer pipeline
+            self.pipeline = Gst.parse_launch(pipeline)
+            self.log.info("pipeline launched successfuly")
+        except:
+            self.log.error("Can not launch pipeline")
+            sys.exit(-1)
 
         # attach pads
         for bin in self.bins:

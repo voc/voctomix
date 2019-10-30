@@ -128,7 +128,13 @@ demux.
         )
 
         self.log.info('Creating Display-Pipeline:\n%s', pipe)
-        self.pipeline = Gst.parse_launch(pipe)
+        try:
+            # launch gstreamer pipeline
+            self.pipeline = Gst.parse_launch(pipe)
+            self.log.info("pipeline launched successfuly")
+        except:
+            self.log.error("Can not launch pipeline")
+            sys.exit(-1)
 
         if Args.dot:
             self.log.debug('Generating DOT image of videodisplay pipeline')
