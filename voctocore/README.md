@@ -33,7 +33,7 @@
 		- [Mix Compositor](#mix-compositor)
 		- [Mix Blinding Compositor](#mix-blinding-compositor)
 		- [Sources Blinding Compositor](#sources-blinding-compositor)
-	- [Audi Processing Elements](#audi-processing-elements)
+	- [Audio Processing Elements](#audio-processing-elements)
 		- [Audio Mixer](#audio-mixer)
 		- [Audio Blinding Mixer](#audio-blinding-mixer)
 	- [Filters](#filters)
@@ -249,7 +249,7 @@ The user of **VOC2CORE** can select out of multiple overlays which are described
 
 #### Sources Blinding Compositor
 
-### Audi Processing Elements
+### Audio Processing Elements
 
 #### Audio Mixer
 
