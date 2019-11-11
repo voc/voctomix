@@ -1,220 +1,263 @@
-# Voctocore - The videomixer core-process
+# **VoctoCORE** 2
 
-## Design goals
-Our Design is heavily influenced by gst-switch. We wanted a small videomixer core-process, whose sourcecode can be read and understand in about a weekend.
-All Sources (Cameras, Slide-Grabbers) and Sinks (Streaming, Recording) should be separate Processes. As far as possible we wanted to reuse our existing and well-tested ffmpeg Commandlines for streaming and recording. It should be possible to connect additional Sinks at any time while the number of Sources is predefined in our Setup. All sources and sinks should be able to die and get restarted without taking the core process down.
-While Sources and Sinks all run on the same Machine, Control- or Monitoring-Clients, for example a GUI, should be able to run on a different machine and connect to the core-process via Gigabit Ethernet. The core-process should be controllable by a very simple protocol which can easily be scripted or spoken with usual networking tools.
+## Table of contents
+<!-- TOC depthFrom:2 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
 
-## Design decisions
-To meet our goal of "read and understand in about a weekend" python was chosen as language for the high-level parts, with [GStreamer](http://gstreamer.freedesktop.org/) for the low-level media handling. GStreamer can be controlled via the [PyGI](https://wiki.gnome.org/action/show/Projects/PyGObject) bindings from Python.
-As an Idea borrowed from gst-switch, all Video- and Audio-Streams to and from the core are handled via TCP-Connections. Because they transport raw Video-Frames the only reasonable transport is via the loopback interface or a dedicated GBit-NIC (1920×1080×2 (UYVY)×8 (Bits)×25 (fps) = ~830 MBit/s). Nevertheless TCP is a quite efficient and good supported transport mechanism. For compatibility with ffmpeg and because of its good properties when streamed over TCP, [Matroska](http://www.matroska.org/) was chosen as a Container.
+- [Table of contents](#table-of-contents)
+- [Purpose](#purpose)
+- [Features](#features)
+- [Mixing Pipeline](#mixing-pipeline)
+	- [Pipeline Elements](#pipeline-elements)
+		- [Input Elements](#input-elements)
+			- [Sources](#sources)
+				- [Test Sources](#test-sources)
+				- [TCP Sources](#tcp-sources)
+				- [Decklink Sources](#decklink-sources)
+				- [Image Sources](#image-sources)
+				- [Common Source Attributes](#common-source-attributes)
+			- [Background Video Source](#background-video-source)
+			- [Blinding Video Sources](#blinding-video-sources)
+			- [Blinding Audio Source](#blinding-audio-source)
+			- [Overlay Sources](#overlay-sources)
+		- [Output Elements](#output-elements)
+			- [Mix Live](#mix-live)
+			- [Mix Recording](#mix-recording)
+			- [Mix Preview](#mix-preview)
+			- [Sources Live](#sources-live)
+			- [Sources Recording](#sources-recording)
+			- [Sources Preview](#sources-preview)
+		- [A/V Processing Elements](#av-processing-elements)
+			- [DeMux](#demux)
+			- [Mux](#mux)
+		- [Video Processing Elements](#video-processing-elements)
+			- [Scale](#scale)
+			- [Mix Compositor](#mix-compositor)
+			- [Mix Blinding Compositor](#mix-blinding-compositor)
+			- [Sources Blinding Compositor](#sources-blinding-compositor)
+		- [Audi Processing Elements](#audi-processing-elements)
+			- [Audio Mixer](#audio-mixer)
+			- [Audio Blinding Mixer](#audio-blinding-mixer)
+		- [Filters](#filters)
+			- [Live Source?](#live-source)
 
-The ubiquitous Input/Output-Format into the core-process is therefore Raw UYVY Frames and Raw S16LE Audio in a Matroska container for Timestamping via TCP over localhost. Network handling is done in python, because it allows for greater flexibility. After the TCP connection is ready, its file descriptor is passed to GStreamer which handles the low-level read/write operations. To be able to attach/detach sinks, the `multifdsink`-Element can be used. For the Sources it's more complicated:
+<!-- /TOC -->
 
-When a source is not connected, its video and audio stream must be substituted with black frames and silence, to that the remaining parts of the pipeline can keep on running. To achive this, a separate GStreamer-Pipeline is launched for an incoming Source-Connection and destroyed in case of a disconnect or an error. To pass Video -and Audio-Buffers between the Source-Pipelines and the other parts of the Mixer, we make use of the `inter(audio/video)(sink/source)`-Elements. `intervideosrc` and `interaudiosrc` implement the creation of black frames and silence, in case no source is connected or the source broke down somehow.
+## Purpose
+**VoctoCORE** is a server written in python which listens at port `9999` for incoming TCP connections to provide a command line interface to manipulate a [GStreamer](http://gstreamer.freedesktop.org/) pipeline it runs.
+The gstreamer pipeline is meant to mix several incoming video and audio sources to different output sources.
 
-If enabled in Config, the core process offers two formats for most outputs: Raw-Frames in mkv as described above, which should be used to feed recording or streaming processes running on the same machine. For the GUI which usually runs on a different computer, they are not suited because of the bandwidth requirements (1920×1080 UYVY @25fps = 791 MBit/s). For this reason the Servers offers Preview-Ports for each Input and the Main-Mix, which serves the same content, but the video frames there are jpeg compressed, combined with uncompressed S16LE audio and encapsulated in mkv.
+Particularly it can be used to send mixtures of the incoming video and audio sources to a live audience and/or to a recording server.
 
-Also, if enabled in Config, another Building-Block is chained after the Main-Mix: the StreamBlanker. It is used in Cases when there should be no Stream, for example in Breaks between Talks. It is sourced from one ASource which usually accepts a Stream of Music-Loop and one or more VSources which usually accepts a "There is currently no Talk"-Loop. Because multiple VSources can be configured, one can additionally source a "We are not allowed to Stream this Talk" or any other Loop. All Video-Loops are combined with the Audio-Loop and can be selected from the GUI.
+**VoctoCORE** can be easily adapted to different scenarios by changing it's configuration.
 
-## Block-Level Diagram
-````
-17000… VSource** (Stream-Blanker) ---\
-18000  ASource** (Stream-Blanker) ----\
-                                       \
-16000 VSource (Background)              \
-                      \                  \
-                       --> VideoMix       \
-                      /             \      -> StreamBlanker** -> StreamOutputPort** 15000
-                     /               \    /
-                    /                 ------> OutputPort 11000
-                   /                 /    \-> Encoder* -> PreviewPort* 12000
-                  /                 /
-                 /----- -> AudioMix
-                /
-10000… AVSource --> MirrorPort 13000…
-                \-> Encoder* -> PreviewPort* 14000…
-                 \
-                  \
-                   \--> Slides -> SlidesStreamBlanker*** -> SlidesStreamOutputPort** 15001
+One can use a simple terminal connection to control the mixing process or **VoctoGUI** which provides a visual interface that shows previews of all sources and the mixed output as well as a toolbar for all mixing commands.
 
-9999 Control-Server
-9998 GstNetTimeProvider Network-Clock
+## Features
 
-*)   only when [previews] enabled=true is configured
-**)  only when [stream-blanker] enabled=true is configured
-***) only when [mix] slides_source_name=… is configured
-````
+**VoctoCORE** currently provides the following features:
 
-## Network Ports Listing
-Ports that will accept Raw UYVY Frames and Raw S16LE Audio in a Matroska container:
- - 10000, 10001, … – Main Video-Sources, depending on the number of configured Sources
+* [Matroska](http://www.matroska.org/) enveloped A/V source input via TCP
+* Image sources via URI
+* [Decklink](https://www.blackmagicdesign.com/products/decklink) grabbed A/V sources
+* GStreamer generated test sources
+* [Matroska](http://www.matroska.org/) enveloped A/V output via TCP
+* Scaling of input sources to the desired output format
+* Conversion of input formats to the desired output format
+* Composition of video sources to a mixed video output (e.g. Picture in Picture)
+* Blinding of mixed video and audio output (formerly known as "stream blanking", e.g. to interrupt live streaming between talks)
+* Low resolution preview outputs of sources and mix for lower bandwidth monitoring
+* High resolution outputs of sources and mix for high quality recording
+* Remote controlling via command line interface
+* Video transitions for fading any cuts
+* Image overlays (e.g. for lower thirds)
+* Reading a so-called [`schedule.xml`](https://github.com/voc/voctosched) which can provide meta data about the talks and that is used to address images individually for each talk that can be selected as overlay (e.g. speaker descriptions in lower thirds)
+* Customization of video composites and transitions
 
-Ports that will accept Raw UYVY Frames without Audio in a Matroska container:
- - 16000 Mixer – Background Loop
- - 17000, 17001, … – Stream-Blanker Video-Input, depending on the number of configured Stream-Blanker-Sources
+## Mixing Pipeline
 
-Ports that will accept Raw S16LE Audio wihout Video in a Matroska container:
- - 18000 – Stream-Blanker Audio-Input
+The following graph shows a simplified mixing pipeline.
+The real GStreamer pipeline is much more complicated.
+A so-called [DOT graph](https://www.graphviz.org/) of it can be generated by starting **VoctoCORE** with option `-d`. Those DOT graph files can be viewed with [xdot](https://github.com/jrfonseca/xdot.py) for example.
 
-Ports that will provide Raw UYVY Frames and Raw S16LE Audio in a Matroska container:
- - 13000, 13001, … – Main Video-Source Mirrors, depending on the number of configured Sources
- - 11000 – Main Mixer Output
- - 15000 – Stream Output – only when [stream-blanker] enabled=true is configured
+![**VoctoCORE** Mixing Pipeline](images/pipelines.svg)
 
-Ports that will provide JPEG Frames and Raw S16LE Audio in a Matroska container – only when [previews] enabled=true is configured
- - 14000, 14001, … – Main Video-Source Mirrors, depending on the number of configured Sources
- - 12000 – Main Mixer Output
+### Pipeline Elements
 
-Port 9999 will Accept Control Protocol Connections.
+#### Input Elements
 
-## Control Protocol
-To Control operation of the Video-Mixer, a simple line-based TCP-Protocol is used. The Video-Mixer accepts connection on TCP-Port 9999. The Control-Protocol is currently unstable and may change in any way at any given time. Regarding available Commands and their Reponses, the Code is the Documentation. There are 3 kinds of Messages:
+##### Sources
 
-### 1. Commands from Client to Server
-The Client may send Commands listed in the [Commands-File](./lib/commands.py). Each Command takes a number of Arguments which are separated by Space. There is currently no way to escape Spaces or Linebreaks in Arguments. A Command ends with a Unix-Linebreak.
+Live audio/video input can be delivered in different *kinds* via **TCP in Matroska format** or from a **Decklink A/V grabber** source. It is also possible to use **image** and **test** sources, but this mostly make sense for testing purposes.
 
-There are two Kinds of Commands: `set_*` and `get_*`. `set`-Commands change the Mixer state while `get`-Commands dont. Both kinds of Commands are answered with the same Response-Message.
+All input sources must be named uniquely and listed in `mix/sources` within the configuration file:
 
-For example a `set_video_a cam1` Command could be respnded to with a `video_status cam1 cam2` Response-Message. A `get_video` Command will be answered with exactly the same Message.
-
-### 2. Errors in response to Commands
-When a Command was invalid or had invalid Parameters, the Server responds with `error` followed by a Human Readable error message. A Machine-Readable error code is currently not available. The Error-Response always ends with a Unix Linebreak (The Message can not contain Linebreaks itself).
-
-### 3. Server Signals
-When another Client issues a Command and the Server executed it successfully, the Server will signal this to all connected Clients. The Signal-Message format is identical to the Response-Format of the issued Command.
-
-For example if Client `A` issued Command `set_video_a cam1`, Client `A`and Client `B` will both receive the same `video_status cam1 cam2` Response-Message.
-
-### Example Communication:
-````
-< set_video_a cam1
-> video_status cam1 cam2
-
-< set_composite_mode side_by_side_equal
-> composite_mode side_by_side_equal
-
-< set_videos_and_composite grabber * fullscreen
-> video_status grabber cam1
-> composite_mode fullscreen
-
-< get_video
-> video_status cam2 cam1
-
-< get_composite_mode
-> composite_mode fullscreen
-
-< set_video_a blafoo
-> error unknown name foo
-
-< get_stream_status
-> stream_status live
-
-< set_stream_blank pause
-> stream_status blank pause
-
-< set_stream_live
-> stream_status live
-
-… meanwhile in another control-server connection
-
-> video_status cam1 cam2
-> video_status cam2 cam1
-> composite_mode side_by_side_equal
-> composite_mode fullscreen
-> stream_status blank pause
-> stream_status live
-
-````
-
-### Messages
-Messages are Client-to-Client information that don't change the Mixers state, while being distributed throuh its Control-Socket.
-
-````
-< message cut bar moo
-> message cut bar moo
-
-… meanwhile in another control-server connection
-
-> message cut bar moo
-````
-
-They can be used to Implement Features like a "Cut-Button" in the GUI. When Clicked the GUI would emit a message to the Server which would distribute it to all Control-Clients. A recording Script may receive the notification and rotate its output-File.
-
-## Configuration
-On Startup the Video-Mixer reads the following Configuration-Files:
- - `<install-dir>/default-config.ini`
- - `<install-dir>/config.ini`
- - `/etc/voctomix/voctocore.ini`
- - `/etc/voctocore.ini`
- - `<homedir>/.voctocore.ini`
- - `<File specified on Command-Line via --ini-file>`
-
-From top to bottom the individual Settings override previous Settings. `default-config.ini` should not be edited, because a missing Setting will result in an Exception.
-
-All Settings configured in the Server are available via the `get_config` Call on the Control-Port and will be used by the Clients, so there will be no need to duplicate Configuration options between Server and Clients.
-
-## Multi-Stream Audio Mixing
-Voctomix has support for passing and mixing as many audio streams as desired. At the c3voc we use this feature for recording lectures with simultaneous translation. The number of streams is configured system-wide with the `[mix] audiostreams` setting which defaults to 1. All streams are always stereo. Setting it to 3 configures 3 stereo-streams.
-
-Each tcp-feed for a camera (not stream-blanker and background-feeds) then needs to follow this channel layout (in this example: have 3 stereo-stream) or it will stall after the first couple seconds.
-
-Similar all output-streams (mirrors, main-out, stream-out) will now present 3 stereo-streams. The streamblanker will correctly copy the blank-music to all streams when the stream-blanker is engaged.
-
-For the internal decklink-sources, you have to configure the mapping in the source-section of the config:
 ```
 [mix]
-…
-audiostreams = 3
+sources = cam1,cam2
+```
+
+Without any further configuration this will produce two test sources named `cam1` and `cam2`.
+
+###### Test Sources
+
+Without any further configuration a source becomes a **test source** by default.
+Every test source will add a [videotestsrc](https://gstreamer.freedesktop.org/documentation/videotestsrc/index.html?gi-language=python) and an [audiotestsrc](https://gstreamer.freedesktop.org/documentation/audiotestsrc/index.html?gi-language=python) element to the internal GStreamer pipeline and so it produces a test video and sound.
+As in the order they appear in `mix/sources` the test patterns of all test sources will iterate through the [GStreamer test pattern values](https://gstreamer.freedesktop.org/documentation/videotestsrc/index.html?gi-language=python#members-2).
+
+To change the pattern of a test source you need to add an own section `source.x` (where `x` is the source's identifier) to the configuration
+
+```
+[mix]
+sources = cam1,cam2
+
+[source.cam1]
+pattern = ball
+```
+
+Now source `cam1` will show a moving white ball on black background.
+Currently there is no way to change the audio test pattern.
+
+To change the *kind* of a source you need to set the `kind` attribute in the source's configuration section as described in the following paragraphs.
+
+###### TCP Sources
+
+You can use `tcp` as a source's `kind` if you would like to provide Matroska Audio/Video streams via TCP.
+**TCP sources** will be assign to port `16000` and the following in the order in which they appear in `mix/sources`.
+
+```
+[mix]
+sources = cam1,cam2
+
+[source.cam1]
+kind = tcp
+
+[source.cam2]
+kind = tcp
+```
+
+This configuration let VoctoCORE listen at port `16000` for an incoming TCP connection transporting a Matroska A/V stream for source `cam1` and at port `16001` for source `cam2`.
+
+###### Decklink Sources
+
+You can use `decklink` as a source's `kind` if you would like to grab audio and video from a [Decklink](https://www.blackmagicdesign.com/products/decklink) grabber card.
+
+```
+[mix]
+sources = cam1,cam2
 
 [source.cam1]
 kind = decklink
-devicenumber = 0
-video_connection = SDI
-video_mode = 1080p25
-audio_connection = embedded
-
-# Use audio from this camera
-volume=1.0
-
-# Map SDI-Channel 0 to the left ear and Channel 1 to the right ear of the Output-Stream 0
-audiostream[0] = 0+1
+devicenumber = 1
 
 [source.cam2]
 kind = decklink
-devicenumber = 1
-video_connection = SDI
-video_mode = 1080p25
-audio_connection = embedded
-
-# Use audio from this camera
-volume=1.0
-
-# Map SDI-Channel 0 to both ears ear of the Output-Stream 1
-audiostream[1] = 0
-
-# Map SDI-Channel 1 to both ears ear of the Output-Stream 2
-audiostream[2] = 1
+devicenumber = 3
 ```
 
-With Audio-Embedders which can embed more then 2 Channels onto an SDI-Stream you can also fill all Streams from one SDI-Source. This requires at least GStreamer 1.12.3:
+You now have two **Decklink A/V grabber** sources at device number `1` for `cam1` and `3` for `cam2`.
+
+Optional attributes of Decklink sources are:
+
+| Attribute Name     | Example Values                                     | Default   | Description (follow link)
+| ------------------ | -------------------------------------------------- | --------- | -----------------------------------------
+| `devicenumber`     | `0`, `1`, `2`, ...                                 | `0`       | [Decklink `device-number`](https://gstreamer.freedesktop.org/documentation/decklink/decklinkvideosrc.html#decklinkvideosrc:device-number)
+| `video_connection` | `auto`, `SDI`, `HDMI`, ...                         | `auto`    | [Decklink `connection`](https://gstreamer.freedesktop.org/documentation/decklink/decklinkvideosrc.html#GstDecklinkConnection)
+| `video_mode`       | `auto`, `1080p25`, `1080i50`, ...           			  | `1080i50` | [Decklink `modes`](https://gstreamer.freedesktop.org/documentation/decklink/decklinkvideosrc.html#decklinkvideosrc_GstDecklinkModes)
+| `video_format`     | `auto`, `8bit-YUV`, `10bit-YUV`, `8bit-ARGB`, ...	| `auto`    | [Decklink `video-format`](https://gstreamer.freedesktop.org/documentation/decklink/decklinkvideosrc.html#decklinkvideosrc_GstDecklinkVideoFormat)
+| `audio_connection` | `auto`, `embedded`, `aes`, `analog`, ...           | `auto`    | [Decklink `audio-connection`](https://gstreamer.freedesktop.org/documentation/decklink/decklinkaudiosrc.html#GstDecklinkAudioConnection)
+
+###### Image Sources
+
+You can use `img` as a source's `kind` if you would like to generate a still video from an image file.
+
 ```
 [mix]
-…
-audiostreams = 3
+sources = cam1,cam2
 
 [source.cam1]
-kind = decklink
-devicenumber = 0
-video_connection = SDI
-video_mode = 1080p25
-audio_connection = embedded
+kind = img
+imguri = http://domain.com/image.jpg
 
-# Use audio from this camera
-volume=1.0
-
-# Map SDI-Channel 0 to the left ear and Channel 1 to the right ear of the Output-Stream 0
-audiostream[0] = 0+1
-audiostream[1] = 2+3
-audiostream[2] = 4+5
+[source.cam2]
+kind = img
+file = /opt/voctomix/image.png
 ```
+
+As you see you can use either `imguri` or `file` to select an image to use.
+
+| Attribute Name     | Example Values                                     | Default   | Description
+| ------------------ | -------------------------------------------------- | --------- | -----------------------------------------
+| `imguri`           | `http://domain.com/image.jpg`                      | n/a       | use image from URI
+| `file`             | `/opt/voctomix/image.png`                          | n/a       | use image from local file
+
+###### Common Source Attributes
+
+These attributes can be set for all *kinds* of sources:
+
+| Attribute Name     | Example Values                                     | Default   | Description
+| ------------------ | -------------------------------------------------- | --------- | -----------------------------------------
+| `deinterlace`      | `no`, `yes`, `assume-progressive`                  | `no`      | select de-interlacer (`no` = do not use de-interlacer, `yes` = use GStreamer element `videoconvert`, `assume-progressive` = use `capssetter` element
+| `volume`           | `0.0`, ..., `1.0`                                  | `0.0`     | audio volume
+
+##### Background Video Source
+
+The `background` source is *obligatory* and does not have to be listed in `mix/sources`.
+Background sources will be placed on bottom (z-order) of the video mix.
+
+```
+[source.background]
+kind=img
+file=/opt/voc/share/bg.png
+```
+
+Background sources is video only so audio sources will be ignored.
+
+##### Blinding Video Sources
+
+##### Blinding Audio Source
+
+##### Overlay Sources
+
+Overlays are placed on top (z-order) of the video mix.
+Currently they can be provided as bitmap images only.
+The user of **VoctoCORE** can select out of multiple overlays which are described within the configuration file or via `schedule.xml`.
+
+#### Output Elements
+
+##### Mix Live
+
+##### Mix Recording
+
+##### Mix Preview
+
+##### Sources Live
+
+##### Sources Recording
+
+##### Sources Preview
+
+#### A/V Processing Elements
+
+##### DeMux
+
+##### Mux
+
+#### Video Processing Elements
+
+##### Scale
+
+##### Mix Compositor
+
+##### Mix Blinding Compositor
+
+##### Sources Blinding Compositor
+
+#### Audi Processing Elements
+
+##### Audio Mixer
+
+##### Audio Blinding Mixer
+
+#### Filters
+
+##### Live Source?
