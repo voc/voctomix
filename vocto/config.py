@@ -163,7 +163,7 @@ class VocConfigParser(SafeConfigParser):
         return self.getfloat('stream-blanker', 'volume', fallback=0.0)
 
     def getMirrorsEnabled(self):
-        return self.getboolean('mirrors', 'enabled')
+        return self.getboolean('mirrors', 'enabled', fallback=False)
 
     def getMirrorsSources(self):
         if self.getMirrorsEnabled():
