@@ -6,13 +6,15 @@ from lib.commands import ControlServerCommands
 from lib.tcpmulticonnection import TCPMultiConnection
 from lib.response import NotifyResponse
 
+from vocto.port import Port
+
 
 class ControlServer(TCPMultiConnection):
 
     def __init__(self, pipeline):
         '''Initialize server and start listening.'''
         self.log = logging.getLogger('ControlServer')
-        super().__init__(port=9999)
+        super().__init__(port=Port.CORE_LISTENING)
 
         self.command_queue = Queue()
 

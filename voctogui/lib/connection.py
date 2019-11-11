@@ -6,23 +6,24 @@ import sys
 from queue import Queue
 from gi.repository import Gtk, GObject
 
+from vocto.port import Port
+
 log = logging.getLogger('Connection')
 conn = None
 ip = None
-port = 9999
 command_queue = Queue()
 signal_handlers = {}
 
 
 def establish(host):
-    global conn, port, log, ip
+    global conn, log, ip
 
     log.info('establishing Connection to %s', host)
     try:
-        conn = socket.create_connection((host, port))
-        log.info("Connection to host %s at port %d successful" % (host, port) )
+        conn = socket.create_connection((host, Port.CORE_LISTENING))
+        log.info("Connection to host %s at port %d successful" % (host, Port.CORE_LISTENING) )
     except ConnectionRefusedError:
-        log.error("Connecting to %s at port %d has failed. Is voctocore running? Can you ping the host?" % (host, port) )
+        log.error("Connecting to %s at port %d has failed. Is voctocore running? Can you ping the host?" % (host, Port.CORE_LISTENING) )
         sys.exit(-1)
 
     ip = conn.getpeername()[0]

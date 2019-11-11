@@ -10,6 +10,8 @@ class Port(object):
     OUT = 2
 
     OFFSET_PREVIEW = 100
+    # core listening port
+    CORE_LISTENING = 9999
     # input ports
     SOURCES_IN = 10000
     SOURCE_BACKGROUND = 16000
