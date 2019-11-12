@@ -21,6 +21,7 @@ from lib.shortcuts import show_shortcuts
 
 from lib.studioclock import StudioClock
 
+from vocto.port import Port
 
 class Ui(UiBuilder):
 
@@ -61,7 +62,7 @@ class Ui(UiBuilder):
         drawing_area = self.find_widget_recursive(self.win, 'video_main')
         self.main_video_display = VideoDisplay(
             drawing_area,
-            port=11000,
+            port=Port.MIX_PREVIEW if Config.getPreviewsEnabled() else Port.MIX_OUT,
             play_audio=Config.getPlayAudio(),
             level_callback=self.audio_level_display.level_callback
         )

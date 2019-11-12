@@ -114,8 +114,7 @@ class Pipeline(object):
             self.ports.append(Port('live-mix', dest))
 
             # check for source preview selection
-            if Config.getLivePreviewEnabled():
-                # count preview port and create source
+            if Config.getPreviewsEnabled() and Config.getLivePreviewEnabled():
                 dest = AVPreviewOutput('mix-sb', Port.LIVE_PREVIEW)
                 self.bins.append(dest)
                 self.ports.append(Port("preview-live-mix", dest))

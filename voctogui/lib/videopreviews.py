@@ -46,11 +46,20 @@ class VideoPreviewsController(object):
             self.previewSize = (Config.getVideoRatio()*height,height)
             self.log.warning('Resizing previews so that they fit onto screen to WxH={}x{}'.format(*self.previewSize))
 
-        for idx, source in enumerate(self.sources):
-            self.addPreview(uibuilder,preview_box, source, Port.SOURCES_OUT + idx)
+        if Config.getPreviewsEnabled():
+            for idx, source in enumerate(self.sources):
+                self.addPreview(uibuilder,preview_box, source, Port.SOURCES_PREVIEW + idx)
+        elif Config.getMirrorsEnabled():
+            for idx, source in enumerate(Config.getMirrorsSources()):
+                self.addPreview(uibuilder,preview_box, source, Port.SOURCES_OUT + idx)
+        else:
+            self.log.warning('Can not show source previews because neither previews nor mirrors are enabled (see previews/enabled and mirrors/enabled in core configuration)')
 
         if Config.getLivePreviewEnabled():
-            self.addPreview(uibuilder, preview_box, "LIVE", Port.LIVE_OUT, volume_control=False )
+            if Config.getPreviewsEnabled():
+                self.addPreview(uibuilder, preview_box, "LIVE", Port.LIVE_PREVIEW, volume_control=False )
+            else:
+                self.addPreview(uibuilder, preview_box, "LIVE", Port.LIVE_OUT, volume_control=False )
 
         # connect event-handler and request initial state
         Connection.on('video_status', self.on_video_status)
@@ -142,10 +151,11 @@ class VideoPreviewsController(object):
         volumes = json.loads(volumes_json)
 
         for source, volume in volumes.items():
-            volume = 20.0 * math.log10(volume) if volume > 0 else -20.0
-            slider, signal = self.volume_sliders[source]
-            # Temporarily block the 'value-changed' signal,
-            # so we don't (re)trigger it when receiving (our) changes
-            GObject.signal_handler_block(slider, signal)
-            slider.set_value(volume)
-            GObject.signal_handler_unblock(slider, signal)
+            if source in self.volume_sliders:
+                volume = 20.0 * math.log10(volume) if volume > 0 else -20.0
+                slider, signal = self.volume_sliders[source]
+                # Temporarily block the 'value-changed' signal,
+                # so we don't (re)trigger it when receiving (our) changes
+                GObject.signal_handler_block(slider, signal)
+                slider.set_value(volume)
+                GObject.signal_handler_unblock(slider, signal)
