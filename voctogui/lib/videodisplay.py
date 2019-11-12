@@ -26,11 +26,12 @@ class VideoDisplay(object):
         # Setup Server-Connection, Demuxing and Decoding
         pipe = """
 tcpclientsrc
+    name=tcpsrc-{name}
     host={host}
     port={port}
     blocksize=1048576
 ! matroskademux
-    name=demux
+    name=demux-{name}
         """
 
         if Config.getPreviewsEnabled():
@@ -39,16 +40,18 @@ tcpclientsrc
             vdec = DECODERS[Config.getPreviewDecoder()]
 
             pipe += """
-demux.
+demux-{name}.
 ! queue
+    name=queue-video-{name}
 ! {vdec}
 ! {previewcaps}"""
         else:
             vdec = None
             self.log.info('using raw-video instead of encoded-previews')
             pipe += """
-demux.
+demux-{name}.
 ! queue
+    name=queue-video-{name}
 ! {vcaps}"""
 
         if Config.getPreviewNameOverlay() and name:
@@ -103,14 +106,15 @@ demux.
 
         # add an Audio-Path through a level-Element
         pipe += """
-demux.
+demux-{name}.
 ! queue
+    name=queue-audio-{name}
 ! {acaps}
 ! level
     name=lvl
     interval=50000000
 ! pulsesink
-    name=audiosink"""
+    name=audiosink-{name}"""
         # If Playback is requested, push fo pulseaudio
         if not play_audio:
             pipe += """
