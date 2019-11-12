@@ -198,10 +198,6 @@ class VocConfigParser(SafeConfigParser):
     def getDeinterlacePreviews(self):
         return self.getboolean('previews', 'deinterlace')
 
-    def getUsePreviews(self):
-        # @TODO: why double boolean?
-        return self.getPreviewsEnabled() and self.getboolean('previews', 'use')
-
     def getPreviewsEnabled(self):
         return self.getboolean('previews', 'enabled')
 

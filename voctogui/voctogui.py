@@ -169,7 +169,7 @@ def main():
     localhosts = ['::1',
                   '127.0.0.1',
                   'localhost']
-    if not Config.getUsePreviews() and Config.getHost() not in localhosts:
+    if not Config.getPreviewsEnabled() and Config.getHost() not in localhosts:
         logging.warning(
             'Connecting to `%s` (which looks like a remote host) '
             'might not work without enabeling the preview encoders '

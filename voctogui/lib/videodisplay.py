@@ -33,7 +33,7 @@ tcpclientsrc
     name=demux
         """
 
-        if Config.getUsePreviews():
+        if Config.getPreviewsEnabled():
             self.log.info('using encoded previews instead of raw-video')
             port += Port.OFFSET_PREVIEW
             vdec = DECODERS[Config.getPreviewDecoder()]
