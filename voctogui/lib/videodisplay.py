@@ -180,9 +180,8 @@ demux-{name}.
                 self.imagesink.set_window_handle(self.xid)
 
     def on_error(self, bus, message):
-        self.log.error('Received Error-Signal on Display-Pipeline')
         (error, debug) = message.parse_error()
-        self.log.debug('Error-Details: #%u: %s', error.code, debug)
+        self.log.error("GStreamer pipeline element '%s' signaled an error #%u: %s" % (message.src.name, error.code, error.message) )
 
     def mute(self, mute):
         self.pipeline.get_by_name("audiosink").set_property(

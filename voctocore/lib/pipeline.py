@@ -173,9 +173,8 @@ class Pipeline(object):
         self.log.debug('Received End-of-Stream-Signal on Source-Pipeline')
 
     def on_error(self, bus, message):
-        self.log.error('Received Error-Signal on Source-Pipeline')
         (error, debug) = message.parse_error()
-        self.log.debug('Error-Details: #%u: %s', error.code, debug)
+        self.log.error("GStreamer pipeline element '%s' signaled an error #%u: %s" % (message.src.name, error.code, error.message) )
 
     def on_state_changed(self, bus, message):
         if self.draw_pipeline and message.parse_state_changed().newstate == Gst.State.PLAYING:
