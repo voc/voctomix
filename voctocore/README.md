@@ -159,7 +159,7 @@ Optional attributes of Decklink sources are:
 | ------------------ | -------------------------------------------------- | --------- | -----------------------------------------
 | `devicenumber`     | `0`, `1`, `2`, ...                                 | `0`       | [Decklink `device-number`](https://gstreamer.freedesktop.org/documentation/decklink/decklinkvideosrc.html#decklinkvideosrc:device-number)
 | `video_connection` | `auto`, `SDI`, `HDMI`, ...                         | `auto`    | [Decklink `connection`](https://gstreamer.freedesktop.org/documentation/decklink/decklinkvideosrc.html#GstDecklinkConnection)
-| `video_mode`       | `auto`, `1080p25`, `1080i50`, ...           			  | `1080i50` | [Decklink `modes`](https://gstreamer.freedesktop.org/documentation/decklink/decklinkvideosrc.html#decklinkvideosrc_GstDecklinkModes)
+| `video_mode`       | `auto`, `1080p25`, `1080i50`, ...           			  | `auto`    | [Decklink `modes`](https://gstreamer.freedesktop.org/documentation/decklink/decklinkvideosrc.html#decklinkvideosrc_GstDecklinkModes)
 | `video_format`     | `auto`, `8bit-YUV`, `10bit-YUV`, `8bit-ARGB`, ...	| `auto`    | [Decklink `video-format`](https://gstreamer.freedesktop.org/documentation/decklink/decklinkvideosrc.html#decklinkvideosrc_GstDecklinkVideoFormat)
 | `audio_connection` | `auto`, `embedded`, `aes`, `analog`, ...           | `auto`    | [Decklink `audio-connection`](https://gstreamer.freedesktop.org/documentation/decklink/decklinkaudiosrc.html#GstDecklinkAudioConnection)
 

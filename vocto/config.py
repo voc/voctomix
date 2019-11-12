@@ -69,7 +69,7 @@ class VocConfigParser(SafeConfigParser):
         return self.get('source.{}'.format(source), 'video_connection', fallback='auto')
 
     def getDeckLinkVideoMode(self, source):
-        return self.get('source.{}'.format(source), 'video_mode', fallback='1080i50')
+        return self.get('source.{}'.format(source), 'video_mode', fallback='auto')
 
     def getDeckLinkVideoFormat(self, source):
         return self.get('source.{}'.format(source), 'video_format', fallback='auto')
