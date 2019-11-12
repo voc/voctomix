@@ -31,9 +31,9 @@ if hasattr(Gtk, "ShortcutsWindow"):
                 compose_group.add(short)
             section.add(compose_group)
 
-            if Config.getStreamBlankerEnabled():
-                blank_group = self._build_blank_group()
-                section.add(blank_group)
+            if Config.getBlinderEnabled():
+                blind_group = self._build_blind_group()
+                section.add(blind_group)
 
             source_group = Gtk.ShortcutsGroup(title="Source Selection")
             source_group.show()
@@ -54,21 +54,21 @@ if hasattr(Gtk, "ShortcutsWindow"):
 
             self.add(section)
 
-        def _build_blank_group(self):
-            blank_group = Gtk.ShortcutsGroup(title="Stream blanking")
-            blank_group.show()
-            blank_sources = Config.getStreamBlankerSources()
-            blank_items = [
-                ("F{}".format(12 - len(blank_sources) + i),
+        def _build_blind_group(self):
+            blind_group = Gtk.ShortcutsGroup(title="Stream Blinding")
+            blind_group.show()
+            blind_sources = Config.getBlinderSources()
+            blind_items = [
+                ("F{}".format(12 - len(blind_sources) + i),
                  "Set stream to {}".format(source))
-                for i, source in enumerate(reversed(blank_sources))
+                for i, source in enumerate(reversed(blind_sources))
             ]
-            blank_items.append(("F12", "Set stream Live"))
-            for accel, desc in blank_items:
+            blind_items.append(("F12", "Set stream Live"))
+            for accel, desc in blind_items:
                 short = Gtk.ShortcutsShortcut(title=desc, accelerator=accel)
                 short.show()
-                blank_group.add(short)
-            return blank_group
+                blind_group.add(short)
+            return blind_group
 else:
     def show_shortcuts(win):
         pass

@@ -10,47 +10,47 @@ import lib.connection as Connection
 from lib.config import Config
 
 
-class StreamblankToolbarController(object):
+class BlinderToolbarController(object):
     """Manages Accelerators and Clicks on the Composition Toolbar-Buttons"""
 
     # set resolution of the blink timer in seconds
     timer_resolution = 1.0
 
     def __init__(self, win, uibuilder):
-        self.log = logging.getLogger('StreamblankToolbarController')
-        self.toolbar = uibuilder.find_widget_recursive(win, 'toolbar_mode')
+        self.log = logging.getLogger('BlinderToolbarController')
+        self.toolbar = uibuilder.find_widget_recursive(win, 'toolbar_blinder')
 
-        livebtn = uibuilder.find_widget_recursive(self.toolbar, 'stream_live')
-        blankbtn = uibuilder.find_widget_recursive(
-            self.toolbar, 'stream_blank')
+        live_button = uibuilder.find_widget_recursive(self.toolbar, 'stream_live')
+        blind_button = uibuilder.find_widget_recursive(
+            self.toolbar, 'stream_blind')
 
-        blankbtn_pos = self.toolbar.get_item_index(blankbtn)
+        blind_button_pos = self.toolbar.get_item_index(blind_button)
 
-        if not Config.getStreamBlankerEnabled():
-            self.log.info('disabling stream-blanker features '
+        if not Config.getBlinderEnabled():
+            self.log.info('disabling blinding features '
                           'because the server does not support them')
 
-            self.toolbar.remove(livebtn)
-            self.toolbar.remove(blankbtn)
+            self.toolbar.remove(live_button)
+            self.toolbar.remove(blind_button)
             return
 
-        blank_sources = Config.getStreamBlankerSources()
+        blinder_sources = Config.getBlinderSources()
 
         self.current_status = None
 
-        livebtn.connect('toggled', self.on_btn_toggled)
-        livebtn.set_can_focus(False)
-        self.livebtn = livebtn
-        self.blank_btns = {}
+        live_button.connect('toggled', self.on_btn_toggled)
+        live_button.set_can_focus(False)
+        self.live_button = live_button
+        self.blind_buttons = {}
 
         accel_f_key = 11
 
-        for idx, name in enumerate(blank_sources):
+        for idx, name in enumerate(blinder_sources):
             if idx == 0:
-                new_btn = blankbtn
+                new_btn = blind_button
             else:
-                new_btn = Gtk.RadioToolButton(group=livebtn)
-                self.toolbar.insert(new_btn, blankbtn_pos)
+                new_btn = Gtk.RadioToolButton(group=live_button)
+                self.toolbar.insert(new_btn, blind_button_pos)
 
             new_btn.set_name(name)
             new_btn.get_style_context().add_class("output")
@@ -60,7 +60,7 @@ class StreamblankToolbarController(object):
             new_btn.connect('toggled', self.on_btn_toggled)
             new_btn.set_tooltip_text("Stop streaming by %s" % name)
 
-            self.blank_btns[name] = new_btn
+            self.blind_buttons[name] = new_btn
             accel_f_key = accel_f_key - 1
 
         # connect event-handler and request initial state
@@ -86,21 +86,21 @@ class StreamblankToolbarController(object):
                 if btn_name == 'live':
                     Connection.send('set_stream_live')
                 else:
-                    Connection.send('set_stream_blank', btn_name)
+                    Connection.send('set_stream_blind', btn_name)
 
     def on_stream_status(self, status, source=None):
         self.log.info('on_stream_status callback w/ status %s and source %s',
                       status, source)
 
         self.current_status = source if source is not None else status
-        for button in list(self.blank_btns.values()) + [self.livebtn]:
+        for button in list(self.blind_buttons.values()) + [self.live_button]:
             if button.get_name() == self.current_status:
                 button.set_active(True)
         self.start_blink()
 
     def do_timeout(self):
         # if time did not change since last redraw
-        for button in list(self.blank_btns.values()) + [self.livebtn]:
+        for button in list(self.blind_buttons.values()) + [self.live_button]:
             if self.blink:
                 button.get_style_context().add_class("blink")
             else:

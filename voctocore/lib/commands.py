@@ -19,7 +19,7 @@ class ControlServerCommands(object):
         self.stored_values = {}
 
         self.sources = Config.getSources()
-        self.blankerSources = Config.getStreamBlankerSources()
+        self.blinder_sources = Config.getBlinderSources()
 
     # Commands are defined below. Errors are sent to the clients by throwing
     # exceptions, they will be turned into messages outside.
@@ -84,10 +84,10 @@ class ControlServerCommands(object):
         for source in self.sources:
             helplines.append("\t" + source)
 
-        if Config.getStreamBlankerEnabled():
+        if Config.getBlinderEnabled():
             helplines.append("\n")
             helplines.append("Stream-Blanker Sources-Names:")
-            for source in self.blankerSources:
+            for source in self.blinder_sources:
                 helplines.append("\t" + source)
 
         return OkResponse("\n".join(helplines))
@@ -224,31 +224,36 @@ class ControlServerCommands(object):
                            composite_status, *video_status),
         ]
 
-    if Config.getStreamBlankerEnabled():
+    if Config.getBlinderEnabled():
         def _get_stream_status(self):
-            blankSource = self.pipeline.streamblanker.blankSource
-            if blankSource is None:
+            blind_source = self.pipeline.blinder.blind_source
+            if blind_source is None:
                 return ('live',)
 
-            return 'blank', self.blankerSources[blankSource]
+            return 'blinded', self.blinder_sources[blind_source]
 
         def get_stream_status(self):
-            """gets the current streamblanker-status"""
+            """gets the current blinder-status"""
             status = self._get_stream_status()
             return OkResponse('stream_status', *status)
 
-        def set_stream_blank(self, source_name):
-            """sets the streamblanker-status to blank with the specified
-               blanker-source-name or -id"""
-            src_id = self.blankerSources.index(source_name)
-            self.pipeline.streamblanker.setBlankSource(src_id)
+        def set_stream_blind(self, source_name):
+            """sets the blinder-status to blinder with the specified
+               blinder-source-name or -id"""
+            src_id = self.blinder_sources.index(source_name)
+            self.pipeline.blinder.setBlindSource(src_id)
 
             status = self._get_stream_status()
             return NotifyResponse('stream_status', *status)
 
+        # for backwards compatibility this command remains obsolete
+        def set_stream_blank(self, source_name):
+
+            return self.set_stream_blind(source_name)
+
         def set_stream_live(self):
-            """sets the streamblanker-status to live"""
-            self.pipeline.streamblanker.setBlankSource(None)
+            """sets the blinder-status to live"""
+            self.pipeline.blinder.setBlindSource(None)
 
             status = self._get_stream_status()
             return NotifyResponse('stream_status', *status)

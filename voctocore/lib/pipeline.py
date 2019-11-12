@@ -12,7 +12,7 @@ from lib.avrawoutput import AVRawOutput
 from lib.avpreviewoutput import AVPreviewOutput
 from lib.videomix import VideoMix
 from lib.audiomix import AudioMix
-from lib.streamblanker import StreamBlanker
+from lib.streamblanker import Blinder
 from lib.args import Args
 from lib.clock import Clock
 from vocto.port import Port
@@ -84,45 +84,45 @@ class Pipeline(object):
             self.bins.append(dest)
             self.ports.append(Port('preview-mix', dest))
 
-        # create stream blanker sources and mixer
-        if Config.getStreamBlankerEnabled():
-            sources = Config.getStreamBlankerSources()
+        # create blinding sources and mixer
+        if Config.getBlinderEnabled():
+            sources = Config.getBlinderSources()
             if len(sources) < 1:
-                raise RuntimeError('At least one StreamBlanker-Source must '
+                raise RuntimeError('At least one Blinder-Source must '
                                    'be configured or the '
-                                   'StreamBlanker disabled!')
+                                   'Blinder disabled!')
             for idx, source_name in enumerate(sources):
-                source = spawn_source('sb-{}'.format(source_name),
+                source = spawn_source('blinder-{}'.format(source_name),
                                       Port.SOURCES_BLANK + idx,
                                       has_audio=False)
                 self.bins.append(source)
-                self.ports.append(Port('sb-{}'.format(source_name), source))
+                self.ports.append(Port('blinded-{}'.format(source_name), source))
 
-            source = spawn_source('sb',
+            source = spawn_source('blinder',
                                   Port.AUDIO_SOURCE_BLANK,
                                   has_video=False,
                                   force_num_streams=1)
             self.bins.append(source)
-            self.ports.append(Port('sb-audio', source))
+            self.ports.append(Port('blinder-audio', source))
 
-            self.log.info('Creating Stream Blanker Mixer')
-            self.streamblanker = StreamBlanker()
-            self.bins.append(self.streamblanker)
+            self.log.info('Creating Blinder')
+            self.blinder = Blinder()
+            self.bins.append(self.blinder)
 
-            dest = AVRawOutput('mix-sb', Port.LIVE_OUT)
+            dest = AVRawOutput('mix-blinded', Port.LIVE_OUT)
             self.bins.append(dest)
             self.ports.append(Port('live-mix', dest))
 
             # check for source preview selection
             if Config.getPreviewsEnabled() and Config.getLivePreviewEnabled():
-                dest = AVPreviewOutput('mix-sb', Port.LIVE_PREVIEW)
+                dest = AVPreviewOutput('mix-blinded', Port.LIVE_PREVIEW)
                 self.bins.append(dest)
                 self.ports.append(Port("preview-live-mix", dest))
 
             if Config.getSlidesSource():
-                dest = AVRawOutput('mix-sb-slides', Port.SLIDES_LIVE_OUT)
+                dest = AVRawOutput('slides-blinded', Port.SLIDES_LIVE_OUT)
                 self.bins.append(dest)
-                self.ports.append(Port('live-slides', dest))
+                self.ports.append(Port('slides-live', dest))
 
         for bin in self.bins:
             self.log.info("%s\n%s", bin, bin.bin)
@@ -174,6 +174,7 @@ class Pipeline(object):
     def on_error(self, bus, message):
         (error, debug) = message.parse_error()
         self.log.error("GStreamer pipeline element '%s' signaled an error #%u: %s" % (message.src.name, error.code, error.message) )
+        sys.exit(-1)
 
     def on_state_changed(self, bus, message):
         if self.draw_pipeline and message.parse_state_changed().newstate == Gst.State.PLAYING:

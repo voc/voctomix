@@ -17,7 +17,7 @@
   <object class="GtkImage" id="img-voc">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="tooltip_text" translatable="yes">voctomix 2
+    <property name="tooltip_text" translatable="yes">VOC2MIX - VOC2GUI
 
 Full-HD Software Live-Video-Mixer in python
 
@@ -610,7 +610,7 @@ https://github.com/voc/voctomix </property>
                                     <property name="left_padding">4</property>
                                     <property name="right_padding">4</property>
                                     <child>
-                                      <object class="GtkToolbar" id="toolbar_mode">
+                                      <object class="GtkToolbar" id="toolbar_blinder">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
                                         <property name="halign">center</property>
@@ -637,7 +637,7 @@ https://github.com/voc/voctomix </property>
                                           </packing>
                                         </child>
                                         <child>
-                                          <object class="GtkRadioToolButton" id="stream_blank">
+                                          <object class="GtkRadioToolButton" id="stream_blind">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
                                             <property name="tooltip_text" translatable="yes">Put pause stream on air</property>
@@ -666,7 +666,7 @@ https://github.com/voc/voctomix </property>
                                   <object class="GtkLabel">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="label" translatable="yes">MODE</property>
+                                    <property name="label" translatable="yes">BLINDS</property>
                                   </object>
                                 </child>
                               </object>

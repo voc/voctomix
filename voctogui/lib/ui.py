@@ -14,7 +14,7 @@ from lib.toolbar.mix import MixToolbarController
 from lib.toolbar.output import OutputToolbarController
 from lib.toolbar.preview import PreviewToolbarController
 from lib.toolbar.overlay import OverlayToolbarController
-from lib.toolbar.streamblank import StreamblankToolbarController
+from lib.toolbar.streamblank import BlinderToolbarController
 from lib.toolbar.misc import MiscToolbarController
 
 from lib.shortcuts import show_shortcuts
@@ -100,7 +100,7 @@ class Ui(UiBuilder):
             overlay_controller=self.overlay_toolbar_controller
         )
 
-        self.streamblank_toolbar_controller = StreamblankToolbarController(
+        self.blinder_toolbar_controller = BlinderToolbarController(
             win=self.win,
             uibuilder=self
         )
