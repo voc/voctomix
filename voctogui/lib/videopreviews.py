@@ -70,7 +70,8 @@ class VideoPreviewsController(object):
             Connection.send('get_audio')
 
     def addPreview(self, uibuilder, preview_box, source, port, volume_control=True):
-        self.log.info('Initializing Video Preview %s', source)
+
+        self.log.info('Initializing video preview %s at port %d', source, port)
 
         preview = uibuilder.load_check_widget(
             'widget_preview',
