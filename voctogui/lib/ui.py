@@ -63,6 +63,7 @@ class Ui(UiBuilder):
         self.main_video_display = VideoDisplay(
             drawing_area,
             port=Port.MIX_PREVIEW if Config.getPreviewsEnabled() else Port.MIX_OUT,
+            name="MIX",
             play_audio=Config.getPlayAudio(),
             level_callback=self.audio_level_display.level_callback
         )

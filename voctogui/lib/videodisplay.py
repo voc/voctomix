@@ -16,7 +16,7 @@ DECODERS = {
 class VideoDisplay(object):
     """Displays a Voctomix-Video-Stream into a GtkWidget"""
 
-    def __init__(self, drawing_area, port, name=None, width=None, height=None,
+    def __init__(self, drawing_area, port, name, width=None, height=None,
                  play_audio=False, level_callback=None):
         self.log = logging.getLogger('VideoDisplay[%u]' % port)
         self.name = name
