@@ -12,7 +12,7 @@ from lib.avrawoutput import AVRawOutput
 from lib.avpreviewoutput import AVPreviewOutput
 from lib.videomix import VideoMix
 from lib.audiomix import AudioMix
-from lib.streamblanker import Blinder
+from lib.blinder import Blinder
 from lib.args import Args
 from lib.clock import Clock
 from vocto.port import Port
