@@ -107,34 +107,34 @@ class VocConfigParser(SafeConfigParser):
         self.add_section_if_missing('audio')
         self.set('audio', 'volumecontrol', "true" if show else "false")
 
-    def getVideoCaps(self, section='mix'):
-        return self.get(section, 'videocaps')
+    def getVideoCaps(self):
+        return self.get('mix', 'videocaps', fallback="video/x-raw,format=I420,width=1920,height=1080,framerate=25/1,pixel-aspect-ratio=1/1")
 
     def getAudioCaps(self, section='mix'):
-        return self.get(section, 'audiocaps')
+        return self.get(section, 'audiocaps', fallback="audio/x-raw,format=S16LE,channels=2,layout=interleaved,rate=48000")
 
     def getNumAudioStreams(self):
         return self.getint('mix', 'audiostreams', fallback=1)
 
-    def getVideoSize(self, section='mix'):
+    def getVideoSize(self):
         caps = Gst.Caps.from_string(
-            self.getVideoCaps(section)).get_structure(0)
+            self.getVideoCaps()).get_structure(0)
         _, width = caps.get_int('width')
         _, height = caps.get_int('height')
         return (width, height)
 
-    def getVideoRatio(self, section='mix'):
-        width, height = self.getVideoSize(section)
+    def getVideoRatio(self):
+        width, height = self.getVideoSize()
         return float(width)/float(height)
 
-    def getFramerate(self, section='mix'):
+    def getFramerate(self):
         caps = Gst.Caps.from_string(
-            self.getVideoCaps(section)).get_structure(0)
+            self.getVideoCaps()).get_structure(0)
         (_, numerator, denominator) = caps.get_fraction('framerate')
         return (numerator, denominator)
 
-    def getFramesPerSecond(self, section='mix'):
-        num, denom = self.getFramerate(section)
+    def getFramesPerSecond(self):
+        num, denom = self.getFramerate()
         return float(num) / float(denom)
 
     def getVideoSystem(self):
@@ -184,7 +184,7 @@ class VocConfigParser(SafeConfigParser):
 
     def getPreviewCaps(self):
         if self.has_option('previews', 'videocaps'):
-            return self.getVideoCaps('previews')
+            return self.get('previews', 'videocaps', fallback='video/x-raw,width=1024,height=576,framerate=25/1')
         else:
             return self.getVideoCaps()
 
@@ -196,10 +196,10 @@ class VocConfigParser(SafeConfigParser):
         return(width, height)
 
     def getDeinterlacePreviews(self):
-        return self.getboolean('previews', 'deinterlace')
+        return self.getboolean('previews', 'deinterlace', fallback=False)
 
     def getPreviewsEnabled(self):
-        return self.getboolean('previews', 'enabled')
+        return self.getboolean('previews', 'enabled', fallback=False)
 
     def getLivePreviewEnabled(self):
         return self.getboolean('previews', 'live', fallback=False)
