@@ -1,4 +1,6 @@
 import logging
+import sys
+
 from gi.repository import Gst, Gdk
 
 from lib.args import Args
