@@ -185,7 +185,7 @@ demux-{name}.
         self.log.error("GStreamer pipeline element '%s' signaled an error #%u: %s" % (message.src.name, error.code, error.message) )
 
     def mute(self, mute):
-        self.pipeline.get_by_name("audiosink").set_property(
+        self.pipeline.get_by_name("audiosink-{name}".format(name=name)).set_property(
             "volume", 1 if mute else 0)
 
     def on_level(self, bus, msg):
