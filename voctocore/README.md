@@ -99,7 +99,7 @@ Without any further configuration this will produce two test sources named `cam1
 
 Without any further configuration a source becomes a **test source** by default.
 Every test source will add a [videotestsrc](https://gstreamer.freedesktop.org/documentation/videotestsrc/index.html?gi-language=python) and an [audiotestsrc](https://gstreamer.freedesktop.org/documentation/audiotestsrc/index.html?gi-language=python) element to the internal GStreamer pipeline and so it produces a test video and sound.
-As in the order they appear in `mix/sources` the test patterns of all test sources will iterate through the [GStreamer test pattern values](https://gstreamer.freedesktop.org/documentation/videotestsrc/index.html?gi-language=python#members-2).
+As in the order they appear in `mix/sources` the test patterns of all test sources will iterate through the [GStreamer test pattern values](https://gstreamer.freedesktop.org/documentation/videotestsrc/index.html?gi-language=python#members-2) beginning with the value `snow` (followed by `black`, `white`, `red`, `green`, `blue`, ...).
 
 To set the pattern of a test source explicitly you need to add an own section `source.x` (where `x` is the source's identifier) to the configuration
 
