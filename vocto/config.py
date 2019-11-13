@@ -159,27 +159,22 @@ class VocConfigParser(SafeConfigParser):
 
     def getBlinderEnabled(self):
         if self.has_section('stream-blanker'):
-            self.log.warning("configuration section 'stream-blanker' is obsolete. Use 'blinder' instead!");
-        if self.has_option('blinder', 'enabled'):
-            return self.getboolean('blinder', 'enabled', fallback=False)
-        return self.getboolean('stream-blanker', 'enabled', fallback=False)
+            self.log.error("configuration section 'stream-blanker' is obsolete and will be ignored! Use 'blinder' instead!");
+        return self.getboolean('blinder', 'enabled', fallback=False)
 
     def getBlinderSources(self):
         if self.getBlinderEnabled():
             if self.has_section('stream-blanker'):
-                self.log.warning("configuration section 'stream-blanker' is obsolete. Use 'blinder' instead!");
+                self.log.error("configuration section 'stream-blanker' is obsolete and will be ignored! Use 'blinder' instead!");
             if self.has_option('blinder', 'sources'):
                 return self.getList('blinder', 'sources')
-            return self.getList('stream-blanker', 'sources')
         else:
             return []
 
     def getBlinderVolume(self):
         if self.has_section('stream-blanker'):
-            self.log.warning("configuration section 'stream-blanker' is obsolete. Use 'blinder' instead!");
-        if self.has_option('blinder', 'volume'):
-            return self.getfloat('blinder', 'volume', fallback=0.0)
-        return self.getfloat('stream-blanker', 'volume', fallback=0.0)
+            self.log.error("configuration section 'stream-blanker' is obsolete and will be ignored! Use 'blinder' instead!");
+        return self.getfloat('blinder', 'volume', fallback=0.0)
 
     def getMirrorsEnabled(self):
         return self.getboolean('mirrors', 'enabled', fallback=False)
