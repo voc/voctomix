@@ -109,11 +109,11 @@ class VocConfigParser(SafeConfigParser):
                           .format(pattern, testPatternCount))
         return pattern
 
-    def getSourceMode(self, source):
+    def getSourceScan(self, source):
         section = 'source.{}'.format(source)
         if self.has_option(section, 'deinterlace'):
-            self.log.error("source attribute 'deinterlace' is obsolete. Use 'mode' instead! Falling back to 'progressive' mode")
-        return self.get(section, 'mode', fallback='progressive')
+            self.log.error("source attribute 'deinterlace' is obsolete. Use 'scan' instead! Falling back to 'progressive' scheme")
+        return self.get(section, 'scan', fallback='progressive')
 
     def getVolume(self, source):
         return self.getfloat("source.{}".format(source), 'volume', fallback=0.0)
