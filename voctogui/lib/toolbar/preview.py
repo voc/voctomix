@@ -34,6 +34,12 @@ class PreviewToolbarController(object):
         toolbar_mod = uibuilder.find_widget_recursive(
             win, 'toolbar_preview_mod')
 
+        # hide modify box if not needed
+        box_modify = uibuilder.find_widget_recursive(win, 'box_preview_modify')
+        if not Config.getToolbarMods():
+            box_modify.hide()
+            box_modify.set_no_show_all(True)
+
         self.composites.create(toolbar_composite,accelerators, self.on_btn_toggled)
         self.sourcesA.create(toolbar_a, accelerators, self.on_btn_toggled)
         self.sourcesB.create(toolbar_b, accelerators, self.on_btn_toggled)

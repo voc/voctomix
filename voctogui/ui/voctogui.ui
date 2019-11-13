@@ -553,7 +553,7 @@ https://github.com/voc/voctomix </property>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkFrame">
+                              <object class="GtkFrame" id="box_output_modify">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="hexpand">True</property>
@@ -596,7 +596,7 @@ https://github.com/voc/voctomix </property>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkFrame">
+                              <object class="GtkFrame" id="box_blinds">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="label_xalign">0.5</property>
@@ -839,7 +839,7 @@ https://github.com/voc/voctomix </property>
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkFrame">
+                                  <object class="GtkFrame" id="box_preview_modify">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="label_xalign">0.5</property>

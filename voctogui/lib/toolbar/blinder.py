@@ -23,6 +23,8 @@ class BlinderToolbarController(object):
         live_button = uibuilder.find_widget_recursive(self.toolbar, 'stream_live')
         blind_button = uibuilder.find_widget_recursive(
             self.toolbar, 'stream_blind')
+        blinder_box = uibuilder.find_widget_recursive(
+            win, 'box_blinds')
 
         blind_button_pos = self.toolbar.get_item_index(blind_button)
 
@@ -32,6 +34,10 @@ class BlinderToolbarController(object):
 
             self.toolbar.remove(live_button)
             self.toolbar.remove(blind_button)
+
+            # hide blinder box 
+            blinder_box.hide()
+            blinder_box.set_no_show_all(True)
             return
 
         blinder_sources = Config.getBlinderSources()

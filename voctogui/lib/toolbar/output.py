@@ -28,6 +28,11 @@ class OutputToolbarController(object):
         self.toolbar_b = uibuilder.find_widget_recursive(win, 'toolbar_output_b')
         self.toolbar_mod = uibuilder.find_widget_recursive(win, 'toolbar_output_mod')
 
+        box_modify = uibuilder.find_widget_recursive(win, 'box_output_modify')
+        if not Config.getToolbarMods():
+            box_modify.hide()
+            box_modify.set_no_show_all(True)
+
         self.composites.create(self.toolbar_composite, css=["output", "composite"], group=False, sensitive=False, visible=False, multiline_names=False)
         self.sourcesA.create(self.toolbar_a, css=["output", "source"], group=False, sensitive=False, visible=False, multiline_names=False)
         self.sourcesB.create(self.toolbar_b, css=["output", "source"], group=False, sensitive=False, visible=False, multiline_names=False)
