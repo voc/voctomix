@@ -193,7 +193,7 @@ These attributes can be set for all *kinds* of sources:
 
 | Attribute Name     | Example Values                                     | Default       | Description
 | ------------------ | -------------------------------------------------- | ------------- | -----------------------------------------
-| `mode`             | `progressive`, `interlaced`, `psf`                 | `progressive` | select video mode (`psf` = Progressive segmented frame)
+| `scan`             | `progressive`, `interlaced`, `psf`                 | `progressive` | select video mode (`psf` = Progressive segmented frame)
 | `volume`           | `0.0`, ..., `1.0`                                  | `0.0`         | audio volume (if reasonable)
 
 #### Background Video Source

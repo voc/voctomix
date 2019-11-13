@@ -88,7 +88,7 @@ bin.(
         return ""
 
     def build_deinterlacer(self):
-        source_mode = Config.getSourceMode(self.name)
+        source_mode = Config.getSourceScan(self.name)
 
         if source_mode == "interlaced":
             return "videoconvert ! yadif mode=interlaced"
