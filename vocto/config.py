@@ -8,7 +8,7 @@ from configparser import SafeConfigParser
 from lib.args import Args
 from vocto.transitions import Composites, Transitions
 
-testPatternCount = -1
+testPatternCount = 0
 
 GST_TYPE_VIDEO_TEST_SRC_PATTERN = [
     "smpte",
@@ -92,8 +92,15 @@ class VocConfigParser(SafeConfigParser):
         return self.get('source.{}'.format(source), 'location')
 
     def getTestPattern(self, source):
-        pattern = self.get('source.{}'.format(
-            source), 'pattern', fallback=None)
+        if not self.has_section('source.{}'.format(source)):
+            # default blinder source shall be smpte (if not defined otherwise)
+            if source == "blinder-" + DEFAULT_BLINDER_SOURCE:
+                return "smpte"
+            # default background source shall be black (if not defined otherwise)
+            if source == "background":
+                return "black"
+
+        pattern = self.get('source.{}'.format(source), 'pattern', fallback=None)
         if not pattern:
             global testPatternCount
             testPatternCount += 1
