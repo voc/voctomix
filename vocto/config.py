@@ -129,7 +129,7 @@ class VocConfigParser(SafeConfigParser):
         return self.get(section, 'audiocaps', fallback="audio/x-raw,format=S16LE,channels=2,layout=interleaved,rate=48000")
 
     def getNumAudioStreams(self):
-        return self.getint('mix', 'audiostreams', fallback=1)
+        return self.getint('mix', 'audiostreams', fallback=2)
 
     def getVideoSize(self):
         caps = Gst.Caps.from_string(
