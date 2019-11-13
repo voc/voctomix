@@ -88,19 +88,19 @@ bin.(
         return ""
 
     def build_deinterlacer(self):
-        deinterlace_config = Config.getSourceDeinterlace(self.name)
+        source_mode = Config.getSourceMode(self.name)
 
-        if deinterlace_config == "yes":
+        if source_mode == "interlaced":
             return "videoconvert ! yadif mode=interlaced"
-        elif deinterlace_config == "assume-progressive":
+        elif source_mode == "psf":
             return "capssetter " \
                    "caps=video/x-raw,interlace-mode=progressive"
-        elif deinterlace_config == "no":
+        elif source_mode == "progressive":
             return None
         else:
             raise RuntimeError(
                 "Unknown Deinterlace-Mode on source {} configured: {}".
-                format(self.name, deinterlace_config))
+                format(self.name, source_mode))
 
     def video_channels(self):
         return 1 if self.has_video else 0
