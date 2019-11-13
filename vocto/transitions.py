@@ -26,7 +26,7 @@ class Transitions:
     LoRes       = 0.01
     resolution  = HiRes
 
-    def __init__(self, targets, fps):
+    def __init__(self, targets=[], fps=25):
         self.transitions = []
         self.targets = targets
         self.fps = fps
@@ -82,7 +82,7 @@ class Transitions:
             # calculate frames needed for that animation time
             frames = fps * float(time) / 1000.0
             # split sequence list into key frames
-            sequence = [x.strip() for x in sequence.split('/')]
+            sequence = [x.strip().lower() for x in sequence.split('/')]
             for seq in parse_asterisk(sequence, targets):
                 if "*" in sequence:
                     name = "%s(%s)" % (t_name, "/".join(seq))
@@ -93,6 +93,8 @@ class Transitions:
                 try:
                     # walk trough composite sequence
                     for c_name in seq:
+                        print(c_name)
+                        #c_name = c_name.lower()
                         if c_name[0] == '^':
                             # find a composite with that name
                             transition.append(composites[c_name[1:]].swapped())
