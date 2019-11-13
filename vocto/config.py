@@ -28,10 +28,14 @@ GST_TYPE_VIDEO_TEST_SRC_PATTERN = [
     "zone-plate",
     "gamut",
     "chroma-zone-plate",
-    "solid",
+    "solid-color",
     "ball",
     "smpte100",
-    "bar"
+    "bar",
+    "pinwheel",
+    "spokes",
+    "gradient",
+    "colors"
 ]
 
 
