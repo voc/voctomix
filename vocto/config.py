@@ -38,6 +38,7 @@ GST_TYPE_VIDEO_TEST_SRC_PATTERN = [
     "colors"
 ]
 
+DEFAULT_BLINDER_SOURCE = "INTERMISSION"
 
 class VocConfigParser(SafeConfigParser):
 
@@ -168,6 +169,8 @@ class VocConfigParser(SafeConfigParser):
                 self.log.error("configuration section 'stream-blanker' is obsolete and will be ignored! Use 'blinder' instead!");
             if self.has_option('blinder', 'sources'):
                 return self.getList('blinder', 'sources')
+            else:
+                return [DEFAULT_BLINDER_SOURCE]
         else:
             return []
 
