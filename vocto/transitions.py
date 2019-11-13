@@ -93,7 +93,6 @@ class Transitions:
                 try:
                     # walk trough composite sequence
                     for c_name in seq:
-                        print(c_name)
                         #c_name = c_name.lower()
                         if c_name[0] == '^':
                             # find a composite with that name
