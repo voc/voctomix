@@ -43,15 +43,17 @@ bin.(
             # add slides compositor
             self.bin += """
     compositor
-        name=compositor-blinder-slides
+        name=compositor-blinder-{name}
     ! tee
-        name=video-slides-blinded
+        name=video-{name}-blinded
 
-    video-slides.
+    video-{name}.
     ! queue
-        name=queue-video-slides-compositor-blinder-slides
-    ! compositor-blinder-slides.
-            """
+        name=queue-video-{name}-compositor-blinder-{name}
+    ! compositor-blinder-{name}.
+            """.format(
+                name=Config.getSlidesSource()
+            )
 
         for name in self.names:
             # Source from the named Blank-Video
@@ -68,10 +70,11 @@ bin.(
                 self.bin += """
     video-blinder-{name}.
     ! queue
-        name=queue-video-blinder-{name}-compositor-blinder-slides
-    ! compositor-blinder-slides.
+        name=queue-video-blinder-{name}-compositor-blinder-{name}
+    ! compositor-blinder-{slides}.
             """.format(
-                name=name
+                name=name,
+                slides=Config.getSlidesSource()
             )
 
         # Audiomixer
@@ -109,7 +112,7 @@ bin.(
     def applyMixerState(self):
         self.applyMixerStateVideo('compositor-blinder-mix')
         if Config.getSlidesSource():
-            self.applyMixerStateVideo('compositor-blinder-slides')
+            self.applyMixerStateVideo('compositor-blinder-{}'.format(Config.getSlidesSource()))
         self.applyMixerStateAudio('audiomixer-blinder')
 
     def applyMixerStateVideo(self, mixername):

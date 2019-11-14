@@ -120,9 +120,9 @@ class Pipeline(object):
                 self.ports.append(Port("preview-live-mix", dest))
 
             if Config.getSlidesSource():
-                dest = AVRawOutput('slides-blinded', Port.SLIDES_LIVE_OUT)
+                dest = AVRawOutput('{}-blinded'.format(Config.getSlidesSource()), Port.SLIDES_LIVE_OUT)
                 self.bins.append(dest)
-                self.ports.append(Port('slides-live', dest))
+                self.ports.append(Port('{}-live'.format(Config.getSlidesSource()), dest))
 
         for bin in self.bins:
             self.log.info("%s\n%s", bin, bin.bin)

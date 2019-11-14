@@ -28,9 +28,10 @@ bin.(
         self.has_audio = has_audio
         if has_audio:
             self.bin += """
-    audio-{channel}.
+    audio-mix-blinded.
     ! queue
         name=queue-mux-audio-{channel}
+    ! audioconvert
     ! mux-{channel}.
                 """.format(channel=self.channel)
 
