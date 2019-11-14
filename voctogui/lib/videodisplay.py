@@ -114,6 +114,7 @@ demux-{name}.
 ! level
     name=lvl
     interval=50000000
+! audioconvert
 ! pulsesink
     name=audiosink-{name}"""
         # If Playback is requested, push fo pulseaudio
