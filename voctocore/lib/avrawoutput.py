@@ -28,12 +28,14 @@ bin.(
         self.has_audio = has_audio
         if has_audio:
             self.bin += """
-    audio-mix-blinded.
+    audio-mix{blinded}.
     ! queue
         name=queue-mux-audio-{channel}
     ! audioconvert
     ! mux-{channel}.
-                """.format(channel=self.channel)
+                """.format(
+                    channel=self.channel,
+                    blinded="-blinded" if Config.getBlinderEnabled() else "")
 
         self.bin += """
     matroskamux
