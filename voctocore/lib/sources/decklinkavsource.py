@@ -60,6 +60,8 @@ class DeckLinkAVSource(AVSource):
         video-format={fmt}
         mode={mode}
         drop-no-signal-frames=true
+    ! queue
+        name=queue-decklinkvideosrc-{name}
 """.format(name=self.name,
             device=self.device,
             conn=self.vconn,
