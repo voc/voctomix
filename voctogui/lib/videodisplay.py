@@ -105,23 +105,20 @@ demux-{name}.
                 'Invalid Videodisplay-System configured: %s' % videosystem
             )
 
-        # add an Audio-Path through a level-Element
-        pipe += """
-demux-{name}.
-! queue
-    name=queue-audio-{name}
-! {acaps}
-! level
-    name=lvl
-    interval=50000000
-! audioconvert
-! pulsesink
-    name=audiosink-{name}"""
         # If Playback is requested, push fo pulseaudio
-        if not play_audio:
+        if play_audio:
+            # add an Audio-Path through a level-Element
             pipe += """
-    volume=0
-            """
+    demux-{name}.
+    ! queue
+        name=queue-audio-{name}
+    ! {acaps}
+    ! level
+        name=lvl
+        interval=50000000
+    ! audioconvert
+    ! pulsesink
+        name=audiosink-{name}"""
 
         pipe = pipe.format(
             name=name,

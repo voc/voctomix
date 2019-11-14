@@ -29,10 +29,15 @@ class MiscToolbarController(object):
         fullscreenbtn.add_accelerator('clicked', accelerators,
                                key, mod, Gtk.AccelFlags.VISIBLE)
         self.fullscreen_button = fullscreenbtn
+
         mutebtn = uibuilder.find_widget_recursive(self.toolbar, 'mute_button')
-        mutebtn.set_active(not Config.getPlayAudio())
-        mutebtn.connect('clicked', self.on_mutebtn_clicked)
-        self.video_display = video_display
+        if Config.getPlayAudio():
+            mutebtn.set_active(False)
+            mutebtn.connect('clicked', self.on_mutebtn_clicked)
+            self.video_display = video_display
+        else:
+            mutebtn.set_no_show_all(True)
+            mutebtn.hide()
 
         queues_button = uibuilder.find_widget_recursive(self.toolbar, 'queue_button')
         queues_button.set_visible(Config.getShowQueueButton())

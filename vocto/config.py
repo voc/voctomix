@@ -156,7 +156,7 @@ class VocConfigParser(SafeConfigParser):
         return self.get('videodisplay', 'system', fallback='gl')
 
     def getPlayAudio(self):
-        return self.getboolean('audio', 'play', fallback=True)
+        return self.getboolean('audio', 'play', fallback=False)
 
     def getVolumeControl(self):
         # Check if there is a fixed audio source configured.

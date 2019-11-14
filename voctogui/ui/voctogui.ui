@@ -240,7 +240,6 @@ https://github.com/voc/voctomix </property>
                                       <object class="GtkCellRendererText"/>
                                       <attributes>
                                         <attribute name="background">6</attribute>
-                                        <attribute name="background-gdk">0</attribute>
                                         <attribute name="foreground">5</attribute>
                                         <attribute name="text">3</attribute>
                                       </attributes>
@@ -1213,16 +1212,6 @@ https://github.com/voc/voctomix </property>
                         <property name="no_show_all">True</property>
                         <property name="label">Mute Sound</property>
                         <property name="icon_name">audio-volume-muted</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="homogeneous">True</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkSeparatorToolItem" id="s1">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
