@@ -15,7 +15,7 @@ class TCPAVSource(AVSource):
     def __init__(self, name, listen_port, has_audio=True, has_video=True,
                  force_num_streams=None):
         super().__init__('TCPAVSource', name, has_audio, has_video,
-                         force_num_streams)
+                         force_num_streams, show_no_signal=True)
 
         self.listen_port = listen_port
         self.tcpsrc = None

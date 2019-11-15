@@ -9,7 +9,7 @@ class AVSource(object, metaclass=ABCMeta):
 
     def __init__(self, class_name, name,
                  has_audio=True, has_video=True,
-                 num_streams=None):
+                 num_streams=None, show_no_signal=False):
         self.log = logging.getLogger("%s[%s]" % (class_name, name))
 
         assert has_audio or has_video
@@ -19,6 +19,8 @@ class AVSource(object, metaclass=ABCMeta):
         self.has_audio = has_audio
         self.has_video = has_video
         self.num_streams = num_streams if num_streams else Config.getNumAudioStreams()
+        self.show_no_signal = show_no_signal
+        self.inputSink = None
         self.bin = ""
 
     @abstractmethod
@@ -27,9 +29,10 @@ class AVSource(object, metaclass=ABCMeta):
             '__str__ not implemented for this source')
 
     def attach(self, pipeline):
-        if self.has_video:
-            self.inputSink = pipeline.get_by_name(
-                'compositor-{}'.format(self.name)).get_static_pad('sink_1')
+        if self.show_no_signal and Config.getNoSignal():
+            if self.has_video:
+                self.inputSink = pipeline.get_by_name(
+                    'compositor-{}'.format(self.name)).get_static_pad('sink_1')
 
     def build_pipeline(self):
         self.bin = """
@@ -54,7 +57,8 @@ bin.(
                 )
 
         if self.has_video:
-            self.bin += """
+            if self.show_no_signal and Config.getNoSignal():
+                video = """
     videotestsrc
         name=canvas-{name}
         pattern=black
@@ -74,12 +78,18 @@ bin.(
     compositor
         name=compositor-{name}
     ! tee
-        name=video-{name}""".format(
+        name=video-{name}"""
+            else:
+                video = """
+    {videoport}
+    ! {vcaps}
+    ! tee
+        name=video-{name}"""
+            self.bin += video.format(
                 videoport=self.build_videoport(),
                 name=self.name,
                 vcaps=Config.getVideoCaps()
             )
-
         self.bin += """
 )
 """

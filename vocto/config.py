@@ -64,6 +64,9 @@ class VocConfigParser(SafeConfigParser):
     def getSourceKind(self, source):
         return self.get('source.{}'.format(source), 'kind', fallback='test')
 
+    def getNoSignal(self):
+        return self.get('mix', 'nosignal', fallback=False)
+
     def getDeckLinkDeviceNumber(self, source):
         return self.get('source.{}'.format(source), 'devicenumber', fallback=0)
 

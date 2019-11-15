@@ -13,7 +13,7 @@ class DeckLinkAVSource(AVSource):
     timer_resolution = 0.5
 
     def __init__(self, name, has_audio=True, has_video=True):
-        super().__init__('DecklinkAVSource', name, has_audio, has_video)
+        super().__init__('DecklinkAVSource', name, has_audio, has_video, show_no_signal=True)
 
         self.device = Config.getDeckLinkDeviceNumber(name)
         self.aconn = Config.getDeckLinkAudioConnection(name)
@@ -35,8 +35,9 @@ class DeckLinkAVSource(AVSource):
         GLib.timeout_add(self.timer_resolution * 1000, self.do_timeout)
 
     def do_timeout(self):
-        self.inputSink.set_property(
-            'alpha', 1.0 if self.num_connections() > 0 else 0.0)
+        if self.inputSink:
+            self.inputSink.set_property(
+                'alpha', 1.0 if self.num_connections() > 0 else 0.0)
         # just come back
         return True
 
