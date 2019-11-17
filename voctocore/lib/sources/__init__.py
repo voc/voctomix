@@ -6,6 +6,7 @@ from lib.sources.imgvsource import ImgVSource
 from lib.sources.tcpavsource import TCPAVSource
 from lib.sources.testsource import TestSource
 from lib.sources.videoloopsource import VideoLoopSource
+from lib.sources.v4l2source import V4l2AVSource
 
 log = logging.getLogger('AVSourceManager')
 
@@ -26,6 +27,8 @@ def spawn_source(name, port, has_audio=True, has_video=True,
     elif kind == 'tcp':
         sources[name] = TCPAVSource(name, port, has_audio, has_video,
                                     force_num_streams)
+    elif kind == 'v4l2':
+        sources[name] = V4l2AVSource(name)
     else:
         if kind != 'test':
             log.warning('Unknown value "%s" in attribute "kind" in definition of source %s (see section [source.%s] in configuration). Falling back to kind "test".', kind, name, name)

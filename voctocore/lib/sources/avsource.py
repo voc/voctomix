@@ -110,7 +110,7 @@ bin.(
         else:
             raise RuntimeError(
                 "Unknown Deinterlace-Mode on source {} configured: {}".
-                format(self.name, source_mode))
+                    format(self.name, source_mode))
 
     def video_channels(self):
         return 1 if self.has_video else 0

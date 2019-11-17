@@ -23,12 +23,22 @@ bin.(
     ! queue
         name=queue-preview-video-{channel}
     ! mux-preview-{channel}.
+""".format(
+            channel=self.channel,
+            vcaps=Config.getVideoCaps(),
+            vpipeline = self.construct_video_pipeline()
+        )
 
+        if self.channel != "SLIDE":
+            self.bin += """
     audio-{channel}.
     ! queue
         name=queue-preview-audio-{channel}
     ! mux-preview-{channel}.
+    """.format(
+            channel=self.channel)
 
+        self.bin += """
     matroskamux
         name=mux-preview-{channel}
         streamable=true

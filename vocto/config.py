@@ -82,6 +82,9 @@ class VocConfigParser(SafeConfigParser):
     def getDeckLinkVideoFormat(self, source):
         return self.get('source.{}'.format(source), 'video_format', fallback='auto')
 
+    def getV4l2Device(self, source):
+        return self.get('source.{}'.format(source), 'device', fallback='/dev/video0')
+
     def getImageURI(self,source):
         if self.has_option('source.{}'.format(source), 'imguri'):
             return self.get('source.{}'.format(source), 'imguri')
