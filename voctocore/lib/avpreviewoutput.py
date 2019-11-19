@@ -119,16 +119,9 @@ class AVPreviewOutput(TCPMultiConnection):
                     ! capsfilter
                         caps={target_caps}
                     ! jpegenc
-                        quality=90'''
-                        else:
-                            pipeline = '''videorate
-                    ! videoscale
-                    ! capsfilter
-                        caps={target_caps}
-                    ! jpegenc
                         quality=90
                     """.format(target_caps=Config.getPreviewCaps(),
-                               imode='interlaced' if Config.getDeinterlacePreviews() else 'disabled', )
+                               imode='interlaced' if Config.getDeinterlacePreviews() else 'disabled')
 
         return pipeline
 
