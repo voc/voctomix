@@ -86,7 +86,7 @@ bin.(
             'mpeg2': 'keyframe-period=60',
         }
 
-        size = Config.getPreviewSize()
+        size = Config.getPreviewResolution()
         framerate = Config.getPreviewFramerate()
         vaapi = Config.getPreviewVaapi()
 
