@@ -15,6 +15,12 @@ DECODERS = {
     'mpeg2': 'video/mpeg,mpegversion=2 ! mpeg2dec'
 }
 
+vaapi_encoders = {
+    'h264': 'vaapih264dec',
+    'jpeg': 'vaapijpegdec',
+    'mpeg2': 'vaapimpeg2dec',
+}
+
 class VideoDisplay(object):
     """Displays a Voctomix-Video-Stream into a GtkWidget"""
 
@@ -38,14 +44,17 @@ tcpclientsrc
 
         if Config.getPreviewsEnabled():
             self.log.info('using encoded previews instead of raw-video')
-            vdec = DECODERS[Config.getPreviewDecoder()]
+            if Config.getPreviewVaapi():
+                vdec = vaapi_encoders[Config.getPreviewDecoder()]
+            else:
+                vdec = DECODERS[Config.getPreviewDecoder()]
 
             pipe += """
 demux-{name}.
 ! queue
     name=queue-video-{name}
 ! {vdec}
-! {previewcaps}"""
+"""
         else:
             vdec = None
             self.log.info('using raw-video instead of encoded-previews')
@@ -53,6 +62,7 @@ demux-{name}.
 demux-{name}.
 ! queue
     name=queue-video-{name}
+! {previewcaps}
 ! {vcaps}"""
 
         if Config.getPreviewNameOverlay() and name:
@@ -180,7 +190,8 @@ demux-{name}.
 
     def on_error(self, bus, message):
         (error, debug) = message.parse_error()
-        self.log.error("GStreamer pipeline element '%s' signaled an error #%u: %s" % (message.src.name, error.code, error.message) )
+        self.log.error(
+            "GStreamer pipeline element '%s' signaled an error #%u: %s" % (message.src.name, error.code, error.message))
 
     def mute(self, mute):
         self.pipeline.get_by_name("audiosink-{name}".format(name=self.name)).set_property(

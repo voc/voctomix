@@ -258,6 +258,10 @@ class VoctocoreConfigParser(VocConfigParser):
         else:
             return 300
 
+
+
+
+
 def load():
     global Config
 
