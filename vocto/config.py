@@ -215,15 +215,6 @@ class VocConfigParser(SafeConfigParser):
         else:
             return self.getVideoCaps()
 
-    def getPreviewFramerate(self):
-        """
-        return the frame rate for the preview encoding
-        """
-        if self.has_option('preview', 'rate'):
-            return self.get('preview', 'rate')
-        else:
-            return [25, 25]
-
     def getPreviewSize(self):
         width = self.getint('previews', 'width') if self.has_option(
             'previews', 'width') else 320
