@@ -14,36 +14,35 @@ class AVPreviewOutput(TCPMultiConnection):
         self.channel = channel
 
         self.bin = """
-bin.(
-    name=AVPreviewOutput-{channel}
-
-    video-{channel}.
-    ! {vcaps}
-    ! {vpipeline}
-    ! queue
-        name=queue-preview-video-{channel}
-    ! mux-preview-{channel}.
-
-    audio-{channel}.
-    ! queue
-        name=queue-preview-audio-{channel}
-    ! mux-preview-{channel}.
-
-    matroskamux
-        name=mux-preview-{channel}
-        streamable=true
-        writing-app=Voctomix-AVPreviewOutput
-    ! multifdsink
-        blocksize=1048576
-        buffers-max=500
-        sync-method=next-keyframe
-        name=fd-preview-{channel}
-)
-""".format(
-            channel=self.channel,
-            vcaps=Config.getVideoCaps(),
-            vpipeline=self.construct_video_pipeline()
-        )
+                    bin.(
+                        name=AVPreviewOutput-{channel}
+                    
+                        video-{channel}.
+                        ! {vcaps}
+                        ! {vpipeline}
+                        ! queue
+                            name=queue-preview-video-{channel}
+                        ! mux-preview-{channel}.
+                    
+                        audio-{channel}.
+                        ! queue
+                            name=queue-preview-audio-{channel}
+                        ! mux-preview-{channel}.
+                    
+                        matroskamux
+                            name=mux-preview-{channel}
+                            streamable=true
+                            writing-app=Voctomix-AVPreviewOutput
+                        ! multifdsink
+                            blocksize=1048576
+                            buffers-max=500
+                            sync-method=next-keyframe
+                            name=fd-preview-{channel}
+                    )
+                    """.format(channel=self.channel,
+                               vcaps=Config.getVideoCaps(),
+                               vpipeline=self.construct_video_pipeline()
+                               )
 
     def audio_channels(self):
         return Config.getNumAudioStreams()
@@ -64,7 +63,7 @@ bin.(
             return self.construct_native_video_pipeline()
 
     def construct_vaapi_video_pipeline(self):
-        #if Gst.version() < (1, 8):
+        # if Gst.version() < (1, 8):
         if False:
             vaapi_encoders = {
                 'h264': 'vaapiencode_h264',
@@ -103,14 +102,14 @@ bin.(
                     caps=video/x-raw,framerate={n}/{d}
                 ! {encoder} {options}
                     '''.format(
-                        imode='interlaced' if Config.getDeinterlacePreviews() else 'disabled',
-                        width=size[0],
-                        height=size[1],
-                        encoder=vaapi_encoders[vaapi],
-                        options=vaapi_encoder_options[vaapi],
-                        n=framerate[0],
-                        d=framerate[1],
-                    )
+            imode='interlaced' if Config.getDeinterlacePreviews() else 'disabled',
+            width=size[0],
+            height=size[1],
+            encoder=vaapi_encoders[vaapi],
+            options=vaapi_encoder_options[vaapi],
+            n=framerate[0],
+            d=framerate[1],
+        )
 
     def construct_native_video_pipeline(self):
         pipeline = """
@@ -129,7 +128,7 @@ bin.(
                     ! jpegenc
                         quality=90
                     """.format(target_caps=Config.getPreviewCaps(),
-                               imode='interlaced' if Config.getDeinterlacePreviews() else 'disabled',)
+                               imode='interlaced' if Config.getDeinterlacePreviews() else 'disabled', )
 
         return pipeline
 
