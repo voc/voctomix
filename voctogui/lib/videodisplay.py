@@ -1,7 +1,7 @@
 import logging
 import sys
 
-from gi.repository import Gdk
+from gi.repository import Gst, Gdk
 
 from lib.args import Args
 from lib.config import Config
@@ -31,6 +31,7 @@ class VideoDisplay(object):
         self.name = name
         self.drawing_area = drawing_area
         self.level_callback = level_callback
+        video_decoder = None
 
         # Setup Server-Connection, Demuxing and Decoding
         pipe = """
@@ -41,23 +42,27 @@ class VideoDisplay(object):
                     blocksize=1048576
                 ! matroskademux
                     name=demux-{name}
-                        """
+                """.format(name=name,
+                           host=Config.getHost(),
+                           port=port)
 
         if Config.getPreviewsEnabled():
             self.log.info('using encoded previews instead of raw-video')
             if Config.getPreviewVaapi():
-                vdec = VAAPI_DECODERS[Config.getPreviewDecoder()]
+                video_decoder = VAAPI_DECODERS[Config.getPreviewDecoder()]
             else:
-                vdec = CPU_DECODERS[Config.getPreviewDecoder()]
+                video_decoder = CPU_DECODERS[Config.getPreviewDecoder()]
 
             pipe += """
                     demux-{name}.
                     ! queue
                         name=queue-video-{name}
-                    ! {vdec}
-                    """
+                    ! {video_decoder}
+                    """.format(name=name,
+                               video_decoder=video_decoder)
         else:
-            vdec = None
+            video_decoder = None
+            preview_caps = 'video/x-raw'
             self.log.info('using raw-video instead of encoded-previews')
             pipe += """
                     demux-{name}.
@@ -65,7 +70,9 @@ class VideoDisplay(object):
                         name=queue-video-{name}
                     ! {previewcaps}
                     ! {vcaps}
-                    """
+                    """.format(name=name,
+                               previewcaps=preview_caps,
+                               vcaps=Config.getVideoCaps())
 
         if Config.getPreviewNameOverlay() and name:
             textoverlay = """
@@ -75,42 +82,46 @@ class VideoDisplay(object):
                             valignment=bottom
                             halignment=center
                             shaded-background=yes
-                            font-desc="Roboto, 22" """
+                            font-desc="Roboto, 22" 
+                        """.format(name=name)
         else:
             textoverlay = ""
+        pipe += textoverlay
 
         # Video Display
         videosystem = Config.getVideoSystem()
         self.log.debug('Configuring for Video-System %s', videosystem)
+
+        pipe += """
+                ! videoconvert
+                ! videoscale
+                """
+
         if videosystem == 'gl':
-            pipe += textoverlay + """
-                                ! glupload
-                                ! glcolorconvert
-                                ! glimagesinkelement
-                                    name=imagesink-{name}
-                                """.format(name=name)
+            pipe += """
+                    ! glupload
+                    ! glcolorconvert
+                    ! glimagesinkelement
+                        name=imagesink-{name}
+                    """.format(name=name)
 
         elif videosystem == 'xv':
-            pipe += textoverlay + """
-                                ! xvimagesink
-                                    name=imagesink-{name}
-                                """.format(name=name)
+            pipe += """
+                    ! xvimagesink
+                        name=imagesink-{name}
+                    """.format(name=name)
 
         elif videosystem == 'x':
-            prescale_caps = 'video/x-raw'
-            if width and height:
-                prescale_caps += ',width=%u,height=%u' % (width, height)
+            #if width and height:
+                #prescale_caps = 'width=%u,height=%u' % (width, height)
+                #pipe += """
+                #    ! {prescale_caps}
+                #    """.format(prescale_caps=prescale_caps)
 
             pipe += """
-                    ! videoconvert
-                    ! videoscale {textoverlay}
-                    ! {prescale_caps}
-                    ! ximagesink
-                        name=imagesink-{name}
-                    """.format(
-                                    prescale_caps=prescale_caps,
-                                    textoverlay=textoverlay,
-                                    name=name)
+                ! ximagesink
+                    name=imagesink-{name}
+                """.format(name=name)
         else:
             raise Exception(
                 'Invalid Videodisplay-System configured: %s' % videosystem
@@ -131,15 +142,10 @@ class VideoDisplay(object):
                     ! pulsesink
                         name=audiosink-{name}"""
 
-        pipe = pipe.format(
-            name=name,
-            acaps=Config.getAudioCaps(),
-            vcaps=Config.getVideoCaps(),
-            previewcaps=Config.getPreviewCaps(),
-            host=Config.getHost(),
-            vdec=vdec,
-            port=port,
-        )
+        pipe = pipe.format(name=name,
+                           acaps=Config.getAudioCaps(),
+                           port=port,
+                           )
 
         self.log.info('Creating Display-Pipeline:\n%s', pipe)
         try:
