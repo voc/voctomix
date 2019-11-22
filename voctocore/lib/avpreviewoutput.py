@@ -74,7 +74,8 @@ bin.(
             return self.construct_native_video_pipeline()
 
     def construct_vaapi_video_pipeline(self):
-        if Gst.version() < (1, 8):
+        #if Gst.version() < (1, 8):
+        if False:
             vaapi_encoders = {
                 'h264': 'vaapiencode_h264',
                 'jpeg': 'vaapiencode_jpeg',
