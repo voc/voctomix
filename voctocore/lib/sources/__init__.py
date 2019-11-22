@@ -1,6 +1,5 @@
 import logging
 
-
 log = logging.getLogger('AVSourceManager')
 
 sources = {}
