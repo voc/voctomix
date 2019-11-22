@@ -10,8 +10,8 @@ class AudioMix(object):
     def __init__(self):
         self.log = logging.getLogger('AudioMix')
 
-        self.sources = Config.getSources()
-        self.log.info('Configuring Mixer for %u Sources', len(self.sources))
+        self.sources = Config.getAudioSources()
+        self.log.info('Configuring audio mixer for %u sources', len(self.sources))
 
         # initialize all sources to silent
         self.volumes = [0.0] * len(self.sources)
@@ -26,10 +26,12 @@ class AudioMix(object):
             self.log.info(
                 'Volume was configured, advising ui not to show a selector')
             Config.setShowVolume(False)
-        else:
+        elif self.sources:
             self.log.info('Setting Volume of first Source %s to %0.2f',
                           self.sources[0], 1.0)
             self.volumes[0] = 1.0
+        else:
+            self.log.info('No audio capable kind of source found!')
 
         self.bin = """
 bin.(
