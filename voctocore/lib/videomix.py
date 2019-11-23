@@ -173,6 +173,12 @@ bin.(
             targetA, targetB = newA, newB
             if useTransitions:
                 if curComposite:
+                    if curComposite.single():
+                        curB = newA
+                        self.log.info("Current composite shows single channel - replacing the hidden one silently.")
+                    if newComposite.single():
+                        newB = curA
+                        self.log.info("Current composite shows single channel - replacing the hidden one silently.")
                     swap = False
                     if (curA, curB) == (newA, newB):
                         transition, swap = self.transitions.solve(curComposite, newComposite, False)
