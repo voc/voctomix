@@ -44,7 +44,6 @@ class DeckLinkAVSource(AVSource):
     def num_connections(self):
         return 1 if self.signalPad and self.signalPad.get_property('signal') else 0
 
-
     def __str__(self):
         return 'DecklinkAVSource[{name}] reading card #{device}'.format(
             name=self.name,
@@ -54,50 +53,50 @@ class DeckLinkAVSource(AVSource):
     def build_source(self):
         # A video source is required even when we only need audio
         pipe = """
-    decklinkvideosrc
-        name=decklinkvideosrc-{name}
-        device-number={device}
-        connection={conn}
-        video-format={fmt}
-        mode={mode}
-""".format(name=self.name,
-            device=self.device,
-            conn=self.vconn,
-            mode=self.vmode,
-            fmt=self.vfmt
-        )
+            decklinkvideosrc
+                name=decklinkvideosrc-{name}
+                device-number={device}
+                connection={conn}
+                video-format={fmt}
+                mode={mode}
+            """.format(name=self.name,
+                       device=self.device,
+                       conn=self.vconn,
+                       mode=self.vmode,
+                       fmt=self.vfmt
+                       )
 
         if self.has_video:
             if self.build_deinterlacer():
                 pipe += """\
-    ! {deinterlacer}
-""".format(deinterlacer=self.build_deinterlacer())
+                    ! {deinterlacer}
+                    """.format(deinterlacer=self.build_deinterlacer())
 
             pipe += """\
-    ! videoconvert
-    ! videoscale
-    ! videorate
-        name=vout-{name}
-""".format(
+                ! videoconvert
+                ! videoscale
+                ! videorate
+                    name=vout-{name}
+                """.format(
                 deinterlacer=self.build_deinterlacer(),
                 name=self.name
             )
         else:
             pipe += """\
-    ! fakesink
-"""
+                    ! fakesink
+                    """
 
         if self.has_audio:
             pipe += """
-    decklinkaudiosrc
-        name=decklinkaudiosrc-{name}
-        device-number={device}
-        connection={conn}
-        channels={channels}
-""".format( name=self.name,
-            device=self.device,
-            conn=self.aconn,
-            channels=Config.getNumAudioStreams())
+                decklinkaudiosrc
+                    name=decklinkaudiosrc-{name}
+                    device-number={device}
+                    connection={conn}
+                    channels={channels}
+                """.format(name=self.name,
+                           device=self.device,
+                           conn=self.aconn,
+                           channels=Config.getNumAudioStreams())
 
         return pipe
 

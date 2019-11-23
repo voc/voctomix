@@ -46,7 +46,7 @@ def gst_log_messages(level):
             gst_log_messages_lastmessage = msg
             gst_log_messages_repeat = 0
             gst_log_messages_lastlevel = level
-            log(level,"%s: %s (in function %s() in file %s:%d)" % (object.name, msg, function, file, line))
+            log(level,"%s: %s (in function %s() in file %s:%d)" % (object.name if object else "", msg, function, file, line))
         else:
             gst_log_messages_repeat += 1
 

@@ -14,40 +14,40 @@ class AVRawOutput(TCPMultiConnection):
         self.channel = channel
 
         self.bin = """
-bin.(
-    name=AVRawOutput-{channel}
+            bin.(
+                name=AVRawOutput-{channel}
 
-    video-{channel}.
-    ! queue
-        name=queue-mux-video-{channel}
-    ! mux-{channel}.
-        """.format(
+                video-{channel}.
+                ! queue
+                    name=queue-mux-video-{channel}
+                ! mux-{channel}.
+            """.format(
             channel=self.channel
         )
 
         self.has_audio = has_audio
         if has_audio:
             self.bin += """
-    audio-mix{blinded}.
-    ! queue
-        name=queue-mux-audio-{channel}
-    ! audioconvert
-    ! mux-{channel}.
+                audio-mix{blinded}.
+                ! queue
+                    name=queue-mux-audio-{channel}
+                ! audioconvert
+                ! mux-{channel}.
                 """.format(
-                    channel=self.channel,
-                    blinded="-blinded" if Config.getBlinderEnabled() else "")
+                channel=self.channel,
+                blinded="-blinded" if Config.getBlinderEnabled() else "")
 
         self.bin += """
-    matroskamux
-        name=mux-{channel}
-        streamable=true
-        writing-app=Voctomix-AVRawOutput
-    ! multifdsink
-        blocksize=1048576
-        buffers-max={buffers_max}
-        sync-method=next-keyframe
-        name=fd-{channel}
-        """.format(
+            matroskamux
+                name=mux-{channel}
+                streamable=true
+                writing-app=Voctomix-AVRawOutput
+            ! multifdsink
+                blocksize=1048576
+                buffers-max={buffers_max}
+                sync-method=next-keyframe
+                name=fd-{channel}
+            """.format(
             buffers_max=Config.getOutputBuffers(self.channel),
             channel=self.channel
         )

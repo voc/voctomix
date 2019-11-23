@@ -23,80 +23,80 @@ class Blinder(object):
 
         # Videomixer
         self.bin = """
-bin.(
-    name=blinder
+            bin.(
+                name=blinder
 
-    compositor
-        name=compositor-blinder-mix
-    ! tee
-        name=video-mix-blinded
+                compositor
+                    name=compositor-blinder-mix
+                ! tee
+                    name=video-mix-blinded
 
-    video-mix.
-    ! queue
-        name=queue-video-mix-compositor-blinder-mix
-    ! compositor-blinder-mix.
-        """.format(
-            vcaps=self.vcaps,
-        )
+                video-mix.
+                ! queue
+                    name=queue-video-mix-compositor-blinder-mix
+                ! compositor-blinder-mix.
+            """.format(
+                vcaps=self.vcaps,
+            )
 
         if Config.getSlidesSource():
             # add slides compositor
             self.bin += """
-    compositor
-        name=compositor-blinder-{name}
-    ! tee
-        name=video-{name}-blinded
+                compositor
+                    name=compositor-blinder-{name}
+                ! tee
+                    name=video-{name}-blinded
 
-    video-{name}.
-    ! queue
-        name=queue-video-{name}-compositor-blinder-{name}
-    ! compositor-blinder-{name}.
-            """.format(
-                name=Config.getSlidesSource()
-            )
+                video-{name}.
+                ! queue
+                    name=queue-video-{name}-compositor-blinder-{name}
+                ! compositor-blinder-{name}.
+                """.format(
+                    name=Config.getSlidesSource()
+                )
 
         for name in self.names:
             # Source from the named Blank-Video
             self.bin += """
-    video-blinder-{name}.
-    ! queue
-        name=queue-video-blinder-{name}-compositor-blinder-mix
-    ! compositor-blinder-mix.
-            """.format(
-                name=name
-            )
+                video-blinder-{name}.
+                ! queue
+                    name=queue-video-blinder-{name}-compositor-blinder-mix
+                ! compositor-blinder-mix.
+                """.format(
+                    name=name
+                )
 
             if Config.getSlidesSource():
                 self.bin += """
-    video-blinder-{name}.
-    ! queue
-        name=queue-video-blinder-{name}-compositor-blinder-{name}
-    ! compositor-blinder-{slides}.
-            """.format(
-                name=name,
-                slides=Config.getSlidesSource()
-            )
+                    video-blinder-{name}.
+                    ! queue
+                        name=queue-video-blinder-{name}-compositor-blinder-{name}
+                    ! compositor-blinder-{slides}.
+                    """.format(
+                        name=name,
+                        slides=Config.getSlidesSource()
+                    )
 
         # Audiomixer
         self.bin += """
-    audiomixer
-        name=audiomixer-blinder
-    ! tee
-        name=audio-mix-blinded
+            audiomixer
+                name=audiomixer-blinder
+            ! tee
+                name=audio-mix-blinded
 
-    audio-mix.
-    ! queue
-        name=queue-audio-mix
-    ! audiomixer-blinder.
+            audio-mix.
+            ! queue
+                name=queue-audio-mix
+            ! audiomixer-blinder.
             """.format(acaps=self.acaps)
 
         # Source from the Blank-Audio-Tee into the Audiomixer
         self.bin += """
-    audio-blinder.
-    ! queue
-        name=queue-audio-blinded-audiomixer-blinder
-    ! audiomixer-blinder.
-"""
+            audio-blinder.
+            ! queue
+                name=queue-audio-blinded-audiomixer-blinder
+            ! audiomixer-blinder.
+            """
 
         self.bin += "\n)\n"
 

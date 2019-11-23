@@ -40,10 +40,13 @@ class TestSource(AVSource):
 
     def build_audioport(self):
         return """audiotestsrc
-        is-live=true"""
+                      is-live=true"""
 
     def build_videoport(self):
         return """videotestsrc
-        name=testsrc-{name}
-        pattern={pattern}
-        is-live=true""".format(name=self.name, pattern=self.pattern)
+                      name=testsrc-{name}
+                      pattern={pattern}
+                      is-live=true""".format(
+            name=self.name,
+            pattern=self.pattern
+        )

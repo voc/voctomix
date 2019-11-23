@@ -34,23 +34,23 @@ class AudioMix(object):
             self.log.info('No audio capable kind of source found!')
 
         self.bin = """
-bin.(
-    name=AudioMix
-"""
+            bin.(
+                name=AudioMix
+            """
 
         self.bin += """
-    audiomixer
-        name=audiomixer
-    ! tee
-        name=audio-mix
-"""
+            audiomixer
+                name=audiomixer
+            ! tee
+                name=audio-mix
+            """
         for idx, name in enumerate(self.sources):
             self.bin += """
-    audio-{name}.
-    ! queue
-        name=queue-audio-{name}
-    ! audiomixer.
-""".format(name=name)
+                audio-{name}.
+                ! queue
+                    name=queue-audio-{name}
+                ! audiomixer.
+                """.format(name=name)
         self.bin += "\n)"
 
     def attach(self, pipeline):

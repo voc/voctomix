@@ -36,9 +36,9 @@ class AVSource(object, metaclass=ABCMeta):
 
     def build_pipeline(self):
         self.bin = """
-bin.(
-    name={class_name}-{name}
-""".format(class_name=self.class_name, name=self.name)
+            bin.(
+                name={class_name}-{name}
+            """.format(class_name=self.class_name, name=self.name)
 
         self.bin += self.build_source()
 
@@ -46,11 +46,11 @@ bin.(
             audioport = self.build_audioport()
             if audioport:
                 self.bin += """
-    {audioport}
-    ! {acaps}
-    ! tee
-        name=audio-{name}
-""".format(
+                    {audioport}
+                    ! {acaps}
+                    ! tee
+                        name=audio-{name}
+                    """.format(
                     audioport=audioport,
                     acaps=Config.getAudioCaps(),
                     name=self.name
@@ -59,40 +59,42 @@ bin.(
         if self.has_video:
             if self.show_no_signal and Config.getNoSignal():
                 video = """
-    videotestsrc
-        name=canvas-{name}
-        pattern=black
-    ! textoverlay
-        name=nosignal-{name}
-        text=\"NO SIGNAL\"
-        valignment=center
-        halignment=center
-        font-desc="Roboto Bold, 20"
-    ! {vcaps}
-    ! compositor-{name}.
+                    videotestsrc
+                        name=canvas-{name}
+                        pattern=black
+                    ! textoverlay
+                        name=nosignal-{name}
+                        text=\"NO SIGNAL\"
+                        valignment=center
+                        halignment=center
+                        font-desc="Roboto Bold, 20"
+                    ! {vcaps}
+                    ! compositor-{name}.
 
-    {videoport}
-    ! {vcaps}
-    ! compositor-{name}.
+                    {videoport}
+                    ! {vcaps}
+                    ! compositor-{name}.
 
-    compositor
-        name=compositor-{name}
-    ! tee
-        name=video-{name}"""
+                    compositor
+                        name=compositor-{name}
+                    ! tee
+                        name=video-{name}"""
             else:
                 video = """
-    {videoport}
-    ! {vcaps}
-    ! tee
-        name=video-{name}"""
+                    {videoport}
+                    ! {vcaps}
+                    ! tee
+                        name=video-{name}"""
             self.bin += video.format(
                 videoport=self.build_videoport(),
                 name=self.name,
                 vcaps=Config.getVideoCaps()
             )
         self.bin += """
-)
-"""
+                    )
+                    """
+
+        self.bin = self.bin
 
     def build_source(self):
         return ""

@@ -13,6 +13,7 @@ from lib.overlay import Overlay
 
 from vocto.composite_commands import CompositeCommand
 
+
 class VideoMix(object):
     log = logging.getLogger('VideoMix')
 
@@ -32,61 +33,64 @@ class VideoMix(object):
 
         # build GStreamer mixing pipeline descriptor
         self.bin = """
-bin.(
-    name=VideoMix
+            bin.(
+                name=VideoMix
 
-    compositor
-        name=videomixer
-"""
+                compositor
+                    name=videomixer
+            """
         if Config.hasOverlay():
             self.bin += """\
-    ! queue
-        name=queue-overlay
-    ! gdkpixbufoverlay
-        name=overlay
-        overlay-width={width}
-        overlay-height={height}
-""".format(width=Config.getVideoResolution()[0],height=Config.getVideoResolution()[1])
+                ! queue
+                    name=queue-overlay
+                ! gdkpixbufoverlay
+                    name=overlay
+                    overlay-width={width}
+                    overlay-height={height}
+                """.format(
+                width=Config.getVideoResolution()[0],
+                height=Config.getVideoResolution()[1]
+            )
             if Config.getOverlayFile():
                 self.bin += """\
-        location={overlay}
-        alpha=1.0
-""".format(overlay=Config.getOverlayFilePath(Config.getOverlayFile()))
+                    location={overlay}
+                    alpha=1.0
+                    """.format(overlay=Config.getOverlayFilePath(Config.getOverlayFile()))
             else:
                 self.log.info("No initial overlay source configured.")
 
         self.bin += """\
-    ! identity
-        name=sig
-    ! {vcaps}
-    ! tee
-        name=video-mix
+            ! identity
+                name=sig
+            ! {vcaps}
+            ! tee
+                name=video-mix
 
-    video-background.
-    ! queue
-        name=queue-video-background
-    ! videomixer.
-""".format(
-        vcaps=Config.getVideoCaps()
-    )
+            video-background.
+            ! queue
+                name=queue-video-background
+            ! videomixer.
+            """.format(
+            vcaps=Config.getVideoCaps()
+        )
 
         for idx, name in enumerate(self.sources):
             self.bin += """
-    video-{name}.
-    ! queue
-        name=queue-cropper-{name}
-    ! videobox
-        name=cropper-{name}
-    ! videomixer.
-""".format(
+                video-{name}.
+                ! queue
+                    name=queue-cropper-{name}
+                ! videobox
+                    name=cropper-{name}
+                ! videomixer.
+                """.format(
                 name=name,
                 idx=idx
             )
 
         self.bin += """)
-"""
+                    """
 
-    def attach( self, pipeline ):
+    def attach(self, pipeline):
         self.log.debug('Binding Handoff-Handler for '
                        'Synchronus mixer manipulation')
         self.pipeline = pipeline
@@ -99,10 +103,12 @@ bin.(
         self.compositeMode = None
         self.sourceA = None
         self.sourceB = None
-        self.setCompositeEx(Composites.targets(self.composites)[0].name, self.sources[0], self.sources[1] )
+        self.setCompositeEx(Composites.targets(self.composites)[
+                            0].name, self.sources[0], self.sources[1])
 
         if Config.hasOverlay():
-            self.overlay = Overlay(pipeline,Config.getOverlayFile(), Config.getOverlayBlendTime())
+            self.overlay = Overlay(
+                pipeline, Config.getOverlayFile(), Config.getOverlayBlendTime())
 
         bgMixerpad = (pipeline.get_by_name('videomixer')
                       .get_static_pad('sink_0'))
@@ -121,10 +127,11 @@ bin.(
         if self.scene and self.scene.dirty:
             # push scene to gstreamer
             playTime = self.getPlayTime()
-            self.log.debug('Applying new Mixer-State at %d ms', playTime / Gst.MSECOND)
+            self.log.debug('Applying new Mixer-State at %d ms',
+                           playTime / Gst.MSECOND)
             self.scene.push(playTime)
 
-    def setCompositeEx(self, newCompositeName=None, newA=None, newB=None, useTransitions = False, dry = False):
+    def setCompositeEx(self, newCompositeName=None, newA=None, newB=None, useTransitions=False, dry=False):
         # expect strings or None as parameters
         assert not newCompositeName or type(newCompositeName) == str
         assert not newA or type(newA) == str
@@ -155,7 +162,7 @@ bin.(
             if not newB:
                 newB = curA if newA == curB else curB
             self.log.debug("Completing wildcarded composite to %s(%s,%s)",
-                      newCompositeName, newA, newB)
+                           newCompositeName, newA, newB)
         # post condition: we should have all parameters now
         assert newA != newB
         assert newCompositeName and newA and newB
@@ -175,15 +182,19 @@ bin.(
                 if curComposite:
                     if curComposite.single():
                         curB = newA
-                        self.log.info("Current composite shows single channel - replacing the hidden one silently.")
+                        self.log.info(
+                            "Current composite shows single channel - replacing the hidden one silently.")
                     if newComposite.single():
                         newB = curA
-                        self.log.info("Current composite shows single channel - replacing the hidden one silently.")
+                        self.log.info(
+                            "Current composite shows single channel - replacing the hidden one silently.")
                     swap = False
                     if (curA, curB) == (newA, newB):
-                        transition, swap = self.transitions.solve(curComposite, newComposite, False)
+                        transition, swap = self.transitions.solve(
+                            curComposite, newComposite, False)
                     elif (curA, curB) == (newB, newA):
-                        transition, swap = self.transitions.solve(curComposite, newComposite, True)
+                        transition, swap = self.transitions.solve(
+                            curComposite, newComposite, True)
                         if not swap:
                             targetA, targetB = newB, newA
                     if transition and not dry:
@@ -194,8 +205,8 @@ bin.(
                 # apply found transition
                 self.log.debug(
                     "committing transition '%s' to scene", transition.name())
-                self.scene.commit(targetA, transition.Az(1,2))
-                self.scene.commit(targetB, transition.Bz(2,1))
+                self.scene.commit(targetA, transition.Az(1, 2))
+                self.scene.commit(targetB, transition.Bz(2, 1))
             else:
                 # apply new scene (hard cut)
                 self.log.debug(
@@ -206,7 +217,7 @@ bin.(
             for source in self.sources:
                 if source not in [targetA, targetB]:
                     self.log.debug("making source %s invisible", source)
-                    self.scene.set(source, Frame(True,alpha=0,zorder=-1))
+                    self.scene.set(source, Frame(True, alpha=0, zorder=-1))
         else:
             # report unknown elements of the target scene
             if not newComposite:
@@ -228,7 +239,8 @@ bin.(
         # parse command
         command = CompositeCommand.from_str(command)
         self.log.debug("Setting new composite by string '%s'", command)
-        self.setCompositeEx(command.composite, command.A, command.B, useTransitions)
+        self.setCompositeEx(command.composite, command.A,
+                            command.B, useTransitions)
 
     def testTransition(self, command):
         ''' parse switch to the composite described by string command '''
@@ -238,7 +250,7 @@ bin.(
         command = CompositeCommand.from_str(command)
         self.log.debug("Testing if transition is available to '%s'", command)
         return self.setCompositeEx(command.composite, command.A,
-                            command.B, True, True)
+                                   command.B, True, True)
 
     def getVideoSources(self):
         ''' legacy command '''
@@ -246,7 +258,7 @@ bin.(
 
     def setVideoSourceA(self, source):
         ''' legacy command '''
-        setCompositeEx(None,source,None, useTransitions=False)
+        setCompositeEx(None, source, None, useTransitions=False)
 
     def getVideoSourceA(self):
         ''' legacy command '''
@@ -254,7 +266,7 @@ bin.(
 
     def setVideoSourceB(self, source):
         ''' legacy command '''
-        setCompositeEx(None,None,source, useTransitions=False)
+        setCompositeEx(None, None, source, useTransitions=False)
 
     def getVideoSourceB(self):
         ''' legacy command '''
@@ -262,7 +274,7 @@ bin.(
 
     def setCompositeMode(self, mode):
         ''' legacy command '''
-        setCompositeEx(mode,None,None, useTransitions=False)
+        setCompositeEx(mode, None, None, useTransitions=False)
 
     def getCompositeMode(self):
         ''' legacy command '''
@@ -278,7 +290,7 @@ bin.(
 
     def showOverlay(self, visible):
         ''' set overlay visibility '''
-        self.overlay.show( visible, self.getPlayTime() )
+        self.overlay.show(visible, self.getPlayTime())
 
     def getOverlay(self):
         ''' get current overlay file location '''

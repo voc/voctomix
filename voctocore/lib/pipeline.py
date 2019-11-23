@@ -17,6 +17,7 @@ from lib.args import Args
 from lib.clock import Clock
 from vocto.port import Port
 from vocto.debug import gst_generate_dot
+from vocto.pretty import pretty
 
 class Pipeline(object):
     """mixing, streaming and encoding pipeline constuction and control"""
@@ -125,7 +126,7 @@ class Pipeline(object):
                 self.ports.append(Port('{}-live'.format(Config.getSlidesSource()), dest))
 
         for bin in self.bins:
-            self.log.info("%s\n%s", bin, bin.bin)
+            self.log.info("%s\n%s", bin, pretty(bin.bin))
 
         # concatinate pipeline string
         pipeline = "\n\n".join(bin.bin for bin in self.bins)

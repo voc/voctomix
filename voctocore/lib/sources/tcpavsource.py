@@ -67,26 +67,26 @@ class TCPAVSource(AVSource):
     def build_source(self):
         deinterlacer = self.build_deinterlacer()
         pipe = """
-    tcpserversrc
-        name=tcpsrc-{name}
-        do-timestamp=TRUE
-        port={port}
-    ! demux-{name}.
+            tcpserversrc
+                name=tcpsrc-{name}
+                do-timestamp=TRUE
+                port={port}
+            ! demux-{name}.
 
-    matroskademux
-        name=demux-{name}
-""".format(
+            matroskademux
+                name=demux-{name}
+            """.format(
             name=self.name,
             port=self.listen_port
         )
 
         if deinterlacer:
             pipe += """
-    demux-{name}.video_0
-    ! queue
-        name=queue-tcpsrc-video-{name}
-    ! video/x-raw
-    ! {deinterlacer}""".format(
+                demux-{name}.video_0
+                ! queue
+                    name=queue-tcpsrc-video-{name}
+                ! video/x-raw
+                ! {deinterlacer}""".format(
                 name=self.name,
                 deinterlacer=deinterlacer
             )
@@ -176,4 +176,4 @@ class TCPAVSource(AVSource):
                 'setting [source.{name}] deinterlace=assume-progressive '
                 'might help see https://github.com/voc/voctomix/issues/137 '
                 'for more information'.format(name=self.name)
-                )
+            )

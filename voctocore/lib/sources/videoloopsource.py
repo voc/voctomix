@@ -32,15 +32,15 @@ class VideoLoopSource(AVSource):
 
     def build_source(self):
         return """
-     multifilesrc
-        name=videoloop-{name}
-       location={location}
-       loop=true
-    ! decodebin
-    ! videoconvert
-    ! videoscale
-        name=videoloop
-""".format(
+             multifilesrc
+                name=videoloop-{name}
+               location={location}
+               loop=true
+            ! decodebin
+            ! videoconvert
+            ! videoscale
+                name=videoloop
+            """.format(
             name=self.name,
             location=self.location
         )
@@ -50,4 +50,3 @@ class VideoLoopSource(AVSource):
 
     def build_audioport(self, audiostream):
         return 'audioloop.'
-
