@@ -124,13 +124,13 @@ bin.(
             self.log.debug('Applying new Mixer-State at %d ms', playTime / Gst.MSECOND)
             self.scene.push(playTime)
 
-    def setCompositeEx(self, newCompositeName=None, newA=None, newB=None, useTransitions = False):
+    def setCompositeEx(self, newCompositeName=None, newA=None, newB=None, useTransitions = False, dry = False):
         # expect strings or None as parameters
         assert not newCompositeName or type(newCompositeName) == str
         assert not newA or type(newA) == str
         assert not newB or type(newB) == str
 
-        self.log.info("Request to set new composite to %s(%s,%s)",
+        self.log.info("Request composite change to %s(%s,%s)",
                       newCompositeName, newA, newB)
 
         # get current composite
@@ -166,7 +166,7 @@ bin.(
 
         # if new scene is complete
         if newComposite and newA in self.sources and newB in self.sources:
-            self.log.info("Setting new composite to %s(%s,%s)",
+            self.log.info("New composite shall be %s(%s,%s)",
                           newComposite.name, newA, newB)
             # try to find a matching transition from current to new scene
             transition = None
@@ -186,8 +186,10 @@ bin.(
                         transition, swap = self.transitions.solve(curComposite, newComposite, True)
                         if not swap:
                             targetA, targetB = newB, newA
-                    if not transition:
+                    if transition and not dry:
                         self.log.warning("No transition found")
+            if dry:
+                return transition is not None
             if transition:
                 # apply found transition
                 self.log.debug(
@@ -227,6 +229,16 @@ bin.(
         command = CompositeCommand.from_str(command)
         self.log.debug("Setting new composite by string '%s'", command)
         self.setCompositeEx(command.composite, command.A, command.B, useTransitions)
+
+    def testTransition(self, command):
+        ''' parse switch to the composite described by string command '''
+        # expect string as parameter
+        assert type(command) == str
+        # parse command
+        command = CompositeCommand.from_str(command)
+        self.log.debug("Testing if transition is available to '%s'", command)
+        return self.setCompositeEx(command.composite, command.A,
+                            command.B, True, True)
 
     def getVideoSources(self):
         ''' legacy command '''

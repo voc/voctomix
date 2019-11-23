@@ -15,7 +15,7 @@ from lib.uibuilder import UiBuilder
 class OutputToolbarController(object):
     """Manages Accelerators and Clicks on the Preview Composition Toolbar-Buttons"""
 
-    def __init__(self, win, uibuilder):
+    def __init__(self, win, uibuilder, preview_controller):
         self.log = logging.getLogger('OutputToolbarController')
 
         self.sourcesA = Buttons(Config.getToolbarSourcesA())
@@ -27,6 +27,8 @@ class OutputToolbarController(object):
         self.toolbar_a = uibuilder.find_widget_recursive(win, 'toolbar_output_a')
         self.toolbar_b = uibuilder.find_widget_recursive(win, 'toolbar_output_b')
         self.toolbar_mod = uibuilder.find_widget_recursive(win, 'toolbar_output_mod')
+
+        self.preview_controller = preview_controller
 
         box_modify = uibuilder.find_widget_recursive(win, 'box_output_modify')
         if not Config.getToolbarMods():
@@ -83,6 +85,7 @@ class OutputToolbarController(object):
     def on_composite(self, command):
         self.log.info('on_composite callback %s', command)
         self.set_command(command)
+        self.preview_controller.test()
 
     def on_composite_mode_and_video_status(self, mode, source_a, source_b):
         self.on_composite(str(CompositeCommand(mode, source_a, source_b)))

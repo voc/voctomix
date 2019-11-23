@@ -90,7 +90,7 @@ class PreviewToolbarController(object):
                 self.enable_modifiers()
                 self.log.info(
                     "Selected '%s' for preview target composite", self.composite)
-
+            self.test()
         if id in self.mods:
             self.modstates[id] = btn.get_active()
             self.log.info("Turned preview modifier '%s' %s", id,
@@ -108,8 +108,13 @@ class PreviewToolbarController(object):
         for id, attr in self.mods.items():
             if self.modstates[id]:
                 command.modify(attr['replace'])
-        self.log.debug("command is '%s", command)
         return command
+
+    def test(self):
+        if self.sourceA == self.sourceB:
+            return False
+        self.log.info("Testing transition to '%s'", str(self.command()))
+        Connection.send('test_transition', str(self.command()))
 
     def set_command(self, command):
         if type(command) == str:
@@ -120,3 +125,4 @@ class PreviewToolbarController(object):
         self.composites[command.composite]['button'].set_active(True)
         self.sourcesA[command.A]['button'].set_active(True)
         self.sourcesB[command.B]['button'].set_active(True)
+        self.test()

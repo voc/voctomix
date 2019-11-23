@@ -194,6 +194,12 @@ class ControlServerCommands(object):
         self.pipeline.vmix.setComposite(command, True)
         return NotifyResponse('composite', self.pipeline.vmix.getComposite())
 
+    def test_transition(self, command):
+        """tests if transition to the composite described by command is possible.
+        """
+        return OkResponse('transition',
+                          self.pipeline.vmix.testTransition(command))
+
     def cut(self, command):
         """sets the composite and sources by using the composite command format
            (e.g. 'sbs(cam1,cam2)') as the only parameter

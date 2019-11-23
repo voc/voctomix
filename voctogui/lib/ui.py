@@ -76,15 +76,16 @@ class Ui(UiBuilder):
             uibuilder=self
         )
 
-        # Setup Toolbar Controllers
-        self.output_toolbar_controller = OutputToolbarController(
+        self.preview_toolbar_controller = PreviewToolbarController(
             win=self.win,
             uibuilder=self
         )
 
-        self.preview_toolbar_controller = PreviewToolbarController(
+        # Setup Toolbar Controllers
+        self.output_toolbar_controller = OutputToolbarController(
             win=self.win,
-            uibuilder=self
+            uibuilder=self,
+            preview_controller=self.preview_toolbar_controller
         )
 
         self.overlay_toolbar_controller = OverlayToolbarController(
