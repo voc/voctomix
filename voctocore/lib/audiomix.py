@@ -44,13 +44,12 @@ bin.(
         name=audio-mix
 """
         for idx, name in enumerate(self.sources):
-            if name != 'SLIDE':
-                self.bin += """
-                            audio-{name}.
-                            ! queue
-                            name=queue-audio-{name}
-                            ! audiomixer.
-                            """.format(name=name)
+            self.bin += """
+                        audio-{name}.
+                        ! queue
+                        name=queue-audio-{name}
+                        ! audiomixer.
+                        """.format(name=name)
         self.bin += "\n)"
 
     def attach(self, pipeline):
@@ -70,13 +69,12 @@ bin.(
         self.log.info('Updating Mixer-State')
 
         for idx, name in enumerate(self.sources):
-            if name != 'SLIDE':
-                volume = self.volumes[idx]
+            volume = self.volumes[idx]
 
-                self.log.debug('Setting Mixerpad %u to volume=%0.2f', idx, volume)
-                mixer = self.pipeline.get_by_name('audiomixer')
-                mixerpad = mixer.get_static_pad('sink_%d' % idx)
-                mixerpad.set_property('volume', volume)
+            self.log.debug('Setting Mixerpad %u to volume=%0.2f', idx, volume)
+            mixer = self.pipeline.get_by_name('audiomixer')
+            mixerpad = mixer.get_static_pad('sink_%d' % idx)
+            mixerpad.set_property('volume', volume)
 
     def setAudioSource(self, source):
         self.volumes = [float(idx == source)
