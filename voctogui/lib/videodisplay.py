@@ -9,11 +9,18 @@ from lib.clock import Clock
 from vocto.port import Port
 from vocto.debug import gst_generate_dot
 
-DECODERS = {
+CPU_DECODERS = {
     'h264': 'video/x-h264 ! avdec_h264',
     'jpeg': 'image/jpeg ! jpegdec',
     'mpeg2': 'video/mpeg,mpegversion=2 ! mpeg2dec'
 }
+
+VAAPI_DECODERS = {
+    'h264': 'vaapih264dec',
+    'jpeg': 'vaapijpegdec',
+    'mpeg2': 'vaapimpeg2dec',
+}
+
 
 class VideoDisplay(object):
     """Displays a Voctomix-Video-Stream into a GtkWidget"""
@@ -24,6 +31,7 @@ class VideoDisplay(object):
         self.name = name
         self.drawing_area = drawing_area
         self.level_callback = level_callback
+        video_decoder = None
 
         # Setup Server-Connection, Demuxing and Decoding
         pipe = """
@@ -34,72 +42,77 @@ tcpclientsrc
     blocksize=1048576
 ! matroskademux
     name=demux-{name}
-        """
+""".format(name=name,
+           host=Config.getHost(),
+           port=port)
 
         if Config.getPreviewsEnabled():
             self.log.info('using encoded previews instead of raw-video')
-            vdec = DECODERS[Config.getPreviewDecoder()]
+            if Config.getPreviewVaapi():
+                video_decoder = VAAPI_DECODERS[Config.getPreviewDecoder()]
+            else:
+                video_decoder = CPU_DECODERS[Config.getPreviewDecoder()]
 
             pipe += """
 demux-{name}.
 ! queue
     name=queue-video-{name}
-! {vdec}
-! {previewcaps}"""
+! {video_decoder}
+""".format(name=name,
+                video_decoder=video_decoder)
         else:
-            vdec = None
+            video_decoder = None
+            preview_caps = 'video/x-raw'
             self.log.info('using raw-video instead of encoded-previews')
             pipe += """
 demux-{name}.
 ! queue
     name=queue-video-{name}
-! {vcaps}"""
+! {previewcaps}
+! {vcaps}
+""".format(name=name,
+                previewcaps=preview_caps,
+                vcaps=Config.getVideoCaps())
 
         if Config.getPreviewNameOverlay() and name:
-            textoverlay = """
+            pipe += """\
 ! textoverlay
     name=title-{name}
     text=\"{name}\"
     valignment=bottom
     halignment=center
     shaded-background=yes
-    font-desc="Roboto, 22" """
-        else:
-            textoverlay = ""
+    font-desc="Roboto, 22"
+""".format(name=name)
 
         # Video Display
         videosystem = Config.getVideoSystem()
         self.log.debug('Configuring for Video-System %s', videosystem)
+
+        pipe += """
+! videoconvert
+! videoscale
+"""
+
         if videosystem == 'gl':
-            pipe += textoverlay + """
+            pipe += """
 ! glupload
 ! glcolorconvert
 ! glimagesinkelement
     name=imagesink-{name}
-""".format(name=name)
+                """.format(name=name)
 
         elif videosystem == 'xv':
-            pipe += textoverlay + """
+            pipe += """
 ! xvimagesink
     name=imagesink-{name}
 """.format(name=name)
 
         elif videosystem == 'x':
-            prescale_caps = 'video/x-raw'
-            if width and height:
-                prescale_caps += ',width=%u,height=%u' % (width, height)
-
             pipe += """
-! videoconvert
-! videoscale {textoverlay}
-! {prescale_caps}
 ! ximagesink
     name=imagesink-{name}
-""".format(
-                prescale_caps=prescale_caps,
-                textoverlay=textoverlay,
-                name=name)
-
+""".format(name=name)
         else:
             raise Exception(
                 'Invalid Videodisplay-System configured: %s' % videosystem
@@ -109,26 +122,21 @@ demux-{name}.
         if play_audio:
             # add an Audio-Path through a level-Element
             pipe += """
-    demux-{name}.
-    ! queue
-        name=queue-audio-{name}
-    ! {acaps}
-    ! level
-        name=lvl
-        interval=50000000
-    ! audioconvert
-    ! pulsesink
-        name=audiosink-{name}"""
+demux-{name}.
+! queue
+    name=queue-audio-{name}
+! {acaps}
+! level
+    name=lvl
+    interval=50000000
+! audioconvert
+! pulsesink
+    name=audiosink-{name}"""
 
-        pipe = pipe.format(
-            name=name,
-            acaps=Config.getAudioCaps(),
-            vcaps=Config.getVideoCaps(),
-            previewcaps=Config.getPreviewCaps(),
-            host=Config.getHost(),
-            vdec=vdec,
-            port=port,
-        )
+        pipe = pipe.format(name=name,
+                           acaps=Config.getAudioCaps(),
+                           port=port,
+                           )
 
         self.log.info('Creating Display-Pipeline:\n%s', pipe)
         try:
@@ -180,7 +188,8 @@ demux-{name}.
 
     def on_error(self, bus, message):
         (error, debug) = message.parse_error()
-        self.log.error("GStreamer pipeline element '%s' signaled an error #%u: %s" % (message.src.name, error.code, error.message) )
+        self.log.error(
+            "GStreamer pipeline element '%s' signaled an error #%u: %s" % (message.src.name, error.code, error.message))
 
     def mute(self, mute):
         self.pipeline.get_by_name("audiosink-{name}".format(name=self.name)).set_property(

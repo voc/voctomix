@@ -134,7 +134,7 @@ class VocConfigParser(SafeConfigParser):
     def getNumAudioStreams(self):
         return self.getint('mix', 'audiostreams', fallback=2)
 
-    def getVideoSize(self):
+    def getVideoResolution(self):
         caps = Gst.Caps.from_string(
             self.getVideoCaps()).get_structure(0)
         _, width = caps.get_int('width')
@@ -142,7 +142,7 @@ class VocConfigParser(SafeConfigParser):
         return (width, height)
 
     def getVideoRatio(self):
-        width, height = self.getVideoSize()
+        width, height = self.getVideoResolution()
         return float(width)/float(height)
 
     def getFramerate(self):
@@ -222,6 +222,19 @@ class VocConfigParser(SafeConfigParser):
             'previews', 'height') else int(width * 9 / 16)
         return(width, height)
 
+    def getPreviewFramerate(self):
+        caps = Gst.Caps.from_string(
+            self.getPreviewCaps()).get_structure(0)
+        (_, numerator, denominator) = caps.get_fraction('framerate')
+        return (numerator, denominator)
+
+    def getPreviewResolution(self):
+        caps = Gst.Caps.from_string(
+            self.getPreviewCaps()).get_structure(0)
+        _, width = caps.get_int('width')
+        _, height = caps.get_int('height')
+        return (width, height)
+
     def getDeinterlacePreviews(self):
         return self.getboolean('previews', 'deinterlace', fallback=False)
 
@@ -242,7 +255,7 @@ class VocConfigParser(SafeConfigParser):
             return 'jpeg'
 
     def getComposites(self):
-        return Composites.configure(self.items('composites'), self.getVideoSize())
+        return Composites.configure(self.items('composites'), self.getVideoResolution())
 
     def getTargetComposites(self):
         return Composites.targets(self.getComposites())
@@ -253,7 +266,7 @@ class VocConfigParser(SafeConfigParser):
                                      fps=self.getFramesPerSecond())
 
     def getPreviewNameOverlay(self):
-        return self.getboolean('previews', 'nameoverlay',fallback=True)
+        return self.getboolean('previews', 'nameoverlay', fallback=True)
 
     def hasSource(self, source):
         return self.has_section('source.{}'.format(source))

@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 import logging
+import gi
+gi.require_version('GstController', '1.0')
+from gi.repository import Gst
 
 from lib.config import Config
 from lib.tcpmulticonnection import TCPMultiConnection
@@ -39,11 +42,10 @@ bin.(
         sync-method=next-keyframe
         name=fd-preview-{channel}
 )
-""".format(
-            channel=self.channel,
-            vcaps=Config.getVideoCaps(),
-            vpipeline=self.construct_video_pipeline()
-        )
+""".format(channel=self.channel,
+           vcaps=Config.getVideoCaps(),
+           vpipeline=self.construct_video_pipeline()
+           )
 
     def audio_channels(self):
         return Config.getNumAudioStreams()
@@ -85,7 +87,7 @@ bin.(
             'mpeg2': 'keyframe-period=60',
         }
 
-        size = Config.getPreviewSize()
+        size = Config.getPreviewResolution()
         framerate = Config.getPreviewFramerate()
         vaapi = Config.getPreviewVaapi()
 
@@ -101,36 +103,28 @@ bin.(
     ! capssetter
         caps=video/x-raw,framerate={n}/{d}
     ! {encoder} {options}
-        '''.format(
-            imode='interlaced' if Config.getDeinterlacePreviews() else 'disabled',
+'''.format(imode='interlaced' if Config.getDeinterlacePreviews() else 'disabled',
             width=size[0],
             height=size[1],
             encoder=vaapi_encoders[vaapi],
             options=vaapi_encoder_options[vaapi],
             n=framerate[0],
             d=framerate[1],
-        )
+           )
 
     def construct_native_video_pipeline(self):
-        if Config.getDeinterlacePreviews():
-            pipeline = '''deinterlace mode=interlaced
+        pipeline = """
+    deinterlace mode={imode}
     ! videorate
     ! videoscale
     ! capsfilter
         caps={target_caps}
     ! jpegenc
-        quality=90'''
-        else:
-            pipeline = '''videorate
-    ! videoscale
-    ! capsfilter
-        caps={target_caps}
-    ! jpegenc
-        quality=90'''
+        quality=90
+""".format(target_caps=Config.getPreviewCaps(),
+           imode='interlaced' if Config.getDeinterlacePreviews() else 'disabled')
 
-        return pipeline.format(
-            target_caps=Config.getPreviewCaps(),
-        )
+        return pipeline
 
     def attach(self, pipeline):
         self.pipeline = pipeline
