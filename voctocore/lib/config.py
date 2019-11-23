@@ -262,9 +262,7 @@ class VoctocoreConfigParser(VocConfigParser):
     def getAudioSources(self):
         def source_has_audio(source):
             return kind_has_audio(self.getSourceKind(source))
-        return list(filter(source_has_audio,
-                      [source for source in self.getSources()]
-                      ))
+        return list(filter(source_has_audio,self.getSources()))
 
 
 def load():
