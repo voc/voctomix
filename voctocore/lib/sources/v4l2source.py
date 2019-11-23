@@ -48,25 +48,26 @@ class V4l2AVSource(AVSource):
 
     def build_source(self):
         pipe = """
-            v4l2src device={device}
-        """.format(device=self.device)
+    v4l2src
+        device={device}
+""".format(device=self.device)
 
         # we may need to set things like width=1920,height=1080,format=YUY2,framerate=60/1 here
         pipe += """\
-            ! video/x-raw
-        """
+    ! video/x-raw
+"""
 
         if self.build_deinterlacer():
             pipe += """\
-        ! {deinterlacer}
-    """.format(deinterlacer=self.build_deinterlacer())
+    ! {deinterlacer}
+""".format(deinterlacer=self.build_deinterlacer())
 
         pipe += """\
-        ! videoconvert
-        ! videoscale
-        ! videorate
-            name=vout-{name}
-    """.format(
+    ! videoconvert
+    ! videoscale
+    ! videorate
+        name=vout-{name}
+""".format(
             name=self.name
         )
 

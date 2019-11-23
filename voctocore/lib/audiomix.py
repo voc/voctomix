@@ -45,10 +45,10 @@ bin.(
 """
         for idx, name in enumerate(self.sources):
             self.bin += """
-                        audio-{name}.
-                        ! queue
-                        name=queue-audio-{name}
-                        ! audiomixer.
+    audio-{name}.
+    ! queue
+    name=queue-audio-{name}
+    ! audiomixer.
                         """.format(name=name)
         self.bin += "\n)"
 
