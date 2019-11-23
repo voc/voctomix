@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import logging
 
+from gi.repository import Gst, Gdk
+
 from lib.config import Config
 from lib.tcpmulticonnection import TCPMultiConnection
 
@@ -29,7 +31,7 @@ bin.(
             vpipeline = self.construct_video_pipeline()
         )
 
-        if self.channel != "SLIDE":
+        if self.channel in Config.getAudioSources():
             self.bin += """
     audio-{channel}.
     ! queue
@@ -74,8 +76,8 @@ bin.(
             return self.construct_native_video_pipeline()
 
     def construct_vaapi_video_pipeline(self):
-        #if Gst.version() < (1, 8):
-        if False:
+        if Gst.version() < (1, 8):
+        #if False:
             vaapi_encoders = {
                 'h264': 'vaapiencode_h264',
                 'jpeg': 'vaapiencode_jpeg',
