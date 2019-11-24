@@ -194,11 +194,15 @@ class ControlServerCommands(object):
         self.pipeline.vmix.setComposite(command, True)
         return NotifyResponse('composite', self.pipeline.vmix.getComposite())
 
-    def test_transition(self, command):
+    def best(self, command):
         """tests if transition to the composite described by command is possible.
         """
-        return OkResponse('transition',
-                          self.pipeline.vmix.testTransition(command))
+        if self.pipeline.vmix.testTransition(command):
+            return OkResponse('best','transition')
+        elif self.pipeline.vmix.testCut(command):
+            return OkResponse('best','cut')
+        else:
+            return OkResponse('best','none')
 
     def cut(self, command):
         """sets the composite and sources by using the composite command format

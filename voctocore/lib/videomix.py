@@ -244,8 +244,14 @@ class VideoMix(object):
         self.setCompositeEx(command.composite, command.A,
                             command.B, useTransitions)
 
+    def testCut(self, command):
+        # expect string as parameter
+        assert type(command) == str
+        # parse command
+        command = CompositeCommand.from_str(command)
+        return (command.composite != self.compositeMode or command.A != self.sourceA or command.B != self.sourceB)
+
     def testTransition(self, command):
-        ''' parse switch to the composite described by string command '''
         # expect string as parameter
         assert type(command) == str
         # parse command

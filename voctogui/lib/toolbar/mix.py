@@ -30,7 +30,7 @@ class MixToolbarController(object):
 
         self.mix.create(self.toolbar, accelerators,
                         self.on_btn_clicked, radio=False)
-        Connection.on('transition', self.on_transition)
+        Connection.on('best', self.on_best)
 
     def on_btn_clicked(self, btn):
         id = btn.get_name()
@@ -49,8 +49,13 @@ class MixToolbarController(object):
                 'Sending new composite (using transition): %s', command)
             Connection.send('transition', str(command))
 
-    def on_transition(self, ok):
-        if ok == "True":
+    def on_best(self, best):
+        if best == "transition":
             self.mix['trans']['button'].show()
+            self.mix['cut']['button'].show()
         else:
             self.mix['trans']['button'].hide()
+            if best == "cut":
+                self.mix['cut']['button'].show()
+            else:
+                self.mix['cut']['button'].hide()
