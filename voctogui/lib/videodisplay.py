@@ -118,10 +118,8 @@ demux-{name}.
                 'Invalid Videodisplay-System configured: %s' % videosystem
             )
 
-        # If Playback is requested, push fo pulseaudio
-        if play_audio:
-            # add an Audio-Path through a level-Element
-            pipe += """
+        # add an Audio-Path through a level-Element
+        pipe += """
 demux-{name}.
 ! queue
     name=queue-audio-{name}
@@ -132,6 +130,11 @@ demux-{name}.
 ! audioconvert
 ! pulsesink
     name=audiosink-{name}"""
+
+        # If Playback is requested, push fo pulseaudio
+        if not play_audio:
+            pipe += """
+    volume=0"""
 
         pipe = pipe.format(name=name,
                            acaps=Config.getAudioCaps(),
