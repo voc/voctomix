@@ -27,7 +27,7 @@ class VideoDisplay(object):
 
     def __init__(self, drawing_area, port, name, width=None, height=None,
                  play_audio=False, level_callback=None):
-        self.log = logging.getLogger('VideoDisplay[%u]' % port)
+        self.log = logging.getLogger('VideoDisplay:%s' % name)
         self.name = name
         self.drawing_area = drawing_area
         self.level_callback = level_callback
@@ -141,7 +141,7 @@ demux-{name}.
                            port=port,
                            )
 
-        self.log.info('Creating Display-Pipeline:\n%s', pipe)
+        self.log.info("Creating Display-Pipeline:\n%s",  pipe)
         try:
             # launch gstreamer pipeline
             self.pipeline = Gst.parse_launch(pipe)
@@ -151,7 +151,7 @@ demux-{name}.
             sys.exit(-1)
 
         if Args.dot:
-            self.log.debug('Generating DOT image of videodisplay pipeline')
+            self.log.debug("Generating DOT image of videodisplay pipeline")
             gst_generate_dot(self.pipeline, "gui.videodisplay.{}".format(name))
 
         self.pipeline.use_clock(Clock)
@@ -159,17 +159,13 @@ demux-{name}.
         self.drawing_area.add_events(
             Gdk.EventMask.KEY_PRESS_MASK | Gdk.EventMask.KEY_RELEASE_MASK)
         self.drawing_area.connect("realize", self.on_realize)
-        self.drawing_area.realize()
-
         bus = self.pipeline.get_bus()
         bus.add_signal_watch()
         bus.enable_sync_message_emission()
 
         bus.connect('message::error', self.on_error)
-        bus.connect("sync-message::element", self.on_syncmsg)
-        self.pipeline.bus.connect(
-            "message::state-changed", self.on_state_changed)
-
+        bus.connect('sync-message::element', self.on_syncmsg)
+        bus.connect('message::state-changed', self.on_state_changed)
         if self.level_callback:
             bus.connect("message::element", self.on_level)
 
@@ -177,16 +173,18 @@ demux-{name}.
         self.imagesink = self.pipeline.get_by_name(
             'imagesink-{name}'.format(name=self.name))
         self.xid = self.drawing_area.get_property('window').get_xid()
-        self.log.debug('Realized Drawing-Area with xid %u', self.xid)
 
-        self.log.debug('Launching Display-Pipeline')
+        self.log.debug('Realized Drawing-Area with xid %u', self.xid)
+        self.drawing_area.realize()
+
+        self.log.info("Launching Display-Pipeline")
         self.pipeline.set_state(Gst.State.PLAYING)
 
     def on_syncmsg(self, bus, msg):
         if type(msg) == Gst.Message and self.imagesink:
             if msg.get_structure().get_name() == "prepare-window-handle":
                 self.log.info(
-                    'Setting imagesink window-handle to %s', self.xid)
+                    'Setting imagesink window-handle to 0x%x', self.xid)
                 self.imagesink.set_window_handle(self.xid)
 
     def on_error(self, bus, message):
@@ -199,16 +197,11 @@ demux-{name}.
             "volume", 1 if mute else 0)
 
     def on_level(self, bus, msg):
-        if msg.src.name != 'lvl':
-            return
-
-        if msg.type != Gst.MessageType.ELEMENT:
-            return
-
-        rms = msg.get_structure().get_value('rms')
-        peak = msg.get_structure().get_value('peak')
-        decay = msg.get_structure().get_value('decay')
-        self.level_callback(rms, peak, decay)
+        if msg.src.name == 'lvl':
+            rms = msg.get_structure().get_value('rms')
+            peak = msg.get_structure().get_value('peak')
+            decay = msg.get_structure().get_value('decay')
+            self.level_callback(rms, peak, decay)
 
     def on_state_changed(self, bus, message):
         if message.parse_state_changed().newstate == Gst.State.PLAYING:
