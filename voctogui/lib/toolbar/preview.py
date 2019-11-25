@@ -62,6 +62,8 @@ class PreviewToolbarController(object):
         self.log.info("Reading transitions configuration...")
         self.composites_ = Config.getComposites()
 
+        Connection.on('best', self.on_best)
+
         self.enable_modifiers()
         self.enable_channelB()
 
@@ -129,7 +131,7 @@ class PreviewToolbarController(object):
         self.log.info("Testing transition to '%s'", str(self.command()))
         Connection.send('best', str(self.command()))
 
-    def set_command(self, command):
+    def set_command(self, command, do_test=True):
         self.log.info("Changing new composite to '%s'", str(self.command()))
         if type(command) == str:
             command = CompositeCommand.from_str(command)
@@ -139,4 +141,12 @@ class PreviewToolbarController(object):
         self.composites[command.composite]['button'].set_active(True)
         self.sourcesA[command.A]['button'].set_active(True)
         self.sourcesB[command.B]['button'].set_active(True)
-        self.test()
+        if do_test:
+            self.test()
+
+    def on_best(self, best, targetA, targetB):
+        c = self.command()
+        if (c.A, c.B) != (targetA, targetB) and (c.A, c.B) != (targetB, targetA):
+            c.A = targetA
+            c.B = targetB
+            self.set_command(c,False)

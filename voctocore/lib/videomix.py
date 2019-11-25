@@ -202,6 +202,13 @@ class VideoMix(object):
                                 # change (A,B) -> (C,B) into (A,C) -> (C,A)
                                 newB = curA
                                 curB = newA
+                        elif newComposite.single():
+                            # check for (A,B) -> (A,C)
+                            if curA == newA:
+                                newB = curB
+                            # check for (A,B) -> (B,C)
+                            if curB == newA:
+                                newB = curA
 
                     # check if whe have a four-channel scenario
                     if len(set(old)) == 4:
@@ -229,7 +236,7 @@ class VideoMix(object):
                     if transition and not dry:
                         self.log.warning("No transition found")
             if dry:
-                return transition is not None
+                return (newA, newB) if transition else False
             if transition:
                 # apply found transition
                 self.log.debug(
@@ -276,7 +283,10 @@ class VideoMix(object):
         assert type(command) == str
         # parse command
         command = CompositeCommand.from_str(command)
-        return (command.composite != self.compositeMode or command.A != self.sourceA or command.B != self.sourceB)
+        if (command.composite != self.compositeMode or command.A != self.sourceA or command.B != self.sourceB):
+            return command.A, command.B
+        else:
+            return False
 
     def testTransition(self, command):
         # expect string as parameter

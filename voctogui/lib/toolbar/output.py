@@ -40,6 +40,10 @@ class OutputToolbarController(object):
         self.sourcesB.create(self.toolbar_b, css=["output", "source"], group=False, sensitive=False, visible=False, multiline_names=False)
         self.mods.create(self.toolbar_mod, css=["output", "mod"], group=False, sensitive=False, visible=False, multiline_names=False)
 
+        # load composites from config
+        self.log.info("Reading transitions configuration...")
+        self.composites_ = Config.getComposites()
+
         # connect event-handler and request initial state
         Connection.on('composite_mode_and_video_status',
                       self.on_composite_mode_and_video_status)
@@ -59,13 +63,15 @@ class OutputToolbarController(object):
                 selection.append(id)
         selection = [command.composite] + selection
 
+        single = self.composites_[command.composite].single()
+
         for id, attr in self.sourcesA.items():
             visible = id == command.A
             attr['button'].set_visible_horizontal(visible)
             attr['button'].set_visible_vertical(visible)
 
         for id, attr in self.sourcesB.items():
-            visible = id == command.B
+            visible = id == command.B and not single
             attr['button'].set_visible_horizontal(visible)
             attr['button'].set_visible_vertical(visible)
 

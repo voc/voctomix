@@ -54,7 +54,7 @@ class MixToolbarController(object):
                 'Sending new composite (using transition): %s', command)
             Connection.send('transition', str(command))
 
-    def on_best(self, best):
+    def on_best(self, best, targetA, targetB):
         if best == "transition":
             self.mix['trans']['button'].show()
             self.mix['cut']['button'].show()

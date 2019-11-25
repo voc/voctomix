@@ -197,12 +197,16 @@ class ControlServerCommands(object):
     def best(self, command):
         """tests if transition to the composite described by command is possible.
         """
-        if self.pipeline.vmix.testTransition(command):
-            return OkResponse('best','transition')
-        elif self.pipeline.vmix.testCut(command):
-            return OkResponse('best','cut')
+        transition = self.pipeline.vmix.testTransition(command)
+        if transition:
+            return OkResponse('best','transition', *transition)
         else:
-            return OkResponse('best','none')
+            cut = self.pipeline.vmix.testCut(command)
+            if cut:
+                return OkResponse('best','cut', *cut)
+            else:
+                command = CompositeCommand.from_str(command)
+                return OkResponse('best','none',command.A,command.B)
 
     def cut(self, command):
         """sets the composite and sources by using the composite command format
