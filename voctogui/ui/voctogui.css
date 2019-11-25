@@ -24,11 +24,11 @@
 }
 
 #mixer button:checked:disabled {
-  background-color: #504530;
+  background-color: #303030;
 }
 
 #mixer button:checked:disabled label {
-  color: #302510;
+  color: #505050;
 }
 
 #mixer button:checked:backdrop label {
@@ -36,7 +36,7 @@
 }
 
 #mixer button:checked:disabled:backdrop label {
-  color: #302510;
+  color: #505050;
 }
 
 #mixer .output:disabled:backdrop label {

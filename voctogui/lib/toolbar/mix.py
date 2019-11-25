@@ -34,7 +34,7 @@ class MixToolbarController(object):
 
     def on_btn_clicked(self, btn):
         id = btn.get_name()
-        
+
         # on transition hide overlay if AUTO-OFF is on
         if self.overlay_controller.isAutoOff() and id != 'retake':
             Connection.send('show_overlay',str(False))
@@ -55,12 +55,5 @@ class MixToolbarController(object):
             Connection.send('transition', str(command))
 
     def on_best(self, best, targetA, targetB):
-        if best == "transition":
-            self.mix['trans']['button'].show()
-            self.mix['cut']['button'].show()
-        else:
-            self.mix['trans']['button'].hide()
-            if best == "cut":
-                self.mix['cut']['button'].show()
-            else:
-                self.mix['cut']['button'].hide()
+        self.mix['trans']['button'].set_sensitive(best == "transition")
+        self.mix['cut']['button'].set_sensitive(best == "transition" or best == "cut")
