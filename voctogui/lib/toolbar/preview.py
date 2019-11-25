@@ -34,6 +34,8 @@ class PreviewToolbarController(object):
         toolbar_mod = uibuilder.find_widget_recursive(
             win, 'toolbar_preview_mod')
 
+        self.frame_b = uibuilder.find_widget_recursive(win, 'frame_preview_b')
+
         # hide modify box if not needed
         box_modify = uibuilder.find_widget_recursive(win, 'box_preview_modify')
         if not Config.getToolbarMods():
@@ -114,8 +116,7 @@ class PreviewToolbarController(object):
 
     def enable_channelB(self):
         single = self.composites_[self.composite].single()
-        for id in self.sourcesB.ids:
-            self.sourcesB[id]['button'].set_sensitive(not single)
+        self.frame_b.set_sensitive(not single)
 
     def command(self):
         # process all selected replactions
