@@ -181,15 +181,15 @@ class Composite:
         self.frame[0].original_size = size
         self.frame[1].original_size = size
 
-    def covered(self, symetric=False):
-        """ check if below is completely covered by above
+    def covered(self):
+        """ check if below (A) is invisible or covered by above (B)
             (considers shape with cropping and transparency)
         """
         below, above = self.frame
         if below.invisible():
             return True
         if above.invisible():
-            return symetric
+            return False
         bc = below.cropped()
         ac = above.cropped()
         # return if above is (semi-)transparent or covers below completely
@@ -200,7 +200,13 @@ class Composite:
                 bc[B] <= ac[B])
 
     def single(self):
-        return self.covered(True)
+        """ check if above (B) is invisible
+        """
+        below, above = self.frame
+        return above.invisible()
+
+    def both(self):
+        return not (single() or covered())
 
 
 def add_swapped_targets(composites):

@@ -180,16 +180,43 @@ class VideoMix(object):
             targetA, targetB = newA, newB
             if useTransitions:
                 if curComposite:
-                    # check if we can handle a three channel transition
-                    if 3 == len({curA, curB, newA, newB}):
+                    old = (curA,curB,newA,newB)
+
+                    # check if whe have a three-channel scenario
+                    if len(set(old)) == 3:
+                        self.log.info("Current composite includes three different frames: (%s,%s) -> (%s,%s)", *old)
+                        # check if current composite hides B
                         if curComposite.single():
+                            self.log.info("Current composite hides channel B so we can secretly change it.")
+                            # check for (A,B) -> (A,C)
+                            if curA == newA:
+                                # change into (A,C) -> (A,C)
+                                curB = newB
+                            # check for (A,B) -> (C,A)
+                            elif curA == newB:
+                                # change into (A,C) -> (C,A)
+                                curB = newA
+                            # check another case where new composite also hides B
+                            elif newComposite.single():
+                                self.log.info("New composite also hides channel B so we can secretly change it.")
+                                # change (A,B) -> (C,B) into (A,C) -> (C,A)
+                                newB = curA
+                                curB = newA
+
+                    # check if whe have a four-channel scenario
+                    if len(set(old)) == 4:
+                        self.log.info("Current composite includes four different frames: (%s,%s) -> (%s,%s)", *old)
+                        # check if both composites hide channel B
+                        if curComposite.single() and newComposite.single():
+                            self.log.info("Current and new composite hide channel B so we can secretly change it.")
+                            # change (A,B) -> (C,D) into (A,C) -> (C,A)
                             curB = newA
-                            self.log.info(
-                                "Current composite shows single channel - replacing the hidden one silently.")
-                        if newComposite.single():
                             newB = curA
-                            self.log.info(
-                                "Current composite shows single channel - replacing the hidden one silently.")
+
+                    # log if whe changed somtehing
+                    if old != (curA,curB,newA,newB):
+                        self.log.info("Changing to from (%s,%s) -> (%s,%s) to (%s,%s) -> (%s,%s)", *old, curA,curB,newA,newB)
+
                     swap = False
                     if (curA, curB) == (newA, newB):
                         transition, swap = self.transitions.solve(

@@ -58,6 +58,10 @@ class PreviewToolbarController(object):
         for id in self.mods.ids:
             self.modstates[id] = False
 
+        # load composites from config
+        self.log.info("Reading transitions configuration...")
+        self.composites_ = Config.getComposites()
+
         self.enable_modifiers()
 
         self.initialized = True
@@ -88,6 +92,7 @@ class PreviewToolbarController(object):
                 self.test()
             elif id in self.composites:
                 self.composite = id
+                self.enable_channelB()
                 self.enable_modifiers()
                 self.log.info(
                     "Selected '%s' for preview target composite", self.composite)
@@ -104,6 +109,11 @@ class PreviewToolbarController(object):
         for id, attr in self.mods.items():
             attr['button'].set_sensitive( command.modify(attr['replace']) )
 
+    def enable_channelB(self):
+        single = self.composites_[self.composite].single()
+        for id in self.sourcesB.ids:
+            self.sourcesB[id]['button'].set_sensitive(not single)
+
     def command(self):
         # process all selected replactions
         command = CompositeCommand(self.composite, self.sourceA, self.sourceB)
@@ -119,6 +129,7 @@ class PreviewToolbarController(object):
         Connection.send('best', str(self.command()))
 
     def set_command(self, command):
+        self.log.info("Changing new composite to '%s'", str(self.command()))
         if type(command) == str:
             command = CompositeCommand.from_str(command)
         for id, attr in self.mods.items():
