@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import logging
+import copy
 
 from gi.repository import Gtk
 import lib.connection as Connection
@@ -65,10 +66,12 @@ class PreviewToolbarController(object):
         self.composites_ = Config.getComposites()
 
         Connection.on('best', self.on_best)
-
+        Connection.on('composite', self.on_composite)
+        Connection.send('get_composite')
         self.enable_modifiers()
         self.enable_channelB()
 
+        self.do_test = True
         self.initialized = True
 
     def on_btn_toggled(self, btn):
@@ -127,27 +130,65 @@ class PreviewToolbarController(object):
         return command
 
     def test(self):
-        if self.sourceA == self.sourceB:
-            return False
-        self.log.info("Testing transition to '%s'", str(self.command()))
-        Connection.send('best', str(self.command()))
+        if self.do_test:
+            if self.sourceA == self.sourceB:
+                return False
+            self.log.info("Testing transition to '%s'", str(self.command()))
+            Connection.send('best', str(self.command()))
 
-    def set_command(self, command, do_test=True):
+    def set_command(self, command):
         self.log.info("Changing new composite to '%s'", str(self.command()))
         if type(command) == str:
             command = CompositeCommand.from_str(command)
-        for id, attr in self.mods.items():
-            attr['button'].set_active(
-                command.modify(attr['replace'], reverse=True))
+        for id, item in self.mods.items():
+            item['button'].set_active(
+                command.modify(item['replace'], reverse=True))
         self.composites[command.composite]['button'].set_active(True)
         self.sourcesA[command.A]['button'].set_active(True)
         self.sourcesB[command.B]['button'].set_active(True)
-        if do_test:
-            self.test()
+        self.test()
 
     def on_best(self, best, targetA, targetB):
         c = self.command()
         if (c.A, c.B) != (targetA, targetB) and (c.A, c.B) != (targetB, targetA):
             c.A = targetA
             c.B = targetB
-            self.set_command(c,False)
+            self.do_test = False
+            self.set_command(c)
+            self.do_test = True
+        self.update_glow()
+
+    def on_composite(self, command):
+        self.output = CompositeCommand.from_str(command)
+        self.test()
+
+    def update_glow(self):
+        output = copy.copy(self.output)
+        for id, item in self.sourcesA.items():
+            if id == output.A:
+                item['button'].get_style_context().add_class("glow")
+            else:
+                item['button'].get_style_context().remove_class("glow")
+        single = self.composites_[self.composite].single()
+        output_single = self.composites_[output.composite].single()
+        for id, item in self.sourcesB.items():
+            if id == output.B:
+                if output_single:
+                    item['button'].get_style_context().remove_class("glow")
+                elif single:
+                    self.sourcesA[id]['button'].get_style_context().add_class("glow")
+                    item['button'].get_style_context().remove_class("glow")
+                else:
+                    item['button'].get_style_context().add_class("glow")
+            else:
+                item['button'].get_style_context().remove_class("glow")
+        for id, item in self.mods.items():
+            if output.unmodify(item['replace']):
+                item['button'].get_style_context().add_class("glow")
+            else:
+                item['button'].get_style_context().remove_class("glow")
+        for id, item in self.composites.items():
+            if id == output.composite:
+                item['button'].get_style_context().add_class("glow")
+            else:
+                item['button'].get_style_context().remove_class("glow")

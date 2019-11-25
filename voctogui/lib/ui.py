@@ -11,7 +11,6 @@ from lib.queues import QueuesWindowController
 from lib.ports import PortsWindowController
 
 from lib.toolbar.mix import MixToolbarController
-from lib.toolbar.output import OutputToolbarController
 from lib.toolbar.preview import PreviewToolbarController
 from lib.toolbar.overlay import OverlayToolbarController
 from lib.toolbar.blinder import BlinderToolbarController
@@ -81,13 +80,6 @@ class Ui(UiBuilder):
             uibuilder=self
         )
 
-        # Setup Toolbar Controllers
-        self.output_toolbar_controller = OutputToolbarController(
-            win=self.win,
-            uibuilder=self,
-            preview_controller=self.preview_toolbar_controller
-        )
-
         self.overlay_toolbar_controller = OverlayToolbarController(
             win=self.win,
             uibuilder=self
@@ -96,7 +88,6 @@ class Ui(UiBuilder):
         self.mix_toolbar_controller = MixToolbarController(
             win=self.win,
             uibuilder=self,
-            output_controller=self.output_toolbar_controller,
             preview_controller=self.preview_toolbar_controller,
             overlay_controller=self.overlay_toolbar_controller
         )

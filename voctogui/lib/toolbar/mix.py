@@ -14,9 +14,8 @@ from lib.uibuilder import UiBuilder
 class MixToolbarController(object):
     """Manages Accelerators and Clicks on the Preview Composition Toolbar-Buttons"""
 
-    def __init__(self, win, uibuilder, output_controller, preview_controller, overlay_controller):
+    def __init__(self, win, uibuilder, preview_controller, overlay_controller):
         self.initialized = False
-        self.output_controller = output_controller
         self.preview_controller = preview_controller
         self.overlay_controller = overlay_controller
         self.log = logging.getLogger('PreviewToolbarController')
@@ -40,12 +39,12 @@ class MixToolbarController(object):
             Connection.send('show_overlay',str(False))
 
         command = self.preview_controller.command()
-        output_command = self.output_controller.command()
-        if command.A == output_command.A and command.B != output_command.B:
-            output_command.B = command.B
-        if command.B == output_command.B and command.A != output_command.A:
-            output_command.A = command.A
-        self.preview_controller.set_command(self.output_controller.command())
+        output = self.preview_controller.output
+        if command.A == output.A and command.B != output.B:
+            output.B = command.B
+        if command.B == output.B and command.A != output.A:
+            output.A = command.A
+        self.preview_controller.set_command(output)
         if id == 'cut':
             self.log.info('Sending new composite: %s', command)
             Connection.send('cut', str(command))
@@ -53,7 +52,7 @@ class MixToolbarController(object):
             self.log.info(
                 'Sending new composite (using transition): %s', command)
             Connection.send('transition', str(command))
-
+        
     def on_best(self, best, targetA, targetB):
         self.mix['trans']['button'].set_sensitive(best == "transition")
         self.mix['cut']['button'].set_sensitive(best == "transition" or best == "cut")

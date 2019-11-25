@@ -24,11 +24,11 @@
 }
 
 #mixer button:checked:disabled {
-  background-color: #303030;
+  background-color: #504530
 }
 
 #mixer button:checked:disabled label {
-  color: #505050;
+  color: #302510;
 }
 
 #mixer button:checked:backdrop label {
@@ -36,6 +36,18 @@
 }
 
 #mixer button:checked:disabled:backdrop label {
+  color: #302510;
+}
+
+#preview_b button:checked:disabled {
+  background-color: #303030
+}
+
+#preview_b button:checked:disabled label {
+  color: #505050;
+}
+
+#preview_b button:checked:disabled:backdrop label {
   color: #505050;
 }
 
@@ -93,3 +105,11 @@
 }
 
 #queues { font-size: 15px; }
+
+toolbar {
+  background-color:rgba(0,0,0,0);
+}
+
+.glow button {
+  box-shadow: 0px 0px 5px #80FF80;
+}
