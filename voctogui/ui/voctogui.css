@@ -10,6 +10,12 @@
   margin-bottom:5px;
   margin-right:5px;
 }
+#mixer button:disabled {
+  background-color: #303030;
+}
+#mixer label:disabled {
+  color: #505050;
+}
 
 #mixer button:checked, #mixer button:active {
   background-image: none;
@@ -18,15 +24,19 @@
 }
 
 #mixer button:checked:disabled {
-  background-color: #aa9944;
+  background-color: #504530;
 }
 
 #mixer button:checked:disabled label {
-  color: #997700;
+  color: #302510;
 }
 
 #mixer button:checked:backdrop label {
   color: #997700;
+}
+
+#mixer button:checked:disabled:backdrop label {
+  color: #302510;
 }
 
 #mixer .output:disabled:backdrop label {
