@@ -99,7 +99,9 @@ Without any further configuration this will produce two test sources named `cam1
 
 Without any further configuration a source becomes a **test source** by default.
 Every test source will add a [videotestsrc](https://gstreamer.freedesktop.org/documentation/videotestsrc/index.html?gi-language=python) and an [audiotestsrc](https://gstreamer.freedesktop.org/documentation/audiotestsrc/index.html?gi-language=python) element to the internal GStreamer pipeline and so it produces a test video and sound.
-As in the order they appear in `mix/sources` the test patterns of all test sources will iterate through the [GStreamer test pattern values](https://gstreamer.freedesktop.org/documentation/videotestsrc/index.html?gi-language=python#members-2) beginning with the value `snow` (followed by `black`, `white`, `red`, `green`, `blue`, ...).
+As in the order they appear in `mix/sources` the test patterns of all test sources will iterate through the following values:
+
+`smpte`, `ball`, `red`, `green`, `blue`, `black`, `white`, `checkers-1`, `checkers-2`, `checkers-4`, `checkers-8`, `circular`, `blink`, `smpte75`, `zone-plate`, `gamut`, `chroma-zone-plate`, `solid-color`, `smpte100`, `bar`, `snow`, `pinwheel`, `spokes`, `gradient`, `colors`
 
 To set the pattern of a test source explicitly you need to add an own section `source.x` (where `x` is the source's identifier) to the configuration
 
@@ -199,7 +201,9 @@ These attributes can be set for all *kinds* of sources:
 #### Background Video Source
 
 The `background` source is *obligatory* and does not have to be listed in `mix/sources`.
-Background sources will be placed on bottom (z-order) of the video mix.
+The background source will be placed on bottom (z-order) of the video mix.
+By default the background source is a `black` video test source.
+Yout need to configure the background source (as any other) if you want to change that:
 
 ```
 [source.background]
@@ -207,7 +211,7 @@ kind=img
 file=/opt/voc/share/bg.png
 ```
 
-Background sources is video only so audio sources will be ignored.
+The background source is **video only** and so any audio sources will be ignored.
 
 #### Blinding Video Sources
 
