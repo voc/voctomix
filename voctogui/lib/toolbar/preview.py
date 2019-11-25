@@ -63,6 +63,7 @@ class PreviewToolbarController(object):
         self.composites_ = Config.getComposites()
 
         self.enable_modifiers()
+        self.enable_channelB()
 
         self.initialized = True
 
