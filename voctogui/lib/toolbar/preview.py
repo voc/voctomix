@@ -136,7 +136,8 @@ class PreviewToolbarController(object):
             self.log.info("Testing transition to '%s'", str(self.command()))
             Connection.send('best', str(self.command()))
 
-    def set_command(self, command):
+    def set_command(self, command, do_test=True):
+        self.do_test = do_test
         self.log.info("Changing new composite to '%s'", str(self.command()))
         if type(command) == str:
             command = CompositeCommand.from_str(command)
@@ -147,6 +148,7 @@ class PreviewToolbarController(object):
         self.sourcesA[command.A]['button'].set_active(True)
         self.sourcesB[command.B]['button'].set_active(True)
         self.test()
+        self.do_test = True
 
     def on_best(self, best, targetA, targetB):
         c = self.command()

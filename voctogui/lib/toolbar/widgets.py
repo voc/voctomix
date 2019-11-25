@@ -97,3 +97,5 @@ class Widgets(dict):
             # set button tooltip
             if 'expand' in attr:
                 widget.set_expand(True)
+
+            widget.set_can_focus(False)

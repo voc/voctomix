@@ -44,7 +44,7 @@ class MixToolbarController(object):
             output.B = command.B
         if command.B == output.B and command.A != output.A:
             output.A = command.A
-        self.preview_controller.set_command(output)
+        self.preview_controller.set_command(output,False)
         if id == 'cut':
             self.log.info('Sending new composite: %s', command)
             Connection.send('cut', str(command))
