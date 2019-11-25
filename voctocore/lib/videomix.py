@@ -173,7 +173,7 @@ class VideoMix(object):
 
         # if new scene is complete
         if newComposite and newA in self.sources and newB in self.sources:
-            self.log.info("New composite shall be %s(%s,%s)",
+            self.log.debug("New composite shall be %s(%s,%s)",
                           newComposite.name, newA, newB)
             # try to find a matching transition from current to new scene
             transition = None
@@ -184,10 +184,10 @@ class VideoMix(object):
 
                     # check if whe have a three-channel scenario
                     if len(set(old)) == 3:
-                        self.log.info("Current composite includes three different frames: (%s,%s) -> (%s,%s)", *old)
+                        self.log.debug("Current composite includes three different frames: (%s,%s) -> (%s,%s)", *old)
                         # check if current composite hides B
                         if curComposite.single():
-                            self.log.info("Current composite hides channel B so we can secretly change it.")
+                            self.log.debug("Current composite hides channel B so we can secretly change it.")
                             # check for (A,B) -> (A,C)
                             if curA == newA:
                                 # change into (A,C) -> (A,C)
@@ -198,7 +198,7 @@ class VideoMix(object):
                                 curB = newA
                             # check another case where new composite also hides B
                             elif newComposite.single():
-                                self.log.info("New composite also hides channel B so we can secretly change it.")
+                                self.log.debug("New composite also hides channel B so we can secretly change it.")
                                 # change (A,B) -> (C,B) into (A,C) -> (C,A)
                                 newB = curA
                                 curB = newA
@@ -212,17 +212,17 @@ class VideoMix(object):
 
                     # check if whe have a four-channel scenario
                     if len(set(old)) == 4:
-                        self.log.info("Current composite includes four different frames: (%s,%s) -> (%s,%s)", *old)
+                        self.log.debug("Current composite includes four different frames: (%s,%s) -> (%s,%s)", *old)
                         # check if both composites hide channel B
                         if curComposite.single() and newComposite.single():
-                            self.log.info("Current and new composite hide channel B so we can secretly change it.")
+                            self.log.debug("Current and new composite hide channel B so we can secretly change it.")
                             # change (A,B) -> (C,D) into (A,C) -> (C,A)
                             curB = newA
                             newB = curA
 
                     # log if whe changed somtehing
                     if old != (curA,curB,newA,newB):
-                        self.log.info("Changing to from (%s,%s) -> (%s,%s) to (%s,%s) -> (%s,%s)", *old, curA,curB,newA,newB)
+                        self.log.info("Changing requested transition from (%s,%s) -> (%s,%s) to (%s,%s) -> (%s,%s)", *old, curA,curB,newA,newB)
 
                     swap = False
                     if (curA, curB) == (newA, newB):
