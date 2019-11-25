@@ -749,7 +749,7 @@ https://github.com/voc/voctomix </property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <object class="GtkFrame">
+                                      <object class="GtkFrame" id="frame_preview_b">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
                                         <property name="label_xalign">0.5</property>
