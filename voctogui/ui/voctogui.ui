@@ -2,6 +2,11 @@
 <!-- Generated with glade 3.22.1 -->
 <interface>
   <requires lib="gtk+" version="3.10"/>
+  <object class="GtkImage" id="img-logo">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">logo.svg</property>
+  </object>
   <object class="GtkImage" id="img-ports">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -535,7 +540,7 @@ https://github.com/voc/voctomix </property>
                                       <object class="GtkLabel">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="label" translatable="yes">PREVIEW</property>
+                                        <property name="label" translatable="yes">COMPOSE</property>
                                         <property name="angle">90</property>
                                       </object>
                                       <packing>
@@ -1397,6 +1402,44 @@ audio-volume-medium-symbolic</property>
                     <property name="show_arrow">False</property>
                     <property name="icon_size">6</property>
                     <child>
+                      <object class="GtkSeparatorToolItem" id="s1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="draw">False</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToolButton" id="voc-btn">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label">voctomix2</property>
+                        <property name="icon_widget">img-voc</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToolButton" id="logo">
+                        <property name="visible">True</property>
+                        <property name="sensitive">False</property>
+                        <property name="can_focus">False</property>
+                        <property name="resize_mode">immediate</property>
+                        <property name="label" translatable="yes">Logo</property>
+                        <property name="use_underline">True</property>
+                        <property name="icon_widget">img-logo</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                    <child>
                       <object class="GtkSeparatorToolItem" id="s6">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
@@ -1412,7 +1455,7 @@ audio-volume-medium-symbolic</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="no_show_all">True</property>
-                        <property name="label">Queues</property>
+                        <property name="label">Ports</property>
                         <property name="icon_widget">img-ports</property>
                       </object>
                       <packing>
@@ -1450,18 +1493,6 @@ audio-volume-medium-symbolic</property>
                         <property name="no_show_all">True</property>
                         <property name="label">Mute Sound</property>
                         <property name="icon_name">audio-volume-muted</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="homogeneous">True</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkToolButton" id="voc-btn">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label">voctomix2</property>
-                        <property name="icon_widget">img-voc</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
