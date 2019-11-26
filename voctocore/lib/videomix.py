@@ -225,7 +225,7 @@ class VideoMix(object):
                         self.log.info("Changing requested transition from (%s,%s) -> (%s,%s) to (%s,%s) -> (%s,%s)", *old, curA,curB,newA,newB)
 
                     swap = False
-                    if (curA, curB) == (newA, newB):
+                    if (curA, curB) == (newA, newB) and curComposite != newComposite:
                         transition, swap = self.transitions.solve(
                             curComposite, newComposite, False)
                     elif (curA, curB) == (newB, newA):
