@@ -1,5 +1,10 @@
-/* set font size for UHD screens */
-#mixer .name { font-size: 15px; }
+#mixer {
+  font-family: roboto condensed;
+}
+
+#mixer .name {
+  font-size: 1.0em;
+}
 
 #mixer button {
   font-size: 20px;
