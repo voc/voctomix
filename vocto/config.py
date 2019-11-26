@@ -137,7 +137,10 @@ class VocConfigParser(SafeConfigParser):
         return AudioStreams()
 
     def getNumAudioStreams(self):
-        return self.getAudioStreams().num_channels()
+        num_audio_streams = self.getAudioStreams().num_channels()
+        if self.getAudioChannels() != num_audio_streams:
+            self.log.error("number of audio channels in mix/audiocaps differs from the available audio input channels within the sources!")
+        return num_audio_streams
 
     def setShowVolume(self, show=True):
         self.add_section_if_missing('audio')
@@ -148,6 +151,12 @@ class VocConfigParser(SafeConfigParser):
 
     def getAudioCaps(self, section='mix'):
         return self.get(section, 'audiocaps', fallback="audio/x-raw,format=S16LE,channels=2,layout=interleaved,rate=48000")
+
+    def getAudioChannels(self):
+        caps = Gst.Caps.from_string(
+            self.getAudioCaps()).get_structure(0)
+        _, channels = caps.get_int('channels')
+        return channels
 
     def getVideoResolution(self):
         caps = Gst.Caps.from_string(
