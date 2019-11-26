@@ -111,13 +111,13 @@ class Pipeline(object):
 
             dest = AVRawOutput('mix-blinded', Port.LIVE_OUT)
             self.bins.append(dest)
-            self.ports.append(Port('live-mix', dest))
+            self.ports.append(Port('live', dest))
 
             # check for source preview selection
             if Config.getPreviewsEnabled() and Config.getLivePreviewEnabled():
                 dest = AVPreviewOutput('mix-blinded', Port.LIVE_PREVIEW)
                 self.bins.append(dest)
-                self.ports.append(Port("preview-live-mix", dest))
+                self.ports.append(Port("preview-live", dest))
 
             if Config.getSlidesSource():
                 dest = AVRawOutput('{}-blinded'.format(Config.getSlidesSource()), Port.SLIDES_LIVE_OUT)

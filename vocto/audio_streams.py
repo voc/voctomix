@@ -29,7 +29,7 @@ class AudioStreams:
     def join(self, audio_streams):
         self.audio_streams += audio_streams.audio_streams
 
-    def num_channels(self, source=None, grid=[].extend(range(0,255))):
+    def num_channels(self, source=None, grid=[x for x in range(0,255)]):
         if source:
             result = 0
             for index, audio_stream in enumerate(self.audio_streams):
@@ -41,7 +41,7 @@ class AudioStreams:
         else:
             return len(self.audio_streams)
 
-    def matrix(self, source, grid=[].extend(range(0,255))):
+    def matrix(self, source, grid=[x for x in range(0,255)]):
         result = []
         for out, audio_stream in enumerate(self.audio_streams):
             row = []

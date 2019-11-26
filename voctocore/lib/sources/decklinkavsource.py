@@ -89,7 +89,7 @@ class DeckLinkAVSource(AVSource):
                     ! fakesink
                     """
 
-        if self.audio_channels():
+        if self.internal_audio_channels():
             pipe += """
                 decklinkaudiosrc
                     name=decklinkaudiosrc-{name}
@@ -99,7 +99,7 @@ class DeckLinkAVSource(AVSource):
                 """.format(name=self.name,
                            device=self.device,
                            conn=self.aconn,
-                           channels=self.audio_channels())
+                           channels=self.internal_audio_channels())
 
         return pipe
 

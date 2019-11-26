@@ -42,7 +42,7 @@ class AVSource(object, metaclass=ABCMeta):
 
         self.bin += self.build_source()
 
-        if self.audio_channels():
+        if self.internal_audio_channels():
             audioport = self.build_audioport()
             if audioport:
                 self.bin += """
@@ -57,7 +57,7 @@ class AVSource(object, metaclass=ABCMeta):
                         name=audio-{name}
                     """.format(
                     audioport=audioport,
-                    in_channels=self.audio_channels(),
+                    in_channels=self.internal_audio_channels(),
                     out_channels=self.audio_streams.num_channels(),
                     matrix=str(self.audio_streams.matrix(self.name,
                                                          self.get_valid_channel_numbers())
@@ -128,6 +128,9 @@ class AVSource(object, metaclass=ABCMeta):
         return 1 if self.has_video else 0
 
     def audio_channels(self):
+        return self.audio_streams.num_channels(self.name) if self.has_audio else 0
+
+    def internal_audio_channels(self):
         return self.audio_streams.num_channels(self.name, self.get_valid_channel_numbers()) if self.has_audio else 0
 
     def get_valid_channel_numbers(self):
