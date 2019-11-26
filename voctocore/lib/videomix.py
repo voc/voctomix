@@ -31,6 +31,8 @@ class VideoMix(object):
         self.scene = None
         self.overlay = None
 
+        Config.getAudioStreams()
+
         # build GStreamer mixing pipeline descriptor
         self.bin = """
             bin.(
@@ -137,19 +139,17 @@ class VideoMix(object):
         assert not newA or type(newA) == str
         assert not newB or type(newB) == str
 
-        self.log.info("Request composite change to %s(%s,%s)",
-                      newCompositeName, newA, newB)
-
         # get current composite
         if not self.compositeMode:
             curCompositeName = None
-            self.log.info("No current composite (initial)")
+            self.log.info("Request composite %s(%s,%s)",
+                          newCompositeName, newA, newB)
         else:
             curCompositeName = self.compositeMode
             curA = self.sourceA
             curB = self.sourceB
-            self.log.info("Current composite is %s(%s,%s)",
-                          curCompositeName, curA, curB)
+            self.log.info("Request composite change from %s(%s,%s) to %s(%s,%s)",
+                          curCompositeName, curA, curB, newCompositeName, newA, newB)
 
         # check if there is any None parameter and fill it up with
         # reasonable value from the current scene

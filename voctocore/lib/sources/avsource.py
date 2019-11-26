@@ -18,7 +18,7 @@ class AVSource(object, metaclass=ABCMeta):
         self.name = name
         self.has_audio = has_audio
         self.has_video = has_video
-        self.num_streams = num_streams if num_streams else Config.getNumAudioStreams()
+        self.audio_streams = Config.getAudioStreams()
         self.show_no_signal = show_no_signal
         self.inputSink = None
         self.bin = ""
@@ -42,16 +42,26 @@ class AVSource(object, metaclass=ABCMeta):
 
         self.bin += self.build_source()
 
-        if self.has_audio:
+        if self.audio_channels():
             audioport = self.build_audioport()
             if audioport:
                 self.bin += """
                     {audioport}
+                    ! audiomixmatrix
+                        name=audiomixmatrix-{name}
+                        in-channels={in_channels}
+                        out-channels={out_channels}
+                        matrix="{matrix}"
                     ! {acaps}
                     ! tee
                         name=audio-{name}
                     """.format(
                     audioport=audioport,
+                    in_channels=self.audio_channels(),
+                    out_channels=self.audio_streams.num_channels(),
+                    matrix=str(self.audio_streams.matrix(self.name,
+                                                         self.get_valid_channel_numbers())
+                               ).replace("[", "<").replace("]", ">"),
                     acaps=Config.getAudioCaps(),
                     name=self.name
                 )
@@ -118,7 +128,10 @@ class AVSource(object, metaclass=ABCMeta):
         return 1 if self.has_video else 0
 
     def audio_channels(self):
-        return 1 if self.has_audio else 0
+        return self.audio_streams.num_channels(self.name, self.get_valid_channel_numbers()) if self.has_audio else 0
+
+    def get_valid_channel_numbers(self):
+        return [x for x in range(1, 255)]
 
     def num_connections(self):
         return 0

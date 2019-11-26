@@ -7,6 +7,7 @@ from gi.repository import Gst
 from configparser import SafeConfigParser
 from lib.args import Args
 from vocto.transitions import Composites, Transitions
+from vocto.audio_streams import AudioStreams
 
 testPatternCount = 0
 
@@ -121,6 +122,23 @@ class VocConfigParser(SafeConfigParser):
     def getVolume(self, source):
         return self.getfloat("source.{}".format(source), 'volume', fallback=0.0)
 
+    def getAudioStreams(self):
+        audio_streams = AudioStreams()
+        for source in self.getSources():
+            section = 'source.{}'.format(source)
+            if self.has_section(section):
+                audio_streams.join(AudioStreams.configure(self.items(section), source))
+        return audio_streams
+
+    def getAudioStream(self, source):
+        section = 'source.{}'.format(source)
+        if self.has_section(section):
+            return AudioStreams.configure(self.items(section), source)
+        return AudioStreams()
+
+    def getNumAudioStreams(self):
+        return self.getAudioStreams().num_channels()
+
     def setShowVolume(self, show=True):
         self.add_section_if_missing('audio')
         self.set('audio', 'volumecontrol', "true" if show else "false")
@@ -130,9 +148,6 @@ class VocConfigParser(SafeConfigParser):
 
     def getAudioCaps(self, section='mix'):
         return self.get(section, 'audiocaps', fallback="audio/x-raw,format=S16LE,channels=2,layout=interleaved,rate=48000")
-
-    def getNumAudioStreams(self):
-        return self.getint('mix', 'audiostreams', fallback=2)
 
     def getVideoResolution(self):
         caps = Gst.Caps.from_string(

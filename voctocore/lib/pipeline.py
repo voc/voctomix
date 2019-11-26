@@ -101,8 +101,7 @@ class Pipeline(object):
 
             source = spawn_source('blinder',
                                   Port.AUDIO_SOURCE_BLANK,
-                                  has_video=False,
-                                  force_num_streams=1)
+                                  has_video=False)
             self.bins.append(source)
             self.ports.append(Port('blinder-audio', source))
 
