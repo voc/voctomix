@@ -52,7 +52,11 @@ class MixToolbarController(object):
             self.log.info(
                 'Sending new composite (using transition): %s', command)
             Connection.send('transition', str(command))
-        
+        else:
+            Connection.send('get_composite')
+        self.mix['retake']['button'].set_sensitive(self.preview_controller.command() != self.preview_controller.output)
+
     def on_best(self, best, targetA, targetB):
+        self.mix['retake']['button'].set_sensitive(self.preview_controller.command() != self.preview_controller.output)
         self.mix['trans']['button'].set_sensitive(best == "transition")
         self.mix['cut']['button'].set_sensitive(best == "transition" or best == "cut")
