@@ -38,6 +38,7 @@ class Buttons(Widgets):
             self.add(btn, id, accelerators, callback, ('toggled' if radio else 'clicked'), css, sensitive, visible, multiline_names)
             btn.set_visible_horizontal(visible)
             btn.set_visible_vertical(visible)
+            btn.set_can_focus(False)
 
             # remember created button in attributes
             attr['button'] = btn

@@ -113,3 +113,32 @@ toolbar {
 .glow button {
   box-shadow: 0px 0px 5px #00FF00;
 }
+
+/*
+.notebook {
+  background-color: rgba(0,0,0,0);
+}
+
+.notebook stack {
+  background-color: rgba(0,0,0,0);
+}
+*/
+.notebook {
+  box-shadow: 0px 0px 5px rgba(0,0,0,128);
+}
+
+frame border {
+  background-color:rgba(37,42,44,0);
+  border-left-color:rgba(74,84,88,0);
+  border-right-color:rgba(74,84,88,0);
+  border-top-color:rgb(74,84,88);
+  border-bottom-color:rgba(74,84,88,0);
+}
+/*
+frame label {
+  caret-color: rgba(0,0,0,0);
+}
+
+frame {
+}
+*/
