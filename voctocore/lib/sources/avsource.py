@@ -18,7 +18,10 @@ class AVSource(object, metaclass=ABCMeta):
         self.name = name
         self.has_audio = has_audio
         self.has_video = has_video
-        self.audio_streams = Config.getAudioStreams()
+        if name == "blinder":
+            self.audio_streams = Config.getBlinderAudioStreams()
+        else:
+            self.audio_streams = Config.getAudioStreams()
         self.show_no_signal = show_no_signal
         self.inputSink = None
         self.bin = ""
@@ -47,24 +50,33 @@ class AVSource(object, metaclass=ABCMeta):
             if audioport:
                 self.bin += """
                     {audioport}
-                    ! audiomixmatrix
-                        name=audiomixmatrix-{name}
-                        in-channels={in_channels}
-                        out-channels={out_channels}
-                        matrix="{matrix}"
-                    ! {acaps}
                     ! tee
-                        name=audio-{name}
+                        name=source-audio-{name}
                     """.format(
                     audioport=audioport,
-                    in_channels=self.internal_audio_channels(),
-                    out_channels=self.audio_streams.num_channels(),
-                    matrix=str(self.audio_streams.matrix(self.name,
-                                                         self.get_valid_channel_numbers())
-                               ).replace("[", "<").replace("]", ">"),
-                    acaps=Config.getAudioCaps(),
                     name=self.name
                 )
+                for stream in self.audio_streams.get_stream_names(self.name):
+                    self.bin += """
+                        source-audio-{name}.
+                        ! audiomixmatrix
+                            name=audiomixmatrix-{stream}
+                            in-channels={in_channels}
+                            out-channels={out_channels}
+                            matrix="{matrix}"
+                        ! {acaps}
+                        ! tee
+                            name=audio-{stream}
+                        """.format(
+                        in_channels=self.internal_audio_channels(),
+                        out_channels=self.audio_streams.num_channels(),
+                        matrix=str(self.audio_streams.matrix(self.name, stream,
+                                                             self.get_valid_channel_numbers())
+                                   ).replace("[", "<").replace("]", ">"),
+                        acaps=Config.getAudioCaps(),
+                        stream=stream,
+                        name=self.name
+                    )
 
         if self.has_video:
             if self.show_no_signal and Config.getNoSignal():

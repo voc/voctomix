@@ -164,6 +164,6 @@ class ControlServer(TCPMultiConnection):
         try:
             conn.send(message.encode())
         except Exception as e:
-            self.log.warning('Failed to send message', exc_info=True)
+            self.log.warning("Failed to send message '%s'", message.encode(), exc_info=True)
 
         return True

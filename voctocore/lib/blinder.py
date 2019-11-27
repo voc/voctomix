@@ -82,6 +82,8 @@ class Blinder(object):
             audiomixer
                 name=audiomixer-blinder
             ! tee
+                name=source-audio-mix-blinded
+            ! tee
                 name=audio-mix-blinded
 
             audio-mix.

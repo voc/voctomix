@@ -10,39 +10,40 @@ from lib.tcpmulticonnection import TCPMultiConnection
 
 class AVPreviewOutput(TCPMultiConnection):
 
-    def __init__(self, channel, port):
-        self.log = logging.getLogger('AVPreviewOutput[{}]'.format(channel))
+    def __init__(self, source, port, use_audio_mix=False):
+        self.log = logging.getLogger('AVPreviewOutput[{}]'.format(source))
         super().__init__(port)
 
-        self.channel = channel
+        self.source = source
 
         self.bin = """
             bin.(
-                name=AVPreviewOutput-{channel}
+                name=AVPreviewOutput-{source}
 
-                video-{channel}.
+                video-{source}.
                 ! {vcaps}
                 ! {vpipeline}
                 ! queue
-                    name=queue-preview-video-{channel}
-                ! mux-preview-{channel}.
+                    name=queue-preview-video-{source}
+                ! mux-preview-{source}.
 
-                audio-{channel}.
+                {use_audio}audio-{source}.
                 ! queue
-                    name=queue-preview-audio-{channel}
-                ! mux-preview-{channel}.
+                    name=queue-preview-audio-{source}
+                ! mux-preview-{source}.
 
                 matroskamux
-                    name=mux-preview-{channel}
+                    name=mux-preview-{source}
                     streamable=true
                     writing-app=Voctomix-AVPreviewOutput
                 ! multifdsink
                     blocksize=1048576
                     buffers-max=500
                     sync-method=next-keyframe
-                    name=fd-preview-{channel}
+                    name=fd-preview-{source}
             )
-            """.format(channel=self.channel,
+            """.format(source=self.source,
+                       use_audio="" if use_audio_mix else "source-",
                        vcaps=Config.getVideoCaps(),
                        vpipeline=self.construct_video_pipeline()
                        )
@@ -57,7 +58,7 @@ class AVPreviewOutput(TCPMultiConnection):
         return False
 
     def __str__(self):
-        return 'AVPreviewOutput[{}]'.format(self.channel)
+        return 'AVPreviewOutput[{}]'.format(self.source)
 
     def construct_video_pipeline(self):
         if Config.getPreviewVaapi():
@@ -131,8 +132,8 @@ class AVPreviewOutput(TCPMultiConnection):
     def on_accepted(self, conn, addr):
         self.log.debug('Adding fd %u to multifdsink', conn.fileno())
         fdsink = self.pipeline.get_by_name(
-            "fd-preview-{channel}".format(
-                channel=self.channel
+            "fd-preview-{source}".format(
+                source=self.source
             ))
         fdsink.emit('add', conn.fileno())
 
