@@ -69,9 +69,10 @@ class AVSource(object, metaclass=ABCMeta):
                             name=audio-{stream}
                         """.format(
                         in_channels=self.internal_audio_channels(),
-                        out_channels=self.audio_streams.num_channels(),
+                        out_channels=Config.getAudioChannels(),
                         matrix=str(self.audio_streams.matrix(self.name, stream,
-                                                             self.get_valid_channel_numbers())
+                                                             Config.getAudioChannels(),
+                                                             grid=self.get_valid_channel_numbers())
                                    ).replace("[", "<").replace("]", ">"),
                         acaps=Config.getAudioCaps(),
                         stream=stream,
