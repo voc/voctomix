@@ -14,10 +14,13 @@
   margin-top:0.3em;
   margin-bottom:0.3em;
   margin-right:0.3em;
+  background-image: none;
 }
+
 #mixer button:disabled {
   background-color: #303030;
 }
+
 #mixer label:disabled {
   color: #505050;
 }
