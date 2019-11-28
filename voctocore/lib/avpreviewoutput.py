@@ -113,15 +113,13 @@ class AVPreviewOutput(TCPMultiConnection):
                        )
 
     def construct_native_video_pipeline(self):
-        pipeline = """
-            deinterlace mode={imode}
+        pipeline = """deinterlace mode={imode}
             ! videorate
             ! videoscale
             ! capsfilter
                 caps={target_caps}
             ! jpegenc
-                quality=90
-            """.format(target_caps=Config.getPreviewCaps(),
+                quality=90""".format(target_caps=Config.getPreviewCaps(),
                        imode='interlaced' if Config.getDeinterlacePreviews() else 'disabled')
 
         return pipeline
