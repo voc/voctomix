@@ -34,10 +34,11 @@ class AudioStreams(list):
 
     def num_channels(self, source=None, grid=[x for x in range(0, 255)]):
         if source:
-            result = 0
+            channels = set()
             for index, audio_stream in enumerate(self):
                 if audio_stream.source == source:
-                    result += 1
+                    channels.add(audio_stream.source_channel)
+            result = len(channels)
             while result not in grid:
                 result += 1
             return result
