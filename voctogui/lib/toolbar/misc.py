@@ -32,7 +32,7 @@ class MiscToolbarController(object):
 
         mutebtn = uibuilder.find_widget_recursive(self.toolbar, 'mute_button')
         if Config.getPlayAudio():
-            mutebtn.set_active(False)
+            mutebtn.set_active(True)
             mutebtn.connect('clicked', self.on_mutebtn_clicked)
             self.video_display = video_display
         else:
