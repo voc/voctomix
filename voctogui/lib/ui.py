@@ -23,6 +23,7 @@ from lib.studioclock import StudioClock
 
 from vocto.port import Port
 
+
 class Ui(UiBuilder):
 
     def __init__(self, uifile):
@@ -51,18 +52,29 @@ class Ui(UiBuilder):
         # Connect Close-Handler
         self.win.connect('delete-event', Gtk.main_quit)
 
-        output_aspect_ratio = self.find_widget_recursive(self.win, 'output_aspect_ratio')
+        output_aspect_ratio = self.find_widget_recursive(
+            self.win, 'output_aspect_ratio')
         output_aspect_ratio.props.ratio = Config.getVideoRatio()
 
         audio_box = self.find_widget_recursive(self.win, 'audio_box')
 
         # Setup Preview Controller
-        self.video_previews_controller = VideoPreviewsController(
+        self.video_previews = VideoPreviewsController(
             self.find_widget_recursive(self.win, 'preview_box'),
             audio_box,
             win=self.win,
             uibuilder=self
         )
+        if Config.getPreviewsEnabled():
+            for idx, source in enumerate(Config.getSources()):
+                self.video_previews.addPreview(self, source,
+                                                          Port.SOURCES_PREVIEW + idx)
+        elif Config.getMirrorsEnabled():
+            for idx, source in enumerate(Config.getMirrorsSources()):
+                self.video_previews.addPreview(self, source, Port.SOURCES_OUT + idx)
+        else:
+            self.log.warning(
+                'Can not show source previews because neither previews nor mirrors are enabled (see previews/enabled and mirrors/enabled in core configuration)')
 
         self.mix_audio_display = AudioDisplay(audio_box, "mix", uibuilder=self)
 
@@ -73,6 +85,12 @@ class Ui(UiBuilder):
             port=Port.MIX_PREVIEW if Config.getPreviewsEnabled() else Port.MIX_OUT,
             name="MIX"
         )
+
+        if Config.getLivePreviewEnabled():
+            if Config.getPreviewsEnabled():
+                self.video_previews.addPreview(self, "LIVE", Port.LIVE_PREVIEW)
+            else:
+                self.video_previews.addPreview(self, "LIVE", Port.LIVE_OUT)
 
         self.preview_toolbar_controller = PreviewToolbarController(
             win=self.win,
@@ -106,7 +124,6 @@ class Ui(UiBuilder):
             ports_controller=self.ports_controller,
             video_display=self.mix_video_display
         )
-
 
         # Setup Shortcuts window
         self.win.connect('key-press-event', self.handle_keypress)
