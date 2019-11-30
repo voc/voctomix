@@ -88,9 +88,9 @@ class Ui(UiBuilder):
 
         if Config.getLivePreviewEnabled():
             if Config.getPreviewsEnabled():
-                self.video_previews.addPreview(self, "LIVE", Port.LIVE_PREVIEW)
+                self.video_previews.addPreview(self, "live", Port.LIVE_PREVIEW)
             else:
-                self.video_previews.addPreview(self, "LIVE", Port.LIVE_OUT)
+                self.video_previews.addPreview(self, "live", Port.LIVE_OUT)
 
         self.preview_toolbar_controller = PreviewToolbarController(
             win=self.win,
