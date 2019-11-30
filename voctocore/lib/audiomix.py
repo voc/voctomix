@@ -56,6 +56,7 @@ class AudioMix(object):
         self.bin += """
             audiomixer
                 name=audiomixer
+            ! queue
             ! audiomixmatrix
                 name=audiomixmatrix
                 in_channels={in_channels}

@@ -99,12 +99,13 @@ class AVSource(object, metaclass=ABCMeta):
                 video = """
                     videotestsrc
                         name=canvas-{name}
-                        pattern=black
+                        pattern=smpte100
                     ! textoverlay
                         name=nosignal-{name}
-                        text=\"NO SIGNAL\"
+                        text=\"{nosignal}\"
                         valignment=center
                         halignment=center
+                        shaded-background=yes
                         font-desc="Roboto Bold, 20"
                     ! {vcaps}
                     ! compositor-{name}.
@@ -126,7 +127,8 @@ class AVSource(object, metaclass=ABCMeta):
             self.bin += video.format(
                 videoport=self.build_videoport(),
                 name=self.name,
-                vcaps=Config.getVideoCaps()
+                vcaps=Config.getVideoCaps(),
+                nosignal=self.get_nosignal_text()
             )
         self.bin += "" if Args.no_bins else """
                     )
@@ -182,3 +184,6 @@ class AVSource(object, metaclass=ABCMeta):
 
     def build_videoport(self):
         assert False, "build_videoport() not implemented in %s" % self.name
+
+    def get_nosignal_text(self):
+        return "NO SIGNAL\n" + self.name.upper()

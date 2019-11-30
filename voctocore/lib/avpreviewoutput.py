@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
+from lib.tcpmulticonnection import TCPMultiConnection
+from lib.config import Config
 from lib.args import Args
+from gi.repository import Gst
 import logging
 import gi
 gi.require_version('GstController', '1.0')
-from gi.repository import Gst
-
-from lib.config import Config
-from lib.tcpmulticonnection import TCPMultiConnection
 
 
 class AVPreviewOutput(TCPMultiConnection):
@@ -21,13 +20,14 @@ class AVPreviewOutput(TCPMultiConnection):
             bin.(
                 name=AVPreviewOutput-{source}
                 """.format(source=self.source)
-                
+
         self.bin += """
                 video-{source}.
-                ! {vcaps}
-                ! {vpipeline}
                 ! queue
                     name=queue-preview-video-{source}
+                ! {vpipeline}
+                ! queue
+                    name=queue-mux-preview-{source}
                 ! mux-preview-{source}.
 
                 {use_audio}audio-{source}.
@@ -39,6 +39,7 @@ class AVPreviewOutput(TCPMultiConnection):
                     name=mux-preview-{source}
                     streamable=true
                     writing-app=Voctomix-AVPreviewOutput
+                ! queue
                 ! multifdsink
                     blocksize=1048576
                     buffers-max=500
@@ -118,14 +119,15 @@ class AVPreviewOutput(TCPMultiConnection):
                        )
 
     def construct_native_video_pipeline(self):
-        pipeline = """deinterlace mode={imode}
-            ! videorate
+        deinterlace = imode = "deinterlace mode=interlaced" if Config.getDeinterlacePreviews() else ""
+        pipeline = """{deinterlace}videorate
             ! videoscale
             ! capsfilter
                 caps={target_caps}
             ! jpegenc
                 quality=90""".format(target_caps=Config.getPreviewCaps(),
-                       imode='interlaced' if Config.getDeinterlacePreviews() else 'disabled')
+                                     deinterlace=deinterlace
+                                     )
 
         return pipeline
 

@@ -108,3 +108,6 @@ class DeckLinkAVSource(AVSource):
 
     def build_videoport(self):
         return 'vout-{}.'.format(self.name)
+
+    def get_nosignal_text(self):
+        return super().get_nosignal_text() + "/BM%d" % self.device

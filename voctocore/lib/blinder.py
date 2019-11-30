@@ -30,6 +30,7 @@ class Blinder(object):
         self.bin += """
                 compositor
                     name=compositor-blinder-mix
+                ! queue
                 ! tee
                     name=video-mix-blinded
 
@@ -46,6 +47,7 @@ class Blinder(object):
             self.bin += """
                 compositor
                     name=compositor-blinder-{name}
+                ! queue
                 ! tee
                     name=video-{name}-blinded
 
@@ -83,10 +85,13 @@ class Blinder(object):
         self.bin += """
             audiomixer
                 name=audiomixer-blinder
+            ! queue
             ! tee
                 name=audio-mix-blinded
 
             audio-mix.
+            ! queue
+            ! capssetter caps={acaps}
             ! queue
                 name=queue-audio-mix
             ! audiomixer-blinder.
