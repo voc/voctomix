@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 import re
+import logging
+
+log = logging.getLogger('AudioStreams')
 
 
 class AudioStreams(list):
@@ -15,8 +18,9 @@ class AudioStreams(list):
             r = re.match(r'^audio.([\w\-_]+)$', t_name)
             if r:
                 for i, channel in enumerate(t.split("+")):
-                    audio_streams.add(AudioStream(
-                        source, i, source if use_soure_as_name else r.group(1), channel))
+                    audio_streams.add(AudioStream(source, i,
+                                                  source if use_soure_as_name else r.group(1), channel)
+                                      )
         return audio_streams
 
     def add(self, audio_stream):
@@ -45,7 +49,7 @@ class AudioStreams(list):
         else:
             return len(self)
 
-    def matrix(self, source, stream=None, grid=[x for x in range(0, 255)]):
+    def matrix(self, source, stream=None, out_channels=None, grid=[x for x in range(0, 255)]):
         result = []
         for out, audio_stream in enumerate(self):
             row = []
@@ -56,6 +60,12 @@ class AudioStreams(list):
                            and (stream is None or stream == audio_stream.name) else
                            0.0)
             result.append(row)
+        if out_channels:
+            if out_channels < len(result):
+                log.error("too many audio channels in source %s", source)
+            else:
+                result += [[0.0] *
+                           self.num_channels(source, grid)] * (out_channels - len(result))
         return result
 
     def get_source_streams(self, source):

@@ -146,7 +146,7 @@ class VocConfigParser(SafeConfigParser):
 
     def getNumAudioStreams(self):
         num_audio_streams = self.getAudioStreams().num_channels()
-        if self.getAudioChannels() != num_audio_streams:
+        if self.getAudioChannels() < num_audio_streams:
             self.log.error("number of audio channels in mix/audiocaps differs from the available audio input channels within the sources!")
         return num_audio_streams
 
