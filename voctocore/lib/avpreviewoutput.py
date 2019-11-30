@@ -40,6 +40,7 @@ class AVPreviewOutput(TCPMultiConnection):
                     streamable=true
                     writing-app=Voctomix-AVPreviewOutput
                 ! queue
+                    name=queue-fd-preview-{source}
                 ! multifdsink
                     blocksize=1048576
                     buffers-max=500

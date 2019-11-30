@@ -47,6 +47,7 @@ class AVRawOutput(TCPMultiConnection):
                 streamable=true
                 writing-app=Voctomix-AVRawOutput
             ! queue
+                name=queue-fd-{source}
             ! multifdsink
                 blocksize=1048576
                 buffers-max={buffers_max}

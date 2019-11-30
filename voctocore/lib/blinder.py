@@ -31,6 +31,7 @@ class Blinder(object):
                 compositor
                     name=compositor-blinder-mix
                 ! queue
+                    name=queue-video-mix-blinded
                 ! tee
                     name=video-mix-blinded
 
@@ -48,6 +49,7 @@ class Blinder(object):
                 compositor
                     name=compositor-blinder-{name}
                 ! queue
+                    name=queue-video-{name}-blinded
                 ! tee
                     name=video-{name}-blinded
 
