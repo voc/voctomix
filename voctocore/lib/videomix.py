@@ -85,6 +85,8 @@ class VideoMix(object):
                     name=queue-cropper-{name}
                 ! videobox
                     name=cropper-{name}
+                ! queue
+                    name=queue-videomixer-{name}
                 ! videomixer.
                 """.format(
                 name=name,
