@@ -48,9 +48,13 @@ class PreviewToolbarController(object):
         self.sourcesB.create(toolbar_b, accelerators, self.on_btn_toggled)
         self.mods.create(toolbar_mod, accelerators, self.on_btn_toggled, group=False)
 
+        self.invalid_buttons = []
+        self.validate(self.sourcesA)
+        self.validate(self.sourcesB)
+
         # initialize source buttons
-        self.sourceA = self.sourcesA.ids[0]
-        self.sourceB = self.sourcesB.ids[1]
+        self.sourceA = Config.getSources()[0]
+        self.sourceB = Config.getSources()[1]
         self.sourcesA[self.sourceA]['button'].set_active(True)
         self.sourcesB[self.sourceB]['button'].set_active(True)
 
@@ -69,7 +73,8 @@ class PreviewToolbarController(object):
         Connection.on('composite', self.on_composite)
         Connection.send('get_composite')
         self.enable_modifiers()
-        self.enable_channelB()
+        self.enable_sourcesB()
+        self.enable_sources();
 
         self.do_test = True
         self.initialized = True
@@ -100,7 +105,7 @@ class PreviewToolbarController(object):
                 self.test()
             elif id in self.composites:
                 self.composite = id
-                self.enable_channelB()
+                self.enable_sourcesB()
                 self.enable_modifiers()
                 self.log.info(
                     "Selected '%s' for preview target composite", self.composite)
@@ -110,6 +115,7 @@ class PreviewToolbarController(object):
             self.log.info("Turned preview modifier '%s' %s", id,
                           'on' if self.modstates[id] else 'off')
             self.test()
+        self.enable_sources();
         self.log.debug("current command is '%s", self.command())
 
     def enable_modifiers(self):
@@ -117,9 +123,13 @@ class PreviewToolbarController(object):
         for id, attr in self.mods.items():
             attr['button'].set_sensitive( command.modify(attr['replace']) )
 
-    def enable_channelB(self):
+    def enable_sourcesB(self):
         single = self.composites_[self.composite].single()
         self.frame_b.set_sensitive(not single)
+
+    def enable_sources(self):
+        for invalid_button in self.invalid_buttons:
+            invalid_button.set_sensitive(False)
 
     def command(self):
         # process all selected replactions
@@ -194,3 +204,8 @@ class PreviewToolbarController(object):
                 item['button'].get_style_context().add_class("glow")
             else:
                 item['button'].get_style_context().remove_class("glow")
+
+    def validate(self,sources):
+        for id, attr in sources.items():
+            if id not in Config.getSources():
+                self.invalid_buttons.append(attr['button'])
