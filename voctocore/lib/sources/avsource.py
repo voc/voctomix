@@ -3,6 +3,7 @@ import logging
 from abc import ABCMeta, abstractmethod
 
 from lib.config import Config
+from lib.args import Args
 
 
 class AVSource(object, metaclass=ABCMeta):
@@ -38,7 +39,7 @@ class AVSource(object, metaclass=ABCMeta):
                     'compositor-{}'.format(self.name)).get_static_pad('sink_1')
 
     def build_pipeline(self):
-        self.bin = """
+        self.bin = "" if Args.no_bins else """
             bin.(
                 name={class_name}-{name}
             """.format(class_name=self.class_name, name=self.name)
@@ -112,7 +113,7 @@ class AVSource(object, metaclass=ABCMeta):
                 name=self.name,
                 vcaps=Config.getVideoCaps()
             )
-        self.bin += """
+        self.bin += "" if Args.no_bins else """
                     )
                     """
 

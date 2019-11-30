@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from lib.args import Args
 import logging
 import gi
 gi.require_version('GstController', '1.0')
@@ -16,10 +17,12 @@ class AVPreviewOutput(TCPMultiConnection):
 
         self.source = source
 
-        self.bin = """
+        self.bin = "" if Args.no_bins else """
             bin.(
                 name=AVPreviewOutput-{source}
-
+                """.format(source=self.source)
+                
+        self.bin += """
                 video-{source}.
                 ! {vcaps}
                 ! {vpipeline}
@@ -41,12 +44,14 @@ class AVPreviewOutput(TCPMultiConnection):
                     buffers-max=500
                     sync-method=next-keyframe
                     name=fd-preview-{source}
-            )
-            """.format(source=self.source,
-                       use_audio="" if use_audio_mix else "source-",
-                       vcaps=Config.getVideoCaps(),
-                       vpipeline=self.construct_video_pipeline()
-                       )
+                """.format(source=self.source,
+                           use_audio="" if use_audio_mix else "source-",
+                           vcaps=Config.getVideoCaps(),
+                           vpipeline=self.construct_video_pipeline()
+                           )
+        self.bin += "" if Args.no_bins else  """
+        )
+        """
 
     def audio_channels(self):
         return Config.getNumAudioStreams()

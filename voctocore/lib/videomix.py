@@ -10,6 +10,7 @@ from lib.config import Config
 from vocto.transitions import Composites, Transitions, Frame
 from lib.scene import Scene
 from lib.overlay import Overlay
+from lib.args import Args
 
 from vocto.composite_commands import CompositeCommand
 
@@ -34,10 +35,11 @@ class VideoMix(object):
         Config.getAudioStreams()
 
         # build GStreamer mixing pipeline descriptor
-        self.bin = """
+        self.bin = "" if Args.no_bins else """
             bin.(
                 name=VideoMix
-
+                """
+        self.bin += """
                 compositor
                     name=videomixer
             """
@@ -89,7 +91,7 @@ class VideoMix(object):
                 idx=idx
             )
 
-        self.bin += """)
+        self.bin += "" if Args.no_bins else """)
                     """
 
     def attach(self, pipeline):

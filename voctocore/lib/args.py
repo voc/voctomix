@@ -24,6 +24,9 @@ def parse():
     parser.add_argument('-i', '--ini-file', action='store',
                         help="Load a custom config.ini-File")
 
+    parser.add_argument('-n', '--no-bins', action='store_true',
+                        help="Do not use gstreamer bins")
+
     parser.add_argument('-d', '--dot', action='store_true',
                         help="Generate dot files of pipelines")
 

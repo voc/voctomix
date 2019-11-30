@@ -4,6 +4,7 @@ from configparser import NoOptionError, NoSectionError
 
 from lib.config import Config
 from lib.errors.configuration_error import ConfigurationError
+from lib.args import Args
 
 
 class AudioMix(object):
@@ -36,7 +37,7 @@ class AudioMix(object):
         else:
             self.log.info('No audio capable kind of source found!')
 
-        self.bin = """
+        self.bin = "" if Args.no_bins else """
             bin.(
                 name=AudioMix
             """
@@ -73,7 +74,7 @@ class AudioMix(object):
                     name=queue-audio-{stream}
                 ! audiomixer.
                 """.format(stream=stream)
-        self.bin += "\n)"
+        self.bin += "" if Args.no_bins else "\n)"
 
     def attach(self, pipeline):
         self.pipeline = pipeline

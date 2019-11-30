@@ -22,10 +22,12 @@ class Blinder(object):
         self.volume = Config.getBlinderVolume()
 
         # Videomixer
-        self.bin = """
+        self.bin = "" if Args.no_bins else """
             bin.(
                 name=blinder
+                """
 
+        self.bin += """
                 compositor
                     name=compositor-blinder-mix
                 ! tee
@@ -100,7 +102,7 @@ class Blinder(object):
             ! audiomixer-blinder.
             """
 
-        self.bin += "\n)\n"
+        self.bin += "" if Args.no_bins else "\n)\n"
 
         self.blind_source = 0 if len(self.names) > 0 else None
 
