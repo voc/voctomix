@@ -37,6 +37,8 @@ class AudioMix(object):
         else:
             self.log.info('No audio capable kind of source found!')
 
+        self.mix_volume = 1.0
+
         self.bin = "" if Args.no_bins else """
             bin.(
                 name=AudioMix
@@ -93,9 +95,9 @@ class AudioMix(object):
         self.log.info('Updating mixer state')
 
         for idx, name in enumerate(self.streams):
-            volume = self.volumes[idx]
+            volume = self.volumes[idx] * self.mix_volume
 
-            self.log.debug('Setting mixerpad %u to volume=%0.2f', idx, volume)
+            self.log.debug('Setting stream %s to volume=%0.2f', name, volume)
             mixer = self.pipeline.get_by_name('audiomixer')
             mixerpad = mixer.get_static_pad('sink_%d' % idx)
             mixerpad.set_property('volume', volume)
@@ -106,7 +108,14 @@ class AudioMix(object):
         self.updateMixerState()
 
     def setAudioSourceVolume(self, stream, volume):
-        self.volumes[stream] = volume
+        if stream == 'mix':
+            self.mix_volume = volume
+        else:
+            self.volumes[stream] = volume
+        self.updateMixerState()
+
+    def setAudioVolume(self, volume):
+        self.mix_volume = volume
         self.updateMixerState()
 
     def getAudioVolumes(self):

@@ -145,11 +145,13 @@ class ControlServerCommands(object):
 
     def set_audio_volume(self, src_name, volume):
         """sets the volume of the supplied source-name or source-id"""
-        stream = self.streams.index(src_name)
         volume = float(volume)
         if volume < 0.0:
             raise ValueError("volume must be positive")
-        self.pipeline.amix.setAudioSourceVolume(stream, volume)
+        if src_name == 'mix':
+            self.pipeline.amix.setAudioVolume(volume)
+        else:
+            self.pipeline.amix.setAudioSourceVolume(self.streams.index(src_name), volume)
 
         status = self._get_audio_status()
         return NotifyResponse('audio_status', status)
