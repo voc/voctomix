@@ -130,6 +130,10 @@ class Pipeline(object):
         # concatinate pipeline string
         pipeline = "\n\n".join(bin.bin for bin in self.bins)
 
+        if Args.pipeline:
+            with open("core.pipeline.txt","w") as file:
+                file.write(pretty(pipeline))
+
         try:
             # launch gstreamer pipeline
             self.pipeline = Gst.parse_launch(pipeline)
