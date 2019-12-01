@@ -51,6 +51,8 @@ class AVSource(object, metaclass=ABCMeta):
             if audioport:
                 self.bin += """
                     {audioport}
+                    ! queue
+                        name=queue-source-audio-{name}
                     ! tee
                         name=source-audio-{name}
                     """.format(
