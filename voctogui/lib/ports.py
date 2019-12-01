@@ -26,7 +26,8 @@ class PortsWindowController():
         self.win = uibuilder.get_check_widget('ports_win')
         self.store = uibuilder.get_check_widget('ports_store')
         self.scroll = uibuilder.get_check_widget('ports_scroll')
-
+        self.title = uibuilder.get_check_widget('ports_title')
+        self.title.set_title("VOC2CORE {}".format(Config.getHost()))
         # remember row iterators
         self.iterators = None
 
