@@ -127,14 +127,18 @@ demux-{name}.
     name=lvl
     interval=50000000
 ! audioconvert
-! pulsesink
-    name=audiosink-{name}"""
+"""
 
         # If Playback is requested, push fo pulseaudio
-        if not play_audio:
-            pipe += """
-    volume=0"""
-
+        if play_audio:
+            pipe +="""
+! pulsesink
+    name=audiosink-{name}
+"""
+        else:
+            pipe +="""
+! fakesink
+"""
         pipe = pipe.format(name=name,
                            acaps=Config.getAudioCaps(),
                            port=port,
