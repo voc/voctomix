@@ -16,6 +16,10 @@ class V4l2AVSource(AVSource):
         super().__init__('V4l2Source', name, False, True, show_no_signal=True)
 
         self.device = Config.getV4l2Device(name)
+        self.width = Config.getV4l2Width(name)
+        self.height = Config.getV4l2Height(name)
+        self.framerate = Config.getV4l2Framerate(name)
+        self.format=Config.getV4l2Format(name)
         self.name = name
         self.signalPad = None
 
@@ -46,16 +50,21 @@ class V4l2AVSource(AVSource):
             device=self.device
         )
 
+    def get_valid_channel_numbers(self):
+        return (0)
+
     def build_source(self):
         pipe = """
     v4l2src
         device={device}
 """.format(device=self.device)
 
-        # we may need to set things like width=1920,height=1080,format=YUY2,framerate=60/1 here
         pipe += """\
-    ! video/x-raw
-"""
+    ! video/x-raw,width={width},height={height},format={format},framerate={framerate}
+""".format(width=self.width,
+           height=self.height,
+           format=self.format,
+           framerate=self.framerate)
 
         if self.build_deinterlacer():
             pipe += """\

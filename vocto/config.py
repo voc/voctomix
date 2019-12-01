@@ -85,6 +85,18 @@ class VocConfigParser(SafeConfigParser):
     def getV4l2Device(self, source):
         return self.get('source.{}'.format(source), 'device', fallback='/dev/video0')
 
+    def getV4l2Width(self, source):
+        return self.get('source.{}'.format(source), 'width', fallback=1920)
+
+    def getV4l2Height(self, source):
+        return self.get('source.{}'.format(source), 'height', fallback=1080)
+
+    def getV4l2Format(self, source):
+        return self.get('source.{}'.format(source), 'format', fallback='YUY2')
+
+    def getV4l2Framerate(self, source):
+        return self.get('source.{}'.format(source), 'framerate', fallback='25/1')
+
     def getImageURI(self,source):
         if self.has_option('source.{}'.format(source), 'imguri'):
             return self.get('source.{}'.format(source), 'imguri')
