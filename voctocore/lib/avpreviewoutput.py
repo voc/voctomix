@@ -1,51 +1,59 @@
 #!/usr/bin/env python3
+from lib.tcpmulticonnection import TCPMultiConnection
+from lib.config import Config
+from lib.args import Args
+from gi.repository import Gst
 import logging
 import gi
 gi.require_version('GstController', '1.0')
-from gi.repository import Gst
-
-from lib.config import Config
-from lib.tcpmulticonnection import TCPMultiConnection
 
 
 class AVPreviewOutput(TCPMultiConnection):
 
-    def __init__(self, channel, port):
-        self.log = logging.getLogger('AVPreviewOutput[{}]'.format(channel))
+    def __init__(self, source, port, use_audio_mix=False):
+        self.log = logging.getLogger('AVPreviewOutput[{}]'.format(source))
         super().__init__(port)
 
-        self.channel = channel
+        self.source = source
 
-        self.bin = """
+        self.bin = "" if Args.no_bins else """
             bin.(
-                name=AVPreviewOutput-{channel}
+                name=AVPreviewOutput-{source}
+                """.format(source=self.source)
 
-                video-{channel}.
-                ! {vcaps}
+        self.bin += """
+                video-{source}.
+                ! queue
+                    name=queue-preview-video-{source}
                 ! {vpipeline}
                 ! queue
-                    name=queue-preview-video-{channel}
-                ! mux-preview-{channel}.
+                    name=queue-mux-preview-{source}
+                ! mux-preview-{source}.
 
-                audio-{channel}.
+                {use_audio}audio-{source}.
                 ! queue
-                    name=queue-preview-audio-{channel}
-                ! mux-preview-{channel}.
+                    name=queue-preview-audio-{source}
+                ! mux-preview-{source}.
 
                 matroskamux
-                    name=mux-preview-{channel}
+                    name=mux-preview-{source}
                     streamable=true
                     writing-app=Voctomix-AVPreviewOutput
+                ! queue
+                    name=queue-fd-preview-{source}
                 ! multifdsink
                     blocksize=1048576
                     buffers-max=500
                     sync-method=next-keyframe
-                    name=fd-preview-{channel}
-            )
-            """.format(channel=self.channel,
-                       vcaps=Config.getVideoCaps(),
-                       vpipeline=self.construct_video_pipeline()
-                       )
+                    name=fd-preview-{source}
+                """.format(source=self.source,
+                           use_audio="" if use_audio_mix else "source-",
+                           vcaps=Config.getVideoCaps(),
+                           vpipeline=self.construct_video_pipeline()
+                           )
+        self.bin += "" if Args.no_bins else  """
+        )
+        """
 
     def audio_channels(self):
         return Config.getNumAudioStreams()
@@ -57,7 +65,7 @@ class AVPreviewOutput(TCPMultiConnection):
         return False
 
     def __str__(self):
-        return 'AVPreviewOutput[{}]'.format(self.channel)
+        return 'AVPreviewOutput[{}]'.format(self.source)
 
     def construct_video_pipeline(self):
         if Config.getPreviewVaapi():
@@ -112,16 +120,15 @@ class AVPreviewOutput(TCPMultiConnection):
                        )
 
     def construct_native_video_pipeline(self):
-        pipeline = """
-            deinterlace mode={imode}
-            ! videorate
+        deinterlace = imode = "deinterlace mode=interlaced" if Config.getDeinterlacePreviews() else ""
+        pipeline = """{deinterlace}videorate
             ! videoscale
             ! capsfilter
                 caps={target_caps}
             ! jpegenc
-                quality=90
-            """.format(target_caps=Config.getPreviewCaps(),
-                       imode='interlaced' if Config.getDeinterlacePreviews() else 'disabled')
+                quality=90""".format(target_caps=Config.getPreviewCaps(),
+                                     deinterlace=deinterlace
+                                     )
 
         return pipeline
 
@@ -131,8 +138,8 @@ class AVPreviewOutput(TCPMultiConnection):
     def on_accepted(self, conn, addr):
         self.log.debug('Adding fd %u to multifdsink', conn.fileno())
         fdsink = self.pipeline.get_by_name(
-            "fd-preview-{channel}".format(
-                channel=self.channel
+            "fd-preview-{source}".format(
+                source=self.source
             ))
         fdsink.emit('add', conn.fileno())
 

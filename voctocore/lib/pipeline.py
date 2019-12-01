@@ -101,8 +101,7 @@ class Pipeline(object):
 
             source = spawn_source('blinder',
                                   Port.AUDIO_SOURCE_BLANK,
-                                  has_video=False,
-                                  force_num_streams=1)
+                                  has_video=False)
             self.bins.append(source)
             self.ports.append(Port('blinder-audio', source))
 
@@ -112,13 +111,13 @@ class Pipeline(object):
 
             dest = AVRawOutput('mix-blinded', Port.LIVE_OUT)
             self.bins.append(dest)
-            self.ports.append(Port('live-mix', dest))
+            self.ports.append(Port('live', dest))
 
             # check for source preview selection
             if Config.getPreviewsEnabled() and Config.getLivePreviewEnabled():
-                dest = AVPreviewOutput('mix-blinded', Port.LIVE_PREVIEW)
+                dest = AVPreviewOutput('mix-blinded', Port.LIVE_PREVIEW, True)
                 self.bins.append(dest)
-                self.ports.append(Port("preview-live-mix", dest))
+                self.ports.append(Port("preview-live", dest))
 
             if Config.getSlidesSource():
                 dest = AVRawOutput('{}-blinded'.format(Config.getSlidesSource()), Port.SLIDES_LIVE_OUT)
@@ -131,6 +130,11 @@ class Pipeline(object):
         # concatinate pipeline string
         pipeline = "\n\n".join(bin.bin for bin in self.bins)
 
+        if Args.pipeline:
+            with open("core.pipeline.txt","w") as file:
+                file.write(pretty(pipeline))
+
+        self.prevstate = None
         try:
             # launch gstreamer pipeline
             self.pipeline = Gst.parse_launch(pipeline)
@@ -178,9 +182,12 @@ class Pipeline(object):
         sys.exit(-1)
 
     def on_state_changed(self, bus, message):
-        if self.draw_pipeline and message.parse_state_changed().newstate == Gst.State.PLAYING:
-            # make DOT file from pipeline
-            gst_generate_dot(self.pipeline, "core.pipeline")
-            self.draw_pipeline = False
-        elif self.draw_pipeline and message.parse_state_changed().newstate == Gst.State.PAUSED:
-            self.draw_pipeline = True
+        newstate = message.parse_state_changed().newstate
+        if self.prevstate != newstate:
+            self.prevstate = newstate
+            states = ["PENDING", "NULL", "READY", "PAUSED", "PLAYING"]
+            self.log.info("pipeline state changed to '%s' by element '%s'", states[newstate], message.src.name )
+
+            if self.draw_pipeline:
+                # make DOT file from pipeline
+                gst_generate_dot(self.pipeline, "core.pipeline")

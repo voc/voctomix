@@ -22,12 +22,16 @@ class Blinder(object):
         self.volume = Config.getBlinderVolume()
 
         # Videomixer
-        self.bin = """
+        self.bin = "" if Args.no_bins else """
             bin.(
                 name=blinder
+                """
 
+        self.bin += """
                 compositor
                     name=compositor-blinder-mix
+                ! queue
+                    name=queue-video-mix-blinded
                 ! tee
                     name=video-mix-blinded
 
@@ -44,6 +48,8 @@ class Blinder(object):
             self.bin += """
                 compositor
                     name=compositor-blinder-{name}
+                ! queue
+                    name=queue-video-{name}-blinded
                 ! tee
                     name=video-{name}-blinded
 
@@ -81,12 +87,15 @@ class Blinder(object):
         self.bin += """
             audiomixer
                 name=audiomixer-blinder
+            ! queue
             ! tee
                 name=audio-mix-blinded
 
             audio-mix.
             ! queue
-                name=queue-audio-mix
+            ! capssetter caps={acaps}
+            ! queue
+                name=queue-audiomixer-blinder
             ! audiomixer-blinder.
             """.format(acaps=self.acaps)
 
@@ -98,7 +107,7 @@ class Blinder(object):
             ! audiomixer-blinder.
             """
 
-        self.bin += "\n)\n"
+        self.bin += "" if Args.no_bins else "\n)\n"
 
         self.blind_source = 0 if len(self.names) > 0 else None
 

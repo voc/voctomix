@@ -20,6 +20,7 @@ class ControlServerCommands(object):
 
         self.sources = Config.getSources()
         self.blinder_sources = Config.getBlinderSources()
+        self.streams = Config.getAudioStreams().get_stream_names()
 
     # Commands are defined below. Errors are sent to the clients by throwing
     # exceptions, they will be turned into messages outside.
@@ -125,7 +126,7 @@ class ControlServerCommands(object):
         volumes = self.pipeline.amix.getAudioVolumes()
 
         return json.dumps({
-            self.sources[idx]: round(volume, 4)
+            self.streams[idx]: round(volume, 4)
             for idx, volume in enumerate(volumes)
         })
 
@@ -144,11 +145,13 @@ class ControlServerCommands(object):
 
     def set_audio_volume(self, src_name, volume):
         """sets the volume of the supplied source-name or source-id"""
-        src_id = self.sources.index(src_name)
         volume = float(volume)
         if volume < 0.0:
             raise ValueError("volume must be positive")
-        self.pipeline.amix.setAudioSourceVolume(src_id, volume)
+        if src_name == 'mix':
+            self.pipeline.amix.setAudioVolume(volume)
+        else:
+            self.pipeline.amix.setAudioSourceVolume(self.streams.index(src_name), volume)
 
         status = self._get_audio_status()
         return NotifyResponse('audio_status', status)

@@ -12,7 +12,7 @@ def gst_generate_dot(pipeline, name):
 
     dotfile = os.path.join(os.environ['GST_DEBUG_DUMP_DOT_DIR'], "%s.dot" % name)
     log.debug("Generating DOT image of pipeline '{name}' into '{file}'".format(name=name, file=dotfile))
-    Gst.debug_bin_to_dot_file(pipeline, Gst.DebugGraphDetails.CAPS_DETAILS, name)
+    Gst.debug_bin_to_dot_file(pipeline, Gst.DebugGraphDetails.STATES, name)
 
 
 gst_log_messages_lastmessage = None

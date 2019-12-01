@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import logging
+import copy
 
 from gi.repository import Gtk
 import lib.connection as Connection
@@ -47,9 +48,13 @@ class PreviewToolbarController(object):
         self.sourcesB.create(toolbar_b, accelerators, self.on_btn_toggled)
         self.mods.create(toolbar_mod, accelerators, self.on_btn_toggled, group=False)
 
+        self.invalid_buttons = []
+        self.validate(self.sourcesA)
+        self.validate(self.sourcesB)
+
         # initialize source buttons
-        self.sourceA = self.sourcesA.ids[0]
-        self.sourceB = self.sourcesB.ids[1]
+        self.sourceA = Config.getSources()[0]
+        self.sourceB = Config.getSources()[1]
         self.sourcesA[self.sourceA]['button'].set_active(True)
         self.sourcesB[self.sourceB]['button'].set_active(True)
 
@@ -65,10 +70,13 @@ class PreviewToolbarController(object):
         self.composites_ = Config.getComposites()
 
         Connection.on('best', self.on_best)
-
+        Connection.on('composite', self.on_composite)
+        Connection.send('get_composite')
         self.enable_modifiers()
-        self.enable_channelB()
+        self.enable_sourcesB()
+        self.enable_sources();
 
+        self.do_test = True
         self.initialized = True
 
     def on_btn_toggled(self, btn):
@@ -97,7 +105,7 @@ class PreviewToolbarController(object):
                 self.test()
             elif id in self.composites:
                 self.composite = id
-                self.enable_channelB()
+                self.enable_sourcesB()
                 self.enable_modifiers()
                 self.log.info(
                     "Selected '%s' for preview target composite", self.composite)
@@ -107,6 +115,7 @@ class PreviewToolbarController(object):
             self.log.info("Turned preview modifier '%s' %s", id,
                           'on' if self.modstates[id] else 'off')
             self.test()
+        self.enable_sources();
         self.log.debug("current command is '%s", self.command())
 
     def enable_modifiers(self):
@@ -114,9 +123,13 @@ class PreviewToolbarController(object):
         for id, attr in self.mods.items():
             attr['button'].set_sensitive( command.modify(attr['replace']) )
 
-    def enable_channelB(self):
+    def enable_sourcesB(self):
         single = self.composites_[self.composite].single()
         self.frame_b.set_sensitive(not single)
+
+    def enable_sources(self):
+        for invalid_button in self.invalid_buttons:
+            invalid_button.set_sensitive(False)
 
     def command(self):
         # process all selected replactions
@@ -127,27 +140,72 @@ class PreviewToolbarController(object):
         return command
 
     def test(self):
-        if self.sourceA == self.sourceB:
-            return False
-        self.log.info("Testing transition to '%s'", str(self.command()))
-        Connection.send('best', str(self.command()))
+        if self.do_test:
+            if self.sourceA == self.sourceB:
+                return False
+            self.log.info("Testing transition to '%s'", str(self.command()))
+            Connection.send('best', str(self.command()))
 
     def set_command(self, command, do_test=True):
+        self.do_test = do_test
         self.log.info("Changing new composite to '%s'", str(self.command()))
         if type(command) == str:
             command = CompositeCommand.from_str(command)
-        for id, attr in self.mods.items():
-            attr['button'].set_active(
-                command.modify(attr['replace'], reverse=True))
+        for id, item in self.mods.items():
+            item['button'].set_active(
+                command.modify(item['replace'], reverse=True))
         self.composites[command.composite]['button'].set_active(True)
         self.sourcesA[command.A]['button'].set_active(True)
         self.sourcesB[command.B]['button'].set_active(True)
-        if do_test:
-            self.test()
+        self.test()
+        self.do_test = True
 
     def on_best(self, best, targetA, targetB):
         c = self.command()
         if (c.A, c.B) != (targetA, targetB) and (c.A, c.B) != (targetB, targetA):
             c.A = targetA
             c.B = targetB
-            self.set_command(c,False)
+            self.do_test = False
+            self.set_command(c)
+            self.do_test = True
+        self.update_glow()
+
+    def on_composite(self, command):
+        self.output = CompositeCommand.from_str(command)
+        self.test()
+
+    def update_glow(self):
+        output = copy.copy(self.output)
+        for id, item in self.sourcesA.items():
+            if id == output.A:
+                item['button'].get_style_context().add_class("glow")
+            else:
+                item['button'].get_style_context().remove_class("glow")
+        single = self.composites_[self.composite].single()
+        output_single = self.composites_[output.composite].single()
+        for id, item in self.sourcesB.items():
+            if id == output.B:
+                if output_single:
+                    item['button'].get_style_context().remove_class("glow")
+                elif single:
+                    self.sourcesA[id]['button'].get_style_context().add_class("glow")
+                    item['button'].get_style_context().remove_class("glow")
+                else:
+                    item['button'].get_style_context().add_class("glow")
+            else:
+                item['button'].get_style_context().remove_class("glow")
+        for id, item in self.mods.items():
+            if output.unmodify(item['replace']):
+                item['button'].get_style_context().add_class("glow")
+            else:
+                item['button'].get_style_context().remove_class("glow")
+        for id, item in self.composites.items():
+            if id == output.composite:
+                item['button'].get_style_context().add_class("glow")
+            else:
+                item['button'].get_style_context().remove_class("glow")
+
+    def validate(self,sources):
+        for id, attr in sources.items():
+            if id not in Config.getSources():
+                self.invalid_buttons.append(attr['button'])

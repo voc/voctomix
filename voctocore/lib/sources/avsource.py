@@ -3,6 +3,7 @@ import logging
 from abc import ABCMeta, abstractmethod
 
 from lib.config import Config
+from lib.args import Args
 
 
 class AVSource(object, metaclass=ABCMeta):
@@ -18,7 +19,10 @@ class AVSource(object, metaclass=ABCMeta):
         self.name = name
         self.has_audio = has_audio
         self.has_video = has_video
-        self.num_streams = num_streams if num_streams else Config.getNumAudioStreams()
+        if name == "blinder":
+            self.audio_streams = Config.getBlinderAudioStreams()
+        else:
+            self.audio_streams = Config.getAudioStreams()
         self.show_no_signal = show_no_signal
         self.inputSink = None
         self.bin = ""
@@ -35,38 +39,73 @@ class AVSource(object, metaclass=ABCMeta):
                     'compositor-{}'.format(self.name)).get_static_pad('sink_1')
 
     def build_pipeline(self):
-        self.bin = """
+        self.bin = "" if Args.no_bins else """
             bin.(
                 name={class_name}-{name}
             """.format(class_name=self.class_name, name=self.name)
 
         self.bin += self.build_source()
 
-        if self.has_audio:
+        if self.internal_audio_channels():
             audioport = self.build_audioport()
             if audioport:
                 self.bin += """
                     {audioport}
-                    ! {acaps}
                     ! tee
-                        name=audio-{name}
+                        name=source-audio-{name}
                     """.format(
                     audioport=audioport,
-                    acaps=Config.getAudioCaps(),
                     name=self.name
                 )
+                audio_streams = self.audio_streams.get_stream_names(self.name)
+
+                if not audio_streams:
+                    self.bin += """
+                        source-audio-{name}.
+                        ! queue
+                            name=queue-audio-{name}
+                        ! tee
+                            name=audio-{name}
+                        """.format(name=self.name)
+                else:
+                    for stream in audio_streams:
+                        self.bin += """
+                            source-audio-{name}.
+                            ! queue
+                                name=queue-audiomixmatrix-{stream}
+                            ! audiomixmatrix
+                                name=audiomixmatrix-{stream}
+                                in-channels={in_channels}
+                                out-channels={out_channels}
+                                matrix="{matrix}"
+                            ! {acaps}
+                            ! tee
+                                name=audio-{stream}
+                            """.format(
+                            in_channels=self.internal_audio_channels(),
+                            out_channels=Config.getAudioChannels(),
+                            matrix=str(self.audio_streams.matrix(self.name,
+                                                                 stream,
+                                                                 Config.getAudioChannels(),
+                                                                 grid=self.get_valid_channel_numbers())
+                                       ).replace("[", "<").replace("]", ">"),
+                            acaps=Config.getAudioCaps(),
+                            stream=stream,
+                            name=self.name
+                        )
 
         if self.has_video:
             if self.show_no_signal and Config.getNoSignal():
                 video = """
                     videotestsrc
                         name=canvas-{name}
-                        pattern=black
+                        pattern=smpte100
                     ! textoverlay
                         name=nosignal-{name}
-                        text=\"NO SIGNAL\"
+                        text=\"{nosignal}\"
                         valignment=center
                         halignment=center
+                        shaded-background=yes
                         font-desc="Roboto Bold, 20"
                     ! {vcaps}
                     ! compositor-{name}.
@@ -88,9 +127,10 @@ class AVSource(object, metaclass=ABCMeta):
             self.bin += video.format(
                 videoport=self.build_videoport(),
                 name=self.name,
-                vcaps=Config.getVideoCaps()
+                vcaps=Config.getVideoCaps(),
+                nosignal=self.get_nosignal_text()
             )
-        self.bin += """
+        self.bin += "" if Args.no_bins else """
                     )
                     """
 
@@ -118,7 +158,13 @@ class AVSource(object, metaclass=ABCMeta):
         return 1 if self.has_video else 0
 
     def audio_channels(self):
-        return 1 if self.has_audio else 0
+        return self.audio_streams.num_channels(self.name) if self.has_audio else 0
+
+    def internal_audio_channels(self):
+        return self.audio_streams.num_channels(self.name, self.get_valid_channel_numbers()) if self.has_audio else 0
+
+    def get_valid_channel_numbers(self):
+        return [x for x in range(1, 255)]
 
     def num_connections(self):
         return 0
@@ -138,3 +184,6 @@ class AVSource(object, metaclass=ABCMeta):
 
     def build_videoport(self):
         assert False, "build_videoport() not implemented in %s" % self.name
+
+    def get_nosignal_text(self):
+        return "NO SIGNAL\n" + self.name.upper()

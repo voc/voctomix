@@ -1,28 +1,31 @@
 #!/usr/bin/env python3
 import logging
 
+from lib.args import Args
 from lib.config import Config
 from lib.tcpmulticonnection import TCPMultiConnection
 
 
 class AVRawOutput(TCPMultiConnection):
 
-    def __init__(self, channel, port, has_audio=True):
-        self.log = logging.getLogger('AVRawOutput[{}]'.format(channel))
+    def __init__(self, source, port, has_audio=True):
+        self.log = logging.getLogger('AVRawOutput[{}]'.format(source))
         super().__init__(port)
 
-        self.channel = channel
+        self.source = source
 
-        self.bin = """
+        self.bin = "" if Args.no_bins else """
             bin.(
-                name=AVRawOutput-{channel}
+                name=AVRawOutput-{source}
+                """.format(source=self.source)
 
-                video-{channel}.
+        self.bin += """
+                video-{source}.
                 ! queue
-                    name=queue-mux-video-{channel}
-                ! mux-{channel}.
+                    name=queue-mux-video-{source}
+                ! mux-{source}.
             """.format(
-            channel=self.channel
+            source=self.source
         )
 
         self.has_audio = has_audio
@@ -30,28 +33,31 @@ class AVRawOutput(TCPMultiConnection):
             self.bin += """
                 audio-mix{blinded}.
                 ! queue
-                    name=queue-mux-audio-{channel}
+                    name=queue-mux-audio-{source}
                 ! audioconvert
-                ! mux-{channel}.
+                ! queue
+                ! mux-{source}.
                 """.format(
-                channel=self.channel,
+                source=self.source,
                 blinded="-blinded" if Config.getBlinderEnabled() else "")
 
         self.bin += """
             matroskamux
-                name=mux-{channel}
+                name=mux-{source}
                 streamable=true
                 writing-app=Voctomix-AVRawOutput
+            ! queue
+                name=queue-fd-{source}
             ! multifdsink
                 blocksize=1048576
                 buffers-max={buffers_max}
                 sync-method=next-keyframe
-                name=fd-{channel}
+                name=fd-{source}
             """.format(
-            buffers_max=Config.getOutputBuffers(self.channel),
-            channel=self.channel
+            buffers_max=Config.getOutputBuffers(self.source),
+            source=self.source
         )
-        self.bin += "\n)"
+        self.bin += "" if Args.no_bins else "\n)"
 
     def audio_channels(self):
         return Config.getNumAudioStreams() if self.has_audio else 0
@@ -63,7 +69,7 @@ class AVRawOutput(TCPMultiConnection):
         return False
 
     def __str__(self):
-        return 'AVRawOutput[{}]'.format(self.channel)
+        return 'AVRawOutput[{}]'.format(self.source)
 
     def attach(self, pipeline):
         self.pipeline = pipeline
@@ -71,8 +77,8 @@ class AVRawOutput(TCPMultiConnection):
     def on_accepted(self, conn, addr):
         self.log.debug('Adding fd %u to multifdsink', conn.fileno())
         fdsink = self.pipeline.get_by_name(
-            "fd-{channel}".format(
-                channel=self.channel
+            "fd-{source}".format(
+                source=self.source
             ))
         fdsink.emit('add', conn.fileno())
 

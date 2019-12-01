@@ -5,8 +5,7 @@ log = logging.getLogger('AVSourceManager')
 sources = {}
 
 
-def spawn_source(name, port, has_audio=True, has_video=True,
-                 force_num_streams=None):
+def spawn_source(name, port, has_audio=True, has_video=True):
 
     from lib.config import Config
     from lib.sources.decklinkavsource import DeckLinkAVSource
@@ -24,8 +23,7 @@ def spawn_source(name, port, has_audio=True, has_video=True,
     elif kind == 'videoloop':
         sources[name] = VideoLoopSource(name)
     elif kind == 'tcp':
-        sources[name] = TCPAVSource(name, port, has_audio, has_video,
-                                    force_num_streams)
+        sources[name] = TCPAVSource(name, port, has_audio, has_video)
     else:
         if kind != 'test':
             log.warning(

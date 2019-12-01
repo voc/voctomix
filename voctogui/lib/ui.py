@@ -6,12 +6,12 @@ from lib.uibuilder import UiBuilder
 
 from lib.videodisplay import VideoDisplay
 from lib.audioleveldisplay import AudioLevelDisplay
+from lib.audiodisplay import AudioDisplay
 from lib.videopreviews import VideoPreviewsController
 from lib.queues import QueuesWindowController
 from lib.ports import PortsWindowController
 
 from lib.toolbar.mix import MixToolbarController
-from lib.toolbar.output import OutputToolbarController
 from lib.toolbar.preview import PreviewToolbarController
 from lib.toolbar.overlay import OverlayToolbarController
 from lib.toolbar.blinder import BlinderToolbarController
@@ -22,6 +22,7 @@ from lib.shortcuts import show_shortcuts
 from lib.studioclock import StudioClock
 
 from vocto.port import Port
+
 
 class Ui(UiBuilder):
 
@@ -51,41 +52,49 @@ class Ui(UiBuilder):
         # Connect Close-Handler
         self.win.connect('delete-event', Gtk.main_quit)
 
-        # Get Audio-Level Display
-        self.audio_level_display = self.find_widget_recursive(
-            self.win, 'audiolevel_main')
-
-        output_aspect_ratio = self.find_widget_recursive(self.win, 'output_aspect_ratio')
+        output_aspect_ratio = self.find_widget_recursive(
+            self.win, 'output_aspect_ratio')
         output_aspect_ratio.props.ratio = Config.getVideoRatio()
 
-        # Create Main-Video Display
-        drawing_area = self.find_widget_recursive(self.win, 'video_main')
-        self.main_video_display = VideoDisplay(
-            drawing_area,
-            port=Port.MIX_PREVIEW if Config.getPreviewsEnabled() else Port.MIX_OUT,
-            name="MIX",
-            play_audio=Config.getPlayAudio(),
-            level_callback=self.audio_level_display.level_callback
-        )
+        audio_box = self.find_widget_recursive(self.win, 'audio_box')
 
         # Setup Preview Controller
-        box_left = self.find_widget_recursive(self.win, 'box_left')
-        self.video_previews_controller = VideoPreviewsController(
-            box_left,
+        self.video_previews = VideoPreviewsController(
+            self.find_widget_recursive(self.win, 'preview_box'),
+            audio_box,
             win=self.win,
             uibuilder=self
         )
+        if Config.getPreviewsEnabled():
+            for idx, source in enumerate(Config.getSources()):
+                self.video_previews.addPreview(self, source,
+                                                          Port.SOURCES_PREVIEW + idx)
+        elif Config.getMirrorsEnabled():
+            for idx, source in enumerate(Config.getMirrorsSources()):
+                self.video_previews.addPreview(self, source, Port.SOURCES_OUT + idx)
+        else:
+            self.log.warning(
+                'Can not show source previews because neither previews nor mirrors are enabled (see previews/enabled and mirrors/enabled in core configuration)')
+
+        self.mix_audio_display = AudioDisplay(audio_box, "mix", uibuilder=self)
+
+        # Create Main-Video Display
+        self.mix_video_display = VideoDisplay(
+            self.find_widget_recursive(self.win, 'video_main'),
+            self.mix_audio_display,
+            port=Port.MIX_PREVIEW if Config.getPreviewsEnabled() else Port.MIX_OUT,
+            name="MIX"
+        )
+
+        if Config.getLivePreviewEnabled():
+            if Config.getPreviewsEnabled():
+                self.video_previews.addPreview(self, "live", Port.LIVE_PREVIEW)
+            else:
+                self.video_previews.addPreview(self, "live", Port.LIVE_OUT)
 
         self.preview_toolbar_controller = PreviewToolbarController(
             win=self.win,
             uibuilder=self
-        )
-
-        # Setup Toolbar Controllers
-        self.output_toolbar_controller = OutputToolbarController(
-            win=self.win,
-            uibuilder=self,
-            preview_controller=self.preview_toolbar_controller
         )
 
         self.overlay_toolbar_controller = OverlayToolbarController(
@@ -96,7 +105,6 @@ class Ui(UiBuilder):
         self.mix_toolbar_controller = MixToolbarController(
             win=self.win,
             uibuilder=self,
-            output_controller=self.output_toolbar_controller,
             preview_controller=self.preview_toolbar_controller,
             overlay_controller=self.overlay_toolbar_controller
         )
@@ -114,9 +122,8 @@ class Ui(UiBuilder):
             uibuilder=self,
             queues_controller=self.queues_controller,
             ports_controller=self.ports_controller,
-            video_display=self.main_video_display
+            video_display=self.mix_video_display
         )
-
 
         # Setup Shortcuts window
         self.win.connect('key-press-event', self.handle_keypress)

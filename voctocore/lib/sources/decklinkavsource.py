@@ -44,6 +44,9 @@ class DeckLinkAVSource(AVSource):
     def num_connections(self):
         return 1 if self.signalPad and self.signalPad.get_property('signal') else 0
 
+    def get_valid_channel_numbers(self):
+        return (2, 8, 16)
+
     def __str__(self):
         return 'DecklinkAVSource[{name}] reading card #{device}'.format(
             name=self.name,
@@ -86,7 +89,7 @@ class DeckLinkAVSource(AVSource):
                     ! fakesink
                     """
 
-        if self.has_audio:
+        if self.internal_audio_channels():
             pipe += """
                 decklinkaudiosrc
                     name=decklinkaudiosrc-{name}
@@ -96,7 +99,7 @@ class DeckLinkAVSource(AVSource):
                 """.format(name=self.name,
                            device=self.device,
                            conn=self.aconn,
-                           channels=Config.getNumAudioStreams())
+                           channels=self.internal_audio_channels())
 
         return pipe
 
@@ -105,3 +108,6 @@ class DeckLinkAVSource(AVSource):
 
     def build_videoport(self):
         return 'vout-{}.'.format(self.name)
+
+    def get_nosignal_text(self):
+        return super().get_nosignal_text() + "/BM%d" % self.device

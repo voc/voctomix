@@ -7,6 +7,7 @@ from gi.repository import Gst
 from configparser import SafeConfigParser
 from lib.args import Args
 from vocto.transitions import Composites, Transitions
+from vocto.audio_streams import AudioStreams
 
 testPatternCount = 0
 
@@ -68,7 +69,7 @@ class VocConfigParser(SafeConfigParser):
         return self.get('mix', 'nosignal', fallback=False)
 
     def getDeckLinkDeviceNumber(self, source):
-        return self.get('source.{}'.format(source), 'devicenumber', fallback=0)
+        return self.getint('source.{}'.format(source), 'devicenumber', fallback=0)
 
     def getDeckLinkAudioConnection(self, source):
         return self.get('source.{}'.format(source), 'audio_connection', fallback='auto')
@@ -121,6 +122,34 @@ class VocConfigParser(SafeConfigParser):
     def getVolume(self, source):
         return self.getfloat("source.{}".format(source), 'volume', fallback=0.0)
 
+    def getAudioStreams(self):
+        audio_streams = AudioStreams()
+        sources = self.getSources()
+        for source in sources:
+            section = 'source.{}'.format(source)
+            if self.has_section(section):
+                audio_streams.join(AudioStreams.configure(self.items(section), source))
+        return audio_streams
+
+    def getBlinderAudioStreams(self):
+        audio_streams = AudioStreams()
+        section = 'source.blinder'
+        if self.has_section(section):
+            audio_streams.join(AudioStreams.configure(self.items(section), "blinder", use_soure_as_name=True))
+        return audio_streams
+
+    def getAudioStream(self, source):
+        section = 'source.{}'.format(source)
+        if self.has_section(section):
+            return AudioStreams.configure(self.items(section), source)
+        return AudioStreams()
+
+    def getNumAudioStreams(self):
+        num_audio_streams = self.getAudioStreams().num_channels()
+        if self.getAudioChannels() < num_audio_streams:
+            self.log.error("number of audio channels in mix/audiocaps differs from the available audio input channels within the sources!")
+        return num_audio_streams
+
     def setShowVolume(self, show=True):
         self.add_section_if_missing('audio')
         self.set('audio', 'volumecontrol', "true" if show else "false")
@@ -131,8 +160,11 @@ class VocConfigParser(SafeConfigParser):
     def getAudioCaps(self, section='mix'):
         return self.get(section, 'audiocaps', fallback="audio/x-raw,format=S16LE,channels=2,layout=interleaved,rate=48000")
 
-    def getNumAudioStreams(self):
-        return self.getint('mix', 'audiostreams', fallback=2)
+    def getAudioChannels(self):
+        caps = Gst.Caps.from_string(
+            self.getAudioCaps()).get_structure(0)
+        _, channels = caps.get_int('channels')
+        return channels
 
     def getVideoResolution(self):
         caps = Gst.Caps.from_string(
