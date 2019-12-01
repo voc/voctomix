@@ -95,7 +95,7 @@ class Blinder(object):
             ! queue
             ! capssetter caps={acaps}
             ! queue
-                name=queue-audio-mix
+                name=queue-audiomixer-blinder
             ! audiomixer-blinder.
             """.format(acaps=self.acaps)
 

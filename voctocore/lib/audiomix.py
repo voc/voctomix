@@ -57,13 +57,18 @@ class AudioMix(object):
             audiomixer
                 name=audiomixer
             ! queue
+                name=queue-audiomixer-audiomixmatrix
             ! audiomixmatrix
-                name=audiomixmatrix
+                name=audiomixer-audiomixmatrix
                 in_channels={in_channels}
                 out_channels={out_channels}
                 matrix="{matrix}"
+            ! queue
+                name=queue-audio-mix
             ! tee
                 name=audio-mix
+            ! queue
+                name=queue-source-audio-mix
             ! tee
                 name=source-audio-mix
             """.format(in_channels=channels,
