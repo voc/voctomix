@@ -32,7 +32,7 @@ class AudioMix(object):
             Config.setShowVolume(False)
         elif self.audio_streams:
             self.log.info('Setting volume of first stream %s to %0.2f',
-                          self.audio_streams[0], 1.0)
+                          self.audio_streams[0].name, 1.0)
             self.volumes[0] = 1.0
         else:
             self.log.info('No audio capable kind of source found!')
