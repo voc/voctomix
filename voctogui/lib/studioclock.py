@@ -45,9 +45,9 @@ class StudioClock(Gtk.ToolItem):
         # setup gradients for clock background to get a smooth border
         bg_lg = cairo.RadialGradient(
             center[0], center[1], 0, center[0], center[1], radius)
-        bg_lg.add_color_stop_rgba(0.0, 0, 0, 0, 1.0)
-        bg_lg.add_color_stop_rgba(0.9, 0, 0, 0, 1.0)
-        bg_lg.add_color_stop_rgba(1.0, 0, 0, 0, 0.0)
+        bg_lg.add_color_stop_rgba(0.0, 0.1, 0.1, 0.1, 1.0)
+        bg_lg.add_color_stop_rgba(0.9, 0.1, 0.1, 0.1, 1.0)
+        bg_lg.add_color_stop_rgba(1.0, 0.2, 0.2, 0.2, 0.0)
         # paint background
         cr.set_source(bg_lg)
         cr.arc(center[0], center[1], radius, 0, 2 * math.pi)
@@ -78,7 +78,8 @@ class StudioClock(Gtk.ToolItem):
             cr.arc(pos[0], pos[1], radius / 40, 0, 2 * math.pi)
             cr.fill()
         # set a reasonable font size
-        cr.set_font_size(cr.user_to_device_distance(0, height / 5)[1])
+        cr.select_font_face("Roboto Condensed")
+        cr.set_font_size(cr.user_to_device_distance(0, height / 4)[1])
         # format time into a string
         text = time.strftime("%H:%M")
         # get text drawing extents
