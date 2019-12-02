@@ -51,7 +51,7 @@ class VideoPreviewsController(object):
         # connect event-handler and request initial state
         Connection.send('get_video')
 
-    def addPreview(self, uibuilder, source, port):
+    def addPreview(self, uibuilder, source, port, has_volume=True):
 
         self.log.info('Initializing video preview %s at port %d', source, port)
 
@@ -62,7 +62,7 @@ class VideoPreviewsController(object):
         self.video_box.pack_start(video, fill=False,
                                expand=False, padding=0)
 
-        mix_audio_display = AudioDisplay(self.audio_box, source, uibuilder)
+        mix_audio_display = AudioDisplay(self.audio_box, source, uibuilder, has_volume)
         player = VideoDisplay(video, mix_audio_display, port=port,
                               width=self.previewSize[0],
                               height=self.previewSize[1],
