@@ -183,10 +183,13 @@ class Pipeline(object):
 
     def on_state_changed(self, bus, message):
         newstate = message.parse_state_changed().newstate
-        if self.prevstate != newstate:
+        states = ["PENDING", "NULL", "READY", "PAUSED", "PLAYING"]
+        self.log.debug("element state changed to '%s' by element '%s'", states[newstate], message.src.name )
+        if self.prevstate != newstate and message.src.name == "pipeline0":
             self.prevstate = newstate
-            states = ["PENDING", "NULL", "READY", "PAUSED", "PLAYING"]
-            self.log.info("pipeline state changed to '%s' by element '%s'", states[newstate], message.src.name )
+            self.log.debug("pipeline state changed to '%s'", states[newstate] )
+            if newstate == Gst.State.PLAYING:
+                self.log.info("\n\n====================== UP AN RUNNING ======================\n" )
 
             if self.draw_pipeline:
                 # make DOT file from pipeline

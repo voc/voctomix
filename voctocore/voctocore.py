@@ -53,7 +53,6 @@ class Voctocore(object):
 
     def run(self):
         self.log.info('Running. Waiting for connections....')
-        self.log.debug('\n\n====================== UP AN RUNNING ======================\n')
         try:
             self.mainloop.run()
         except KeyboardInterrupt:
