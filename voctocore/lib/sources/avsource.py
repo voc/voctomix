@@ -105,7 +105,7 @@ class AVSource(object, metaclass=ABCMeta):
                 video = """
                     videotestsrc
                         name=canvas-{name}
-                        pattern=smpte100
+                        pattern={nosignalpattern}
                     ! textoverlay
                         name=nosignal-{name}
                         text=\"{nosignal}\"
@@ -142,7 +142,8 @@ class AVSource(object, metaclass=ABCMeta):
                 videoport=self.build_videoport(),
                 name=self.name,
                 vcaps=Config.getVideoCaps(),
-                nosignal=self.get_nosignal_text()
+                nosignal=self.get_nosignal_text(),
+                nosignalpattern=Config.getNoSignal()
             )
         self.bin += "" if Args.no_bins else """
                     )

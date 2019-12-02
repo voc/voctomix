@@ -66,7 +66,13 @@ class VocConfigParser(SafeConfigParser):
         return self.get('source.{}'.format(source), 'kind', fallback='test')
 
     def getNoSignal(self):
-        return self.get('mix', 'nosignal', fallback=False)
+        nosignal = self.get('mix', 'nosignal', fallback='smpte100').lower()
+        if nosignal in ['none','false','no']:
+            return None
+        elif nosignal in GST_TYPE_VIDEO_TEST_SRC_PATTERN:
+            return nosignal
+        else:
+            self.log.error("Configuration value mix/nosignal has unknown pattern '{}'".format(nosignal))
 
     def getDeckLinkDeviceNumber(self, source):
         return self.getint('source.{}'.format(source), 'devicenumber', fallback=0)
