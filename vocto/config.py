@@ -128,14 +128,14 @@ class VocConfigParser(SafeConfigParser):
         for source in sources:
             section = 'source.{}'.format(source)
             if self.has_section(section):
-                audio_streams.join(AudioStreams.configure(self.items(section), source))
+                audio_streams += AudioStreams.configure(self.items(section), source)
         return audio_streams
 
     def getBlinderAudioStreams(self):
         audio_streams = AudioStreams()
         section = 'source.blinder'
         if self.has_section(section):
-            audio_streams.join(AudioStreams.configure(self.items(section), "blinder", use_soure_as_name=True))
+            audio_streams += AudioStreams.configure(self.items(section), "blinder", use_source_as_name=True)
         return audio_streams
 
     def getAudioStream(self, source):
@@ -145,7 +145,7 @@ class VocConfigParser(SafeConfigParser):
         return AudioStreams()
 
     def getNumAudioStreams(self):
-        num_audio_streams = self.getAudioStreams().num_channels()
+        num_audio_streams = len(self.getAudioStreams())
         if self.getAudioChannels() < num_audio_streams:
             self.log.error("number of audio channels in mix/audiocaps differs from the available audio input channels within the sources!")
         return num_audio_streams
