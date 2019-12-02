@@ -61,6 +61,7 @@ class DeckLinkAVSource(AVSource):
                 device-number={device}
                 connection={conn}
                 video-format={fmt}
+                drop-no-signal-frames=true
                 mode={mode}
             """.format(name=self.name,
                        device=self.device,
