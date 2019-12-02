@@ -69,7 +69,7 @@ class Widgets(dict):
 
             # set button label
             if 'name' in attr:
-                name = _decode(attr['name'], multiline_names)
+                name = _decode(attr['name'], multiline_names).upper()
             else:
                 name = id.upper()
             widget.set_label(name)
