@@ -8,7 +8,7 @@ from lib.tcpmulticonnection import TCPMultiConnection
 
 class AVRawOutput(TCPMultiConnection):
 
-    def __init__(self, source, port, has_audio=True):
+    def __init__(self, source, port, has_audio=True, use_audio_mix=False):
         self.log = logging.getLogger('AVRawOutput[{}]'.format(source))
         super().__init__(port)
 
@@ -32,7 +32,7 @@ class AVRawOutput(TCPMultiConnection):
         self.has_audio = has_audio
         if has_audio:
             self.bin += """
-                audio-mix{blinded}.
+                {use_audio}audio-{source}.
                 ! queue
                     max-size-time=3000000000
                     name=queue-audio-mix-convert-{source}
@@ -43,6 +43,7 @@ class AVRawOutput(TCPMultiConnection):
                 ! mux-{source}.
                 """.format(
                 source=self.source,
+                use_audio="" if use_audio_mix else "source-",
                 blinded="-blinded" if Config.getBlinderEnabled() else "")
 
         self.bin += """
