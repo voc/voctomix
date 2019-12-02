@@ -23,6 +23,7 @@ class AVPreviewOutput(TCPMultiConnection):
 
         self.bin += """
                 video-{source}.
+                ! {vcaps}
                 ! queue
                     max-size-time=3000000000
                     name=queue-preview-video-{source}
@@ -52,7 +53,8 @@ class AVPreviewOutput(TCPMultiConnection):
                     name=fd-preview-{source}
                 """.format(source=self.source,
                            use_audio="" if use_audio_mix else "source-",
-                           vpipeline=self.construct_video_pipeline()
+                           vpipeline=self.construct_video_pipeline(),
+                           vcaps=Config.getVideoCaps()
                            )
         self.bin += "" if Args.no_bins else  """
         )
@@ -126,8 +128,7 @@ class AVPreviewOutput(TCPMultiConnection):
         deinterlace = imode = "deinterlace mode=interlaced" if Config.getDeinterlacePreviews() else ""
         pipeline = """{deinterlace}videorate
             ! videoscale
-            ! capsfilter
-                caps={target_caps}
+            ! {target_caps}
             ! jpegenc
                 quality=90""".format(target_caps=Config.getPreviewCaps(),
                                      deinterlace=deinterlace
