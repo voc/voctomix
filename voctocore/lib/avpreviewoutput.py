@@ -48,7 +48,6 @@ class AVPreviewOutput(TCPMultiConnection):
                     name=fd-preview-{source}
                 """.format(source=self.source,
                            use_audio="" if use_audio_mix else "source-",
-                           vcaps=Config.getVideoCaps(),
                            vpipeline=self.construct_video_pipeline()
                            )
         self.bin += "" if Args.no_bins else  """

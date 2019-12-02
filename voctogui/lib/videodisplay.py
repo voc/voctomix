@@ -69,7 +69,6 @@ demux-{name}.
 ! queue
     name=queue-video-{name}
 ! {previewcaps}
-! {vcaps}
 """.format(name=name,
                 previewcaps=preview_caps,
                 vcaps=Config.getVideoCaps())
