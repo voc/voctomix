@@ -22,6 +22,7 @@ class AVRawOutput(TCPMultiConnection):
         self.bin += """
                 video-{source}.
                 ! queue
+                    max-size-time=3000000000
                     name=queue-mux-video-{source}
                 ! mux-{source}.
             """.format(
@@ -33,9 +34,12 @@ class AVRawOutput(TCPMultiConnection):
             self.bin += """
                 audio-mix{blinded}.
                 ! queue
-                    name=queue-mux-audio-{source}
+                    max-size-time=3000000000
+                    name=queue-audio-mix-convert-{source}
                 ! audioconvert
                 ! queue
+                    max-size-time=3000000000
+                    name=queue-mux-audio-{source}
                 ! mux-{source}.
                 """.format(
                 source=self.source,
@@ -47,6 +51,7 @@ class AVRawOutput(TCPMultiConnection):
                 streamable=true
                 writing-app=Voctomix-AVRawOutput
             ! queue
+                max-size-time=3000000000
                 name=queue-fd-{source}
             ! multifdsink
                 blocksize=1048576

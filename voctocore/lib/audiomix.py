@@ -57,6 +57,7 @@ class AudioMix(object):
             audiomixer
                 name=audiomixer
             ! queue
+                max-size-time=3000000000
                 name=queue-audiomixer-audiomixmatrix
             ! audiomixmatrix
                 name=audiomixer-audiomixmatrix
@@ -64,10 +65,12 @@ class AudioMix(object):
                 out_channels={out_channels}
                 matrix="{matrix}"
             ! queue
+                max-size-time=3000000000
                 name=queue-audio-mix
             ! tee
                 name=audio-mix
             ! queue
+                max-size-time=3000000000
                 name=queue-source-audio-mix
             ! tee
                 name=source-audio-mix
@@ -79,6 +82,7 @@ class AudioMix(object):
             self.bin += """
                 audio-{stream}.
                 ! queue
+                    max-size-time=3000000000
                     name=queue-audio-{stream}
                 ! audiomixer.
                 """.format(stream=stream)

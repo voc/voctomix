@@ -46,6 +46,7 @@ class VideoMix(object):
         if Config.hasOverlay():
             self.bin += """\
                 ! queue
+                    max-size-time=3000000000
                     name=queue-overlay
                 ! gdkpixbufoverlay
                     name=overlay
@@ -67,11 +68,14 @@ class VideoMix(object):
             ! identity
                 name=sig
             ! {vcaps}
+            ! queue
+                max-size-time=3000000000
             ! tee
                 name=video-mix
 
             video-background.
             ! queue
+                max-size-time=3000000000
                 name=queue-video-background
             ! videomixer.
             """.format(
@@ -82,10 +86,12 @@ class VideoMix(object):
             self.bin += """
                 video-{name}.
                 ! queue
+                    max-size-time=3000000000
                     name=queue-cropper-{name}
                 ! videobox
                     name=cropper-{name}
                 ! queue
+                    max-size-time=3000000000
                     name=queue-videomixer-{name}
                 ! videomixer.
                 """.format(

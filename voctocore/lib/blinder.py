@@ -31,12 +31,14 @@ class Blinder(object):
                 compositor
                     name=compositor-blinder-mix
                 ! queue
+                    max-size-time=3000000000
                     name=queue-video-mix-blinded
                 ! tee
                     name=video-mix-blinded
 
                 video-mix.
                 ! queue
+                    max-size-time=3000000000
                     name=queue-video-mix-compositor-blinder-mix
                 ! compositor-blinder-mix.
             """.format(
@@ -49,12 +51,14 @@ class Blinder(object):
                 compositor
                     name=compositor-blinder-{name}
                 ! queue
+                    max-size-time=3000000000
                     name=queue-video-{name}-blinded
                 ! tee
                     name=video-{name}-blinded
 
                 video-{name}.
                 ! queue
+                    max-size-time=3000000000
                     name=queue-video-{name}-compositor-blinder-{name}
                 ! compositor-blinder-{name}.
                 """.format(
@@ -66,6 +70,7 @@ class Blinder(object):
             self.bin += """
                 video-blinder-{name}.
                 ! queue
+                    max-size-time=3000000000
                     name=queue-video-blinder-{name}-compositor-blinder-mix
                 ! compositor-blinder-mix.
                 """.format(
@@ -76,6 +81,7 @@ class Blinder(object):
                 self.bin += """
                     video-blinder-{name}.
                     ! queue
+                        max-size-time=3000000000
                         name=queue-video-blinder-{name}-compositor-blinder-{name}
                     ! compositor-blinder-{slides}.
                     """.format(
@@ -88,13 +94,16 @@ class Blinder(object):
             audiomixer
                 name=audiomixer-blinder
             ! queue
+                max-size-time=3000000000
             ! tee
                 name=audio-mix-blinded
 
             audio-mix.
             ! queue
+                max-size-time=3000000000
             ! capssetter caps={acaps}
             ! queue
+                max-size-time=3000000000
                 name=queue-audiomixer-blinder
             ! audiomixer-blinder.
             """.format(acaps=self.acaps)
@@ -103,6 +112,7 @@ class Blinder(object):
         self.bin += """
             audio-blinder.
             ! queue
+                max-size-time=3000000000
                 name=queue-audio-blinded-audiomixer-blinder
             ! audiomixer-blinder.
             """

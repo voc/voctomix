@@ -24,14 +24,17 @@ class AVPreviewOutput(TCPMultiConnection):
         self.bin += """
                 video-{source}.
                 ! queue
+                    max-size-time=3000000000
                     name=queue-preview-video-{source}
                 ! {vpipeline}
                 ! queue
+                    max-size-time=3000000000
                     name=queue-mux-preview-{source}
                 ! mux-preview-{source}.
 
                 {use_audio}audio-{source}.
                 ! queue
+                    max-size-time=3000000000
                     name=queue-preview-audio-{source}
                 ! mux-preview-{source}.
 
@@ -40,6 +43,7 @@ class AVPreviewOutput(TCPMultiConnection):
                     streamable=true
                     writing-app=Voctomix-AVPreviewOutput
                 ! queue
+                    max-size-time=3000000000
                     name=queue-fd-preview-{source}
                 ! multifdsink
                     blocksize=1048576

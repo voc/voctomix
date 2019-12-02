@@ -84,6 +84,7 @@ class TCPAVSource(AVSource):
             pipe += """
                 demux-{name}.video_0
                 ! queue
+                    max-size-time=3000000000
                     name=queue-tcpsrc-video-{name}
                 ! video/x-raw
                 ! {deinterlacer}""".format(
@@ -151,6 +152,7 @@ class TCPAVSource(AVSource):
     def build_audioport(self):
         return """
     ! queue
+        max-size-time=3000000000
         name=queue-{name}.audio""".format(name=self.name)
 
     def build_videoport(self):

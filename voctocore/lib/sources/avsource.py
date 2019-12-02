@@ -52,6 +52,7 @@ class AVSource(object, metaclass=ABCMeta):
                 self.bin += """
                     {audioport}
                     ! queue
+                        max-size-time=3000000000
                         name=queue-source-audio-{name}
                     ! tee
                         name=source-audio-{name}
@@ -65,9 +66,9 @@ class AVSource(object, metaclass=ABCMeta):
                     self.bin += """
                         source-audio-{name}.
                         ! queue
-                            name=queue-audio-{name}
-                        ! tee
-                            name=audio-{name}
+                            max-size-time=3000000000
+                        ! fakesink
+                            async=false
                         """.format(name=self.name)
                 else:
                     for stream in audio_streams:
@@ -110,20 +111,28 @@ class AVSource(object, metaclass=ABCMeta):
                         shaded-background=yes
                         font-desc="Roboto Bold, 20"
                     ! {vcaps}
+                    ! queue
+                        max-size-time=3000000000
                     ! compositor-{name}.
 
                     {videoport}
                     ! {vcaps}
+                    ! queue
+                        max-size-time=3000000000
                     ! compositor-{name}.
 
                     compositor
                         name=compositor-{name}
+                    ! queue
+                        max-size-time=3000000000
                     ! tee
                         name=video-{name}"""
             else:
                 video = """
                     {videoport}
                     ! {vcaps}
+                    ! queue
+                        max-size-time=3000000000
                     ! tee
                         name=video-{name}"""
             self.bin += video.format(
