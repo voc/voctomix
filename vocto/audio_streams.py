@@ -106,6 +106,16 @@ class AudioStreams(list):
                     result.append(audio_stream.name)
         return result
 
+    def get_stream_source(self, source=None):
+        ''' Get sources of all streams.
+                    Filter by <source> if given.
+                '''
+        result = []
+        for audio_stream in self:
+            if not source or source == audio_stream.source:
+                if audio_stream.name not in result:
+                    result.append(audio_stream.source)
+        return result
 
 class AudioStream:
     def __init__(self, source, channel, name, source_channel):

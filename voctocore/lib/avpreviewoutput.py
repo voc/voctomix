@@ -15,6 +15,7 @@ class AVPreviewOutput(TCPMultiConnection):
         super().__init__(port)
 
         self.source = source
+        self.audio_streams = Config.getAudioStreams().get_stream_source()
 
         self.bin = "" if Args.no_bins else """
             bin.(
@@ -32,13 +33,24 @@ class AVPreviewOutput(TCPMultiConnection):
                     max-size-time=3000000000
                     name=queue-mux-preview-{source}
                 ! mux-preview-{source}.
+                """.format(source=self.source,
+                           vpipeline=self.construct_video_pipeline(),
+                           vcaps=Config.getVideoCaps()
+                           )
 
-                {use_audio}audio-{source}.
-                ! queue
-                    max-size-time=3000000000
-                    name=queue-preview-audio-{source}
-                ! mux-preview-{source}.
+        if source in self.audio_streams:
+            self.bin +=                """
+                    {use_audio}audio-{source}.
+                    ! queue
+                        max-size-time=3000000000
+                        name=queue-preview-audio-{source}
+                    ! mux-preview-{source}.
+                    """.format(source=self.source,
+                           use_audio="" if use_audio_mix else "source-",
+                           vpipeline=self.construct_video_pipeline(),
+                           )
 
+        self.bin +=                """
                 matroskamux
                     name=mux-preview-{source}
                     streamable=true
@@ -51,10 +63,7 @@ class AVPreviewOutput(TCPMultiConnection):
                     buffers-max=500
                     sync-method=next-keyframe
                     name=fd-preview-{source}
-                """.format(source=self.source,
-                           use_audio="" if use_audio_mix else "source-",
-                           vpipeline=self.construct_video_pipeline(),
-                           vcaps=Config.getVideoCaps()
+                """.format(source=self.source
                            )
         self.bin += "" if Args.no_bins else  """
         )
