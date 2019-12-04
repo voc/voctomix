@@ -17,6 +17,8 @@ class AVPreviewOutput(TCPMultiConnection):
         self.source = source
         self.audio_streams = Config.getAudioStreams().get_stream_source()
         self.audio_streams.append('mix')
+        self.audio_streams.append('mix-blinded')
+        self.audio_streams.append('cam3')
 
         self.bin = "" if Args.no_bins else """
             bin.(
