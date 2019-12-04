@@ -15,10 +15,9 @@ class AVPreviewOutput(TCPMultiConnection):
         super().__init__(port)
 
         self.source = source
-        self.audio_streams = Config.getAudioStreams().get_stream_source()
-        self.audio_streams.append('mix')
-        self.audio_streams.append('mix-blinded')
-        self.audio_streams.append('cam3')
+        self.audio_sources = Config.getAudioSources()
+        self.audio_sources.append('mix')
+        self.audio_sources.append('mix-blinded')
 
         self.bin = "" if Args.no_bins else """
             bin.(
@@ -41,8 +40,8 @@ class AVPreviewOutput(TCPMultiConnection):
                            vcaps=Config.getVideoCaps()
                            )
 
-        if source in self.audio_streams:
-            self.bin +=                """
+        if source in self.audio_sources:
+            self.bin += """
                     {use_audio}audio-{source}.
                     ! queue
                         max-size-time=3000000000
@@ -50,10 +49,10 @@ class AVPreviewOutput(TCPMultiConnection):
                     ! mux-preview-{source}.
                     """.format(source=self.source,
                            use_audio="" if use_audio_mix else "source-",
-                           vpipeline=self.construct_video_pipeline(),
-                           )
+                           vpipeline=self.construct_video_pipeline()
+                               )
 
-        self.bin +=                """
+        self.bin += """
                 matroskamux
                     name=mux-preview-{source}
                     streamable=true
