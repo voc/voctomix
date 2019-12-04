@@ -16,6 +16,7 @@ class AVPreviewOutput(TCPMultiConnection):
 
         self.source = source
         self.audio_streams = Config.getAudioStreams().get_stream_source()
+        self.audio_streams.append('mix')
 
         self.bin = "" if Args.no_bins else """
             bin.(
