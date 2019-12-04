@@ -13,7 +13,7 @@ class V4l2AVSource(AVSource):
     timer_resolution = 0.5
 
     def __init__(self, name):
-        super().__init__('V4l2Source', name, False, True, show_no_signal=True)
+        super().__init__('V4l2Source', name, False, True, show_no_signal=False)
 
         self.device = Config.getV4l2Device(name)
         self.width = Config.getV4l2Width(name)
