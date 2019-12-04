@@ -9,18 +9,6 @@ from lib.clock import Clock
 from vocto.port import Port
 from vocto.debug import gst_generate_dot
 
-CPU_DECODERS = {
-    'h264': 'video/x-h264 ! avdec_h264',
-    'jpeg': 'image/jpeg ! jpegdec',
-    'mpeg2': 'video/mpeg,mpegversion=2 ! mpeg2dec'
-}
-
-VAAPI_DECODERS = {
-    'h264': 'vaapih264dec',
-    'jpeg': 'vaapijpegdec',
-    'mpeg2': 'vaapimpeg2dec',
-}
-
 
 class VideoDisplay(object):
     """Displays a Voctomix-Video-Stream into a GtkWidget"""
@@ -49,9 +37,28 @@ tcpclientsrc
         if Config.getPreviewsEnabled():
             self.log.info('using encoded previews instead of raw-video')
             if Config.getPreviewVaapi():
-                video_decoder = VAAPI_DECODERS[Config.getPreviewDecoder()]
+                if Gst.version() < (1, 8):
+                    vaapi_decoders = {
+                        'h264': 'vaapidecode_h264',
+                        'jpeg': 'vaapidecode_jpeg',
+                        'mpeg2': 'vaapidecode_mpeg2',
+                    }
+                else:
+                    vaapi_decoders = {
+                        'h264': 'vaapih264dec',
+                        'jpeg': 'vaapijpegdec',
+                        'mpeg2': 'vaapimpeg2dec',
+                    }
+
+                video_decoder = vaapi_decoders[Config.getPreviewDecoder()]
             else:
-                video_decoder = CPU_DECODERS[Config.getPreviewDecoder()]
+                cpu_decoders = {
+                    'h264': 'video/x-h264 ! avdec_h264',
+                    'jpeg': 'image/jpeg ! jpegdec',
+                    'mpeg2': 'video/mpeg,mpegversion=2 ! mpeg2dec'
+                }
+
+                video_decoder = cpu_decoders[Config.getPreviewDecoder()]
 
             pipe += """
 demux-{name}.
@@ -59,7 +66,8 @@ demux-{name}.
     name=queue-video-{name}
 ! {video_decoder}
 """.format(name=name,
-                video_decoder=video_decoder)
+           video_decoder=video_decoder)
+            
         else:
             video_decoder = None
             preview_caps = 'video/x-raw'
