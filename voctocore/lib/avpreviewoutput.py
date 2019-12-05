@@ -11,23 +11,29 @@ gi.require_version('GstController', '1.0')
 class AVPreviewOutput(TCPMultiConnection):
 
     def __init__(self, source, port, use_audio_mix=False):
+        # create logging interface
         self.log = logging.getLogger('AVPreviewOutput[{}]'.format(source))
+
+        # initialize super
         super().__init__(port)
 
+        # remember things
         self.source = source
 
+        # open bin
         self.bin = "" if Args.no_bins else """
             bin.(
                 name=AVPreviewOutput-{source}
                 """.format(source=self.source)
 
+        # video pipeline
         self.bin += """
                 video-{source}.
                 ! {vcaps}
                 ! queue
                     max-size-time=3000000000
                     name=queue-preview-video-{source}
-                ! {vpipeline}
+                {vpipeline}
                 ! queue
                     max-size-time=3000000000
                     name=queue-mux-preview-{source}
@@ -46,10 +52,9 @@ class AVPreviewOutput(TCPMultiConnection):
                         name=queue-preview-audio-{source}
                     ! mux-preview-{source}.
                     """.format(source=self.source,
-                           use_audio="" if use_audio_mix else "source-",
-                           vpipeline=self.construct_video_pipeline()
-                               )
+                               use_audio="" if use_audio_mix else "source-")
 
+        # playout pipeline
         self.bin += """
                 matroskamux
                     name=mux-preview-{source}
@@ -63,11 +68,10 @@ class AVPreviewOutput(TCPMultiConnection):
                     buffers-max=500
                     sync-method=next-keyframe
                     name=fd-preview-{source}
-                """.format(source=self.source
-                           )
-        self.bin += "" if Args.no_bins else  """
-        )
-        """
+                """.format(source=self.source)
+
+        # close bin
+        self.bin += "" if Args.no_bins else "\n)\n"
 
     def audio_channels(self):
         return Config.getNumAudioStreams()
@@ -102,47 +106,60 @@ class AVPreviewOutput(TCPMultiConnection):
             }
 
         vaapi_encoder_options = {
-            'h264': 'rate-control=cqp init-qp=10 '
-                    'max-bframes=0 keyframe-period=60',
-            'jpeg': 'vaapiencode_jpeg quality=90'
-                    'keyframe-period=0',
-            'mpeg2': 'keyframe-period=60',
+            'h264': """rate-control=cqp
+                       init-qp=10
+                       max-bframes=0
+                       keyframe-period=60""",
+            'jpeg': """quality=90
+                       keyframe-period=0""",
+            'mpeg2': "keyframe-period=60",
         }
 
+        # prepare selectors
         size = Config.getPreviewResolution()
         framerate = Config.getPreviewFramerate()
         vaapi = Config.getPreviewVaapi()
 
-        return '''capsfilter
-                caps=video/x-raw,interlace-mode=progressive
-            ! vaapipostproc
-                format=i420
-                deinterlace-mode={imode}
-                deinterlace-method=motion-adaptive
-                width={width}
-                height={height}
-            ! capssetter
-                caps=video/x-raw,framerate={n}/{d}
-            ! {encoder} {options}
-            '''.format(imode='interlaced' if Config.getDeinterlacePreviews() else 'disabled',
-                       width=size[0],
-                       height=size[1],
-                       encoder=vaapi_encoders[vaapi],
-                       options=vaapi_encoder_options[vaapi],
-                       n=framerate[0],
-                       d=framerate[1],
-                       )
+        # generate pipeline
+        return """  capsfilter
+                        caps=video/x-raw
+                        interlace-mode=progressive
+                    !
+                        format=i420
+                        deinterlace-mode={imode}
+                        deinterlace-method=motion-adaptive
+                        width={width}
+                        height={height}
+                    ! capssetter
+                        caps=video/x-raw
+                        framerate={n}/{d}
+                    ! {encoder}
+                        {options}
+                    """.format(imode='interlaced' if Config.getDeinterlacePreviews() else 'disabled',
+                               width=size[0],
+                               height=size[1],
+                               encoder=vaapi_encoders[vaapi],
+                               options=vaapi_encoder_options[vaapi],
+                               n=framerate[0],
+                               d=framerate[1],
+                               )
 
     def construct_native_video_pipeline(self):
-        deinterlace = imode = "deinterlace mode=interlaced" if Config.getDeinterlacePreviews() else ""
-        pipeline = """{deinterlace}videorate
-            ! videoscale
-            ! {target_caps}
-            ! jpegenc
-                quality=90""".format(target_caps=Config.getPreviewCaps(),
-                                     deinterlace=deinterlace
-                                     )
+        # maybe add deinterlacer
+        if Config.getDeinterlacePreviews():
+            pipeline = """  ! deinterlace
+                                mode=interlaced
+                            """
+        else:
+            pipeline = ""
 
+        # build rest of the pipeline
+        pipeline += """ ! videorate
+                        ! videoscale
+                        ! {vcaps}
+                        ! jpegenc
+                            quality = 90
+                        """.format(vcaps=Config.getPreviewCaps())
         return pipeline
 
     def attach(self, pipeline):
@@ -150,15 +167,22 @@ class AVPreviewOutput(TCPMultiConnection):
 
     def on_accepted(self, conn, addr):
         self.log.debug('Adding fd %u to multifdsink', conn.fileno())
-        fdsink = self.pipeline.get_by_name(
-            "fd-preview-{source}".format(
-                source=self.source
-            ))
+
+        # find fdsink and emit 'add'
+        fdsink = self.pipeline.get_by_name("fd-preview-{}".format(self.source))
         fdsink.emit('add', conn.fileno())
 
+        # catch disconnect
         def on_disconnect(multifdsink, fileno):
             if fileno == conn.fileno():
                 self.log.debug('fd %u removed from multifdsink', fileno)
                 self.close_connection(conn)
-
         fdsink.connect('client-fd-removed', on_disconnect)
+
+        # catch client-removed
+        def on_client_removed(multifdsink, fileno, status):
+            # GST_CLIENT_STATUS_SLOW = 3,
+            if fileno == conn.fileno() and status == 3:
+                self.log.warning('about to remove fd %u from multifdsink '
+                                 'because it is too slow!', fileno)
+        fdsink.connect('client-removed', on_client_removed)

@@ -9,44 +9,33 @@ from lib.args import Args
 
 
 class Blinder(object):
+    # create logging interface
     log = logging.getLogger('Blinder')
 
     def __init__(self):
+
+        # remember some things
         self.acaps = Config.getAudioCaps()
         self.vcaps = Config.getVideoCaps()
-
+        self.volume = Config.getBlinderVolume()
         self.names = Config.getBlinderSources()
-        self.log.info('Configuring Blinder video %u Sources',
+
+        self.log.info('Configuring video blinders for %u sources',
                       len(self.names))
 
-        self.volume = Config.getBlinderVolume()
-
-        # Videomixer
+        # open bin
         self.bin = "" if Args.no_bins else """
             bin.(
                 name=blinder
                 """
 
-        self.bin += """
-                compositor
-                    name=compositor-blinder-mix
-                ! queue
-                    max-size-time=3000000000
-                    name=queue-video-mix-blinded
-                ! tee
-                    name=video-mix-blinded
-
-                video-mix.
-                ! queue
-                    max-size-time=3000000000
-                    name=queue-video-mix-compositor-blinder-mix
-                ! compositor-blinder-mix.
-            """.format(
-                vcaps=self.vcaps,
-            )
-
+        # list blinders
+        blinders = ["mix"]
         if Config.getSlidesSource():
-            # add slides compositor
+            blinders.append(Config.getSlidesSource())
+
+        # add blinder pipelines
+        for blinder in blinders:
             self.bin += """
                 compositor
                     name=compositor-blinder-{name}
@@ -61,9 +50,7 @@ class Blinder(object):
                     max-size-time=3000000000
                     name=queue-video-{name}-compositor-blinder-{name}
                 ! compositor-blinder-{name}.
-                """.format(
-                    name=Config.getSlidesSource()
-                )
+                """.format(name=blinder)
 
         for name in self.names:
             # Source from the named Blank-Video
@@ -73,9 +60,7 @@ class Blinder(object):
                     max-size-time=3000000000
                     name=queue-video-blinder-{name}-compositor-blinder-mix
                 ! compositor-blinder-mix.
-                """.format(
-                    name=name
-                )
+                """.format(name=name)
 
             if Config.getSlidesSource():
                 self.bin += """
@@ -85,15 +70,16 @@ class Blinder(object):
                         name=queue-video-blinder-{name}-compositor-blinder-{name}
                     ! compositor-blinder-{slides}.
                     """.format(
-                        name=name,
-                        slides=Config.getSlidesSource()
-                    )
+                    name=name,
+                    slides=Config.getSlidesSource()
+                )
 
         # Audiomixer
         self.bin += """
             audiomixer
                 name=audiomixer-blinder
             ! queue
+                name=queue-audio-mix-blinded
                 max-size-time=3000000000
             ! tee
                 name=audio-mix-blinded
@@ -101,7 +87,9 @@ class Blinder(object):
             audio-mix.
             ! queue
                 max-size-time=3000000000
-            ! capssetter caps={acaps}
+                name=queue-capssetter-blinder
+            ! capssetter
+                caps={acaps}
             ! queue
                 max-size-time=3000000000
                 name=queue-audiomixer-blinder
@@ -117,6 +105,7 @@ class Blinder(object):
             ! audiomixer-blinder.
             """
 
+        # close bin
         self.bin += "" if Args.no_bins else "\n)\n"
 
         self.blind_source = 0 if len(self.names) > 0 else None
@@ -124,14 +113,15 @@ class Blinder(object):
     def __str__(self):
         return 'Blinder[{}]'.format(','.join(self.names))
 
-    def attach(self,pipeline):
+    def attach(self, pipeline):
         self.pipeline = pipeline
         self.applyMixerState()
 
     def applyMixerState(self):
         self.applyMixerStateVideo('compositor-blinder-mix')
         if Config.getSlidesSource():
-            self.applyMixerStateVideo('compositor-blinder-{}'.format(Config.getSlidesSource()))
+            self.applyMixerStateVideo(
+                'compositor-blinder-{}'.format(Config.getSlidesSource()))
         self.applyMixerStateAudio('audiomixer-blinder')
 
     def applyMixerStateVideo(self, mixername):
@@ -139,18 +129,22 @@ class Blinder(object):
         if not mixer:
             self.log.error("Video mixer '%s' not found", mixername)
         else:
-            mixer.get_static_pad('sink_0').set_property('alpha', int(self.blind_source is None))
+            mixer.get_static_pad('sink_0').set_property(
+                'alpha', int(self.blind_source is None))
             for idx, name in enumerate(self.names):
                 blinder_pad = mixer.get_static_pad('sink_%u' % (idx + 1))
-                blinder_pad.set_property('alpha', int(self.blind_source == idx))
+                blinder_pad.set_property(
+                    'alpha', int(self.blind_source == idx))
 
     def applyMixerStateAudio(self, mixername):
         mixer = self.pipeline.get_by_name(mixername)
         if not mixer:
             self.log.error("Audio mixer '%s' not found", mixername)
         else:
-            mixer.get_static_pad('sink_0').set_property('volume', 1.0 if self.blind_source is None else 0.0)
-            mixer.get_static_pad('sink_1').set_property('volume', 0.0 if self.blind_source is None else 1.0)
+            mixer.get_static_pad('sink_0').set_property(
+                'volume', 1.0 if self.blind_source is None else 0.0)
+            mixer.get_static_pad('sink_1').set_property(
+                'volume', 0.0 if self.blind_source is None else 1.0)
 
     def setBlindSource(self, source):
         self.blind_source = source
