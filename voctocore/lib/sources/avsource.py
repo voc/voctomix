@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import logging
 from abc import ABCMeta, abstractmethod
+from gi.repository import GLib
 
 from lib.config import Config
 from lib.args import Args
@@ -8,24 +9,40 @@ from lib.args import Args
 
 class AVSource(object, metaclass=ABCMeta):
 
-    def __init__(self, class_name, name,
-                 has_audio=True, has_video=True,
-                 num_streams=None, show_no_signal=False):
+    def __init__(self,
+                 class_name,
+                 name,
+                 has_audio=True,
+                 has_video=True,
+                 num_streams=None,
+                 show_no_signal=False):
+        # create logging interface
         self.log = logging.getLogger("%s[%s]" % (class_name, name))
 
+        # make sure we have at least something
         assert has_audio or has_video
 
+        # remember things
         self.class_name = class_name
         self.name = name
         self.has_audio = has_audio
         self.has_video = has_video
+        # fetch audio streams from config (different for blinder source)
         if name == "blinder":
             self.audio_streams = Config.getBlinderAudioStreams()
         else:
             self.audio_streams = Config.getAudioStreams()
-        self.show_no_signal = show_no_signal
-        self.inputSink = None
-        self.bin = ""
+        # remember if we shall show no-signal underlay
+        self.show_no_signal = show_no_signal and Config.getNoSignal()
+
+        # maybe initialize no signal watch dog
+        if self.show_no_signal:
+            # check if we have video to show no-signal message
+            assert self.has_video
+            # set timeout at which we check for signal loss
+            GLib.timeout_add(self.timer_resolution * 1000, self.do_timeout)
+            # this might get attached to the no-signal compositor's input sink
+            self.noSignalSink = None
 
     @abstractmethod
     def __str__(self):
@@ -33,10 +50,10 @@ class AVSource(object, metaclass=ABCMeta):
             '__str__ not implemented for this source')
 
     def attach(self, pipeline):
-        if self.show_no_signal and Config.getNoSignal():
-            if self.has_video:
-                self.inputSink = pipeline.get_by_name(
-                    'compositor-{}'.format(self.name)).get_static_pad('sink_1')
+        if self.show_no_signal:
+            # attach self.noSignalSink to no-signal compositor
+            self.noSignalSink = pipeline.get_by_name(
+                'compositor-{}'.format(self.name)).get_static_pad('sink_1')
 
     def build_pipeline(self):
         self.bin = "" if Args.no_bins else """
@@ -194,13 +211,20 @@ class AVSource(object, metaclass=ABCMeta):
 
     @abstractmethod
     def port(self):
-        assert False, "port() not implemented in %s" % self.name
+        raise NotImplementedError("port() not implemented in %s" % self.name)
 
     def build_audioport(self):
-        assert False, "build_audioport() not implemented in %s" % self.name
+        raise None
 
     def build_videoport(self):
-        assert False, "build_videoport() not implemented in %s" % self.name
+        raise None
 
     def get_nosignal_text(self):
         return "NO SIGNAL\n" + self.name.upper()
+
+    def do_timeout(self):
+        if self.noSignalSink:
+            self.noSignalSink.set_property(
+                'alpha', 1.0 if self.num_connections() > 0 else 0.0)
+        # just come back
+        return True

@@ -2,8 +2,6 @@
 import logging
 import re
 
-from gi.repository import Gst, GLib
-
 from lib.config import Config
 from lib.sources.avsource import AVSource
 
@@ -32,14 +30,6 @@ class DeckLinkAVSource(AVSource):
         super().attach(pipeline)
         self.signalPad = pipeline.get_by_name(
             'decklinkvideosrc-{}'.format(self.name))
-        GLib.timeout_add(self.timer_resolution * 1000, self.do_timeout)
-
-    def do_timeout(self):
-        if self.inputSink:
-            self.inputSink.set_property(
-                'alpha', 1.0 if self.num_connections() > 0 else 0.0)
-        # just come back
-        return True
 
     def num_connections(self):
         return 1 if self.signalPad and self.signalPad.get_property('signal') else 0
@@ -69,7 +59,9 @@ class DeckLinkAVSource(AVSource):
                        fmt=self.vfmt
                        )
 
+        # add rest of the video pipeline
         if self.has_video:
+            # maybe add deinterlacer
             if self.build_deinterlacer():
                 pipe += """\
                     ! {deinterlacer}
