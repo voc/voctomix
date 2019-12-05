@@ -19,7 +19,7 @@ class V4l2AVSource(AVSource):
         self.width = Config.getV4l2Width(name)
         self.height = Config.getV4l2Height(name)
         self.framerate = Config.getV4l2Framerate(name)
-        self.format=Config.getV4l2Format(name)
+        self.format = Config.getV4l2Format(name)
         self.name = name
         self.signalPad = None
 
@@ -55,30 +55,28 @@ class V4l2AVSource(AVSource):
 
     def build_source(self):
         pipe = """
-    v4l2src
-        device={device}
-""".format(device=self.device)
+            v4l2src
+                device={device}
+            """.format(device=self.device)
 
         pipe += """\
-    ! video/x-raw,width={width},height={height},format={format},framerate={framerate}
-""".format(width=self.width,
-           height=self.height,
-           format=self.format,
-           framerate=self.framerate)
+            ! video/x-raw,width={width},height={height},format={format},framerate={framerate}
+            """.format(width=self.width,
+                       height=self.height,
+                       format=self.format,
+                       framerate=self.framerate)
 
         if self.build_deinterlacer():
             pipe += """\
-    ! {deinterlacer}
-""".format(deinterlacer=self.build_deinterlacer())
+                ! {deinterlacer}
+                """.format(deinterlacer=self.build_deinterlacer())
 
         pipe += """\
-    ! videoconvert
-    ! videoscale
-    ! videorate
-        name=vout-{name}
-""".format(
-            name=self.name
-        )
+            ! videoconvert
+            ! videoscale
+            ! videorate
+                name=vout-{name}
+        """.format(name=self.name)
 
         return pipe
 
