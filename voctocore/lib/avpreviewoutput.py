@@ -129,7 +129,7 @@ class AVPreviewOutput(TCPMultiConnection):
         vaapi = Config.getPreviewVaapi()
 
         # generate pipeline
-        return """  capsfilter
+        return """  ! capsfilter
                         caps=video/x-raw,interlace-mode=progressive
                     ! vaapipostproc
                         format=i420
