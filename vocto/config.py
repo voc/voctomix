@@ -140,9 +140,6 @@ class VocConfigParser(SafeConfigParser):
             self.log.error("source attribute 'deinterlace' is obsolete. Use 'scan' instead! Falling back to 'progressive' scheme")
         return self.get(section, 'scan', fallback='progressive')
 
-    def getVolume(self, source):
-        return self.getfloat("source.{}".format(source), 'volume', fallback=0.0)
-
     def getAudioStreams(self):
         audio_streams = AudioStreams()
         sources = self.getSources()

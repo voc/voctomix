@@ -15,27 +15,10 @@ class AudioMix(object):
         self.audio_streams = Config.getAudioStreams()
         self.streams = self.audio_streams.get_stream_names()
         # initialize all sources to silent
-        self.volumes = [0.0] * len(self.streams)
+        self.volumes = [1.0] * len(self.streams)
 
         self.log.info('Configuring audio mixer for %u streams',
                       len(self.streams))
-
-        # try per-source volume-setting
-        for index, stream in enumerate(self.streams):
-            self.volumes[index] = Config.getVolume(stream)
-            self.log.info('Setting volume of stream %s to %0.2f',
-                          stream, self.volumes[index])
-
-        if self.isConfigured():
-            self.log.info(
-                'Volume was configured, advising ui not to show a selector')
-            Config.setShowVolume(False)
-        elif self.audio_streams:
-            self.log.info('Setting volume of first stream %s to %0.2f',
-                          self.audio_streams[0].name, 1.0)
-            self.volumes[0] = 1.0
-        else:
-            self.log.info('No audio capable kind of source found!')
 
         self.mix_volume = 1.0
 
