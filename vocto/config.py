@@ -296,8 +296,11 @@ class VocConfigParser(SafeConfigParser):
 
     def getLivePreviews(self):
         if self.getBlinderEnabled():
-            if self.get('previews', 'live').lower() in [ "true", "yes" ]:
+            singleval = self.get('previews', 'live').lower()
+            if singleval in [ "true", "yes" ]:
                 return ["mix"]
+            elif singleval == "all":
+                return self.getLiveSources()
             else:
                 return self.getList('previews', 'live')
         else:
