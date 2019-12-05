@@ -25,7 +25,6 @@ class Port(object):
     SOURCES_PREVIEW = SOURCES_OUT+OFFSET_PREVIEW
     LIVE_OUT = 15000
     LIVE_PREVIEW = LIVE_OUT+OFFSET_PREVIEW
-    SLIDES_LIVE_OUT = 15001
 
     def __init__(self, name, source=None, audio=None, video=None):
         self.name = name

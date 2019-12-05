@@ -34,9 +34,9 @@ class AVRawOutput(TCPMultiConnection):
                 """.format(source=self.source)
 
         # audio pipeline
-        if source in Config.getAudioSources(internal=True):
+        if use_audio_mix or source in Config.getAudioSources(internal=True):
             self.bin += """
-                {use_audio}audio-{source}.
+                {use_audio}audio-{audio_source}.
                 ! queue
                     max-size-time=3000000000
                     name=queue-audio-mix-convert-{source}
@@ -47,6 +47,7 @@ class AVRawOutput(TCPMultiConnection):
                 ! mux-{source}.
                 """.format(
                 source=self.source,
+                audio_source="mix-blinded" if use_audio_mix else self.source,
                 use_audio="" if use_audio_mix else "source-"
             )
 

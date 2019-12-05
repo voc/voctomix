@@ -59,8 +59,8 @@ class VocConfigParser(SafeConfigParser):
     def getAudioSource(self):
         return self.get('mix', 'audiosource', fallback=None)
 
-    def getSlidesSource(self):
-        return self.get('mix', 'slides_source_name', fallback=None)
+    def getLiveSources(self):
+        return ["mix"] + self.getList('mix', 'livesources')
 
     def getSourceKind(self, source):
         return self.get('source.{}'.format(source), 'kind', fallback='test')
