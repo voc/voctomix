@@ -15,9 +15,6 @@ class AVPreviewOutput(TCPMultiConnection):
         super().__init__(port)
 
         self.source = source
-        self.audio_sources = Config.getAudioSources()
-        self.audio_sources.append('mix')
-        self.audio_sources.append('mix-blinded')
 
         self.bin = "" if Args.no_bins else """
             bin.(
@@ -40,7 +37,8 @@ class AVPreviewOutput(TCPMultiConnection):
                            vcaps=Config.getVideoCaps()
                            )
 
-        if source in self.audio_sources:
+        # audio pipeline
+        if source in Config.getAudioSources(internal=True):
             self.bin += """
                     {use_audio}audio-{source}.
                     ! queue

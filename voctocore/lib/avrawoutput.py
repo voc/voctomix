@@ -29,8 +29,8 @@ class AVRawOutput(TCPMultiConnection):
             source=self.source
         )
 
-        self.has_audio = has_audio
-        if has_audio:
+        # audio pipeline
+        if source in Config.getAudioSources(internal=True):
             self.bin += """
                 {use_audio}audio-{source}.
                 ! queue
