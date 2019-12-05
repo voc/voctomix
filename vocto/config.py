@@ -302,7 +302,14 @@ class VocConfigParser(SafeConfigParser):
             elif singleval == "all":
                 return self.getLiveSources()
             else:
-                return self.getList('previews', 'live')
+                previews = self.getList('previews', 'live')
+                result = []
+                for preview in previews:
+                    if preview not in self.getLiveSources():
+                        self.log.error("source '{}' configured in 'preview/live' must be listed in 'mix/livesources'!".format(preview));
+                    else:
+                        result += preview
+                return result
         else:
             self.log.warning("configuration attribute 'preview/live' is set but blinder is not in use!");
             return False
