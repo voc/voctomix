@@ -45,13 +45,16 @@ class VocConfigParser(SafeConfigParser):
 
     log = logging.getLogger('VocConfigParser')
 
-    def getList(self, section, option):
-        option = self.get(section, option).strip()
-        if len(option) == 0:
-            return []
+    def getList(self, section, option, fallback=None):
+        if self.has_option(section, option):
+            option = self.get(section, option).strip()
+            if len(option) == 0:
+                return []
 
-        unfiltered = [x.strip() for x in option.split(',')]
-        return list(filter(None, unfiltered))
+            unfiltered = [x.strip() for x in option.split(',')]
+            return list(filter(None, unfiltered))
+        else:
+            return fallback
 
     def getSources(self):
         return self.getList('mix', 'sources')
@@ -60,7 +63,7 @@ class VocConfigParser(SafeConfigParser):
         return self.get('mix', 'audiosource', fallback=None)
 
     def getLiveSources(self):
-        return ["mix"] + self.getList('mix', 'livesources')
+        return ["mix"] + self.getList('mix', 'livesources', [])
 
     def getSourceKind(self, source):
         return self.get('source.{}'.format(source), 'kind', fallback='test')
