@@ -259,10 +259,15 @@ class VoctocoreConfigParser(VocConfigParser):
         else:
             return 300
 
-    def getAudioSources(self):
+    def getAudioSources(self, internal=False):
         def source_has_audio(source):
             return kind_has_audio(self.getSourceKind(source))
-        return list(filter(source_has_audio,self.getSources()))
+        sources = self.getSources()
+        if internal:
+            sources += ['mix']
+            if self.getBlinderEnabled():
+                sources += ['blinder', 'mix-blinded']
+        return list(filter(source_has_audio, sources))
 
 
 def load():
