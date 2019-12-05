@@ -66,6 +66,7 @@ class AVSource(object, metaclass=ABCMeta):
                         source-audio-{name}.
                         ! queue
                             max-size-time=3000000000
+                            name=queue-source-audio-fakesink-{name}
                         ! fakesink
                             async=false
                         """.format(name=self.name)
@@ -84,6 +85,7 @@ class AVSource(object, metaclass=ABCMeta):
                             matrix="{matrix}"
                         ! {acaps}
                         ! queue
+                            name=queue-audio-{stream}
                             max-size-time=3000000000
                         ! tee
                             name=audio-{stream}
