@@ -39,8 +39,6 @@ GST_TYPE_VIDEO_TEST_SRC_PATTERN = [
     "colors"
 ]
 
-DEFAULT_BLINDER_SOURCE = "INTERMISSION"
-
 class VocConfigParser(SafeConfigParser):
 
     log = logging.getLogger('VocConfigParser')
@@ -122,7 +120,7 @@ class VocConfigParser(SafeConfigParser):
     def getTestPattern(self, source):
         if not self.has_section('source.{}'.format(source)):
             # default blinder source shall be smpte (if not defined otherwise)
-            if source == "blinder-" + DEFAULT_BLINDER_SOURCE:
+            if source == "blinder":
                 return "smpte"
             # default background source shall be black (if not defined otherwise)
             if source == "background":
@@ -226,14 +224,17 @@ class VocConfigParser(SafeConfigParser):
             self.log.error("configuration section 'stream-blanker' is obsolete and will be ignored! Use 'blinder' instead!");
         return self.getboolean('blinder', 'enabled', fallback=False)
 
+    def isBlinderDefault(self):
+        return self.has_option('blinder', 'sources')
+
     def getBlinderSources(self):
         if self.getBlinderEnabled():
             if self.has_section('stream-blanker'):
                 self.log.error("configuration section 'stream-blanker' is obsolete and will be ignored! Use 'blinder' instead!");
-            if self.has_option('blinder', 'sources'):
+            if self.isBlinderDefault():
                 return self.getList('blinder', 'sources')
             else:
-                return [DEFAULT_BLINDER_SOURCE]
+                return ["blinder"]
         else:
             return []
 

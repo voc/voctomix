@@ -92,18 +92,24 @@ class Pipeline(object):
                 raise RuntimeError('At least one Blinder-Source must '
                                    'be configured or the '
                                    'Blinder disabled!')
-            for idx, source_name in enumerate(sources):
-                source = spawn_source('blinder-{}'.format(source_name),
-                                      Port.SOURCES_BLANK + idx,
-                                      has_audio=False)
+            if Config.isBlinderDefault():
+                source = spawn_source('blinder',
+                                      Port.SOURCES_BLANK)
                 self.bins.append(source)
-                self.ports.append(Port('blinded-{}'.format(source_name), source))
+                self.ports.append(Port('blinder', source))
+            else:
+                for idx, source_name in enumerate(sources):
+                    source = spawn_source('blinder-{}'.format(source_name),
+                                          Port.SOURCES_BLANK + idx,
+                                          has_audio=False)
+                    self.bins.append(source)
+                    self.ports.append(Port('blinded-{}'.format(source_name), source))
 
-            source = spawn_source('blinder',
-                                  Port.AUDIO_SOURCE_BLANK,
-                                  has_video=False)
-            self.bins.append(source)
-            self.ports.append(Port('blinder-audio', source))
+                source = spawn_source('blinder',
+                                      Port.AUDIO_SOURCE_BLANK,
+                                      has_video=False)
+                self.bins.append(source)
+                self.ports.append(Port('blinder-audio', source))
 
             self.log.info('Creating Blinder')
             self.blinder = Blinder()
