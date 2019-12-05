@@ -92,6 +92,7 @@ class AVPreviewOutput(TCPMultiConnection):
             return self.construct_native_video_pipeline()
 
     def construct_vaapi_video_pipeline(self):
+        # https://blogs.igalia.com/vjaquez/2016/04/06/gstreamer-vaapi-1-8-the-codec-split/
         if Gst.version() < (1, 8):
             vaapi_encoders = {
                 'h264': 'vaapiencode_h264',
@@ -122,17 +123,15 @@ class AVPreviewOutput(TCPMultiConnection):
 
         # generate pipeline
         return """  capsfilter
-                        caps=video/x-raw
-                        interlace-mode=progressive
-                    !
+                        caps=video/x-raw,interlace-mode=progressive
+                    ! vaapipostproc
                         format=i420
                         deinterlace-mode={imode}
                         deinterlace-method=motion-adaptive
                         width={width}
                         height={height}
                     ! capssetter
-                        caps=video/x-raw
-                        framerate={n}/{d}
+                        caps=video/x-raw,framerate={n}/{d}
                     ! {encoder}
                         {options}
                     """.format(imode='interlaced' if Config.getDeinterlacePreviews() else 'disabled',
