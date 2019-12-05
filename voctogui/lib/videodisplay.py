@@ -6,8 +6,10 @@ from gi.repository import Gst, Gdk
 from lib.args import Args
 from lib.config import Config
 from lib.clock import Clock
+
 from vocto.port import Port
 from vocto.debug import gst_generate_dot
+from vocto.pretty import pretty
 
 
 class VideoDisplay(object):
@@ -23,16 +25,16 @@ class VideoDisplay(object):
 
         # Setup Server-Connection, Demuxing and Decoding
         pipe = """
-tcpclientsrc
-    name=tcpsrc-{name}
-    host={host}
-    port={port}
-    blocksize=1048576
-! matroskademux
-    name=demux-{name}
-""".format(name=name,
-           host=Config.getHost(),
-           port=port)
+            tcpclientsrc
+                name=tcpsrc-{name}
+                host={host}
+                port={port}
+                blocksize=1048576
+            ! matroskademux
+                name=demux-{name}
+                """.format(name=name,
+                           host=Config.getHost(),
+                           port=port)
 
         if Config.getPreviewsEnabled():
             self.log.info('using encoded previews instead of raw-video')
@@ -53,73 +55,69 @@ tcpclientsrc
                 video_decoder = vaapi_decoders[Config.getPreviewDecoder()]
             else:
                 cpu_decoders = {
-                    'h264': 'video/x-h264 ! avdec_h264',
-                    'jpeg': 'image/jpeg ! jpegdec',
-                    'mpeg2': 'video/mpeg,mpegversion=2 ! mpeg2dec'
+                    'h264': 'video/x-h264\n! avdec_h264',
+                    'jpeg': 'image/jpeg\n! jpegdec',
+                    'mpeg2': 'video/mpeg\nmpegversion=2\n! mpeg2dec'
                 }
 
                 video_decoder = cpu_decoders[Config.getPreviewDecoder()]
 
             pipe += """
-demux-{name}.
-! queue
-    name=queue-video-{name}
-! {video_decoder}
-""".format(name=name,
-           video_decoder=video_decoder)
-            
+                demux-{name}.
+                ! queue
+                    name=queue-video-{name}
+                ! {video_decoder}
+                """.format(name=name,
+                           video_decoder=video_decoder)
+
         else:
             video_decoder = None
             preview_caps = 'video/x-raw'
             self.log.info('using raw-video instead of encoded-previews')
             pipe += """
-demux-{name}.
-! queue
-    name=queue-video-{name}
-! {previewcaps}
-""".format(name=name,
-                previewcaps=preview_caps,
-                vcaps=Config.getVideoCaps())
+                demux-{name}.
+                ! queue
+                    name=queue-video-{name}
+                ! {previewcaps}
+                """.format(name=name,
+                           previewcaps=preview_caps,
+                           vcaps=Config.getVideoCaps())
 
         if Config.getPreviewNameOverlay() and name:
             pipe += """\
-! textoverlay
-    name=title-{name}
-    text=\"{name}\"
-    valignment=bottom
-    halignment=center
-    shaded-background=yes
-    font-desc="Roboto, 22"
-""".format(name=name)
+                ! textoverlay
+                    name=title-{name}
+                    text=\"{name}\"
+                    valignment=bottom
+                    halignment=center
+                    shaded-background=yes
+                    font-desc="Roboto, 22"
+                """.format(name=name)
 
         # Video Display
         videosystem = Config.getVideoSystem()
         self.log.debug('Configuring for Video-System %s', videosystem)
 
-        pipe += """
-! videoconvert
-! videoscale
-"""
+        pipe += """ ! videoconvert
+                    ! videoscale
+                    """
 
         if videosystem == 'gl':
-            pipe += """
-! glupload
-! glcolorconvert
-! glimagesinkelement
-    name=imagesink-{name}
-                """.format(name=name)
+            pipe += """ ! glupload
+                        ! glcolorconvert
+                        ! glimagesinkelement
+                            name=imagesink-{name}
+                            """.format(name=name)
 
         elif videosystem == 'xv':
-            pipe += """
-! xvimagesink
-    name=imagesink-{name}
-""".format(name=name)
+            pipe += """ ! xvimagesink
+                            name=imagesink-{name}
+                        """.format(name=name)
 
         elif videosystem == 'x':
-            pipe += """
-! ximagesink
-    name=imagesink-{name}
-""".format(name=name)
+            pipe += """ ! ximagesink
+                            name=imagesink-{name}
+                        """.format(name=name)
         else:
             raise Exception(
                 'Invalid Videodisplay-System configured: %s' % videosystem
@@ -127,31 +125,29 @@ demux-{name}.
 
         # add an Audio-Path through a level-Element
         pipe += """
-demux-{name}.
-! queue
-    name=queue-audio-{name}
-! level
-    name=lvl
-    interval=50000000
-! audioconvert
-"""
+            demux-{name}.
+            ! queue
+                name=queue-audio-{name}
+            ! level
+                name=lvl
+                interval=50000000
+            ! audioconvert
+            """
 
         # If Playback is requested, push fo pulseaudio
         if play_audio:
-            pipe +="""
-! pulsesink
-    name=audiosink-{name}
-"""
+            pipe += """ ! pulsesink
+                            name=audiosink-{name}
+                        """
         else:
-            pipe +="""
-! fakesink
-"""
+            pipe += """ ! fakesink
+                        """
         pipe = pipe.format(name=name,
                            acaps=Config.getAudioCaps(),
                            port=port,
                            )
 
-        self.log.info("Creating Display-Pipeline:\n%s",  pipe)
+        self.log.info("Creating Display-Pipeline:\n%s",  pretty(pipe))
         try:
             # launch gstreamer pipeline
             self.pipeline = Gst.parse_launch(pipe)

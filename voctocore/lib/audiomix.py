@@ -69,11 +69,6 @@ class AudioMix(object):
                 name=queue-audio-mix
             ! tee
                 name=audio-mix
-            ! queue
-                max-size-time=3000000000
-                name=queue-source-audio-mix
-            ! tee
-                name=source-audio-mix
             """.format(in_channels=channels,
                        out_channels=channels,
                        matrix=identity())

@@ -68,10 +68,11 @@ class Ui(UiBuilder):
         if Config.getPreviewsEnabled():
             for idx, source in enumerate(Config.getSources()):
                 self.video_previews.addPreview(self, source,
-                                                          Port.SOURCES_PREVIEW + idx)
+                                               Port.SOURCES_PREVIEW + idx)
         elif Config.getMirrorsEnabled():
             for idx, source in enumerate(Config.getMirrorsSources()):
-                self.video_previews.addPreview(self, source, Port.SOURCES_OUT + idx)
+                self.video_previews.addPreview(
+                    self, source, Port.SOURCES_OUT + idx)
         else:
             self.log.warning(
                 'Can not show source previews because neither previews nor mirrors are enabled (see previews/enabled and mirrors/enabled in core configuration)')
@@ -86,11 +87,13 @@ class Ui(UiBuilder):
             name="MIX"
         )
 
-        if Config.getLivePreviewEnabled():
+        for idx, livepreview in enumerate(Config.getLivePreviews()):
             if Config.getPreviewsEnabled():
-                self.video_previews.addPreview(self, "live", Port.LIVE_PREVIEW, has_volume=False)
+                self.video_previews.addPreview(
+                    self, '{}-live'.format(livepreview), Port.LIVE_PREVIEW + idx, has_volume=False)
             else:
-                self.video_previews.addPreview(self, "live", Port.LIVE_OUT, has_volume=False)
+                self.video_previews.addPreview(
+                    self, '{}-live'.format(livepreview), Port.LIVE_OUT + idx, has_volume=False)
 
         self.preview_toolbar_controller = PreviewToolbarController(
             win=self.win,

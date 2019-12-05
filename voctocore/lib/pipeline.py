@@ -110,10 +110,11 @@ class Pipeline(object):
             self.bins.append(self.blinder)
 
             # check for source preview selection
-            if Config.getPreviewsEnabled() and Config.getLivePreviewEnabled():
-                dest = AVPreviewOutput('mix-blinded', Port.LIVE_PREVIEW, use_audio_mix=True)
-                self.bins.append(dest)
-                self.ports.append(Port("preview-live", dest))
+            if Config.getPreviewsEnabled():
+                for idx, livepreview in enumerate(Config.getLivePreviews()):
+                    dest = AVPreviewOutput('{}-blinded'.format(livepreview), Port.LIVE_PREVIEW+idx, use_audio_mix=True)
+                    self.bins.append(dest)
+                    self.ports.append(Port('preview-{}-live'.format(livepreview), dest))
 
             for idx, livesource in enumerate(Config.getLiveSources()):
                 dest = AVRawOutput('{}-blinded'.format(livesource), Port.LIVE_OUT + idx, use_audio_mix=True )

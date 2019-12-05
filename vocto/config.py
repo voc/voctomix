@@ -294,9 +294,12 @@ class VocConfigParser(SafeConfigParser):
     def getPreviewsEnabled(self):
         return self.getboolean('previews', 'enabled', fallback=False)
 
-    def getLivePreviewEnabled(self):
+    def getLivePreviews(self):
         if self.getBlinderEnabled():
-            return self.getboolean('previews', 'live', fallback=False)
+            if self.get('previews', 'live').lower() in [ "true", "yes" ]:
+                return ["mix"]
+            else:
+                return self.getList('previews', 'live')
         else:
             self.log.warning("configuration attribute 'preview/live' is set but blinder is not in use!");
             return False

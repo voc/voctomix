@@ -44,15 +44,21 @@ class AVPreviewOutput(TCPMultiConnection):
                            )
 
         # audio pipeline
-        if source in Config.getAudioSources(internal=True):
+        if use_audio_mix or source in Config.getAudioSources(internal=True):
             self.bin += """
-                    {use_audio}audio-{source}.
+                    {use_audio}audio-{audio_source}.
                     ! queue
                         max-size-time=3000000000
                         name=queue-preview-audio-{source}
+                    ! audioconvert
+                    ! queue
+                        max-size-time=3000000000
+                        name=queue-mux-preview-audio-{source}
                     ! mux-preview-{source}.
                     """.format(source=self.source,
-                               use_audio="" if use_audio_mix else "source-")
+                               use_audio="" if use_audio_mix else "source-",
+                               audio_source="mix-blinded" if use_audio_mix else self.source
+                               )
 
         # playout pipeline
         self.bin += """
@@ -133,15 +139,14 @@ class AVPreviewOutput(TCPMultiConnection):
                     ! capssetter
                         caps=video/x-raw,framerate={n}/{d}
                     ! {encoder}
-                        {options}
-                    """.format(imode='interlaced' if Config.getDeinterlacePreviews() else 'disabled',
-                               width=size[0],
-                               height=size[1],
-                               encoder=vaapi_encoders[vaapi],
-                               options=vaapi_encoder_options[vaapi],
-                               n=framerate[0],
-                               d=framerate[1],
-                               )
+                        {options}""".format(imode='interlaced' if Config.getDeinterlacePreviews() else 'disabled',
+                                            width=size[0],
+                                            height=size[1],
+                                            encoder=vaapi_encoders[vaapi],
+                                            options=vaapi_encoder_options[vaapi],
+                                            n=framerate[0],
+                                            d=framerate[1],
+                                            )
 
     def construct_native_video_pipeline(self):
         # maybe add deinterlacer
@@ -157,8 +162,7 @@ class AVPreviewOutput(TCPMultiConnection):
                         ! videoscale
                         ! {vcaps}
                         ! jpegenc
-                            quality = 90
-                        """.format(vcaps=Config.getPreviewCaps())
+                            quality = 90""".format(vcaps=Config.getPreviewCaps())
         return pipeline
 
     def attach(self, pipeline):

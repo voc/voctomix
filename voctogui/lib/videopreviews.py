@@ -33,9 +33,7 @@ class VideoPreviewsController(object):
         win.add_accel_group(accelerators)
 
         # count number of previews
-        num_previews = len(Config.getSources())
-        if Config.getLivePreviewEnabled():
-            num_previews += 1
+        num_previews = len(Config.getSources()) + len(Config.getLivePreviews())
 
         # get preview size
         self.previewSize = Config.getPreviewSize()
