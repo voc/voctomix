@@ -66,6 +66,8 @@ class Blinder(object):
         self.bin += """
             audiomixer
                 name=audiomixer-blinder
+            ! audioamplify
+                amplification={volume}
             ! queue
                 name=queue-audio-mix-blinded
                 max-size-time=3000000000
@@ -82,7 +84,9 @@ class Blinder(object):
                 max-size-time=3000000000
                 name=queue-audiomixer-blinder
             ! audiomixer-blinder.
-            """.format(acaps=self.acaps)
+            """.format(acaps=self.acaps,
+                       volume=Config.getBlinderVolume()
+                       )
 
         # Source from the Blank-Audio-Tee into the Audiomixer
         self.bin += """

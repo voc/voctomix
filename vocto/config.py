@@ -235,7 +235,7 @@ class VocConfigParser(SafeConfigParser):
             return []
 
     def getBlinderVolume(self):
-        return self.getfloat('blinder', 'volume', fallback=0.0)
+        return self.getfloat('source.blinder', 'volume', fallback=1.0)
 
     def getMirrorsEnabled(self):
         return self.getboolean('mirrors', 'enabled', fallback=False)
