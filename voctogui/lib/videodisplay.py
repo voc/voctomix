@@ -118,6 +118,12 @@ class VideoDisplay(object):
             pipe += """ ! ximagesink
                             name=imagesink-{name}
                         """.format(name=name)
+
+        elif videosystem == 'vaapi':
+            pipe += """ ! vaapisink
+                            name=imagesink-{name}
+                        """.format(name=name)
+
         else:
             raise Exception(
                 'Invalid Videodisplay-System configured: %s' % videosystem
