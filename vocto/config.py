@@ -232,7 +232,7 @@ class VocConfigParser(SafeConfigParser):
             if self.has_section('stream-blanker'):
                 self.log.error("configuration section 'stream-blanker' is obsolete and will be ignored! Use 'blinder' instead!");
             if self.isBlinderDefault():
-                return self.getList('blinder', 'sources')
+                return self.getList('blinder', 'videos')
             else:
                 return ["blinder"]
         else:
