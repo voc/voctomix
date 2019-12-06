@@ -213,9 +213,59 @@ file=/opt/voc/share/bg.png
 
 The background source is **video only** and so any audio sources will be ignored.
 
-#### Blinding Video Sources
+#### Blinding Sources (Video and Audio)
 
-#### Blinding Audio Source
+The blinder (fka stream-blanker) blinds all live outputs.
+You can activate the blinder in the configuration like that:
+
+```
+[blinder]
+enable=true
+```
+
+By default the blinder generates a Gstreamer test source which shows a SMPTE pattern.
+But you have several options to define your own blinder sources:
+
+##### A/V Blinding Source
+
+If you like to set up a custom blinding source you have to configure a source that is named `blinder`:
+
+```
+[blinder]
+enable=true
+
+[source.blinder]
+kind=test
+pattern=black
+volume=0.0
+```
+
+This would define a blinder source that is a black screen with silent audio.
+But you can use any other source kind too.
+
+##### Separated Audio and Video Blinding Source
+
+Another way to define binding sources is to configure one audio source and one or more video sources.
+The blinder then will blind with the one given audio source but you can select between different video sources.
+This is useful if you want to have different video messages which you want to differ (for different day times for example, like having a break at lunch or end of the event or a trouble message.
+If you want to do so, you have to define the audio source within the blinding source and add as many video blinding sources within the `blinder` section:
+
+```
+[blinder]
+enable=true
+videos=break,closed
+
+[source.blinder]
+kind=tcp
+
+[source.break]
+kind=tcp
+
+[source.closed]
+kind=tcp
+```
+
+This will listen at three different ports for the audio source, the break video source and the closed video source.
 
 #### Overlay Sources
 
