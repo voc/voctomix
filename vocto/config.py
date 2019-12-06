@@ -220,8 +220,6 @@ class VocConfigParser(SafeConfigParser):
                 or self.getboolean('audio', 'forcevolumecontrol', fallback=False))
 
     def getBlinderEnabled(self):
-        if self.has_section('stream-blanker'):
-            self.log.error("configuration section 'stream-blanker' is obsolete and will be ignored! Use 'blinder' instead!");
         return self.getboolean('blinder', 'enabled', fallback=False)
 
     def isBlinderDefault(self):
@@ -229,8 +227,6 @@ class VocConfigParser(SafeConfigParser):
 
     def getBlinderSources(self):
         if self.getBlinderEnabled():
-            if self.has_section('stream-blanker'):
-                self.log.error("configuration section 'stream-blanker' is obsolete and will be ignored! Use 'blinder' instead!");
             if self.isBlinderDefault():
                 return self.getList('blinder', 'videos')
             else:
@@ -239,8 +235,6 @@ class VocConfigParser(SafeConfigParser):
             return []
 
     def getBlinderVolume(self):
-        if self.has_section('stream-blanker'):
-            self.log.error("configuration section 'stream-blanker' is obsolete and will be ignored! Use 'blinder' instead!");
         return self.getfloat('blinder', 'volume', fallback=0.0)
 
     def getMirrorsEnabled(self):
