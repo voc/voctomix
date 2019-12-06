@@ -225,7 +225,7 @@ class VocConfigParser(SafeConfigParser):
         return self.getboolean('blinder', 'enabled', fallback=False)
 
     def isBlinderDefault(self):
-        return self.has_option('blinder', 'sources')
+        return self.has_option('blinder', 'videos')
 
     def getBlinderSources(self):
         if self.getBlinderEnabled():
