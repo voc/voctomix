@@ -64,5 +64,6 @@ class VideoPreviewsController(object):
         player = VideoDisplay(video, mix_audio_display, port=port,
                               width=self.previewSize[0],
                               height=self.previewSize[1],
-                              name=source.upper()
+                              name=source.upper(),
+                              play_audio=Config.getPlayAudio()
                               )
