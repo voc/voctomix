@@ -129,10 +129,10 @@ class AVPreviewOutput(TCPMultiConnection):
         vaapi = Config.getPreviewVaapi()
 
         # generate pipeline
+        # we can also force a video format here (format=i420) but this breaks scalling at least on Intel HD3000 therefore it currently removed
         return """  ! capsfilter
                         caps=video/x-raw,interlace-mode=progressive
                     ! vaapipostproc
-                        format=i420
                         deinterlace-mode={imode}
                         deinterlace-method=motion-adaptive
                         width={width}
