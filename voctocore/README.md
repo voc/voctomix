@@ -38,7 +38,7 @@
 		- [Audio Blinding Mixer](#audio-blinding-mixer)
 	- [Filters](#filters)
 		- [Live Source?](#live-source)
-
+- [Installation]
 <!-- /TOC -->
 
 ## Purpose
@@ -312,3 +312,31 @@ The user of **VOC2CORE** can select out of multiple overlays which are described
 ### Filters
 
 #### Live Source?
+
+## Installation
+Currently voc2mix is only works on linux based operating systems. Currently its tested on ubuntu 18.04 and 19.10 as well
+as debian buster. It will probably work on most linux distributions which can satisfy the dependencies below.
+Voc2mix can run on Gstreamer version < 1.8 but at least 1.14 is recommended.
+
+### Ubuntu / Debian
+On ubuntu 18.04 to 19.04 and debian buster the following packages are needed. The python depencies can also be handelt in a venv.
+Both debian and ubuntu provide vocotomix packages which my or may not be outdated. Currently its recommended to check out voc2mix from the git repository.
+
+````
+git clone https://github.com/voc/voctomix.git
+git checkout voctomix2
+````
+
+# Requirements
+````
+sudo apt install gstreamer1.0-plugins-bad gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-ugly gstreamer1.0-tools libgstreamer1.0-0 python3 python3-gi gir1.2-gstreamer-1.0 gir1.2-gst-plugins-base-1.0 python3-sdnotify python3-scipy
+````
+# For vaapi en/decoding
+````
+sudo apt install gstreamer1.0-vaapi
+````
+
+# Optional for the Example-Scripts
+````
+sudo apt install python3-pyinotify gstreamer1.0-libav rlwrap fbset ffmpeg netcat
+````
