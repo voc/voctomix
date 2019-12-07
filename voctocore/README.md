@@ -13,6 +13,7 @@
 			- [TCP Sources](#tcp-sources)
 			- [Decklink Sources](#decklink-sources)
 			- [Image Sources](#image-sources)
+			- [Video4Linux2 Sources](#video4linux2-sources)
 			- [Common Source Attributes](#common-source-attributes)
 		- [Background Video Source](#background-video-source)
 		- [Blinding Video Sources](#blinding-video-sources)
@@ -38,6 +39,9 @@
 		- [Audio Blinding Mixer](#audio-blinding-mixer)
 	- [Filters](#filters)
 		- [Live Source?](#live-source)
+	- [Decoder and Encoder](#decoder-and-encoder)
+	    -[CPU](#cpu)
+	    -[vaapi](#vaapi)
 - [Installation](#installation)
 <!-- /TOC -->
 
@@ -58,6 +62,7 @@ One can use a simple terminal connection to control the mixing process or **VOC2
 * [Matroska](http://www.matroska.org/) enveloped A/V source input via TCP
 * Image sources via URI
 * [Decklink](https://www.blackmagicdesign.com/products/decklink) grabbed A/V sources
+* Video4Linux2 video sources
 * GStreamer generated test sources
 * [Matroska](http://www.matroska.org/) enveloped A/V output via TCP
 * Scaling of input sources to the desired output format
@@ -189,6 +194,32 @@ As you see you can use either `imguri` or `file` to select an image to use.
 | `imguri`           | `http://domain.com/image.jpg`                      | n/a       | use image from URI
 | `file`             | `/opt/voctomix/image.png`                          | n/a       | use image from local file
 
+##### Video4Linux2 Sources
+
+You can use `v4l2` as a source's `kind` if you would like to use video4linux2 devices as video input
+
+````
+[mix]
+sources = cam1,cam2
+
+[source.cam1]
+kind=v4l2
+device=/dev/video2
+width=1280
+height=720
+framerate=10/1
+format=YUY2
+
+````
+
+| Attribute Name     | Example Values                                     | Default     | Description
+| ------------------ | -------------------------------------------------- | ----------- | -----------------------------------------
+| `device`           | `/dev/video0`                                      | /dev/video0 | video4linux2 device to use
+| `width`            | `1280`                                             | 1920        | video width expected from the source
+| `height`           | `720`                                              | 1080        | video height expected from the source
+| `framerate`        | `10/1`                                             | 25/1        | video frame rate expected from the source
+| `format`           | `YUY2`                                             | YUY2        | video format expected from the source
+
 ##### Common Source Attributes
 
 These attributes can be set for all *kinds* of sources:
@@ -287,6 +318,22 @@ The user of **VOC2CORE** can select out of multiple overlays which are described
 
 #### Sources Preview
 
+Source Preview elements are used to encode the different video streams which will be shown in the GUI.
+If previews are not enabled the GUI will use the raw video mirror ports. This only can work if gui and core are running on the same machine.
+```
+[previews]
+enabled = true
+live = true
+vaapi=h264
+videocaps=video/x-raw,width=1024,height=576,framerate=25/1
+```
+
+| Attribute Name     | Example Values                      | Default     | Description
+| ------------------ | ----------------------------------- | ----------- | -----------------------------------------
+| `enable`           | `true`                              | false       | video4linux2 device to use
+| `live`            | `true`                               | false       | video width expected from the source
+| `vaapi`           | `h264`                               |             | h264, mpeg2 and jpeg are supported. If jpeg is used CPU decoding needs to be used ob the gui. 
+
 ### A/V Processing Elements
 
 #### DeMux
@@ -312,6 +359,28 @@ The user of **VOC2CORE** can select out of multiple overlays which are described
 ### Filters
 
 #### Live Source?
+
+## Decoder and Encoder
+Voc2mix needs to encoder and decode video on different place in the pipeline as well as in the GUI.
+Encoding and decoding can consume much time of the CPU. Therefore this tasks can be offloaded to fixed function en-/decoder blocks.
+Probably the most common architecture for this, at least on x86, is Intels VAAPI interface which is is not limited to intel GPUs.
+Most Intel CPUs with build in GPU provide these functions with different feature sets.
+As there is also a penalty one using these as the data needs to be up and downloaded to the GPU the impact of using a offloading in favor of
+CPU en-/decoding differs depending an a number of variables.
+Also the quality that can be expected from offloading differs on the hardware used.
+
+### CPU
+Voc2mix c
+
+### VAAPI
+* https://www.freedesktop.org/wiki/Software/vaapi/
+* https://01.org/linuxmedia/vaapi
+* https://en.wikipedia.org/wiki/Video_Acceleration_API
+
+To use VAAPI with voc2mix on intel GPUs at least a sandy bridge generation CPU is required.
+Voc2mix can use the the vaapi encoder to encode the preview stream for the GUI.
+The GUI it self can use VAAPI to decode the preview streams and also use VAAPI as video system do draw the video to the screen.
+Both can significant reduce the CPU load.
 
 ## Installation
 Currently voc2mix is only works on linux based operating systems. Currently its tested on ubuntu 18.04 and 19.10 as well
