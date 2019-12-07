@@ -332,7 +332,9 @@ videocaps=video/x-raw,width=1024,height=576,framerate=25/1
 | ------------------ | ----------------------------------- | ----------- | -----------------------------------------
 | `enable`           | `true`                              | false       | video4linux2 device to use
 | `live`            | `true`                               | false       | video width expected from the source
-| `vaapi`           | `h264`                               |             | h264, mpeg2 and jpeg are supported. If jpeg is used CPU decoding needs to be used ob the gui. 
+| `vaapi`           | `h264`                               |             | h264, mpeg2 and jpeg are supported. If jpeg is used CPU decoding needs to be used ob the gui.
+| `scale-method`    | 2                                    | 0           | 0: Default scaling mode 1: Fast scaling mode, at the expense of quality 2: High quality scaling mode, at the expense of speed. 
+| `vaapi-denoise`   | true                                 | false       | use VAAPI to denoise the video before encoding it
 
 ### A/V Processing Elements
 

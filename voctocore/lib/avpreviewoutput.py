@@ -127,18 +127,15 @@ class AVPreviewOutput(TCPMultiConnection):
         size = Config.getPreviewResolution()
         framerate = Config.getPreviewFramerate()
         vaapi = Config.getPreviewVaapi()
+        denoise = Config.getDenoiseVaapi()
+        scale_method = Config.getScaleMethodVaapi()
 
         # generate pipeline
-        # we can also force a video format here (format=i420) but this breaks scalling at least on Intel HD3000 therefore it currently removed
+        # we can also force a video format here (format=I420) but this breaks scalling at least on Intel HD3000 therefore it currently removed
         return """  ! capsfilter
                         caps=video/x-raw,interlace-mode=progressive
-                    ! vaapipostproc
-                        deinterlace-mode={imode}
-                        deinterlace-method=motion-adaptive
-                        width={width}
-                        height={height}
-                    ! capssetter
-                        caps=video/x-raw,framerate={n}/{d}
+                    ! vaapipostproc                        
+                    ! video/x-raw,width={width},height={height},framerate={n}/{d},deinterlace-mode={imode},deinterlace-method=motion-adaptive,denoise={denoise},scale-method={scale_method}
                     ! {encoder}
                         {options}""".format(imode='interlaced' if Config.getDeinterlacePreviews() else 'disabled',
                                             width=size[0],
@@ -147,6 +144,8 @@ class AVPreviewOutput(TCPMultiConnection):
                                             options=vaapi_encoder_options[vaapi],
                                             n=framerate[0],
                                             d=framerate[1],
+                                            denoise=denoise,
+                                            scale_method=scale_method,
                                             )
 
     def construct_native_video_pipeline(self):
