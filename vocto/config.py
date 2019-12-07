@@ -257,6 +257,17 @@ class VocConfigParser(SafeConfigParser):
             return self.get('previews', 'vaapi')
         return None
 
+    def getDenoiseVaapi(self):
+        if self.has_option('previews', 'vaapi-denoise'):
+            if self.getboolean('previews', 'vaapi-denoise'):
+                return 1
+        return 0
+
+    def getScaleMethodVaapi(self):
+        if self.has_option('previews', 'scale-method'):
+            return self.getint('previews', 'scale-method')
+        return 0
+
     def getPreviewCaps(self):
         if self.has_option('previews', 'videocaps'):
             return self.get('previews', 'videocaps', fallback='video/x-raw,width=1024,height=576,framerate=25/1')
