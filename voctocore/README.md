@@ -38,7 +38,7 @@
 		- [Audio Blinding Mixer](#audio-blinding-mixer)
 	- [Filters](#filters)
 		- [Live Source?](#live-source)
-- [Installation]
+- [Installation](#installation)
 <!-- /TOC -->
 
 ## Purpose
