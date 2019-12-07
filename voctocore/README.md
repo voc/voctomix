@@ -370,7 +370,7 @@ CPU en-/decoding differs depending an a number of variables.
 Also the quality that can be expected from offloading differs on the hardware used.
 
 ### CPU
-Voc2mix c
+Voc2mix can use all software en-/decoder gstreamer provides. The current code offer h264, mpeg2 and jpeg.
 
 ### VAAPI
 * https://www.freedesktop.org/wiki/Software/vaapi/
@@ -381,6 +381,8 @@ To use VAAPI with voc2mix on intel GPUs at least a sandy bridge generation CPU i
 Voc2mix can use the the vaapi encoder to encode the preview stream for the GUI.
 The GUI it self can use VAAPI to decode the preview streams and also use VAAPI as video system do draw the video to the screen.
 Both can significant reduce the CPU load.
+
+En-/decoding with an NVIDIA GeForce 940MX also seems to work but there are issues when vaapi is also used as video system.
 
 ## Installation
 Currently voc2mix is only works on linux based operating systems. Currently its tested on ubuntu 18.04 and 19.10 as well
