@@ -42,13 +42,11 @@ class VideoDisplay(object):
                 if Gst.version() < (1, 8):
                     vaapi_decoders = {
                         'h264': 'vaapidecode_h264',
-                        'jpeg': 'vaapidecode_jpeg',
                         'mpeg2': 'vaapidecode_mpeg2',
                     }
                 else:
                     vaapi_decoders = {
                         'h264': 'vaapih264dec',
-                        'jpeg': 'vaapijpegdec',
                         'mpeg2': 'vaapimpeg2dec',
                     }
 
