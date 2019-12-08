@@ -270,7 +270,7 @@ class VocConfigParser(SafeConfigParser):
 
     def getPreviewCaps(self):
         if self.has_option('previews', 'videocaps'):
-            return self.get('previews', 'videocaps', fallback='video/x-raw,width=1024,height=576,framerate=25/1')
+            return self.get('previews', 'videocaps')
         else:
             return self.getVideoCaps()
 
