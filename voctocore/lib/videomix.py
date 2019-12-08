@@ -20,8 +20,9 @@ class VideoMix(object):
 
     def __init__(self):
         # read sources from confg file
+        self.bgsources = Config.getBackgroundSources()
         self.sources = Config.getSources()
-        self.log.info('Configuring Mixer for %u Sources', len(self.sources))
+        self.log.info('Configuring mixer for %u source(s) and %u background source(s)', len(self.sources), len(self.bgsources))
 
         # load composites from config
         self.log.info("Reading transitions configuration...")
@@ -30,6 +31,7 @@ class VideoMix(object):
         # load transitions from configuration
         self.transitions = Config.getTransitions(self.composites)
         self.scene = None
+        self.bgscene = None
         self.overlay = None
 
         Config.getAudioStreams()
@@ -72,15 +74,18 @@ class VideoMix(object):
                 max-size-time=3000000000
             ! tee
                 name=video-mix
-
-            video-background.
-            ! queue
-                max-size-time=3000000000
-                name=queue-video-background
-            ! videomixer.
             """.format(
             vcaps=Config.getVideoCaps()
         )
+
+        for idx, background in enumerate(self.bgsources):
+            self.bin += """
+                video-{name}.
+                ! queue
+                    max-size-time=3000000000
+                    name=queue-video-{name}
+                ! videomixer.
+                """.format(name=background)
 
         for idx, name in enumerate(self.sources):
             self.bin += """
@@ -111,7 +116,8 @@ class VideoMix(object):
 
         self.log.debug('Initializing Mixer-State')
         # initialize pipeline bindings for all sources
-        self.scene = Scene(self.sources, pipeline, self.transitions.fps, 1)
+        self.bgscene = Scene(self.bgsources, pipeline, self.transitions.fps, 0, cropping=False)
+        self.scene = Scene(self.sources, pipeline, self.transitions.fps, len(self.bgsources))
         self.compositeMode = None
         self.sourceA = None
         self.sourceB = None
@@ -122,9 +128,10 @@ class VideoMix(object):
             self.overlay = Overlay(
                 pipeline, Config.getOverlayFile(), Config.getOverlayBlendTime())
 
-        bgMixerpad = (pipeline.get_by_name('videomixer')
-                      .get_static_pad('sink_0'))
-        bgMixerpad.set_property('zorder', 0)
+        for idx, background in enumerate(self.bgsources):
+            bgMixerpad = (pipeline.get_by_name('videomixer')
+                          .get_static_pad('sink_%u' % idx))
+            bgMixerpad.set_property('zorder', idx)
 
     def __str__(self):
         return 'VideoMix'

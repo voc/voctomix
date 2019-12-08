@@ -68,11 +68,12 @@ class Pipeline(object):
         self.vmix = VideoMix()
         self.bins.append(self.vmix)
 
-        # create background source
-        source = spawn_source(
-            'background', Port.SOURCE_BACKGROUND, has_audio=False)
-        self.bins.append(source)
-        self.ports.append(Port('background', source))
+        for idx, background in enumerate(Config.getBackgroundSources()):
+            # create background source
+            source = spawn_source(
+                background, Port.SOURCES_BACKGROUND+idx, has_audio=False)
+            self.bins.append(source)
+            self.ports.append(Port(background, source))
 
         # create mix TCP output
         dest = AVRawOutput('mix', Port.MIX_OUT, use_audio_mix=True)

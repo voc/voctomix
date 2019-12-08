@@ -63,6 +63,12 @@ class VocConfigParser(SafeConfigParser):
     def getLiveSources(self):
         return ["mix"] + self.getList('mix', 'livesources', [])
 
+    def getBackgroundSources(self):
+        if self.has_option('mix', 'backgrounds'):
+            return self.getList('mix', 'backgrounds')
+        else:
+            return ["background"]
+
     def getSourceKind(self, source):
         return self.get('source.{}'.format(source), 'kind', fallback='test')
 
@@ -123,7 +129,7 @@ class VocConfigParser(SafeConfigParser):
             if source == "blinder":
                 return "smpte"
             # default background source shall be black (if not defined otherwise)
-            if source == "background":
+            if source in self.getBackgroundSources():
                 return "black"
 
         pattern = self.get('source.{}'.format(source), 'pattern', fallback=None)

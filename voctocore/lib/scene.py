@@ -12,7 +12,7 @@ class Scene:
     """
     log = logging.getLogger('Scene')
 
-    def __init__(self, sources, pipeline, fps, start_sink):
+    def __init__(self, sources, pipeline, fps, start_sink, cropping=True):
         """ initialize with a gstreamer pipeline and names
             of the sources to manage
         """
@@ -20,6 +20,7 @@ class Scene:
         self.frames = dict()
         # binding pads to apply to
         self.pads = dict()
+        self.cpads = dict() if cropping else None
         # time per frame
         self.frame_time = int(Gst.SECOND / fps)
 
@@ -44,12 +45,10 @@ class Scene:
         for idx, source in enumerate(sources):
             # initially invisible
             self.frames[source] = None
-            # get mixer and cropper pad from pipeline
+            # get mixer pad from pipeline
             mixerpad = (pipeline
                         .get_by_name('videomixer')
                         .get_static_pad('sink_%s' % (idx + start_sink)))
-            cropperpad = (pipeline
-                          .get_by_name("cropper-%s" % source))
             # add dictionary of binds to all properties
             # we vary for this source
             self.pads[source] = {
@@ -59,11 +58,17 @@ class Scene:
                 'height': bind(mixerpad, 'height'),
                 'alpha': bind(mixerpad, 'alpha'),
                 'zorder': bind(mixerpad, 'zorder'),
-                'croptop': bind(cropperpad, 'top'),
-                'cropleft': bind(cropperpad, 'left'),
-                'cropbottom': bind(cropperpad, 'bottom'),
-                'cropright': bind(cropperpad, 'right')
             }
+            # get mixer and cropper pad from pipeline
+            if self.cpads:
+                cropperpad = (pipeline
+                              .get_by_name("cropper-%s" % source))
+                self.cpads[source] = {
+                    'croptop': bind(cropperpad, 'top'),
+                    'cropleft': bind(cropperpad, 'left'),
+                    'cropbottom': bind(cropperpad, 'bottom'),
+                    'cropright': bind(cropperpad, 'right')
+                }
         # ready to initialize gstreamer
         self.dirty = False
 
@@ -91,6 +96,7 @@ class Scene:
             time = at_time
             # get GStreamer property pad for this source
             pad = self.pads[source]
+            cpad = self.cpads[source] if self.cpads else None
             self.log.debug("    %s", Frame.str_title())
             # apply all frames of this source to GStreamer pipeline
             for idx, frame in enumerate(frames):
@@ -104,10 +110,11 @@ class Scene:
                 pad['height'].set(time, cropped[B] - cropped[T])
                 pad['alpha'].set(time, alpha)
                 pad['zorder'].set(time, frame.zorder if alpha != 0 else -1)
-                pad['croptop'].set(time, frame.crop[T])
-                pad['cropleft'].set(time, frame.crop[L])
-                pad['cropbottom'].set(time, frame.crop[B])
-                pad['cropright'].set(time, frame.crop[R])
+                if cpad:
+                    cpad['croptop'].set(time, frame.crop[T])
+                    cpad['cropleft'].set(time, frame.crop[L])
+                    cpad['cropbottom'].set(time, frame.crop[B])
+                    cpad['cropright'].set(time, frame.crop[R])
                 # next frame time
                 time += self.frame_time
             self.frames[source] = None
