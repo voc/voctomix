@@ -100,7 +100,7 @@ class Pipeline(object):
                 self.ports.append(Port('blinder', source))
             else:
                 for idx, source_name in enumerate(sources):
-                    source = spawn_source('blinder-{}'.format(source_name),
+                    source = spawn_source(source_name,
                                           Port.SOURCES_BLANK + idx,
                                           has_audio=False)
                     self.bins.append(source)

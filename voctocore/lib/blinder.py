@@ -52,7 +52,7 @@ class Blinder(object):
 
             for blindersource in self.blindersources:
                 self.bin += """
-                    video-blinder-{blindersource}.
+                    video-{blindersource}.
                     ! queue
                         max-size-time=3000000000
                         name=queue-video-blinder-{blindersource}-compositor-blinder-{livesource}
