@@ -27,11 +27,13 @@ class AVRawOutput(TCPMultiConnection):
         # video pipeline
         self.bin += """
                 video-{source}.
+                ! {vcaps}
                 ! queue
                     max-size-time=3000000000
                     name=queue-mux-video-{source}
                 ! mux-{source}.
-                """.format(source=self.source)
+                """.format(source=self.source,
+                           vcaps=Config.getVideoCaps())
 
         # audio pipeline
         if use_audio_mix or source in Config.getAudioSources(internal=True):
