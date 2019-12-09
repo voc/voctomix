@@ -8,17 +8,17 @@ from lib.config import Config
 from lib.sources.avsource import AVSource
 
 
-class VideoLoopSource(AVSource):
+class LoopSource(AVSource):
     timer_resolution = 0.5
 
     def __init__(self, name, has_audio=True, has_video=True,
                  force_num_streams=None):
-        super().__init__('VideoLoopSource', name, has_audio, has_video, show_no_signal=True)
+        super().__init__('LoopSource', name, has_audio, has_video, show_no_signal=True)
         self.location = Config.getLocation(name)
         self.build_pipeline()
 
     def __str__(self):
-        return 'VideoLoopSource[{name}] displaying {location}'.format(
+        return 'LoopSource[{name}] displaying {location}'.format(
             name=self.name,
             location=self.location
         )
