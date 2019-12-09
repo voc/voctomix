@@ -13,12 +13,6 @@ def spawn_source(name, port, has_audio=True, has_video=True):
     from lib.sources.tcpavsource import TCPAVSource
     from lib.sources.testsource import TestSource
     from lib.sources.loopsource import LoopSource
-    from lib.config import Config
-    from lib.sources.decklinkavsource import DeckLinkAVSource
-    from lib.sources.imgvsource import ImgVSource
-    from lib.sources.tcpavsource import TCPAVSource
-    from lib.sources.testsource import TestSource
-    from lib.sources.videoloopsource import VideoLoopSource
     from lib.sources.v4l2source import V4l2AVSource
 
     kind = Config.getSourceKind(name)
