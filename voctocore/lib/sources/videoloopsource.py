@@ -9,8 +9,11 @@ from lib.sources.avsource import AVSource
 
 
 class VideoLoopSource(AVSource):
-    def __init__(self, name):
-        super().__init__('VideoLoopSource', name, False, True)
+    timer_resolution = 0.5
+
+    def __init__(self, name, has_audio=True, has_video=True,
+                 force_num_streams=None):
+        super().__init__('VideoLoopSource', name, has_audio, has_video, show_no_signal=True)
         self.location = Config.getLocation(name)
         self.build_pipeline()
 
@@ -33,20 +36,25 @@ class VideoLoopSource(AVSource):
     def build_source(self):
         return """
              multifilesrc
-                name=videoloop-{name}
                location={location}
                loop=true
             ! decodebin
-            ! videoconvert
-            ! videoscale
-                name=videoloop
+               name=videoloop-{name}
             """.format(
             name=self.name,
             location=self.location
         )
 
     def build_videoport(self):
-        return 'videoloop.'
+        return """
+              videoloop-{name}.
+            ! videoconvert
+            ! videoscale
+            """.format(name=self.name)
 
-    def build_audioport(self, audiostream):
-        return 'audioloop.'
+    def build_audioport(self):
+        return """
+              videoloop-{name}.
+            ! audioconvert
+            ! audioresample
+            """.format(name=self.name)
