@@ -309,7 +309,141 @@ This will listen at three different ports for the audio source, the break video 
 
 Overlays are placed on top (z-order) of the video mix.
 Currently they can be provided as bitmap images only.
-The user of **VOC2CORE** can select out of multiple overlays which are described within the configuration file or via `schedule.xml`.
+
+These bitmap images will be loaded from the current working directory.
+If you want to specify an image directory you can use the attribute `overlay`/`path`:
+
+```
+[overlay]
+path = ./data/images/overlays
+```
+
+Now all images will be loaded from the folder `./data/images/overlays`.
+
+You can configure which overlay images will be available for an insertion in three different ways selectively or in parallel.
+
+##### Single Overlay Image File
+
+The simplest method is to set a single overlay file that will be displayed as overlay initially after the server starts:
+
+```
+[overlay]
+file = watermark.png|Watermark Sign
+```
+
+The given file name can be followed by a `|` and a verbal description of the file's contents which substitutes the filename within selections in the user interface.
+
+##### Multiple Overlay Image Files
+
+You can also list multiple files which then can be selected between by using the property `files`:
+
+```
+[overlay]
+files = first.png|1st overlay, second.png|2nd overlay, third.png|3rd overlay
+```
+
+Same principle but a comma separated list of image names and descriptions.
+The `files` attribute will not activate an overlay at server start.
+
+##### Select Overlays from a Schedule
+
+A more complex method is to configure a schedule file which is an XML file including information about one or multiple event schedules.
+From these information **VOC2MIX** can generate file names in the form of `event_{eid}_person_{pid}.png` or `event_{eid}_persons.png` where `{eid}` and `{pid}` are placeholders for the event/id and person ID of the speakers of the event.
+The first variant is used to address every single speaker and the second variant all participating persons at once.
+
+Below you can see an example consisting of the necessary XML elements and by that describing three events and up to three speakers.  
+
+```
+<?xml version='1.0' encoding='utf-8' ?>
+<schedule>
+  <day>
+    <room>
+      <event id='1'>
+        <date>2019-01-01T10:00:00+02:00</date>
+        <duration>01:00</duration>
+        <room>HALL 1</room>
+        <title>Interesting talk in HALL 1 at 10:00</title>
+        <persons>
+          <person id='1'>Alice</person>
+          <person id='2'>Bob</person>
+          <person id='3'>Claire</person>
+        </persons>
+      </event>
+      <event id='2'>
+        <date>2019-01-01T10:00:00+02:00</date>
+        <duration>01:00</duration>
+        <room>HALL 2</room>
+        <title>Interesting talk in HALL 2 at 10:00</title>
+        <persons>
+          <person id='4'>Dick</person>
+        </persons>
+      </event>
+      <event id='3'>
+        <date>2019-01-01T11:15:00+02:00</date>
+        <duration>01:00</duration>
+        <room>HALL 2</room>
+        <title>Interesting talk in HALL 2 at 11:15</title>
+        <persons>
+          <person id='1'>Alice</person>
+          <person id='4'>Dick</person>
+        </persons>
+      </event>
+    </room>
+  </day>
+</schedule>
+```
+
+From this file **VOC2MIX** will generate the following file names (and descriptions) for which it will search:
+
+```
+event_1_person_1.png|Alice
+event_1_person_2.png|Bob
+event_1_person_3.png|Claire
+event_1_persons.png|Alice, Bob, Claire
+
+event_2_person_4.png|Dick
+
+event_3_person_1.png|Alice
+event_3_person_4.png|Dick
+event_3_persons.png|Alice, Dick
+```
+
+**VOC2CORE** will present a list of all available (files present in file system) overlays if asked for.
+
+###### Filtering Events
+
+If you have multiple events in multiple rooms it might be of need to filter the current event which you are mixing.
+The first filter criteria will always be the current time.
+**VOC2MIX** automatically filters out events that are past or in future.   
+
+Additionally you might set the room ID to filter out all events which are not happening in the room you are mixing.
+
+```
+[overlay]
+schedule=schedule.xml
+room=HALL 1
+```   
+
+Now **VOC2CORE** will list you the available overlay images only for room `HALL 1`.
+
+##### Additional Overlay Options
+
+###### Auto-Off
+
+**VOC2GUI** presents a button called `auto-off` which can be switched on and off.
+Selection a different insertion from the list or the change of the current composite will force to end a current insertion.
+This is used to prevent uncomfortable visual effects.
+
+```   
+[overlay]
+user-auto-off = true
+auto-off = false
+blend-time=300
+```   
+
+If `user-auto-off` is set the button can be switched by the user and it is present within the user interface of **VOC2GUI**.
+`auto-off` sets the initial state of the auto-off feature.
+And `blend-time` sets the duration of the in and out blending of overlays in milliseconds.
 
 ### Output Elements
 
