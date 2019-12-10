@@ -49,6 +49,7 @@ class LoopSource(AVSource):
         return """
               videoloop-{name}.
             ! videoconvert
+            ! videorate
             ! videoscale
             """.format(name=self.name)
 
