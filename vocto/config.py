@@ -130,7 +130,7 @@ class VocConfigParser(SafeConfigParser):
         if not pattern:
             global testPatternCount
             testPatternCount += 1
-            pattern = GST_TYPE_VIDEO_TEST_SRC_PATTERN[testPatternCount]
+            pattern = GST_TYPE_VIDEO_TEST_SRC_PATTERN[testPatternCount % len(GST_TYPE_VIDEO_TEST_SRC_PATTERN)]
             self.log.info("Test pattern of source '{}' unspecified, picking '{} ({})'"
                           .format(source,pattern, testPatternCount))
         return pattern
