@@ -109,6 +109,12 @@ As in the order they appear in `mix/sources` the test patterns of all test sourc
 
 `smpte`, `ball`, `red`, `green`, `blue`, `black`, `white`, `checkers-1`, `checkers-2`, `checkers-4`, `checkers-8`, `circular`, `blink`, `smpte75`, `zone-plate`, `gamut`, `chroma-zone-plate`, `solid-color`, `smpte100`, `bar`, `snow`, `pinwheel`, `spokes`, `gradient`, `colors`
 
+You can also set a specific audio pattern by setting `mix/wave` to one the following types:
+
+`sine`, `square`, `saw`, `triangle`, `silence`, `white-noise`, `pink-noise`, `sine-table`, `ticks`, `gaussian-noise`, `red-noise`, `blue-noise`, `violet-noise`,
+
+The default is `sine`, with a frequency of 1kHz at -18dbFS.
+
 To set the pattern of a test source explicitly you need to add an own section `source.x` (where `x` is the source's identifier) to the configuration
 
 ```
@@ -117,10 +123,10 @@ sources = cam1,cam2
 
 [source.cam1]
 pattern = ball
+pattern = white-noise
 ```
 
-Now source `cam1` will show a moving white ball on black background instead of a *SMPTE* signal.
-Currently there is no way to change the audio test pattern.
+Now source `cam1` will show a moving white ball on black background instead of a *SMPTE* pattern signal and play white noise instead of a sine.
 
 To change the *kind* of a source you need to set the `kind` attribute in the source's configuration section as described in the following paragraphs.
 

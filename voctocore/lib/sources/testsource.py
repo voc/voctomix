@@ -16,6 +16,7 @@ class TestSource(AVSource):
 
         self.name = name
         self.pattern = Config.getTestPattern(name)
+        self.wave = Config.getTestWave(name)
         self.build_pipeline()
 
     def port(self):
@@ -33,16 +34,24 @@ class TestSource(AVSource):
         return 1
 
     def __str__(self):
-        return 'TestSource[{name}] (pattern #{pattern})'.format(
+        return 'TestSource[{name}] ({pattern}, {wave})'.format(
             name=self.name,
-            pattern=self.pattern
+            pattern=self.pattern,
+            wave=self.wave
         )
 
     def build_audioport(self):
+        # a volume of 0.126 is ~18dBFS
         return """audiotestsrc
                       name=audiotestsrc-{name}
                       do-timestamp=true
-                      is-live=true""".format(name=self.name)
+                      freq=1000
+                      volume=0.126
+                      wave={wave}
+                      is-live=true""".format(
+            name=self.name,
+            wave=self.wave,
+        )
 
     def build_videoport(self):
         return """videotestsrc

@@ -39,6 +39,23 @@ GST_TYPE_VIDEO_TEST_SRC_PATTERN = [
     "colors"
 ]
 
+GST_TYPE_AUDIO_TEST_SRC_WAVE = [
+    "sine",
+    "square",
+    "saw",
+    "triangle",
+    "silence",
+    "white-noise",
+    "pink-noise",
+    "sine-table",
+    "ticks",
+    "gaussian-noise",
+    "red-noise",
+    "blue-noise",
+    "violet-noise",
+]
+
+
 class VocConfigParser(SafeConfigParser):
 
     log = logging.getLogger('VocConfigParser')
@@ -134,6 +151,14 @@ class VocConfigParser(SafeConfigParser):
             self.log.info("Test pattern of source '{}' unspecified, picking '{} ({})'"
                           .format(source,pattern, testPatternCount))
         return pattern
+
+    def getTestWave(self, source):
+        if not self.has_section('source.{}'.format(source)):
+            # background needs no sound, blinder should have no sound
+            if source == "blinder" or source == "background":
+                return "silence"
+
+        return self.get('source.{}'.format(source), 'wave', fallback="sine")
 
     def getSourceScan(self, source):
         section = 'source.{}'.format(source)
