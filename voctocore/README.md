@@ -169,7 +169,7 @@ Optional attributes of Decklink sources are:
 | `video_connection` | `auto`, `SDI`, `HDMI`, ...                         | `auto`    | [Decklink `connection`](https://gstreamer.freedesktop.org/documentation/decklink/decklinkvideosrc.html#GstDecklinkConnection)
 | `video_mode`       | `auto`, `1080p25`, `1080i50`, ...           			  | `auto`    | [Decklink `modes`](https://gstreamer.freedesktop.org/documentation/decklink/decklinkvideosrc.html#decklinkvideosrc_GstDecklinkModes)
 | `video_format`     | `auto`, `8bit-YUV`, `10bit-YUV`, `8bit-ARGB`, ...	| `auto`    | [Decklink `video-format`](https://gstreamer.freedesktop.org/documentation/decklink/decklinkvideosrc.html#decklinkvideosrc_GstDecklinkVideoFormat)
-| `audio_connection` | `auto`, `embedded`, `aes`, `analog`, ...           | `auto`    | [Decklink `audio-connection`](https://gstreamer.freedesktop.org/documentation/decklink/decklinkaudiosrc.html#GstDecklinkAudioConnection)
+| `audio_connection` | `auto`, `embedded`, `aes`, `analog`, `analog-xlr`, `analog-rca`           | `auto`    | [Decklink `audio-connection`](https://gstreamer.freedesktop.org/documentation/decklink/decklinkaudiosrc.html#GstDecklinkAudioConnection)
 
 ##### Image Sources
 
@@ -480,6 +480,20 @@ videocaps=video/x-raw,width=1024,height=576,framerate=25/1
 | `vaapi`           | `h264`                               |             | h264, mpeg2 and jpeg are supported. If jpeg is used CPU decoding needs to be used ob the gui.
 | `scale-method`    | 2                                    | 0           | 0: Default scaling mode 1: Fast scaling mode, at the expense of quality 2: High quality scaling mode, at the expense of speed. 
 | `vaapi-denoise`   | true                                 | false       | use VAAPI to denoise the video before encoding it
+
+#### Mirror Ports
+
+Mirror ports provide a copy of the input stream of each source via an TCP port.
+
+```
+[mirrors]
+enabled=true
+```
+
+| Attribute Name     | Example Values                      | Default     | Description
+| ------------------ | ----------------------------------- | ----------- | -----------------------------------------
+| `enable`           | `true`                              | false       | 
+
 
 ### A/V Processing Elements
 
