@@ -20,7 +20,7 @@ class AudioStreams(list):
         # walk through all items within the configuration string
         for t_name, t in cfg:
             # search for entrys like 'audio.*'
-            r = re.match(r'^audio.([\w\-_]+)$', t_name)
+            r = re.match(r'^audio\.([\w\-_]+)$', t_name)
             if r:
                 for i, channel in enumerate(t.split("+")):
                     audio_streams.append(AudioStream(source, i,
