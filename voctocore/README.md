@@ -527,7 +527,7 @@ enabled=true
 
 #### Live Sources
 
-If you want to expose sources (e.g. a slide grabber) as an additional output for recording and streaming purposes. Use the `mix/livesources` directive, which takes a comma-separated list of sources to be exposed.
+If you want to expose sources (e.g. a slide grabber) as an additional output for recording and streaming purposes, use the `mix/livesources` directive, which takes a comma-separated list of sources to be exposed, like so:
 
 ```
 [mix]
