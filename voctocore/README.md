@@ -525,7 +525,17 @@ enabled=true
 
 ### Filters
 
-#### Live Source?
+#### Live Sources
+
+If you want to expose sources (e.g. a slide grabber) as an additional output for recording and streaming purposes. Use the `mix/livesources` directive, which takes a comma-separated list of sources to be exposed.
+
+```
+[mix]
+sources=cam1,cam2,grabber
+livesources=grabber
+```
+
+This will expose the grabber on port 15001. If you specify further sources, they will appear on ports 15002, etc.
 
 ## Decoder and Encoder
 Voc2mix needs to encoder and decode video on different place in the pipeline as well as in the GUI.
