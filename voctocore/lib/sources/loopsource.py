@@ -2,6 +2,8 @@
 import logging
 import re
 
+import os
+
 from gi.repository import Gst
 
 from lib.config import Config
@@ -24,8 +26,7 @@ class LoopSource(AVSource):
         )
 
     def port(self):
-        m = re.search('.*/([^/]*)', self.location)
-        return self.location
+        return os.path.basename(self.location)
 
     def num_connections(self):
         return 1
