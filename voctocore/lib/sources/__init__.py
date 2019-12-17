@@ -22,7 +22,7 @@ def spawn_source(name, port, has_audio=True, has_video=True):
     elif kind == 'decklink':
         sources[name] = DeckLinkAVSource(name, has_audio, has_video)
     elif kind == 'file':
-        sources[name] = FileSource(name, port, has_audio, has_video)
+        sources[name] = FileSource(name, has_audio, has_video)
     elif kind == 'tcp':
         sources[name] = TCPAVSource(name, port, has_audio, has_video)
     elif kind == 'v4l2':
