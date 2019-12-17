@@ -11,6 +11,7 @@
 		- [Sources](#sources)
 			- [Test Sources](#test-sources)
 			- [TCP Sources](#tcp-sources)
+			- [File Sources](#file-sources)
 			- [Decklink Sources](#decklink-sources)
 			- [Image Sources](#image-sources)
 			- [Video4Linux2 Sources](#video4linux2-sources)
@@ -147,6 +148,20 @@ kind = tcp
 ```
 
 This configuration let VOC2CORE listen at port `16000` for an incoming TCP connection transporting a Matroska A/V stream for source `cam1` and at port `16001` for source `cam2`.
+
+##### File Sources
+
+You can use `file` as a source's `kind` if you would like to provide a file that will be played e.g. to provide a blinder animation. Setting the loop property to `false` is not useful at this point.
+
+Currently, file sources are expected to be MPEG TS containers with MPEG-2 Video and MP2 or MP3 audio. Support of further container, audio and video types may be supported in future releases
+
+```
+[source.blinder]
+kind=file
+location=/path/to/pause.ts
+loop=true
+```
+This configuration will loop pause.ts as the default blinder, using its audio and video
 
 ##### Decklink Sources
 
