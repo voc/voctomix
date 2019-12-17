@@ -8,7 +8,6 @@ Args = None
 def parse():
     global Args
 
-    print("parse args")
     parser = argparse.ArgumentParser(description='Voctocore')
     parser.add_argument('-v', '--verbose', action='count', default=0,
                         help="Set verbosity level by using -v, -vv or -vvv.")
