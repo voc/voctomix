@@ -106,6 +106,17 @@ sudo apt install gstreamer1.0-vaapi
 ````
 sudo apt install python3-pyinotify gstreamer1.0-libav rlwrap fbset ffmpeg netcat
 ````
+
+## Debugging
+
+Here are some debugging tips:
+
+Use option `-v`, `-vv` or `-vvv` to set more and more verbose logging from **VOC2CORE**.
+Use option `-g`, `-gg` to set more and more verbose logging from GStreamer.
+Use option `-p` to generate file including string of pipeline that **VOC2CORE** is about to create.
+Use option `-d` to generate DOT graphs of the GStreamer pipeline that **VOC2CORE** has created.
+Use option `-D` to generate DOT graphs like with -d but set detail level of DOT graph.
+
 ## Mixing Pipeline
 
 The following graph shows a simplified mixing pipeline.
