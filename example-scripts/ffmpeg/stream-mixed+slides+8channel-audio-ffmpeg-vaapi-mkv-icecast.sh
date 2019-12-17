@@ -4,8 +4,8 @@ ffmpeg -y -nostdin -hide_banner \
   -hwaccel vaapi \
   -hwaccel_output_format vaapi \
   -hwaccel_device foo \
-  -thread_queue_size 512 -i tcp://localhost:15000?timeout=3000000 \
-  -thread_queue_size 512 -i tcp://localhost:15001?timeout=3000000 \
+  -thread_queue_size 1024 -i tcp://localhost:15000?timeout=3000000 \
+  -thread_queue_size 1024 -i tcp://localhost:15001?timeout=3000000 \
   -filter_hw_device foo \
   -filter_complex \
   "[0:v] hqdn3d, format=nv12,hwupload [hd];
