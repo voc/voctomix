@@ -18,7 +18,7 @@ class FileSource(AVSource):
         self.audio_file = False
         (_, ext) = os.path.splitext(self.location)
         print('EXT', ext)
-        if ext in ['mp2','mp3']:
+        if ext in ['.mp2','.mp3']:
             assert not has_video
             self.audio_file=True
 
@@ -50,7 +50,7 @@ class FileSource(AVSource):
             loop=self.loop,
             location=self.location
         )
-        if self.audio_file:
+        if not self.audio_file:
             source += """
             ! tsdemux
             """
