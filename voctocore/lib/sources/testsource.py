@@ -22,12 +22,12 @@ class TestSource(AVSource):
     def port(self):
         if self.has_video:
             if self.internal_audio_channels():
-                return "({}+audio)".format(self.pattern)
+                return "(AV:{}+{})".format(self.pattern, self.wave)
             else:
-                return "({})".format(self.pattern)
+                return "(V:{})".format(self.pattern)
         else:
             if self.internal_audio_channels():
-                return "(audio)"
+                return "(A:{})".format(self.wave)
         return "Test"
 
     def num_connections(self):
