@@ -134,6 +134,9 @@ class VocConfigParser(SafeConfigParser):
     def getLocation(self,source):
         return self.get('source.{}'.format(source), 'location')
 
+    def getLoop(self,source):
+        return self.get('source.{}'.format(source), 'loop', fallback="true")
+
     def getTestPattern(self, source):
         if not self.has_section('source.{}'.format(source)):
             # default blinder source shall be smpte (if not defined otherwise)

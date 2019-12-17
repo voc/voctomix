@@ -9,18 +9,24 @@ from gi.repository import Gst
 from lib.config import Config
 from lib.sources.avsource import AVSource
 
-
-class LoopSource(AVSource):
+class FileSource(AVSource):
     timer_resolution = 0.5
 
     def __init__(self, name, has_audio=True, has_video=True,
                  force_num_streams=None):
-        super().__init__('LoopSource', name, has_audio, has_video, show_no_signal=True)
         self.location = Config.getLocation(name)
+        self.audio_file = False
+        (_, ext) = os.path.splitext(self.location)
+        if ext in ['.mp2','.mp3']:
+            assert not has_video
+            self.audio_file=True
+
+        super().__init__('FileSource', name, has_audio, has_video, show_no_signal=False)
+        self.loop = Config.getLoop(name)
         self.build_pipeline()
 
     def __str__(self):
-        return 'LoopSource[{name}] displaying {location}'.format(
+        return 'FileSource[{name}] displaying {location}'.format(
             name=self.name,
             location=self.location
         )
@@ -35,20 +41,28 @@ class LoopSource(AVSource):
         return 1
 
     def build_source(self):
-        return """
-             multifilesrc
-               location={location}
-               loop=true
-            ! decodebin
-               name=videoloop-{name}
-            """.format(
-            name=self.name,
+        source = """
+              multifilesrc
+                location={location}
+                loop={loop}""".format(
+            loop=self.loop,
             location=self.location
         )
+        if not self.audio_file:
+            source += """
+            ! tsdemux
+            """
+        source +=  """
+                name=file-{name}
+            """.format(name=self.name)
+
+        return source
 
     def build_videoport(self):
         return """
-              videoloop-{name}.
+              file-{name}.
+            ! mpegvideoparse
+            ! mpeg2dec
             ! videoconvert
             ! videorate
             ! videoscale
@@ -56,7 +70,9 @@ class LoopSource(AVSource):
 
     def build_audioport(self):
         return """
-              videoloop-{name}.
+              file-{name}.
+            ! mpegaudioparse
+            ! mpg123audiodec
             ! audioconvert
             ! audioresample
             """.format(name=self.name)

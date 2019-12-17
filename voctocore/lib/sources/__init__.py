@@ -12,7 +12,7 @@ def spawn_source(name, port, has_audio=True, has_video=True):
     from lib.sources.imgvsource import ImgVSource
     from lib.sources.tcpavsource import TCPAVSource
     from lib.sources.testsource import TestSource
-    from lib.sources.loopsource import LoopSource
+    from lib.sources.filesource import FileSource
     from lib.sources.v4l2source import V4l2AVSource
 
     kind = Config.getSourceKind(name)
@@ -21,8 +21,8 @@ def spawn_source(name, port, has_audio=True, has_video=True):
         sources[name] = ImgVSource(name)
     elif kind == 'decklink':
         sources[name] = DeckLinkAVSource(name, has_audio, has_video)
-    elif kind == 'loop' or kind == 'videoloop':
-        sources[name] = LoopSource(name)
+    elif kind == 'file':
+        sources[name] = FileSource(name, has_audio, has_video)
     elif kind == 'tcp':
         sources[name] = TCPAVSource(name, port, has_audio, has_video)
     elif kind == 'v4l2':
