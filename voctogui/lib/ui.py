@@ -17,8 +17,6 @@ from lib.toolbar.overlay import OverlayToolbarController
 from lib.toolbar.blinder import BlinderToolbarController
 from lib.toolbar.misc import MiscToolbarController
 
-from lib.shortcuts import show_shortcuts
-
 from lib.studioclock import StudioClock
 
 from vocto.port import Port
@@ -129,12 +127,7 @@ class Ui(UiBuilder):
         )
 
         # Setup Shortcuts window
-        self.win.connect('key-press-event', self.handle_keypress)
         self.win.connect('window-state-event', self.handle_state)
-
-    def handle_keypress(self, window, event):
-        if event.keyval == Gdk.KEY_question:
-            show_shortcuts(window)
 
     def handle_state(self, window, event):
         # force full screen if whished by configuration
