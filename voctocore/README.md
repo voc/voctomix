@@ -1,66 +1,53 @@
-# VOC2CORE
+# 1. VOC2CORE
 
-## Table of contents
-<!-- TOC depthFrom:2 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
+## 1.1. Contents
 
-- [Table of contents](#table-of-contents)
-- [Purpose](#purpose)
-- [Features](#features)
-- [Installation](#installation)
-	- [Debian / Ubuntu](#debian-ubuntu)
-	- [Requirements](#requirements)
-	- [For vaapi en/decoding](#for-vaapi-endecoding)
-	- [Optional for the Example-Scripts](#optional-for-the-example-scripts)
-- [Debugging](#debugging)
-- [Mixing Pipeline](#mixing-pipeline)
-	- [Input Elements](#input-elements)
-		- [Sources](#sources)
-			- [Test Sources](#test-sources)
-			- [TCP Sources](#tcp-sources)
-			- [File Sources](#file-sources)
-			- [Decklink Sources](#decklink-sources)
-			- [Image Sources](#image-sources)
-			- [Video4Linux2 Sources](#video4linux2-sources)
-			- [Common Source Attributes](#common-source-attributes)
-		- [Background Video Source](#background-video-source)
-		- [Blinding Sources (Video and Audio)](#blinding-sources-video-and-audio)
-			- [A/V Blinding Source](#av-blinding-source)
-			- [Separated Audio and Video Blinding Source](#separated-audio-and-video-blinding-source)
-		- [Overlay Sources](#overlay-sources)
-			- [Single Overlay Image File](#single-overlay-image-file)
-			- [Multiple Overlay Image Files](#multiple-overlay-image-files)
-			- [Select Overlays from a Schedule](#select-overlays-from-a-schedule)
-				- [Filtering Events](#filtering-events)
-			- [Additional Overlay Options](#additional-overlay-options)
-				- [Auto-Off](#auto-off)
-	- [Output Elements](#output-elements)
-		- [Mix Live](#mix-live)
-		- [Mix Recording](#mix-recording)
-		- [Mix Preview](#mix-preview)
-		- [Sources Live](#sources-live)
-		- [Sources Recording](#sources-recording)
-		- [Sources Preview](#sources-preview)
-		- [Mirror Ports](#mirror-ports)
-	- [A/V Processing Elements](#av-processing-elements)
-		- [DeMux](#demux)
-		- [Mux](#mux)
-	- [Video Processing Elements](#video-processing-elements)
-		- [Scale](#scale)
-		- [Mix Compositor](#mix-compositor)
-		- [Mix Blinding Compositor](#mix-blinding-compositor)
-		- [Sources Blinding Compositor](#sources-blinding-compositor)
-	- [Audio Processing Elements](#audio-processing-elements)
-		- [Audio Mixer](#audio-mixer)
-		- [Audio Blinding Mixer](#audio-blinding-mixer)
-	- [Filters](#filters)
-		- [Live Sources](#live-sources)
-- [Decoder and Encoder](#decoder-and-encoder)
-	- [CPU](#cpu)
-	- [VAAPI](#vaapi)
+<!-- TOC -->
+
+- [1.1. Contents](#11-contents)
+- [1.2. Purpose](#12-purpose)
+- [1.3. Features](#13-features)
+- [1.4. Installation](#14-installation)
+  - [1.4.1. Debian / Ubuntu](#141-debian--ubuntu)
+  - [1.4.2. Requirements](#142-requirements)
+  - [1.4.3. For vaapi en/decoding](#143-for-vaapi-endecoding)
+  - [1.4.4. Optional for the Example-Scripts](#144-optional-for-the-example-scripts)
+- [1.5. Debugging](#15-debugging)
+- [1.6. Mixing Pipeline](#16-mixing-pipeline)
+  - [1.6.1. Input Elements](#161-input-elements)
+    - [1.6.1.1. Sources](#1611-sources)
+    - [1.6.1.2. Background Video Source](#1612-background-video-source)
+    - [1.6.1.3. Blinding Sources (Video and Audio)](#1613-blinding-sources-video-and-audio)
+    - [1.6.1.4. Overlay Sources](#1614-overlay-sources)
+  - [1.6.2. Output Elements](#162-output-elements)
+    - [1.6.2.1. Mix Live](#1621-mix-live)
+    - [1.6.2.2. Mix Recording](#1622-mix-recording)
+    - [1.6.2.3. Mix Preview](#1623-mix-preview)
+    - [1.6.2.4. Sources Live](#1624-sources-live)
+    - [1.6.2.5. Sources Recording](#1625-sources-recording)
+    - [1.6.2.6. Sources Preview](#1626-sources-preview)
+    - [1.6.2.7. Mirror Ports](#1627-mirror-ports)
+  - [1.6.3. A/V Processing Elements](#163-av-processing-elements)
+    - [1.6.3.1. DeMux](#1631-demux)
+    - [1.6.3.2. Mux](#1632-mux)
+  - [1.6.4. Video Processing Elements](#164-video-processing-elements)
+    - [1.6.4.1. Scale](#1641-scale)
+    - [1.6.4.2. Mix Compositor](#1642-mix-compositor)
+    - [1.6.4.3. Mix Blinding Compositor](#1643-mix-blinding-compositor)
+    - [1.6.4.4. Sources Blinding Compositor](#1644-sources-blinding-compositor)
+  - [1.6.5. Audio Processing Elements](#165-audio-processing-elements)
+    - [1.6.5.1. Audio Mixer](#1651-audio-mixer)
+    - [1.6.5.2. Audio Blinding Mixer](#1652-audio-blinding-mixer)
+  - [1.6.6. Filters](#166-filters)
+    - [1.6.6.1. Live Sources](#1661-live-sources)
+- [1.7. Decoder and Encoder](#17-decoder-and-encoder)
+  - [1.7.1. CPU](#171-cpu)
+  - [1.7.2. VAAPI](#172-vaapi)
 
 <!-- /TOC -->
 
-## Purpose
+## 1.2. Purpose
+
 **VOC2CORE** is a server written in python which listens at port `9999` for incoming TCP connections to provide a command line interface to manipulate a [GStreamer](http://gstreamer.freedesktop.org/) pipeline it runs.
 The gstreamer pipeline is meant to mix several incoming video and audio sources to different output sources.
 
@@ -70,7 +57,7 @@ Particularly it can be used to send mixtures of the incoming video and audio sou
 
 One can use a simple terminal connection to control the mixing process or **VOC2GUI** which provides a visual interface that shows previews of all sources and the mixed output as well as a toolbar for all mixing commands.
 
-## Features
+## 1.3. Features
 
 **VOC2CORE** currently provides the following features:
 
@@ -92,46 +79,52 @@ One can use a simple terminal connection to control the mixing process or **VOC2
 * Reading a so-called [`schedule.xml`](https://github.com/voc/voctosched) which can provide meta data about the talks and that is used to address images individually for each talk that can be selected as overlay (e.g. speaker descriptions in lower thirds)
 * Customization of video composites and transitions
 
-## Installation
+## 1.4. Installation
+
 Currently voc2mix is only works on linux based operating systems. Currently its tested on ubuntu 18.04 and 19.10 as well
 as debian buster. It will probably work on most linux distributions which can satisfy the dependencies below.
 Voc2mix can run on Gstreamer version < 1.8 but at least 1.14 is recommended.
 
-### Debian / Ubuntu
+### 1.4.1. Debian / Ubuntu
+
 On Ubuntu 18.04 to 19.10 and Debian buster the following packages are needed. The python dependencies can also be handled in a venv.
 Both Debian and Ubuntu provide voctomix packages which my or may not be outdated. Currently its recommended to check out voc2mix from the git repository.
 
-````
+````bash
 git clone https://github.com/voc/voctomix.git
 git checkout voctomix2
 ````
 
-### Requirements
-````
+### 1.4.2. Requirements
+
+````bash
 sudo apt install gstreamer1.0-plugins-bad gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-ugly gstreamer1.0-tools libgstreamer1.0-0 python3 python3-gi gir1.2-gstreamer-1.0 gir1.2-gst-plugins-base-1.0 python3-sdnotify python3-scipy
 ````
-### For vaapi en/decoding
-````
+
+### 1.4.3. For vaapi en/decoding
+
+````bash
 sudo apt install gstreamer1.0-vaapi
 ````
 
-### Optional for the Example-Scripts
-````
+### 1.4.4. Optional for the Example-Scripts
+
+````bash
 sudo apt install python3-pyinotify gstreamer1.0-libav rlwrap fbset ffmpeg netcat
 ````
 
-## Debugging
+## 1.5. Debugging
 
 Here are some debugging tips:
 
-- Use option `-v`, `-vv` or `-vvv` to set more and more verbose logging from **VOC2CORE**.
-- Use option `-g`, `-gg` to set more and more verbose logging from GStreamer.
-- Use option `-p` to generate file including string of pipeline that **VOC2CORE** is about to create.
-- Use option `-d` to generate DOT graphs of the GStreamer pipeline that **VOC2CORE** has created.
-- Use option `-D` to generate DOT graphs like with `-d` but set detail level of DOT graph.
-- DOT graph files can be viewed with `xdot` for example.
+* Use option `-v`, `-vv` or `-vvv` to set more and more verbose logging from **VOC2CORE**.
+* Use option `-g`, `-gg` to set more and more verbose logging from GStreamer.
+* Use option `-p` to generate file including string of pipeline that **VOC2CORE** is about to create.
+* Use option `-d` to generate DOT graphs of the GStreamer pipeline that **VOC2CORE** has created.
+* Use option `-D` to generate DOT graphs like with `-d` but set detail level of DOT graph.
+* DOT graph files can be viewed with `xdot` for example.
 
-## Mixing Pipeline
+## 1.6. Mixing Pipeline
 
 The following graph shows a simplified mixing pipeline.
 The real GStreamer pipeline is much more complicated.
@@ -139,15 +132,15 @@ A so-called [DOT graph](https://www.graphviz.org/) of it can be generated by sta
 
 ![**VOC2CORE** Mixing Pipeline](images/pipelines.svg)
 
-### Input Elements
+### 1.6.1. Input Elements
 
-#### Sources
+#### 1.6.1.1. Sources
 
 Live audio/video input can be delivered in different *kinds* via **TCP** in **Matroska format** or from a **Decklink capture card** source. **Video4Linux2** devices can also be used as video only sources. It is also possible to use **image** and **test** sources, but this mostly make sense for testing purposes.
 
 All input sources must be named uniquely and listed in `mix/sources` within the configuration file:
 
-```
+```ini
 [mix]
 sources = cam1,cam2
 ```
@@ -170,7 +163,7 @@ The default is `sine`, with a frequency of 1kHz at -18dbFS.
 
 To set the pattern of a test source explicitly you need to add an own section `source.x` (where `x` is the source's identifier) to the configuration
 
-```
+```ini
 [mix]
 sources = cam1,cam2
 
@@ -188,7 +181,7 @@ To change the *kind* of a source you need to set the `kind` attribute in the sou
 You can use `tcp` as a source's `kind` if you would like to provide Matroska A/V streams via TCP.
 **TCP sources** will be assigned to port `16000` and the following in the order in which they appear in `mix/sources`.
 
-```
+```ini
 [mix]
 sources = cam1,cam2
 
@@ -207,19 +200,20 @@ You can use `file` as a source's `kind` if you would like to provide a file that
 
 Currently, file sources are expected to be MPEG TS containers with MPEG-2 Video and MP2 or MP3 audio. Support of further container, audio and video types may be supported in future releases
 
-```
+```ini
 [source.blinder]
 kind=file
 location=/path/to/pause.ts
 loop=true
 ```
+
 This configuration will loop pause.ts as the default blinder, using its audio and video
 
 ##### Decklink Sources
 
 You can use `decklink` as a source's `kind` if you would like to grab audio and video from a [Decklink](https://www.blackmagicdesign.com/products/decklink) grabber card.
 
-```
+```ini
 [mix]
 sources = cam1,cam2
 
@@ -240,15 +234,15 @@ Optional attributes of Decklink sources are:
 | ------------------ | -------------------------------------------------- | --------- | -----------------------------------------
 | `devicenumber`     | `0`, `1`, `2`, ...                                 | `0`       | [Decklink `device-number`](https://gstreamer.freedesktop.org/documentation/decklink/decklinkvideosrc.html#decklinkvideosrc:device-number)
 | `video_connection` | `auto`, `SDI`, `HDMI`, ...                         | `auto`    | [Decklink `connection`](https://gstreamer.freedesktop.org/documentation/decklink/decklinkvideosrc.html#GstDecklinkConnection)
-| `video_mode`       | `auto`, `1080p25`, `1080i50`, ...           			  | `auto`    | [Decklink `modes`](https://gstreamer.freedesktop.org/documentation/decklink/decklinkvideosrc.html#decklinkvideosrc_GstDecklinkModes)
-| `video_format`     | `auto`, `8bit-YUV`, `10bit-YUV`, `8bit-ARGB`, ...	| `auto`    | [Decklink `video-format`](https://gstreamer.freedesktop.org/documentation/decklink/decklinkvideosrc.html#decklinkvideosrc_GstDecklinkVideoFormat)
-| `audio_connection` | `auto`, `embedded`, `aes`, `analog`, `analog-xlr`, `analog-rca`           | `auto`    | [Decklink `audio-connection`](https://gstreamer.freedesktop.org/documentation/decklink/decklinkaudiosrc.html#GstDecklinkAudioConnection)
+| `video_mode`       | `auto`, `1080p25`, `1080i50`, ...                  | `auto`    | [Decklink `modes`](https://gstreamer.freedesktop.org/documentation/decklink/decklinkvideosrc.html#decklinkvideosrc_GstDecklinkModes)
+| `video_format`     | `auto`, `8bit-YUV`, `10bit-YUV`, `8bit-ARGB`, ...  | `auto`    | [Decklink `video-format`](https://gstreamer.freedesktop.org/documentation/decklink/decklinkvideosrc.html#decklinkvideosrc_GstDecklinkVideoFormat)
+| `audio_connection` | `auto`, `embedded`, `aes`, `analog`, `analog-xlr`, `analog-rca` | `auto`    | [Decklink `audio-connection`](https://gstreamer.freedesktop.org/documentation/decklink/decklinkaudiosrc.html#GstDecklinkAudioConnection)
 
 ##### Image Sources
 
 You can use `img` as a source's `kind` if you would like to generate a still video from an image file.
 
-```
+```ini
 [mix]
 sources = cam1,cam2
 
@@ -272,13 +266,12 @@ As you see you can use either `imguri` or `file` to select an image to use.
 
 You can use `v4l2` as a source's `kind` if you would like to use video4linux2 devices as video input.
 To get the supported video modes, resolution and framerate you can use ffprobe and ffplay.
+
 ```bash
 ffprobe /dev/video0
 ```
 
-
-
-````
+```ini
 [mix]
 sources = cam1,cam2
 
@@ -309,14 +302,14 @@ These attributes can be set for all *kinds* of sources:
 | `scan`             | `progressive`, `interlaced`, `psf`                 | `progressive` | select video mode (`psf` = Progressive segmented frame)
 | `volume`           | `0.0`, ..., `1.0`                                  | `0.0`         | audio volume (if reasonable)
 
-#### Background Video Source
+#### 1.6.1.2. Background Video Source
 
 The `background` source is *obligatory* and does not have to be listed in `mix/sources`.
 The background source will be placed on bottom (z-order) of the video mix.
 By default the background source is a `black` video test source.
 Yout need to configure the background source (as any other) if you want to change that:
 
-```
+```ini
 [source.background]
 kind=img
 file=/opt/voc/share/bg.png
@@ -324,12 +317,12 @@ file=/opt/voc/share/bg.png
 
 The background source is **video only** and so any audio sources will be ignored.
 
-#### Blinding Sources (Video and Audio)
+#### 1.6.1.3. Blinding Sources (Video and Audio)
 
 The blinder (fka stream-blanker) blinds all live outputs.
 You can activate the blinder in the configuration like that:
 
-```
+```ini
 [blinder]
 enable=true
 ```
@@ -341,7 +334,7 @@ But you have several options to define your own blinder sources:
 
 If you like to set up a custom blinding source you have to configure a source that is named `blinder`:
 
-```
+```ini
 [blinder]
 enable=true
 
@@ -361,7 +354,7 @@ The blinder then will blind with the one given audio source but you can select b
 This is useful if you want to have different video messages which you want to differ (for different day times for example, like having a break at lunch or end of the event or a trouble message.
 If you want to do so, you have to define the audio source within the blinding source and add as many video blinding sources within the `blinder` section:
 
-```
+```ini
 [blinder]
 enable=true
 videos=break,closed
@@ -378,7 +371,7 @@ kind=tcp
 
 This will listen at three different ports for the audio source, the break video source and the closed video source.
 
-#### Overlay Sources
+#### 1.6.1.4. Overlay Sources
 
 Overlays are placed on top (z-order) of the video mix.
 Currently they can be provided as bitmap images only.
@@ -386,7 +379,7 @@ Currently they can be provided as bitmap images only.
 These bitmap images will be loaded from the current working directory.
 If you want to specify an image directory you can use the attribute `overlay`/`path`:
 
-```
+```ini
 [overlay]
 path = ./data/images/overlays
 ```
@@ -399,7 +392,7 @@ You can configure which overlay images will be available for an insertion in thr
 
 The simplest method is to set a single overlay file that will be displayed as overlay initially after the server starts:
 
-```
+```ini
 [overlay]
 file = watermark.png|Watermark Sign
 ```
@@ -410,7 +403,7 @@ The given file name can be followed by a `|` and a verbal description of the fil
 
 You can also list multiple files which then can be selected between by using the property `files`:
 
-```
+```ini
 [overlay]
 files = first.png|1st overlay, second.png|2nd overlay, third.png|3rd overlay
 ```
@@ -426,7 +419,7 @@ The first variant is used to address every single speaker and the second variant
 
 Below you can see an example consisting of the necessary XML elements and by that describing three events and up to three speakers.  
 
-```
+```xml
 <?xml version='1.0' encoding='utf-8' ?>
 <schedule>
   <day>
@@ -468,7 +461,7 @@ Below you can see an example consisting of the necessary XML elements and by tha
 
 From this file **VOC2MIX** will generate the following file names (and descriptions) for which it will search:
 
-```
+```txt
 event_1_person_1.png|Alice
 event_1_person_2.png|Bob
 event_1_person_3.png|Claire
@@ -487,15 +480,15 @@ event_3_persons.png|Alice, Dick
 
 If you have multiple events in multiple rooms it might be of need to filter the current event which you are mixing.
 The first filter criteria will always be the current time.
-**VOC2MIX** automatically filters out events that are past or in future.   
+**VOC2MIX** automatically filters out events that are past or in future.
 
 Additionally you might set the room ID to filter out all events which are not happening in the room you are mixing.
 
-```
+```ini
 [overlay]
 schedule=schedule.xml
 room=HALL 1
-```   
+```
 
 Now **VOC2CORE** will list you the available overlay images only for room `HALL 1`.
 
@@ -507,38 +500,42 @@ Now **VOC2CORE** will list you the available overlay images only for room `HALL 
 Selection a different insertion from the list or the change of the current composite will force to end a current insertion.
 This is used to prevent uncomfortable visual effects.
 
-```   
+```ini
 [overlay]
 user-auto-off = true
 auto-off = false
 blend-time=300
-```   
+```
 
 If `user-auto-off` is set the button can be switched by the user and it is present within the user interface of **VOC2GUI**.
 `auto-off` sets the initial state of the auto-off feature.
 And `blend-time` sets the duration of the in and out blending of overlays in milliseconds.
 
-### Output Elements
+### 1.6.2. Output Elements
 
-#### Mix Live
+#### 1.6.2.1. Mix Live
+
 This is the mix that is intended as output for live streaming. It get blanked by the stream blanker when
 the live button in the GUI is disabled.
 
-#### Mix Recording
+#### 1.6.2.2. Mix Recording
+
 This is the mix that is intended as output for recording. It is identical to the video displayed int the GUI as **MIX**.
 
-#### Mix Preview
-This mix is intended for the **MIX** preview in the GUI. 
+#### 1.6.2.3. Mix Preview
 
-#### Sources Live
+This mix is intended for the **MIX** preview in the GUI.
 
-#### Sources Recording
+#### 1.6.2.4. Sources Live
 
-#### Sources Preview
+#### 1.6.2.5. Sources Recording
+
+#### 1.6.2.6. Sources Preview
 
 Source Preview elements are used to encode the different video streams which will be shown in the GUI.
 If previews are not enabled the GUI will use the raw video mirror ports. This only can work if gui and core are running on the same machine.
-```
+
+```ini
 [previews]
 enabled = true
 live = true
@@ -551,52 +548,51 @@ videocaps=video/x-raw,width=1024,height=576,framerate=25/1
 | `enable`           | `true`                              | false       | video4linux2 device to use
 | `live`            | `true`                               | false       | video width expected from the source
 | `vaapi`           | `h264`                               |             | h264, mpeg2 and jpeg are supported. If jpeg is used CPU decoding needs to be used ob the gui.
-| `scale-method`    | 2                                    | 0           | 0: Default scaling mode 1: Fast scaling mode, at the expense of quality 2: High quality scaling mode, at the expense of speed. 
+| `scale-method`    | 2                                    | 0           | 0: Default scaling mode 1: Fast scaling mode, at the expense of quality 2: High quality scaling mode, at the expense of speed.
 | `vaapi-denoise`   | true                                 | false       | use VAAPI to denoise the video before encoding it
 
-#### Mirror Ports
+#### 1.6.2.7. Mirror Ports
 
 Mirror ports provide a copy of the input stream of each source via an TCP port.
 
-```
+```ini
 [mirrors]
 enabled=true
 ```
 
 | Attribute Name     | Example Values                      | Default     | Description
 | ------------------ | ----------------------------------- | ----------- | -----------------------------------------
-| `enable`           | `true`                              | false       | 
+| `enable`           | `true`                              | false       |
 
+### 1.6.3. A/V Processing Elements
 
-### A/V Processing Elements
+#### 1.6.3.1. DeMux
 
-#### DeMux
+#### 1.6.3.2. Mux
 
-#### Mux
+### 1.6.4. Video Processing Elements
 
-### Video Processing Elements
+#### 1.6.4.1. Scale
 
-#### Scale
+#### 1.6.4.2. Mix Compositor
 
-#### Mix Compositor
+#### 1.6.4.3. Mix Blinding Compositor
 
-#### Mix Blinding Compositor
+#### 1.6.4.4. Sources Blinding Compositor
 
-#### Sources Blinding Compositor
+### 1.6.5. Audio Processing Elements
 
-### Audio Processing Elements
+#### 1.6.5.1. Audio Mixer
 
-#### Audio Mixer
+#### 1.6.5.2. Audio Blinding Mixer
 
-#### Audio Blinding Mixer
+### 1.6.6. Filters
 
-### Filters
-
-#### Live Sources
+#### 1.6.6.1. Live Sources
 
 If you want to expose sources (e.g. a slide grabber) as an additional output for recording and streaming purposes, use the `mix/livesources` directive, which takes a comma-separated list of sources to be exposed, like so:
 
-```
+```ini
 [mix]
 sources=cam1,cam2,grabber
 livesources=grabber
@@ -604,7 +600,8 @@ livesources=grabber
 
 This will expose the grabber on port 15001. If you specify further sources, they will appear on ports 15002, etc.
 
-## Decoder and Encoder
+## 1.7. Decoder and Encoder
+
 Voc2mix needs to encoder and decode video on different place in the pipeline as well as in the GUI.
 Encoding and decoding can consume much time of the CPU. Therefore this tasks can be offloaded to fixed function en-/decoder blocks.
 Probably the most common architecture for this, at least on x86, is Intels VAAPI interface which is is not limited to intel GPUs.
@@ -613,13 +610,15 @@ As there is also a penalty one using these as the data needs to be up and downlo
 CPU en-/decoding differs depending an a number of variables.
 Also the quality that can be expected from offloading differs on the hardware used.
 
-### CPU
+### 1.7.1. CPU
+
 Voc2mix can use all software en-/decoder gstreamer provides. The current code offer h264, mpeg2 and jpeg.
 
-### VAAPI
-* https://www.freedesktop.org/wiki/Software/vaapi/
-* https://01.org/linuxmedia/vaapi
-* https://en.wikipedia.org/wiki/Video_Acceleration_API
+### 1.7.2. VAAPI
+
+* <https://www.freedesktop.org/wiki/Software/vaapi/>
+* <https://01.org/linuxmedia/vaapi>
+* <https://en.wikipedia.org/wiki/Video_Acceleration_API>
 
 To use VAAPI with voc2mix on intel GPUs at least a sandy bridge generation CPU is required.
 Voc2mix can use the the vaapi encoder to encode the preview stream for the GUI.
