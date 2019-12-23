@@ -38,8 +38,7 @@
   - [1.6.5. Audio Processing Elements](#165-audio-processing-elements)
     - [1.6.5.1. Audio Mixer](#1651-audio-mixer)
     - [1.6.5.2. Audio Blinding Mixer](#1652-audio-blinding-mixer)
-  - [1.6.6. Filters](#166-filters)
-    - [1.6.6.1. Live Sources](#1661-live-sources)
+  - [1.6.6. Live Sources](#166-live-sources)
 - [1.7. Decoder and Encoder](#17-decoder-and-encoder)
   - [1.7.1. CPU](#171-cpu)
   - [1.7.2. VAAPI](#172-vaapi)
@@ -586,9 +585,7 @@ enabled=true
 
 #### 1.6.5.2. Audio Blinding Mixer
 
-### 1.6.6. Filters
-
-#### 1.6.6.1. Live Sources
+### 1.6.6. Live Sources
 
 If you want to expose sources (e.g. a slide grabber) as an additional output for recording and streaming purposes, use the `mix/livesources` directive, which takes a comma-separated list of sources to be exposed, like so:
 
