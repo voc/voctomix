@@ -22,10 +22,7 @@ def parse():
                         help="Enable timestamps in the Log-Output")
 
     parser.add_argument('-i', '--ini-file', action='store',
-                        help="Load a custom config.ini-File")
-
-    parser.add_argument('-u', '--ui-file', action='store',
-                        help="Load a custom .ui-File")
+                        help="Load a custom configuration file")
 
     parser.add_argument('-H', '--host', action='store',
                         help="Connect to this host "
