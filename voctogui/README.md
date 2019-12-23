@@ -27,6 +27,8 @@ The GUI new front-end for **VOC2CORE**.
     - [1.5.4.2. Sources Toolbars](#1542-sources-toolbars)
     - [1.5.4.3. Composites](#1543-composites)
     - [1.5.4.4. Modify Toolbar](#1544-modify-toolbar)
+    - [1.5.4.5. Mix Toolbar](#1545-mix-toolbar)
+    - [1.5.4.6. Insertions Toolbar](#1546-insertions-toolbar)
   - [1.5.5. Customize UI Style](#155-customize-ui-style)
 - [1.6. Usage](#16-usage)
 
@@ -211,25 +213,69 @@ These composites must be defined within the host's configuration.
 
 #### 1.5.4.4. Modify Toolbar
 
-Without any configuration composite buttons will be named automatically by their uppercased source names and keyboard accelerators will be `F9`..`F12`.
+Without any `.key` attributes keyboard accelerators of the buttons in `toolbar.mods` will be `F9`..`F12`.
+Because there are no default modifiers you are free to define some:
 
 ```ini
 [toolbar.mods]
 buttons = mirror,ratio
 
 mirror.name = MIRROR
-mirror.replace = lec->|lec
+mirror.replace = lecture->|lecture
 
 ratio.name = 4:3
-ratio.replace = lec->lec_43
+ratio.replace = lecture->lecture_43
 ```
+
+Currently there is only one possibility to add modifiers by using the attribute `replace`:
+
+##### Replacement Modifier
+
+Composites are described in **VOCTOMIX** by a specific string format `c(A,B)`, where `c` is the composite and `A` and `B` the sources to show). 
+For example if you have two sources `cam` and `grabber` and a composite `lecture`.
+Assume that `lecture` is a composite which shows a big picture of source A and beside a small one of source B.
+You can user modifications for this composite by using *mirroring* or just a fancy way to name your composites.
+
+*Mirroring* is done by adding a `|` in front of the composites name which then mirrors all coordinates of the composite.
+So if `lecture` has the big picture at the left and the other on the right then `|lecture` as the big picture at the right and the other at the left.
+Usually this is helpfull if the big picture represents a laptop screen showing a presentation and the small one a camera picture of the speaker.
+If the speaker walks from left to right you might use *mirroring* to fix the visual impression, when the speaker is not looking at the presentation.
+
+Another way is to have two different composites like one for when the laptop screen can have different ratios (like 16:9 and 4:3).
+You then can configure an additional lecture composite called `lecture_43` which crops the laptop screen content to 4:3 for example.
+
+In both cases we can define modifier buttons with `.replace` just by defining a replacement rule for the composite definition string that replaces `lecture` with `|lecture` or `lecture` with `lecture_43` and vice versa like configured in the above sample.
+
+#### 1.5.4.5. Mix Toolbar
+
+The mix toolbar can show the following buttons `retake`, `cut`, `trans`.
+By adding the attribute `buttons` to the section `toolbar.mix` you might restrict the availability of those.
+
+Without any `.key` attributes keyboard accelerators of the buttons in `toolbar.mods` will be `BackSpace` for `retake`, `Return` for `cut` and `space` for `trans`.
 
 ```ini
 [toolbar.mix]
+buttons = cut,trans
+
+trans.expand  = true
 ```
+
+The example will hide the retake button and the transition button will expand in the window layout so that it might be bigger than the cut button.
+
+#### 1.5.4.6. Insertions Toolbar
+
+Todo.
 
 ```ini
 [toolbar.insert]
+auto-off.key  = o
+auto-off.tip  = automatically turn off insertion before every mix
+
+update.key    = u
+update.tip    = Update current event
+
+insert.key    = i
+insert.tip    = Show or hide current insertion
 ```
 
 ### 1.5.5. Customize UI Style
