@@ -169,7 +169,7 @@ sources = cam1,cam2
 
 [source.cam1]
 pattern = ball
-pattern = white-noise
+wave = white-noise
 ```
 
 Now source `cam1` will show a moving white ball on black background instead of a *SMPTE* pattern signal and play white noise instead of a sine.
