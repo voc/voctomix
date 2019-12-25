@@ -16,9 +16,25 @@
 - [1.6. Mixing Pipeline](#16-mixing-pipeline)
   - [1.6.1. Input Elements](#161-input-elements)
     - [1.6.1.1. Sources](#1611-sources)
+      - [1.6.1.1.1. Test Sources](#16111-test-sources)
+      - [1.6.1.1.2. TCP Sources](#16112-tcp-sources)
+      - [1.6.1.1.3. File Sources](#16113-file-sources)
+      - [1.6.1.1.4. Decklink Sources](#16114-decklink-sources)
+      - [1.6.1.1.5. Image Sources](#16115-image-sources)
+      - [1.6.1.1.6. Video4Linux2 Sources](#16116-video4linux2-sources)
+      - [1.6.1.1.7. Common Source Attributes](#16117-common-source-attributes)
     - [1.6.1.2. Background Video Source](#1612-background-video-source)
+      - [1.6.1.2.1. Multiple Background Video Sources (depending on Composite)](#16121-multiple-background-video-sources-depending-on-composite)
     - [1.6.1.3. Blinding Sources (Video and Audio)](#1613-blinding-sources-video-and-audio)
+      - [1.6.1.3.1. A/V Blinding Source](#16131-av-blinding-source)
+      - [1.6.1.3.2. Separated Audio and Video Blinding Source](#16132-separated-audio-and-video-blinding-source)
     - [1.6.1.4. Overlay Sources](#1614-overlay-sources)
+      - [1.6.1.4.1. Single Overlay Image File](#16141-single-overlay-image-file)
+      - [1.6.1.4.2. Multiple Overlay Image Files](#16142-multiple-overlay-image-files)
+      - [1.6.1.4.3. Select Overlays from a Schedule](#16143-select-overlays-from-a-schedule)
+        - [1.6.1.4.3.1. Filtering Events](#161431-filtering-events)
+      - [1.6.1.4.4. Additional Overlay Options](#16144-additional-overlay-options)
+        - [1.6.1.4.4.1. Auto-Off](#161441-auto-off)
   - [1.6.2. Output Elements](#162-output-elements)
     - [1.6.2.1. Mix Live](#1621-mix-live)
     - [1.6.2.2. Mix Recording](#1622-mix-recording)
@@ -146,7 +162,7 @@ sources = cam1,cam2
 
 Without any further configuration this will produce two test sources named `cam1` and `cam2`.
 
-##### Test Sources
+##### 1.6.1.1.1. Test Sources
 
 Without any further configuration a source becomes a **test source** by default.
 Every test source will add a [videotestsrc](https://gstreamer.freedesktop.org/documentation/videotestsrc/index.html?gi-language=python) and an [audiotestsrc](https://gstreamer.freedesktop.org/documentation/audiotestsrc/index.html?gi-language=python) element to the internal GStreamer pipeline and so it produces a test video and sound.
@@ -175,7 +191,7 @@ Now source `cam1` will show a moving white ball on black background instead of a
 
 To change the *kind* of a source you need to set the `kind` attribute in the source's configuration section as described in the following paragraphs.
 
-##### TCP Sources
+##### 1.6.1.1.2. TCP Sources
 
 You can use `tcp` as a source's `kind` if you would like to provide Matroska A/V streams via TCP.
 **TCP sources** will be assigned to port `16000` and the following in the order in which they appear in `mix/sources`.
@@ -193,7 +209,7 @@ kind = tcp
 
 This configuration let VOC2CORE listen at port `16000` for an incoming TCP connection transporting a Matroska A/V stream for source `cam1` and at port `16001` for source `cam2`.
 
-##### File Sources
+##### 1.6.1.1.3. File Sources
 
 You can use `file` as a source's `kind` if you would like to provide a file that will be played e.g. to provide a blinder animation. Setting the loop property to `false` is not useful at this point.
 
@@ -208,7 +224,7 @@ loop=true
 
 This configuration will loop pause.ts as the default blinder, using its audio and video
 
-##### Decklink Sources
+##### 1.6.1.1.4. Decklink Sources
 
 You can use `decklink` as a source's `kind` if you would like to grab audio and video from a [Decklink](https://www.blackmagicdesign.com/products/decklink) grabber card.
 
@@ -237,7 +253,7 @@ Optional attributes of Decklink sources are:
 | `video_format`     | `auto`, `8bit-YUV`, `10bit-YUV`, `8bit-ARGB`, ...  | `auto`    | [Decklink `video-format`](https://gstreamer.freedesktop.org/documentation/decklink/decklinkvideosrc.html#decklinkvideosrc_GstDecklinkVideoFormat)
 | `audio_connection` | `auto`, `embedded`, `aes`, `analog`, `analog-xlr`, `analog-rca` | `auto`    | [Decklink `audio-connection`](https://gstreamer.freedesktop.org/documentation/decklink/decklinkaudiosrc.html#GstDecklinkAudioConnection)
 
-##### Image Sources
+##### 1.6.1.1.5. Image Sources
 
 You can use `img` as a source's `kind` if you would like to generate a still video from an image file.
 
@@ -261,7 +277,7 @@ As you see you can use either `imguri` or `file` to select an image to use.
 | `imguri`           | `http://domain.com/image.jpg`                      | n/a       | use image from URI
 | `file`             | `/opt/voctomix/image.png`                          | n/a       | use image from local file
 
-##### Video4Linux2 Sources
+##### 1.6.1.1.6. Video4Linux2 Sources
 
 You can use `v4l2` as a source's `kind` if you would like to use video4linux2 devices as video input.
 To get the supported video modes, resolution and framerate you can use ffprobe and ffplay.
@@ -282,7 +298,7 @@ height=720
 framerate=10/1
 format=YUY2
 
-````
+```
 
 | Attribute Name     | Example Values                                     | Default     | Description
 | ------------------ | -------------------------------------------------- | ----------- | -----------------------------------------
@@ -292,7 +308,7 @@ format=YUY2
 | `framerate`        | `10/1`                                             | 25/1        | video frame rate expected from the source
 | `format`           | `YUY2`                                             | YUY2        | video format expected from the source
 
-##### Common Source Attributes
+##### 1.6.1.1.7. Common Source Attributes
 
 These attributes can be set for all *kinds* of sources:
 
@@ -311,10 +327,36 @@ Yout need to configure the background source (as any other) if you want to chang
 ```ini
 [source.background]
 kind=img
-file=/opt/voc/share/bg.png
+file=bg.png
 ```
 
 The background source is **video only** and so any audio sources will be ignored.
+
+##### 1.6.1.2.1. Multiple Background Video Sources (depending on Composite)
+
+You may also have multiple backgrounds and attach them to your composites.
+Often - for example - you have a logo in the background which needs to be shown on different places depending on where your composites leave unused space.
+
+By configuring a list of background sources in `mix`/`backgrounds` you can configure every single one of them.
+The default background source called `background` wont be used then.
+
+```ini
+[mix]
+backgrounds=background1,background2
+
+[source.background1]
+kind=img
+file=bg.png
+composites=fs
+
+[source.background2]
+kind=test
+pattern=black
+composites=sbs,pip
+```
+
+To control when the backgrounds will be used just add a list of `composites` to your source configuration.
+The core then will search for backgrounds that match the current composite and cut or fade them when composites are switched.
 
 #### 1.6.1.3. Blinding Sources (Video and Audio)
 
@@ -329,7 +371,7 @@ enable=true
 By default the blinder generates a Gstreamer test source which shows a SMPTE pattern.
 But you have several options to define your own blinder sources:
 
-##### A/V Blinding Source
+##### 1.6.1.3.1. A/V Blinding Source
 
 If you like to set up a custom blinding source you have to configure a source that is named `blinder`:
 
@@ -346,7 +388,7 @@ volume=0.0
 This would define a blinder source that is a black screen with silent audio.
 But you can use any other source kind too.
 
-##### Separated Audio and Video Blinding Source
+##### 1.6.1.3.2. Separated Audio and Video Blinding Source
 
 Another way to define binding sources is to configure one audio source and one or more video sources.
 The blinder then will blind with the one given audio source but you can select between different video sources.
@@ -387,7 +429,7 @@ Now all images will be loaded from the folder `./data/images/overlays`.
 
 You can configure which overlay images will be available for an insertion in three different ways selectively or in parallel.
 
-##### Single Overlay Image File
+##### 1.6.1.4.1. Single Overlay Image File
 
 The simplest method is to set a single overlay file that will be displayed as overlay initially after the server starts:
 
@@ -398,7 +440,7 @@ file = watermark.png|Watermark Sign
 
 The given file name can be followed by a `|` and a verbal description of the file's contents which substitutes the filename within selections in the user interface.
 
-##### Multiple Overlay Image Files
+##### 1.6.1.4.2. Multiple Overlay Image Files
 
 You can also list multiple files which then can be selected between by using the property `files`:
 
@@ -410,7 +452,7 @@ files = first.png|1st overlay, second.png|2nd overlay, third.png|3rd overlay
 Same principle but a comma separated list of image names and descriptions.
 The `files` attribute will not activate an overlay at server start.
 
-##### Select Overlays from a Schedule
+##### 1.6.1.4.3. Select Overlays from a Schedule
 
 A more complex method is to configure a schedule file which is an XML file including information about one or multiple event schedules.
 From these information **VOC2MIX** can generate file names in the form of `event_{eid}_person_{pid}.png` or `event_{eid}_persons.png` where `{eid}` and `{pid}` are placeholders for the event/id and person ID of the speakers of the event.
@@ -475,7 +517,7 @@ event_3_persons.png|Alice, Dick
 
 **VOC2CORE** will present a list of all available (files present in file system) overlays if asked for.
 
-###### Filtering Events
+###### 1.6.1.4.3.1. Filtering Events
 
 If you have multiple events in multiple rooms it might be of need to filter the current event which you are mixing.
 The first filter criteria will always be the current time.
@@ -491,9 +533,9 @@ room=HALL 1
 
 Now **VOC2CORE** will list you the available overlay images only for room `HALL 1`.
 
-##### Additional Overlay Options
+##### 1.6.1.4.4. Additional Overlay Options
 
-###### Auto-Off
+###### 1.6.1.4.4.1. Auto-Off
 
 **VOC2GUI** presents a button called `auto-off` which can be switched on and off.
 Selection a different insertion from the list or the change of the current composite will force to end a current insertion.
