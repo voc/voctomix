@@ -464,7 +464,6 @@ def fade(begin, end, factor):
         result = begin + (end - begin) * factor
     return result
 
-
 def morph(begin, end, pt, corner, factor):
     """ interpolates a new frame between two given frames 'begin and 'end'
         putting the given 'corner' of the new frame's rectangle to point 'pt'.
@@ -485,7 +484,6 @@ def morph(begin, end, pt, corner, factor):
     # copy orignial size from begin
     result.original_size = begin.original_size
     return result
-
 
 def interpolate(key_frames, num_frames, corner):
     """ interpolate < num_frames > points of one corner defined by < corner >
@@ -543,3 +541,11 @@ def is_in(sequence, part):
         if sequence[i: i + 2] == part:
             return True
     return False
+
+def fade_alpha(frame,alpha,frames):
+    result = []
+    for i in range(0,frames):
+        f = frame.duplicate()
+        f.alpha = fade(frame.alpha,alpha,smooth(float(i)/frames))
+        result.append(f)
+    return result

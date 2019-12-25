@@ -7,7 +7,7 @@ import gi
 gi.require_version('GstController', '1.0')
 from gi.repository import Gst
 from lib.config import Config
-from vocto.transitions import Composites, Transitions, Frame
+from vocto.transitions import Composites, Transitions, Frame, fade_alpha
 from lib.scene import Scene
 from lib.overlay import Overlay
 from lib.args import Args
@@ -20,9 +20,9 @@ class VideoMix(object):
 
     def __init__(self):
         # read sources from confg file
-        self.bgsources = Config.getBackgroundSources()
+        self.bgSources = Config.getBackgroundSources()
         self.sources = Config.getSources()
-        self.log.info('Configuring mixer for %u source(s) and %u background source(s)', len(self.sources), len(self.bgsources))
+        self.log.info('Configuring mixer for %u source(s) and %u background source(s)', len(self.sources), len(self.bgSources))
 
         # load composites from config
         self.log.info("Reading transitions configuration...")
@@ -31,7 +31,7 @@ class VideoMix(object):
         # load transitions from configuration
         self.transitions = Config.getTransitions(self.composites)
         self.scene = None
-        self.bgscene = None
+        self.bgScene = None
         self.overlay = None
 
         Config.getAudioStreams()
@@ -78,7 +78,7 @@ class VideoMix(object):
             vcaps=Config.getVideoCaps()
         )
 
-        for idx, background in enumerate(self.bgsources):
+        for idx, background in enumerate(self.bgSources):
             self.bin += """
                 video-{name}.
                 ! queue
@@ -116,8 +116,8 @@ class VideoMix(object):
 
         self.log.debug('Initializing Mixer-State')
         # initialize pipeline bindings for all sources
-        self.bgscene = Scene(self.bgsources, pipeline, self.transitions.fps, 0, cropping=False)
-        self.scene = Scene(self.sources, pipeline, self.transitions.fps, len(self.bgsources))
+        self.bgScene = Scene(self.bgSources, pipeline, self.transitions.fps, 0, cropping=False)
+        self.scene = Scene(self.sources, pipeline, self.transitions.fps, len(self.bgSources))
         self.compositeMode = None
         self.sourceA = None
         self.sourceB = None
@@ -128,11 +128,6 @@ class VideoMix(object):
             self.overlay = Overlay(
                 pipeline, Config.getOverlayFile(), Config.getOverlayBlendTime())
 
-        for idx, background in enumerate(self.bgsources):
-            bgMixerpad = (pipeline.get_by_name('videomixer')
-                          .get_static_pad('sink_%u' % idx))
-            bgMixerpad.set_property('zorder', idx)
-
     def __str__(self):
         return 'VideoMix'
 
@@ -142,11 +137,15 @@ class VideoMix(object):
             self.pipeline.get_base_time()
 
     def on_handoff(self, object, buffer):
-        # sync with self.launch()
+        playTime = self.getPlayTime()
+        if self.bgScene and self.bgScene.dirty:
+            # push background scene to gstreamer
+            self.log.debug('Applying new background at %d ms',
+                           playTime / Gst.MSECOND)
+            self.bgScene.push(playTime)
         if self.scene and self.scene.dirty:
             # push scene to gstreamer
-            playTime = self.getPlayTime()
-            self.log.debug('Applying new Mixer-State at %d ms',
+            self.log.debug('Applying new mix at %d ms',
                            playTime / Gst.MSECOND)
             self.scene.push(playTime)
 
@@ -254,23 +253,54 @@ class VideoMix(object):
                         self.log.warning("No transition found")
             if dry:
                 return (newA, newB) if transition else False
+            # z-orders of A and B
+            below = 100
+            above = 101
+            # found transition?
             if transition:
                 # apply found transition
                 self.log.debug(
                     "committing transition '%s' to scene", transition.name())
-                self.scene.commit(targetA, transition.Az(1, 2))
-                self.scene.commit(targetB, transition.Bz(2, 1))
+                self.scene.commit(targetA, transition.Az(below, above))
+                self.scene.commit(targetB, transition.Bz(above, below))
             else:
                 # apply new scene (hard cut)
                 self.log.debug(
                     "setting composite '%s' to scene", newComposite.name)
-                self.scene.set(targetA, newComposite.Az(1))
-                self.scene.set(targetB, newComposite.Bz(2))
+                self.scene.set(targetA, newComposite.Az(below))
+                self.scene.set(targetB, newComposite.Bz(above))
             # make all other sources invisible
             for source in self.sources:
                 if source not in [targetA, targetB]:
                     self.log.debug("making source %s invisible", source)
                     self.scene.set(source, Frame(True, alpha=0, zorder=-1))
+
+            # get current and new background source by the composites
+            curBgSource = Config.getBackgroundSource(curCompositeName)
+            newBgSource = Config.getBackgroundSource(newCompositeName)
+            if curBgSource != newBgSource:
+                # found transition?
+                if transition:
+                    # apply found transition
+                    self.log.debug("committing background fading to scene")
+                    # keep showing old background at z-order 0
+                    curBgFrame = Frame(True, zorder=0, rect=[0,0,*Config.getVideoResolution()])
+                    self.bgScene.set(curBgSource, curBgFrame)
+                    # fade new background in at z-order 1 so it will cover the old one at end
+                    newBgFrame = Frame(True, alpha=0, zorder=1, rect=[0,0,*Config.getVideoResolution()])
+                    self.bgScene.commit(newBgSource, fade_alpha(newBgFrame,255,transition.frames()))
+                else:
+                    # apply new scene (hard cut)
+                    self.log.debug(
+                        "setting new background to scene")
+                    # just switch to new background
+                    bgFrame = Frame(True, zorder=0, rect=[0,0,*Config.getVideoResolution()])
+                    self.bgScene.set(newBgSource, bgFrame)
+                # make all other background sources invisible
+                for source in self.bgSources:
+                    if source not in [curBgSource,newBgSource]:
+                        self.log.debug("making background source %s invisible", source)
+                        self.bgScene.set(source, Frame(True, alpha=0, zorder=-1))
         else:
             # report unknown elements of the target scene
             if not newComposite:
@@ -320,7 +350,7 @@ class VideoMix(object):
 
     def setVideoSourceA(self, source):
         ''' legacy command '''
-        setCompositeEx(None, source, None, useTransitions=False)
+        self.setCompositeEx(None, source, None, useTransitions=False)
 
     def getVideoSourceA(self):
         ''' legacy command '''
@@ -328,7 +358,7 @@ class VideoMix(object):
 
     def setVideoSourceB(self, source):
         ''' legacy command '''
-        setCompositeEx(None, None, source, useTransitions=False)
+        self.setCompositeEx(None, None, source, useTransitions=False)
 
     def getVideoSourceB(self):
         ''' legacy command '''
@@ -336,7 +366,7 @@ class VideoMix(object):
 
     def setCompositeMode(self, mode):
         ''' legacy command '''
-        setCompositeEx(mode, None, None, useTransitions=False)
+        self.setCompositeEx(mode, None, None, useTransitions=False)
 
     def getCompositeMode(self):
         ''' legacy command '''

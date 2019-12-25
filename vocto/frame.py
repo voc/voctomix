@@ -13,9 +13,9 @@ log = logging.getLogger('Frame')
 
 class Frame:
 
-    def __init__(self, key=False,alpha=255,zorder=None):
-        self.rect = [0, 0, 0, 0]
-        self.crop = [0, 0, 0, 0]
+    def __init__(self, key=False, alpha=255, zorder=None, rect=[0, 0, 0, 0], crop=[0, 0, 0, 0]):
+        self.rect = rect
+        self.crop = crop
         self.alpha = alpha
         self.original_size = [0.0, 0.0]
         self.key = key
@@ -30,7 +30,7 @@ class Frame:
 
     def __str__(self):
         return ("(%4d,%4d  %4d,%4d  %4d  %4d,%4d,%4d,%4d  %1.2f,%1.2f, %2d)" %
-                tuple(self.rect + [self.alpha] + self.crop + self.zoom() + [self.zorder if self.zorder else -1]))
+                tuple(self.rect + [self.alpha] + self.crop + self.zoom() + [self.zorder if self.zorder is not None else -1]))
 
     def __eq__(self, other):
         # do NOT compare zoom
@@ -90,7 +90,10 @@ class Frame:
 
     def mirrored(self):
         # deep copy everything
-        f = copy.deepcopy(self)
+        f = self.duplicate()
         # then mirror frame
         f.rect[L], f.rect[R] = f.original_size[X] - f.rect[R], f.original_size[X] - f.rect[L]
         return f
+
+    def duplicate(self):
+       return copy.deepcopy(self)

@@ -86,6 +86,12 @@ class VocConfigParser(SafeConfigParser):
         else:
             return ["background"]
 
+    def getBackgroundSource(self,composite):
+        for source in self.getBackgroundSources():
+            if composite in self.getList('source.{}'.format(source), 'composites', fallback=[]):
+                return source
+        return self.getBackgroundSources()[0]
+
     def getSourceKind(self, source):
         return self.get('source.{}'.format(source), 'kind', fallback='test')
 
@@ -202,10 +208,6 @@ class VocConfigParser(SafeConfigParser):
         if self.getAudioChannels() < num_audio_streams:
             self.log.error("number of audio channels in mix/audiocaps differs from the available audio input channels within the sources!")
         return num_audio_streams
-
-    def setShowVolume(self, show=True):
-        self.add_section_if_missing('audio')
-        self.set('audio', 'volumecontrol', "true" if show else "false")
 
     def getVideoCaps(self):
         return self.get('mix', 'videocaps', fallback="video/x-raw,format=I420,width=1920,height=1080,framerate=25/1,pixel-aspect-ratio=1/1")
@@ -345,12 +347,12 @@ class VocConfigParser(SafeConfigParser):
             result = []
             for preview in previews:
                 if preview not in self.getLiveSources():
-                    self.log.error("source '{}' configured in 'preview/live' must be listed in 'mix/livesources'!".format(preview));
+                    self.log.error("source '{}' configured in 'preview/live' must be listed in 'mix/livesources'!".format(preview))
                 else:
                     result.append(preview)
             return result
         else:
-            self.log.warning("configuration attribute 'preview/live' is set but blinder is not in use!");
+            self.log.warning("configuration attribute 'preview/live' is set but blinder is not in use!")
             return []
 
     def getPreviewDecoder(self):
