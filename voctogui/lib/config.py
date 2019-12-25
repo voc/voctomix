@@ -37,16 +37,16 @@ class VoctoguiConfigParser(VocConfigParser):
         return self.getboolean('mainwindow', 'forcefullscreen', fallback=False)
 
     def getShowCloseButton(self):
-        return self.getboolean('misc', 'close')
+        return self.getboolean('toolbar', 'close', fallback=True)
 
     def getShowFullScreenButton(self):
-        return self.getboolean('misc', 'fullscreen')
+        return self.getboolean('toolbar', 'fullscreen', fallback=False)
 
     def getShowQueueButton(self):
-        return self.getboolean('misc', 'debug')
+        return self.getboolean('toolbar', 'queues', fallback=False)
 
     def getShowPortButton(self):
-        return self.getboolean('misc', 'debug')
+        return self.getboolean('toolbar', 'ports', fallback=True)
 
     def getToolbarSourcesDefault(self):
         return {"%s.name" % source:

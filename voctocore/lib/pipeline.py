@@ -163,8 +163,6 @@ class Pipeline(object):
         self.pipeline.bus.connect(
             "message::state-changed", self.on_state_changed)
 
-        self.draw_pipeline = Args.dot
-
         self.pipeline.set_state(Gst.State.PLAYING)
 
     def fetch_elements_by_name(self, regex):
@@ -195,6 +193,6 @@ class Pipeline(object):
             if newstate == Gst.State.PLAYING:
                 self.log.info("\n\n====================== UP AN RUNNING ======================\n" )
 
-            if self.draw_pipeline:
+            if Args.dot or Args.gst_debug_details:
                 # make DOT file from pipeline
                 gst_generate_dot(self.pipeline, "core.pipeline")

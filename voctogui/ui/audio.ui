@@ -115,10 +115,10 @@
             </child>
             <child>
               <object class="GtkToggleButton" id="monitor_button">
-                <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="focus_on_click">False</property>
                 <property name="receives_default">True</property>
+                <property name="no_show_all">True</property>
                 <property name="tooltip_text" translatable="yes">Monitor these channels</property>
                 <property name="image">Monitor</property>
               </object>
@@ -132,6 +132,7 @@
               <object class="GtkLabel">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="no_show_all">True</property>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -141,10 +142,10 @@
             </child>
             <child>
               <object class="GtkToggleButton" id="mute_button">
-                <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="focus_on_click">False</property>
                 <property name="receives_default">True</property>
+                <property name="no_show_all">True</property>
                 <property name="tooltip_text" translatable="yes">Mute</property>
                 <property name="image">Mute</property>
               </object>

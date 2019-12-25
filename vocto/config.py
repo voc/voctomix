@@ -39,6 +39,23 @@ GST_TYPE_VIDEO_TEST_SRC_PATTERN = [
     "colors"
 ]
 
+GST_TYPE_AUDIO_TEST_SRC_WAVE = [
+    "sine",
+    "square",
+    "saw",
+    "triangle",
+    "silence",
+    "white-noise",
+    "pink-noise",
+    "sine-table",
+    "ticks",
+    "gaussian-noise",
+    "red-noise",
+    "blue-noise",
+    "violet-noise",
+]
+
+
 class VocConfigParser(SafeConfigParser):
 
     log = logging.getLogger('VocConfigParser')
@@ -123,6 +140,9 @@ class VocConfigParser(SafeConfigParser):
     def getLocation(self,source):
         return self.get('source.{}'.format(source), 'location')
 
+    def getLoop(self,source):
+        return self.get('source.{}'.format(source), 'loop', fallback="true")
+
     def getTestPattern(self, source):
         if not self.has_section('source.{}'.format(source)):
             # default blinder source shall be smpte (if not defined otherwise)
@@ -136,10 +156,18 @@ class VocConfigParser(SafeConfigParser):
         if not pattern:
             global testPatternCount
             testPatternCount += 1
-            pattern = GST_TYPE_VIDEO_TEST_SRC_PATTERN[testPatternCount]
+            pattern = GST_TYPE_VIDEO_TEST_SRC_PATTERN[testPatternCount % len(GST_TYPE_VIDEO_TEST_SRC_PATTERN)]
             self.log.info("Test pattern of source '{}' unspecified, picking '{} ({})'"
                           .format(source,pattern, testPatternCount))
         return pattern
+
+    def getTestWave(self, source):
+        if not self.has_section('source.{}'.format(source)):
+            # background needs no sound, blinder should have no sound
+            if source == "blinder" or source == "background":
+                return "silence"
+
+        return self.get('source.{}'.format(source), 'wave', fallback="sine")
 
     def getSourceScan(self, source):
         section = 'source.{}'.format(source)
@@ -276,7 +304,7 @@ class VocConfigParser(SafeConfigParser):
 
     def getPreviewCaps(self):
         if self.has_option('previews', 'videocaps'):
-            return self.get('previews', 'videocaps', fallback='video/x-raw,width=1024,height=576,framerate=25/1')
+            return self.get('previews', 'videocaps')
         else:
             return self.getVideoCaps()
 

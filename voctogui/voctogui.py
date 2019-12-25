@@ -45,34 +45,13 @@ class Voctogui(object):
         from lib.args import Args
         from lib.ui import Ui
 
-        # Uf a UI-File was specified on the Command-Line, load it
-        if Args.ui_file:
-            self.log.info(
-                'loading ui-file from file specified on command-line: %s',
-                Args.ui_file
-            )
-            self.ui = Ui(Args.ui_file)
+        # Load UI file
+        path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ui/voctogui.ui')
+        self.log.info('Loading ui-file from file %s', path)
+        if os.path.isfile(path):
+            self.ui = Ui(path)
         else:
-            # Paths to look for the gst-switch UI-File
-            paths = [
-                os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                             'ui/voctogui.ui'),
-                '/usr/lib/voctogui/ui/voctogui.ui'
-            ]
-
-            # Look for a gst-switch UI-File and load it
-            self.ui = None
-            for path in paths:
-                self.log.debug('trying to load ui-file from file %s', path)
-
-                if os.path.isfile(path):
-                    self.log.info('Loading ui-file from file %s', path)
-                    self.ui = Ui(path)
-                    break
-
-        if self.ui is None:
-            raise Exception("Can't find any .ui-Files to use "
-                            "(searched {})".format(', '.join(paths)))
+            raise Exception("Can't find any .ui-Files to use in {}".format(path))
 
         #
         # search for a .css style sheet file and load it
@@ -81,22 +60,12 @@ class Voctogui(object):
         css_provider = Gtk.CssProvider()
         context = Gtk.StyleContext()
 
-        css_paths = [
-            os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                         'ui/voctogui.css'),
-            '/usr/lib/voctogui/ui/voctogui.css'
-        ]
-
-        for path in css_paths:
-            self.log.debug('trying to load css-file from file %s', path)
-
-            if os.path.isfile(path):
-                self.log.info('Loading css-file from file %s', path)
-                css_provider.load_from_path(path)
-                break
+        path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ui/voctogui.css')
+        self.log.info('Loading css-file from file %s', path)
+        if os.path.isfile(path):
+            css_provider.load_from_path(path)
         else:
-            raise Exception("Can't find any .css-Files to use "
-                            "(searched {})".format(', '.join(css_paths)))
+            raise Exception("Can't find .css file '{}'".format(path))
 
         context.add_provider_for_screen(
             Gdk.Screen.get_default(),

@@ -34,13 +34,6 @@ class V4l2AVSource(AVSource):
             'v4l2videosrc-{}'.format(self.name))
         GLib.timeout_add(self.timer_resolution * 1000, self.do_timeout)
 
-    def do_timeout(self):
-        if self.inputSink:
-            self.inputSink.set_property(
-                'alpha', 1.0 if self.num_connections() > 0 else 0.0)
-        # just come back
-        return True
-
     def num_connections(self):
         return 1 if self.signalPad and self.signalPad.get_property('signal') else 0
 
