@@ -124,7 +124,7 @@ class Pipeline(object):
                     self.ports.append(Port('preview-{}-live'.format(livepreview), dest))
 
             for idx, livesource in enumerate(Config.getLiveSources()):
-                dest = AVRawOutput('{}-blinded'.format(livesource), Port.LIVE_OUT + idx, use_audio_mix=True )
+                dest = AVRawOutput('{}-blinded'.format(livesource), Port.LIVE_OUT + idx, use_audio_mix=True, audio_blinded=True )
                 self.bins.append(dest)
                 self.ports.append(Port('{}-live'.format(livesource), dest))
 
