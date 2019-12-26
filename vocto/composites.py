@@ -76,7 +76,6 @@ class Composite:
         self.inter = False
         self.noswap = False
         self.mirror = False
-        self.mirror_initial = False
         self.order = order
 
     def str_title():
@@ -179,8 +178,6 @@ class Composite:
             self.noswap = value
         elif attr == 'mirror':
             self.mirror = value
-        elif attr == 'mirror-initial':
-            self.mirror_initial = value
         self.frame[0].original_size = size
         self.frame[1].original_size = size
 
@@ -235,8 +232,7 @@ def add_mirrored_composites(composites):
         if c.mirror:
             r = c.mirrored()
             r.order = len(composites) + len(result)
-            # HOTFIX 36c3 
-            result[c_name], result[mirror_name(c_name)] = (r,c) if c.mirror_initial else (c,r)
+            result[mirror_name(c_name)] = r
     return composites.update(result)
 
 
