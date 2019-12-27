@@ -76,15 +76,14 @@ class VoctocoreConfigParser(VocConfigParser):
 
     def _getEvents(self):
         # check if file has been changed before re-read
-        if os.path.getmtime(self.getSchedule()) != self.events_update:
-            self.events = None
-            # parse XML and iterate all schedule/day elements
-            self.events = ET.parse(
-                self.getSchedule()).getroot().findall('day/room/event')
-            self.log.info("read {n} events from file \'{f}\'".format(
-                n=len(self.events), f=self.getSchedule()))
-            # remember the update time
-            self.events_update = os.path.getmtime(self.getSchedule())
+        self.events = None
+        # parse XML and iterate all schedule/day elements
+        self.events = ET.parse(
+            self.getSchedule()).getroot()   .findall('day/room/event')
+        self.log.info("read {n} events from file \'{f}\'".format(
+            n=len(self.events), f=self.getSchedule()))
+        # remember the update time
+        self.events_update = os.path.getmtime(self.getSchedule())
         return self.events
 
     def _getEventNow(self):
