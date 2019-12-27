@@ -60,7 +60,7 @@ class Scene:
                 'zorder': bind(mixerpad, 'zorder'),
             }
             # get mixer and cropper pad from pipeline
-            if self.cpads:
+            if self.cpads is not None:
                 cropperpad = (pipeline
                               .get_by_name("cropper-%s" % source))
                 self.cpads[source] = {
