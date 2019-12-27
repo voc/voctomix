@@ -21,18 +21,6 @@
   background-image: none;
 }
 
-window.popup {
-  font-size: 2.5em;
-}
-
-frame label {
-  font-size: 2.0em;
-}
-
-box label {
-  font-size: 2.0em;
-}
-
 #mixer button:disabled {
   background-color: #303030;
 }
