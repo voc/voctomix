@@ -1135,7 +1135,6 @@ https://github.com/voc/voctomix </property>
                     <property name="hexpand">True</property>
                     <property name="toolbar_style">icons</property>
                     <property name="show_arrow">False</property>
-                    <property name="icon_size">6</property>
                     <child>
                       <object class="GtkSeparatorToolItem" id="s1">
                         <property name="visible">True</property>
