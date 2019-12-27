@@ -59,4 +59,4 @@ class MixToolbarController(object):
     def on_best(self, best, targetA, targetB):
         self.mix['retake']['button'].set_sensitive(self.preview_controller.command() != self.preview_controller.output)
         self.mix['trans']['button'].set_sensitive(best == "transition")
-        self.mix['cut']['button'].set_sensitive(best == "transition" or best == "cut")
+        self.mix['cut']['button'].set_sensitive(best == "cut")
