@@ -89,7 +89,7 @@ class PreviewToolbarController(object):
             if id in self.sourcesA or id in self.sourcesB:
                 # check for A and B switch to the same source and fix it
                 if self.sourcesA[id]['button'] == btn:
-                    if self.sourcesB[id]['button'].get_active():
+                    if id in self.sourcesB and self.sourcesB[id]['button'].get_active():
                         self.sourceB = None
                         self.sourcesB[self.sourceA]['button'].set_active(True)
                     self.sourceA = id
