@@ -81,6 +81,10 @@ class VideoDisplay(object):
                            previewcaps=preview_caps,
                            vcaps=Config.getVideoCaps())
 
+        pipe += """ ! videoconvert
+                    ! videoscale
+                    """
+
         if Config.getPreviewNameOverlay() and name:
             pipe += """\
                 ! textoverlay
@@ -95,10 +99,6 @@ class VideoDisplay(object):
         # Video Display
         videosystem = Config.getVideoSystem()
         self.log.debug('Configuring for Video-System %s', videosystem)
-
-        pipe += """ ! videoconvert
-                    ! videoscale
-                    """
 
         if videosystem == 'gl':
             pipe += """ ! glupload
