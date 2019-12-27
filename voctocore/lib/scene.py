@@ -81,7 +81,7 @@ class Scene:
     def set(self, source, frame):
         ''' commit single frame to the current gstreamer scene '''
         self.log.debug("Set frame to source %s", source)
-        self.frames[source] = [frame,frame]
+        self.frames[source] = [frame]
         self.dirty = True
 
     def push(self, at_time=0):
