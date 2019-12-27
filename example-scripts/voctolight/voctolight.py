@@ -2,6 +2,7 @@
 import socket
 from lib.config import Config
 import time
+import re
 
 DO_GPIO = True
 try:
@@ -15,14 +16,25 @@ class TallyHandling:
 
     def __init__(self, source, gpio_port, all_gpios=()):
         self.source = source
-        self.state = ''
         self.gpio_port = gpio_port
         if DO_GPIO:
             GPIO.setup(all_gpios, GPIO.OUT)
             GPIO.output(all_gpios, GPIO.HIGH)
 
-    def set_state(self, state):
-        self.state = state
+    def update(self, composite_func):
+        restr = "\(|,|\)"
+        cf = re.split(restr, composite_func)
+        if cf[0] == 'fs':
+            if cf[1] == self.source:
+                self.tally_on()
+            else:
+                self.tally_off()
+        else:
+            if self.source in cf[1:]:
+                self.tally_on()
+            else:
+                self.tally_off()
+
 
     def tally_on(self):
         if DO_GPIO:
@@ -33,18 +45,6 @@ class TallyHandling:
         if DO_GPIO:
             GPIO.output(self.gpio_port, GPIO.HIGH)
         print('Tally off')
-
-    def video_change(self, source_a, source_b):
-        if self.state == 'fullscreen':
-            if source_a == self.source:
-                self.tally_on()
-            else:
-                self.tally_off()
-        else:
-            if self.source in (source_a, source_b):
-                self.tally_on()
-            else:
-                self.tally_off()
 
 
 def start_connection(tally_handler):
@@ -57,9 +57,7 @@ def start_connection(tally_handler):
     sock.settimeout(None)
 
     messages = []
-    sock.send(b'get_composite_mode\n')
-    sock.send(b'get_video\n')
-    sock.send(b'get_stream_status\n')
+    sock.send(b'get_composite\n')
     while True:
         if len(messages) == 0:
             message = sock.recv(2048)
@@ -75,11 +73,9 @@ def start_connection(tally_handler):
         if len(messages) != 0:
             messages = messages[1:]
         try:
-            if message[0] == 'composite_mode':
-                tally_handler.set_state(message[1])
-            elif message[0] == 'video_status':
-                source_a, source_b = message[1], message[2]
-                tally_handler.video_change(source_a, source_b)
+            if message[0] == 'composite':
+                composite_func = message[1]
+                tally_handler.update(composite_func)
         except IndexError:
             pass
 
