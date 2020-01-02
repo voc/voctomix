@@ -1,6 +1,6 @@
 # Voctomix [![Build Status](https://travis-ci.org/voc/voctomix.svg?branch=master)](https://travis-ci.org/voc/voctomix)
 
-**Hint**: Also see upcoming version 2 called *VOC2MIX* which can be found at [branch voctomix2](https://github.com/voc/voctomix/tree/voctomix2).
+**Hint**: Also see upcoming version 2 called *VOC2MIX* which can be found at [branch `voctomix2`](https://github.com/voc/voctomix/tree/voctomix2).
 
 ---
 
