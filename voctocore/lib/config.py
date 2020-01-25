@@ -3,7 +3,7 @@ import os.path
 import logging
 from configparser import DuplicateSectionError
 from lib.args import Args
-from lib.sources import kind_has_audio
+from lib.sources import kind_has_audio, kind_has_video
 from vocto.config import VocConfigParser
 import xml.etree.ElementTree as ET
 from datetime import date, datetime, timedelta
@@ -268,6 +268,15 @@ class VoctocoreConfigParser(VocConfigParser):
                 sources += ['blinder', 'mix-blinded']
         return list(filter(source_has_audio, sources))
 
+    def getVideoSources(self, internal=False):
+        def source_has_video(source):
+            return kind_has_video(self.getSourceKind(source))
+        sources = self.getSources()
+        #if internal:
+        #    sources += ['mix']
+        #    if self.getBlinderEnabled():
+        #        sources += ['blinder', 'mix-blinded']
+        return list(filter(source_has_video, sources))
 
 def load():
     global Config

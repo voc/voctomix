@@ -27,21 +27,22 @@ class AVPreviewOutput(TCPMultiConnection):
                 """.format(source=self.source)
 
         # video pipeline
-        self.bin += """
-                video-{source}.
-                ! {vcaps}
-                ! queue
-                    max-size-time=3000000000
-                    name=queue-preview-video-{source}
-                {vpipeline}
-                ! queue
-                    max-size-time=3000000000
-                    name=queue-mux-preview-{source}
-                ! mux-preview-{source}.
-                """.format(source=self.source,
-                           vpipeline=self.construct_video_pipeline(),
-                           vcaps=Config.getVideoCaps()
-                           )
+        if source in Config.getVideoSources():
+            self.bin += """
+                    video-{source}.
+                    ! {vcaps}
+                    ! queue
+                        max-size-time=3000000000
+                        name=queue-preview-video-{source}
+                    {vpipeline}
+                    ! queue
+                        max-size-time=3000000000
+                        name=queue-mux-preview-{source}
+                    ! mux-preview-{source}.
+                    """.format(source=self.source,
+                               vpipeline=self.construct_video_pipeline(),
+                               vcaps=Config.getVideoCaps()
+                               )
 
         # audio pipeline
         if use_audio_mix or source in Config.getAudioSources(internal=True):

@@ -277,7 +277,29 @@ As you see you can use either `imguri` or `file` to select an image to use.
 | `imguri`           | `http://domain.com/image.jpg`                      | n/a       | use image from URI
 | `file`             | `/opt/voctomix/image.png`                          | n/a       | use image from local file
 
-##### 1.6.1.1.6. Video4Linux2 Sources
+##### 1.6.1.1.6 Pulse Audio Sources
+You can use `pa` as a source's `kind`if you would to use a pulse audio device as audio input.
+To get the name of the pulse audio source device you can use pctl.
+
+```bash
+pactl list sources
+```
+
+
+```ini
+[mix]
+sources = cam1,headset
+
+[source.cam1]
+kind=pa
+device=alsa_input.usb-Logitech_Logitech_USB_Headset-00.mono-fallback
+```
+
+| Attribute Name     | Example Values                                                   | Default | Description
+| ------------------ | ---------------------------------------------------------------- | --------| -----------------------------------------
+| `device`           | `alsa_input.usb-Logitech_Logitech_USB_Headset-00.mono-fallback`  | TBD     | pulse audio device to use
+
+##### 1.6.1.1.7. Video4Linux2 Sources
 
 You can use `v4l2` as a source's `kind` if you would like to use video4linux2 devices as video input.
 To get the supported video modes, resolution and framerate you can use ffprobe and ffplay.
@@ -308,7 +330,7 @@ format=YUY2
 | `framerate`        | `10/1`                                             | 25/1        | video frame rate expected from the source
 | `format`           | `YUY2`                                             | YUY2        | video format expected from the source
 
-##### 1.6.1.1.7. Common Source Attributes
+##### 1.6.1.1.8. Common Source Attributes
 
 These attributes can be set for all *kinds* of sources:
 
