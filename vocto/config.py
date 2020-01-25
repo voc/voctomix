@@ -119,6 +119,9 @@ class VocConfigParser(SafeConfigParser):
     def getDeckLinkVideoFormat(self, source):
         return self.get('source.{}'.format(source), 'video_format', fallback='auto')
 
+    def getPulseAudioDevice(self, source):
+        return self.get()('source.{}'.format(source), 'device', fallback='auto')
+
     def getV4l2Device(self, source):
         return self.get('source.{}'.format(source), 'device', fallback='/dev/video0')
 
