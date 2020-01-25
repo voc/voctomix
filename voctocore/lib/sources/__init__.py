@@ -44,7 +44,7 @@ def kind_has_audio(source):
 
 
 def kind_has_video(source):
-    return source in ["decklink", "tcp", "test", "v4l2", "img", "file"]
+    return source in ["decklink", "tcp", "test", "v4l2", "img", "file", "background"]
 
 
 def restart_source(name):
