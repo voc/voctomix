@@ -272,6 +272,7 @@ class VoctocoreConfigParser(VocConfigParser):
         def source_has_video(source):
             return kind_has_video(self.getSourceKind(source))
         sources = self.getSources()
+        sources.append('background')  # todo this is only a hack, we should revisit the way we handle things that are not comming from the config
         #if internal:
         #    sources += ['mix']
         #    if self.getBlinderEnabled():
