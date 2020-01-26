@@ -39,7 +39,8 @@ class PulseAudioSource(AVSource):
         # a volume of 0.126 is ~18dBFS
         return """pulsesrc 
                   name=pulseaudioaudiosrc-{name}
-                  device={device} 
+                  device={device}
+                  client-name=voc2mix
                     """.format(
             device=self.device,
             name=self.name,
