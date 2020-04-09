@@ -65,11 +65,11 @@ VOLUME /video
 
 WORKDIR /opt/voctomix
 COPY . /opt/voctomix/
-COPY docker-ep.sh /opt/voctomix/
+COPY docker-entrypoint.sh /opt/voctomix/
 
 RUN sed -i 's/localhost/corehost/g' voctogui/default-config.ini ;\
     sed -i 's/system=gl/system=xv/g' voctogui/default-config.ini ;\
     find /opt/voctomix/example-scripts/ -type f -exec sed -i 's/localhost/corehost/g' {} \;
 
-ENTRYPOINT ["/opt/voctomix/docker-ep.sh"]
+ENTRYPOINT ["/opt/voctomix/docker-entrypoint.sh"]
 CMD ["help"]
