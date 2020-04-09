@@ -23,7 +23,7 @@ start_core() {
   >&2 echo "Starting VoctoMix Core"
 
   if [[ -x /bin/gosu ]]; then
-    gosu voc /opt/voctomix/voctocore/voctocore.py -v
+    gosu voc /opt/voctomix/voctocore/voctocore.py "$@"
   else
     >&2 echo "no gosu binary found..."
     exec su -l -c "/opt/voctomix/voctocore/voctocore.py -v" voc
@@ -98,7 +98,8 @@ case $1 in
     exit 0
     ;;
   core)
-    start_core
+    shift
+    start_core "$@"
     exit 0
     ;;
   bash)
