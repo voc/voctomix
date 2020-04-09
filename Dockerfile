@@ -52,6 +52,8 @@ RUN apt-get update \
         gstreamer1.0-x \
         ffmpeg \
         python3-gi-cairo \
+        python3-sdnotify \
+        python3-scipy \
     && apt-get clean
 
 RUN wget -q https://github.com/tianon/gosu/releases/download/1.7/gosu-amd64 -O /bin/gosu && chmod +x /bin/gosu
