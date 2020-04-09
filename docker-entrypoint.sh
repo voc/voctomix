@@ -102,7 +102,7 @@ case $1 in
     start_core "$@"
     exit 0
     ;;
-  bash)
+  console)
     shift 
     bash "$@"
     exit 0
