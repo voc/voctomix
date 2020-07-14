@@ -44,7 +44,7 @@ class Ui(UiBuilder):
             # check for configuration option mainwindow/width and /height
             if Config.getWindowSize():
                 # set window size
-                self.win.set_size_request(Config.getWindowSize())
+                self.win.set_size_request(*Config.getWindowSize())
                 self.win.set_resizable(False)
 
         # Connect Close-Handler
