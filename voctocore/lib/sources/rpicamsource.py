@@ -13,7 +13,7 @@ class RPICamAVSource(AVSource):
     timer_resolution = 0.5
 
     def __init__(self, name):
-        super().__init__('RPICamSource', name, False, True, show_no_signal=False)
+        super().__init__('RPICamSource', name, False, True, show_no_signal=True)
 
         self.device = Config.getRPICamDevice(name)
         self.width = Config.getRPICamWidth(name)
@@ -44,13 +44,13 @@ class RPICamAVSource(AVSource):
         )
 
     def get_valid_channel_numbers(self):
-        return (0)
+        return 0
 
     def build_source(self):
         pipe = """
             rpicamsrc
-                device={device}
-            """.format(device=self.device)
+                bitrate=8000000
+            """
 
         pipe += """\
             ! video/x-raw,width={width},height={height},format={format},framerate={framerate}
@@ -75,3 +75,6 @@ class RPICamAVSource(AVSource):
 
     def build_videoport(self):
         return 'vout-{}.'.format(self.name)
+
+    def get_nosignal_text(self):
+        return super().get_nosignal_text() + "/rpicam%s" % self.device
