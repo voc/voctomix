@@ -92,4 +92,4 @@ class V4l2AVSource(AVSource):
         return 'vout-{}.'.format(self.name)
 
     def get_nosignal_text(self):
-        return super().get_nosignal_text() + "/v4l2%d" % self.device
+        return super().get_nosignal_text() + "/v4l2%s" % self.device
