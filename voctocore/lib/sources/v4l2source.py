@@ -13,7 +13,7 @@ class V4l2AVSource(AVSource):
     timer_resolution = 0.5
 
     def __init__(self, name):
-        super().__init__('V4l2Source', name, False, True, show_no_signal=False)
+        super().__init__('V4l2Source', name, False, True, show_no_signal=True)
 
         self.device = Config.getV4l2Device(name)
         self.type = Config.getV4l2Type(name)
@@ -55,7 +55,7 @@ class V4l2AVSource(AVSource):
 
         if self.type == "video/x-raw":
             pipe += """\
-            ! {type}},width={width},height={height},format={format},framerate={framerate}
+            ! {type},width={width},height={height},format={format},framerate={framerate}
             """.format(width=self.width,
                        type=self.type,
                        height=self.height,
@@ -64,7 +64,7 @@ class V4l2AVSource(AVSource):
 
         elif self.type == "image/jpeg":
             pipe += """\
-            ! {type}},width={width},height={height},framerate={framerate}
+            ! {type},width={width},height={height},framerate={framerate}
             ! queue
             ! jpegdec
             """.format(width=self.width,
@@ -90,3 +90,6 @@ class V4l2AVSource(AVSource):
 
     def build_videoport(self):
         return 'vout-{}.'.format(self.name)
+
+    def get_nosignal_text(self):
+        return super().get_nosignal_text() + "/v4l2%d" % self.device
