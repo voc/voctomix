@@ -14,6 +14,7 @@ def spawn_source(name, port, has_audio=True, has_video=True):
     from lib.sources.testsource import TestSource
     from lib.sources.filesource import FileSource
     from lib.sources.v4l2source import V4l2AVSource
+    from lib.sources.rpicamsource import RPICamAVSource
 
     kind = Config.getSourceKind(name)
 
@@ -27,6 +28,8 @@ def spawn_source(name, port, has_audio=True, has_video=True):
         sources[name] = TCPAVSource(name, port, has_audio, has_video)
     elif kind == 'v4l2':
         sources[name] = V4l2AVSource(name)
+    elif kind == 'RPICam':
+        sources[name] = RPICamAVSource(name)
     else:
         if kind != 'test':
             log.warning(

@@ -122,6 +122,9 @@ class VocConfigParser(SafeConfigParser):
     def getV4l2Device(self, source):
         return self.get('source.{}'.format(source), 'device', fallback='/dev/video0')
 
+    def getV4l2Type(self, source):
+        return self.get('source.{}'.format(source), 'type', fallback='video/x-raw')
+
     def getV4l2Width(self, source):
         return self.get('source.{}'.format(source), 'width', fallback=1920)
 
@@ -133,6 +136,25 @@ class VocConfigParser(SafeConfigParser):
 
     def getV4l2Framerate(self, source):
         return self.get('source.{}'.format(source), 'framerate', fallback='25/1')
+
+    def getRPICamDevice(self, source):
+        return self.get('source.{}'.format(source), 'device', fallback='/dev/video0')
+
+    def getRPICamType(self, source):
+        return self.get('source.{}'.format(source), 'type', fallback='video/x-raw')
+
+    def getRPICamWidth(self, source):
+        return self.get('source.{}'.format(source), 'width', fallback=1920)
+
+    def getRPICamHeight(self, source):
+        return self.get('source.{}'.format(source), 'height', fallback=1080)
+
+    def getRPICamFormat(self, source):
+        return self.get('source.{}'.format(source), 'format', fallback='YUY2')
+
+    def getRPICamFramerate(self, source):
+        return self.get('source.{}'.format(source), 'framerate', fallback='25/1')
+
 
     def getImageURI(self,source):
         if self.has_option('source.{}'.format(source), 'imguri'):
