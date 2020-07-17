@@ -13,7 +13,7 @@ class RPICamAVSource(AVSource):
     timer_resolution = 0.5
 
     def __init__(self, name):
-        super().__init__('RPICamSource', name, False, True, show_no_signal=True)
+        super().__init__('RPICamSource', name, False, True, show_no_signal=False)
 
         self.device = Config.getRPICamDevice(name)
         self.width = Config.getRPICamWidth(name)

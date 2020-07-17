@@ -41,8 +41,9 @@ class AVSource(object, metaclass=ABCMeta):
             assert self.has_video
             # set timeout at which we check for signal loss
             GLib.timeout_add(self.timer_resolution * 1000, self.do_timeout)
-            # this might get attached to the no-signal compositor's input sink
-            self.noSignalSink = None
+        
+        # this might get attached to the no-signal compositor's input sink
+        self.noSignalSink = None
 
     @abstractmethod
     def __str__(self):
