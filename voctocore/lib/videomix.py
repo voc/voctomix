@@ -87,23 +87,22 @@ class VideoMix(object):
                 ! videomixer.
                 """.format(name=background)
 
-        for idx, name in enumerate(self.sources):
-            if name in Config.getVideoSources():
-                self.bin += """
-                    video-{name}.
-                    ! queue
-                        max-size-time=3000000000
-                        name=queue-cropper-{name}
-                    ! videobox
-                        name=cropper-{name}
-                    ! queue
-                        max-size-time=3000000000
-                        name=queue-videomixer-{name}
-                    ! videomixer.
-                    """.format(
-                    name=name,
-                    idx=idx
-                )
+        for idx, name in enumerate(Config.getVideoSources()):
+            self.bin += """
+                video-{name}.
+                ! queue
+                    max-size-time=3000000000
+                    name=queue-cropper-{name}
+                ! videobox
+                    name=cropper-{name}
+                ! queue
+                    max-size-time=3000000000
+                    name=queue-videomixer-{name}
+                ! videomixer.
+                """.format(
+                name=name,
+                idx=idx
+            )
 
         self.bin += "" if Args.no_bins else """)
                     """

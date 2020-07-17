@@ -43,34 +43,33 @@ class Scene:
             return cs
 
         # walk all sources
-        for idx, source in enumerate(sources):
-            if source in Config.getVideoSources():
-                # initially invisible
-                self.frames[source] = None
-                # get mixer pad from pipeline
-                mixerpad = (pipeline
-                            .get_by_name('videomixer')
-                            .get_static_pad('sink_%s' % (idx + start_sink)))
-                # add dictionary of binds to all properties
-                # we vary for this source
-                self.pads[source] = {
-                    'xpos': bind(mixerpad, 'xpos'),
-                    'ypos': bind(mixerpad, 'ypos'),
-                    'width': bind(mixerpad, 'width'),
-                    'height': bind(mixerpad, 'height'),
-                    'alpha': bind(mixerpad, 'alpha'),
-                    'zorder': bind(mixerpad, 'zorder'),
+        for idx, source in enumerate(Config.getVideoSources()):
+            # initially invisible
+            self.frames[source] = None
+            # get mixer pad from pipeline
+            mixerpad = (pipeline
+                        .get_by_name('videomixer')
+                        .get_static_pad('sink_%s' % (idx + start_sink)))
+            # add dictionary of binds to all properties
+            # we vary for this source
+            self.pads[source] = {
+                'xpos': bind(mixerpad, 'xpos'),
+                'ypos': bind(mixerpad, 'ypos'),
+                'width': bind(mixerpad, 'width'),
+                'height': bind(mixerpad, 'height'),
+                'alpha': bind(mixerpad, 'alpha'),
+                'zorder': bind(mixerpad, 'zorder'),
+            }
+            # get mixer and cropper pad from pipeline
+            if self.cpads is not None:
+                cropperpad = (pipeline
+                              .get_by_name("cropper-%s" % source))
+                self.cpads[source] = {
+                    'croptop': bind(cropperpad, 'top'),
+                    'cropleft': bind(cropperpad, 'left'),
+                    'cropbottom': bind(cropperpad, 'bottom'),
+                    'cropright': bind(cropperpad, 'right')
                 }
-                # get mixer and cropper pad from pipeline
-                if self.cpads is not None:
-                    cropperpad = (pipeline
-                                  .get_by_name("cropper-%s" % source))
-                    self.cpads[source] = {
-                        'croptop': bind(cropperpad, 'top'),
-                        'cropleft': bind(cropperpad, 'left'),
-                        'cropbottom': bind(cropperpad, 'bottom'),
-                        'cropright': bind(cropperpad, 'right')
-                    }
         # ready to initialize gstreamer
         self.dirty = False
 
