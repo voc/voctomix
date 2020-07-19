@@ -358,6 +358,9 @@ class VocConfigParser(SafeConfigParser):
     def getPreviewsEnabled(self):
         return self.getboolean('previews', 'enabled', fallback=False)
 
+    def getLocalUIEnabled(self):
+        return self.getboolean('localui', 'enabled', fallback=False)
+
     def getLivePreviews(self):
         if self.getBlinderEnabled():
             singleval = self.get('previews', 'live').lower()

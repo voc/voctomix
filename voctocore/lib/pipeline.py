@@ -13,6 +13,7 @@ from lib.avpreviewoutput import AVPreviewOutput
 from lib.videomix import VideoMix
 from lib.audiomix import AudioMix
 from lib.blinder import Blinder
+from lib.localui import LocalUi
 from lib.args import Args
 from lib.clock import Clock
 from vocto.port import Port
@@ -79,6 +80,13 @@ class Pipeline(object):
         dest = AVRawOutput('mix', Port.MIX_OUT, use_audio_mix=True)
         self.bins.append(dest)
         self.ports.append(Port('mix', dest))
+
+        # add localui
+        if Config.getLocalUIEnabled():
+            ui = LocalUi("mix", Port.MIX_OUT, use_audio_mix=False)
+            self.bins.append(ui)
+            self.ports.append(Port('mix', ui))
+
 
         # create mix preview TCP output
         if Config.getPreviewsEnabled():
