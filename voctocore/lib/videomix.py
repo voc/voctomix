@@ -21,7 +21,7 @@ class VideoMix(object):
     def __init__(self):
         # read sources from confg file
         self.bgSources = Config.getBackgroundSources()
-        self.sources = Config.getSources()
+        self.sources = Config.getVideoSources()
         self.log.info('Configuring mixer for %u source(s) and %u background source(s)', len(self.sources), len(self.bgSources))
 
         # load composites from config

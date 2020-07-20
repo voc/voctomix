@@ -51,7 +51,7 @@ class VoctoguiConfigParser(VocConfigParser):
     def getToolbarSourcesDefault(self):
         return {"%s.name" % source:
                 source.upper()
-                for source in self.getList('mix', 'sources')
+                for source in self.getVideoSources()
                 }
 
     def trySection(self, section_name, default_result=None):

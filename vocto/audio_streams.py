@@ -11,22 +11,30 @@ class AudioStreams(list):
         ''' just init the container '''
         self = []
 
-    def configure(cfg, source, use_source_as_name=False):
+    def configure_source(self, cfg, source, use_source_as_name=False):
         ''' create an instance of <AudioStreams> for <source> that gets configured by INI section <cfg>
             If <use_source_as_name> is True items will be named as <source>.
         '''
-        audio_streams = AudioStreams()
-
+        audiostreams = []
         # walk through all items within the configuration string
         for t_name, t in cfg:
             # search for entrys like 'audio.*'
             r = re.match(r'^audio\.([\w\-_]+)$', t_name)
             if r:
                 for i, channel in enumerate(t.split("+")):
-                    audio_streams.append(AudioStream(source, i,
-                                                     source if use_source_as_name else r.group(1), channel)
-                                         )
-        return audio_streams
+                    name = source if use_source_as_name else r.group(1)
+                    if self.has_stream(name):
+                        log.error("input audio stream name '%s' can't be addressed a second time within source '%s'", name, source)
+                    else:
+                        audiostreams.append(AudioStream(source, i, name, channel))
+        self += audiostreams
+        
+    def has_stream( self, name, channel=None ):
+        for s in self:
+            if s.name == name:
+                if channel is None or s.channel == int(channel):
+                    return True
+        return False
 
     def __str__(self):
         result = ""
@@ -116,6 +124,7 @@ class AudioStreams(list):
                 if audio_stream.name not in result:
                     result.append(audio_stream.source)
         return result
+
 
 class AudioStream:
     def __init__(self, source, channel, name, source_channel):

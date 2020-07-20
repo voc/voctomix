@@ -14,6 +14,7 @@ def spawn_source(name, port, has_audio=True, has_video=True):
     from lib.sources.testsource import TestSource
     from lib.sources.filesource import FileSource
     from lib.sources.v4l2source import V4l2AVSource
+    from lib.sources.pulseaudiosource import PulseAudioSource
 
     kind = Config.getSourceKind(name)
 
@@ -27,6 +28,8 @@ def spawn_source(name, port, has_audio=True, has_video=True):
         sources[name] = TCPAVSource(name, port, has_audio, has_video)
     elif kind == 'v4l2':
         sources[name] = V4l2AVSource(name)
+    elif kind == 'pa':
+        sources[name] = PulseAudioSource(name)
     else:
         if kind != 'test':
             log.warning(
@@ -34,11 +37,3 @@ def spawn_source(name, port, has_audio=True, has_video=True):
         sources[name] = TestSource(name, has_audio, has_video)
 
     return sources[name]
-
-
-def kind_has_audio(source):
-    return source in ["decklink", "tcp", "test"]
-
-
-def restart_source(name):
-    assert False, "restart_source() not implemented"

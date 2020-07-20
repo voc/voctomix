@@ -20,7 +20,7 @@ class VideoDisplay(object):
         self.log = logging.getLogger('VideoDisplay:%s' % name)
         self.name = name
         self.video_drawing_area = video_drawing_area
-        self.level_callback = audio_display.callback
+        self.level_callback = None if audio_display is None else audio_display.callback
         video_decoder = None
 
         # Setup Server-Connection, Demuxing and Decoding

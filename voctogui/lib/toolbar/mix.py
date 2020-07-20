@@ -60,4 +60,4 @@ class MixToolbarController(object):
         command = self.preview_controller.command()
         self.mix['retake']['button'].set_sensitive(command != self.preview_controller.output)
         self.mix['trans']['button'].set_sensitive(best == "transition")
-        self.mix['cut']['button'].set_sensitive((best == "transition" or best == "cut") and not (command.composite == "lec" or command.composite == "|lec"))
+        self.mix['cut']['button'].set_sensitive((best == "transition" or best == "cut"))

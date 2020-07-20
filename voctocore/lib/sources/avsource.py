@@ -56,17 +56,22 @@ class AVSource(object, metaclass=ABCMeta):
                 'compositor-{}'.format(self.name)).get_static_pad('sink_1')
 
     def build_pipeline(self):
+        # open enveloping <bin>
         self.bin = "" if Args.no_bins else """
             bin.(
                 name={class_name}-{name}
             """.format(class_name=self.class_name, name=self.name)
 
+        # attach the pipeline which produces the source
         self.bin += self.build_source()
 
+        # only add audio part if we are using audio
         if self.internal_audio_channels():
+            # get port name for audio from source
             audioport = self.build_audioport()
+            # check if we have any audio ports from source at all
             if audioport:
-                audio_streams = self.audio_streams.get_stream_names(self.name)
+                audio_stream_names = self.audio_streams.get_stream_names(self.name)
                 self.bin += """
                     {audioport}
                     ! queue
@@ -78,7 +83,7 @@ class AVSource(object, metaclass=ABCMeta):
                     audioport=audioport,
                     name=self.name
                 )
-                if not audio_streams:
+                if not audio_stream_names:
                     self.bin += """
                         source-audio-{name}.
                         ! queue
@@ -87,37 +92,37 @@ class AVSource(object, metaclass=ABCMeta):
                         ! fakesink
                             async=false
                         """.format(name=self.name)
-
-                for stream in audio_streams:
-                    self.log.info("Creating audio streams '{}' from source '{}'".format(stream,self.name))
-                    self.bin += """
-                        source-audio-{name}.
-                        ! queue
-                            max-size-time=3000000000
-                            name=queue-audiomixmatrix-{stream}
-                        ! audiomixmatrix
-                            name=audiomixmatrix-{stream}
-                            in-channels={in_channels}
-                            out-channels={out_channels}
-                            matrix="{matrix}"
-                        ! {acaps}
-                        ! queue
-                            name=queue-audio-{stream}
-                            max-size-time=3000000000
-                        ! tee
-                            name=audio-{stream}
-                        """.format(
-                        in_channels=self.internal_audio_channels(),
-                        out_channels=Config.getAudioChannels(),
-                        matrix=str(self.audio_streams.matrix(self.name,
-                                                             stream,
-                                                             Config.getAudioChannels(),
-                                                             grid=self.get_valid_channel_numbers())
-                                   ).replace("[", "<").replace("]", ">"),
-                        acaps=Config.getAudioCaps(),
-                        stream=stream,
-                        name=self.name
-                    )
+                else:
+                    for stream in audio_stream_names:
+                        self.log.info("Creating audio streams '{}' from source '{}'".format(stream,self.name))
+                        self.bin += """
+                            source-audio-{name}.
+                            ! queue
+                                max-size-time=3000000000
+                                name=queue-audiomixmatrix-{stream}
+                            ! audiomixmatrix
+                                name=audiomixmatrix-{stream}
+                                in-channels={in_channels}
+                                out-channels={out_channels}
+                                matrix="{matrix}"
+                            ! {acaps}
+                            ! queue
+                                name=queue-audio-{stream}
+                                max-size-time=3000000000
+                            ! tee
+                                name=audio-{stream}
+                            """.format(
+                            in_channels=self.internal_audio_channels(),
+                            out_channels=Config.getAudioChannels(),
+                            matrix=str(self.audio_streams.matrix(self.name,
+                                                                 stream,
+                                                                 Config.getAudioChannels(),
+                                                                 grid=self.get_valid_channel_numbers())
+                                       ).replace("[", "<").replace("]", ">"),
+                            acaps=Config.getAudioCaps(),
+                            stream=stream,
+                            name=self.name
+                        )
 
         if self.has_video:
             if self.show_no_signal and Config.getNoSignal():

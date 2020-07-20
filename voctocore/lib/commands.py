@@ -5,7 +5,6 @@ import inspect
 
 from lib.config import Config
 from lib.response import NotifyResponse, OkResponse
-from lib.sources import restart_source
 from vocto.composite_commands import CompositeCommand
 from vocto.command_helpers import quote, dequote, str2bool
 import os
@@ -143,15 +142,15 @@ class ControlServerCommands(object):
         status = self._get_audio_status()
         return NotifyResponse('audio_status', status)
 
-    def set_audio_volume(self, src_name, volume):
+    def set_audio_volume(self, stream_name, volume):
         """sets the volume of the supplied source-name or source-id"""
         volume = float(volume)
         if volume < 0.0:
             raise ValueError("volume must be positive")
-        if src_name == 'mix':
+        if stream_name == 'mix':
             self.pipeline.amix.setAudioVolume(volume)
         else:
-            self.pipeline.amix.setAudioSourceVolume(self.streams.index(src_name), volume)
+            self.pipeline.amix.setAudioSourceVolume(self.streams.index(stream_name), volume)
 
         status = self._get_audio_status()
         return NotifyResponse('audio_status', status)
@@ -285,11 +284,6 @@ class ControlServerCommands(object):
         """returns a single value from the server-config"""
         value = Config.get(section, key)
         return OkResponse('server_config_option', section, key, value)
-
-    def restart_source(self, src_name):
-        """restarts the specified source"""
-        restart_source(src_name)
-        return OkResponse('source_restarted', src_name)
 
     def report_queues(self):
         report = dict()

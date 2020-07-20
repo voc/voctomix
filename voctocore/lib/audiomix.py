@@ -96,10 +96,7 @@ class AudioMix(object):
         self.updateMixerState()
 
     def setAudioSourceVolume(self, stream, volume):
-        if stream == 'mix':
-            self.mix_volume = volume
-        else:
-            self.volumes[stream] = volume
+        self.volumes[stream] = volume
         self.updateMixerState()
 
     def setAudioVolume(self, volume):

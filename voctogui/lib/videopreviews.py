@@ -53,16 +53,20 @@ class VideoPreviewsController(object):
 
         self.log.info('Initializing video preview %s at port %d', source, port)
 
-        video = uibuilder.load_check_widget('video',
-                                            os.path.dirname(uibuilder.uifile) +
-                                            "/widgetpreview.ui")
-        video.set_size_request(*self.previewSize)
-        self.video_box.pack_start(video, fill=False,
-                               expand=False, padding=0)
+        mix_audio_display = None
 
-        mix_audio_display = AudioDisplay(self.audio_box, source, uibuilder, has_volume)
-        player = VideoDisplay(video, mix_audio_display, port=port,
-                              width=self.previewSize[0],
-                              height=self.previewSize[1],
-                              name=source.upper()
-                              )
+        if source in Config.getAudioSources() and Config.getAudioStreams().get_source_streams(source):
+            mix_audio_display = AudioDisplay(self.audio_box, source, uibuilder, has_volume)
+        if source in Config.getVideoSources():
+            video = uibuilder.load_check_widget('video',
+                                                os.path.dirname(uibuilder.uifile) +
+                                                "/widgetpreview.ui")
+            video.set_size_request(*self.previewSize)
+            self.video_box.pack_start(video, fill=False,
+                                   expand=False, padding=0)
+
+            player = VideoDisplay(video, mix_audio_display, port=port,
+                                  width=self.previewSize[0],
+                                  height=self.previewSize[1],
+                                  name=source.upper()
+                                  )
