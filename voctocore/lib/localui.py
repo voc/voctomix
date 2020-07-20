@@ -5,6 +5,7 @@ from lib.args import Args
 from lib.config import Config
 from lib.tcpmulticonnection import TCPMultiConnection
 
+
 class LocalUi():
 
     def __init__(self, source, port, use_audio_mix=False, audio_blinded=False):
@@ -12,13 +13,13 @@ class LocalUi():
         self.log = logging.getLogger('LocalUI'.format(source))
 
         # initialize super
-        #super().__init__(port)
+        # super().__init__(port)
 
         # remember things
         self.source = source
 
         # open bin
-        #self.bin = "" if Args.no_bins else """
+        # self.bin = "" if Args.no_bins else """
         #    bin.(
         #        name=LocalUI
         #        """
@@ -31,11 +32,10 @@ class LocalUi():
                 ! queue
                     max-size-time=3000000000
                     name=queue-mux-video-localui
-                ! autovideosink
+                ! {videosink}
                 """.format(source=self.source,
-                          vcaps=Config.getVideoCaps())
-
-
+                           vcaps=Config.getVideoCaps(),
+                           videosink=Config.getLocalUIVideoSystem())
 
         # audio pipeline
         if use_audio_mix or source in Config.getAudioSources(internal=True):
@@ -57,7 +57,7 @@ class LocalUi():
             )
 
         # close bin
-        #self.bin += "" if Args.no_bins else "\n)\n"
+        # self.bin += "" if Args.no_bins else "\n)\n"
 
     def port(self):
         return 0

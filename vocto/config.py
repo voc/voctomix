@@ -364,6 +364,9 @@ class VocConfigParser(SafeConfigParser):
     def getLocalUIEnabled(self):
         return self.getboolean('localui', 'enabled', fallback=False)
 
+    def getLocalUIVideoSystem(self):
+        return self.get('localui', 'system', fallback="autovideosink")
+
     def getLivePreviews(self):
         if self.getBlinderEnabled():
             singleval = self.get('previews', 'live').lower()
