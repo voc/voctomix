@@ -137,10 +137,10 @@ class Pipeline(object):
                 self.bins.append(dest)
                 self.ports.append(Port('{}-live'.format(livesource), dest))
 
-        for bin in self.bins:
-            self.log.info("%s\n%s", bin, pretty(bin.bin))
+        for _bin in self.bins:
+            self.log.info("%s\n%s", _bin, pretty(_bin.bin))
 
-        # concatinate pipeline string
+        # concatenate pipeline string
         pipeline = "\n\n".join(bin.bin for bin in self.bins)
 
         if Args.pipeline:
