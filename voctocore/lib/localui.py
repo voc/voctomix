@@ -54,7 +54,7 @@ class LocalUi():
         return False
 
     def __str__(self):
-        return 'AVRawOutput[{}]'.format(self.source)
+        return 'LocalUI[{}]'.format(self.source)
 
     def attach(self, pipeline):
         self.pipeline = pipeline
