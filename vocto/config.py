@@ -358,6 +358,9 @@ class VocConfigParser(SafeConfigParser):
     def getPreviewsEnabled(self):
         return self.getboolean('previews', 'enabled', fallback=False)
 
+    def getAVRawOutputEnabled(self):
+        return self.getboolean('avrawoutput', 'enabled', fallback=True)
+
     def getLocalUIEnabled(self):
         return self.getboolean('localui', 'enabled', fallback=False)
 

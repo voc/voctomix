@@ -77,13 +77,14 @@ class Pipeline(object):
             self.ports.append(Port(background, source))
 
         # create mix TCP output
-        dest = AVRawOutput('mix', Port.MIX_OUT, use_audio_mix=True)
-        self.bins.append(dest)
-        self.ports.append(Port('mix', dest))
+        if Config.getAVRawOutputEnabled():
+            dest = AVRawOutput('mix', Port.MIX_OUT, use_audio_mix=True)
+            self.bins.append(dest)
+            self.ports.append(Port('mix', dest))
 
         # add localui
         if Config.getLocalUIEnabled():
-            ui = LocalUi("mix", Port.MIX_OUT, use_audio_mix=False)
+            ui = LocalUi("mix", Port.MIX_OUT, use_audio_mix=True)
             self.bins.append(ui)
             self.ports.append(Port('mix', ui))
 

@@ -35,6 +35,27 @@ class LocalUi():
                 """.format(source=self.source,
                           vcaps=Config.getVideoCaps())
 
+
+
+        # audio pipeline
+        if use_audio_mix or source in Config.getAudioSources(internal=True):
+            self.bin += """
+                {use_audio}audio-{audio_source}{audio_blinded}.
+                ! queue
+                    max-size-time=3000000000
+                    name=queue-audio-mix-convert-{source}
+                ! audioconvert
+                ! queue
+                    max-size-time=3000000000
+                    name=queue-mux-audio-{source}
+                ! autoaudiosink
+                """.format(
+                source=self.source,
+                use_audio="" if use_audio_mix else "source-",
+                audio_source="mix" if use_audio_mix else self.source,
+                audio_blinded="-blinded" if audio_blinded else ""
+            )
+
         # close bin
         #self.bin += "" if Args.no_bins else "\n)\n"
 
