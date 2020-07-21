@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Voctoremote</title>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='index.css') }}"/>
+    </head>
+    <body>
+        <div class="button-container">
+        {% for button in buttons %}
+            <a class="button" href="run?command={{ button.command }}"><span class="button-text">{{ button.text }}</span></a>
+        {% endfor %}
+        </div>
+        <script src="{{ url_for('static', filename='index.js') }}"></script>
+    </body>
+</html>
