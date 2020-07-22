@@ -10,20 +10,24 @@ html,body{
     flex-direction: column;
 }
 .button{
-    padding: .8em;
-    border: 1px solid transparent;
-    border-radius: .5em;
-    text-decoration: none;
-    cursor: pointer;
-    color: #fff;
-    background-color: blue;
-    box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.4);
     height: 100%;
     margin: .5em;
     display: flex;
     align-items: center;
     justify-content: center;
 }
-.button-text{
+.button > input[type=submit] {
+    padding: .8rem;
+    border: 1px solid transparent;
+    border-radius: .5em;
+    color: #fff;
+    background-color: blue;
+    box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.4);
+    width: 100%;
+    height: 100%;
+    text-align: center;
     font-size: min(20vh,5vw);
+}
+.button > input[type=text] {
+    display: none;
 }

@@ -1,6 +1,10 @@
-document.querySelectorAll("a.button[href]").forEach((anchor)=>{
-    anchor.addEventListener("click",(event)=>{
+document.querySelectorAll(".button").forEach((form)=>{
+    form.addEventListener("submit",(event)=>{
+        fetch(form.getAttribute("action"),{
+            method: "POST",
+            redirect: "manual",
+            body: new FormData(form)
+        });
         event.preventDefault();
-        fetch(anchor.getAttribute("href"));
     });
 });
