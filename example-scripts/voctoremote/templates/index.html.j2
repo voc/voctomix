@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Voctoremote</title>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='index.css') }}"/>
+    </head>
+    <body>
+        <div class="button-container">
+        {% for button in buttons %}
+            <form action="run" method="post" class="button">
+                <input type="text" name="command" value="{{ button.command }}" />
+                <input type="submit" value="{{ button.text }}" />
+            </form>
+        {% endfor %}
+        </div>
+        <script src="{{ url_for('static', filename='index.js') }}"></script>
+    </body>
+</html>
