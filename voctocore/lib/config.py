@@ -257,6 +257,26 @@ class VoctocoreConfigParser(VocConfigParser):
         else:
             return 300
 
+    def getAudioMixMatrix(self):
+        if self.has_option('mix', 'audiomixmatrix'):
+            # read matrix from config (columns separated by space, rows by slash
+            matrix = []
+            for l, line in enumerate(self.get('mix', 'audiomixmatrix').split('/')):
+                matrix.append([])
+                for v, value in enumerate(line.split()):
+                    matrix[l].append(float(value))
+                if len(matrix[0]) != len(matrix[l]):
+                    self.log.error('Mix matrix has lines of different lengths')
+                    sys.exit(-1)
+        else:
+            # create identity matrix for all channels
+            channels = self.getAudioChannels()
+            matrix = [[0.0 for x in range(0, channels)]
+                      for x in range(0, channels)]
+            for i in range(0, channels):
+                matrix[i][i] = 1.0
+        return matrix
+
 
 def load():
     global Config

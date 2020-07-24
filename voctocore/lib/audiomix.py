@@ -27,15 +27,7 @@ class AudioMix(object):
                 name=AudioMix
             """
 
-        channels = Config.getAudioChannels()
-
-        def identity():
-            matrix = [[0.0 for x in range(0, channels)]
-                      for x in range(0, channels)]
-            for i in range(0, channels):
-                matrix[i][i] = 1.0
-            return str(matrix).replace("[","<").replace("]",">")
-
+        matrix = Config.getAudioMixMatrix()
         self.bin += """
             audiomixer
                 name=audiomixer
@@ -52,9 +44,9 @@ class AudioMix(object):
                 name=queue-audio-mix
             ! tee
                 name=audio-mix
-            """.format(in_channels=channels,
-                       out_channels=channels,
-                       matrix=identity())
+            """.format(in_channels=len(matrix[0]),
+                       out_channels=len(matrix),
+                       matrix=str(matrix).replace("[","<").replace("]",">"))
 
         for stream in self.streams:
             self.bin += """
