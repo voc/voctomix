@@ -12,4 +12,4 @@ def kind_has_audio(source):
     return source in ["decklink", "tcp", "test", "pa"]
 
 def kind_has_video(source):
-    return source in ["decklink", "tcp", "test", "v4l2", "img", "file", "background"]
+    return source in ["decklink", "tcp", "test", "v4l2", "img", "file", "background", "RPICam"]
