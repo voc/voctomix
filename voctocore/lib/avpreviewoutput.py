@@ -27,21 +27,22 @@ class AVPreviewOutput(TCPMultiConnection):
                 """.format(source=self.source)
 
         # video pipeline
-        self.bin += """
-                video-{source}.
-                ! {vcaps}
-                ! queue
-                    max-size-time=3000000000
-                    name=queue-preview-video-{source}
-                {vpipeline}
-                ! queue
-                    max-size-time=3000000000
-                    name=queue-mux-preview-{source}
-                ! mux-preview-{source}.
-                """.format(source=self.source,
-                           vpipeline=self.construct_video_pipeline(),
-                           vcaps=Config.getVideoCaps()
-                           )
+        if source in Config.getVideoSources():
+            self.bin += """
+                    video-{source}.
+                    ! {vcaps}
+                    ! queue
+                        max-size-time=3000000000
+                        name=queue-preview-video-{source}
+                    {vpipeline}
+                    ! queue
+                        max-size-time=3000000000
+                        name=queue-mux-preview-{source}
+                    ! mux-preview-{source}.
+                    """.format(source=self.source,
+                               vpipeline=self.construct_video_pipeline(),
+                               vcaps=Config.getVideoCaps()
+                               )
 
         # audio pipeline
         if use_audio_mix or source in Config.getAudioSources(internal=True):
@@ -134,7 +135,7 @@ class AVPreviewOutput(TCPMultiConnection):
         # we can also force a video format here (format=I420) but this breaks scalling at least on Intel HD3000 therefore it currently removed
         return """  ! capsfilter
                         caps=video/x-raw,interlace-mode=progressive
-                    ! vaapipostproc                        
+                    ! vaapipostproc
                     ! video/x-raw,width={width},height={height},framerate={n}/{d},deinterlace-mode={imode},deinterlace-method=motion-adaptive,denoise={denoise},scale-method={scale_method}
                     ! {encoder}
                         {options}""".format(imode='interlaced' if Config.getDeinterlacePreviews() else 'disabled',

@@ -3,7 +3,6 @@ import os.path
 import logging
 from configparser import DuplicateSectionError
 from lib.args import Args
-from lib.sources import kind_has_audio
 from vocto.config import VocConfigParser
 import xml.etree.ElementTree as ET
 from datetime import date, datetime, timedelta
@@ -257,16 +256,6 @@ class VoctocoreConfigParser(VocConfigParser):
             return int(self.get('overlay', 'blend'))
         else:
             return 300
-
-    def getAudioSources(self, internal=False):
-        def source_has_audio(source):
-            return kind_has_audio(self.getSourceKind(source))
-        sources = self.getSources()
-        if internal:
-            sources += ['mix']
-            if self.getBlinderEnabled():
-                sources += ['blinder', 'mix-blinded']
-        return list(filter(source_has_audio, sources))
 
 
 def load():

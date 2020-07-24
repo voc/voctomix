@@ -8,6 +8,7 @@ from configparser import SafeConfigParser
 from lib.args import Args
 from vocto.transitions import Composites, Transitions
 from vocto.audio_streams import AudioStreams
+from vocto import kind_has_audio, kind_has_video
 
 testPatternCount = 0
 
@@ -59,6 +60,7 @@ GST_TYPE_AUDIO_TEST_SRC_WAVE = [
 class VocConfigParser(SafeConfigParser):
 
     log = logging.getLogger('VocConfigParser')
+    audio_streams = None
 
     def getList(self, section, option, fallback=None):
         if self.has_option(section, option):
@@ -73,9 +75,6 @@ class VocConfigParser(SafeConfigParser):
 
     def getSources(self):
         return self.getList('mix', 'sources')
-
-    def getAudioSource(self):
-        return self.get('mix', 'audiosource', fallback=None)
 
     def getLiveSources(self):
         return ["mix"] + self.getList('mix', 'livesources', [])
@@ -118,6 +117,9 @@ class VocConfigParser(SafeConfigParser):
 
     def getDeckLinkVideoFormat(self, source):
         return self.get('source.{}'.format(source), 'video_format', fallback='auto')
+
+    def getPulseAudioDevice(self, source):
+        return self.get('source.{}'.format(source), 'device', fallback='auto')
 
     def getV4l2Device(self, source):
         return self.get('source.{}'.format(source), 'device', fallback='/dev/video0')
@@ -204,13 +206,14 @@ class VocConfigParser(SafeConfigParser):
         return self.get(section, 'scan', fallback='progressive')
 
     def getAudioStreams(self):
-        audio_streams = AudioStreams()
-        sources = self.getSources()
-        for source in sources:
-            section = 'source.{}'.format(source)
-            if self.has_section(section):
-                audio_streams += AudioStreams.configure(self.items(section), source)
-        return audio_streams
+        if self.audio_streams is None:
+            self.audio_streams = AudioStreams()
+            sources = self.getSources()
+            for source in sources:
+                section = 'source.{}'.format(source)
+                if self.has_section(section):
+                    self.audio_streams.configure_source(self.items(section), source)
+        return self.audio_streams
 
     def getBlinderAudioStreams(self):
         audio_streams = AudioStreams()
@@ -417,3 +420,19 @@ class VocConfigParser(SafeConfigParser):
 
     def getOverlayUserAutoOff(self):
         return self.getboolean('overlay', 'user-auto-off', fallback=False)
+
+    def getVideoSources(self):
+        def source_has_video(source):
+            return kind_has_video(self.getSourceKind(source))
+        sources = self.getSources()
+        return list(filter(source_has_video, sources))
+
+    def getAudioSources(self, internal=False):
+        def source_has_audio(source):
+            return kind_has_audio(self.getSourceKind(source))
+        sources = self.getSources()
+        if internal:
+            sources += ['mix']
+            if self.getBlinderEnabled():
+                sources += ['blinder', 'mix-blinded']
+        return list(filter(source_has_audio, sources))

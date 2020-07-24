@@ -53,8 +53,8 @@ class PreviewToolbarController(object):
         self.validate(self.sourcesB)
 
         # initialize source buttons
-        self.sourceA = Config.getSources()[0]
-        self.sourceB = Config.getSources()[1]
+        self.sourceA = Config.getVideoSources()[0]
+        self.sourceB = Config.getVideoSources()[1]
         self.sourcesA[self.sourceA]['button'].set_active(True)
         self.sourcesB[self.sourceB]['button'].set_active(True)
 
