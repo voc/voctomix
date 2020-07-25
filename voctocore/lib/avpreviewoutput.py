@@ -1,18 +1,17 @@
+import logging
 #!/usr/bin/env python3
+from vocto.video_codecs import construct_video_encoder_pipeline
+
 from lib.tcpmulticonnection import TCPMultiConnection
 from lib.config import Config
 from lib.args import Args
-from gi.repository import Gst
-import logging
-import gi
-gi.require_version('GstController', '1.0')
-
 
 class AVPreviewOutput(TCPMultiConnection):
 
     def __init__(self, source, port, use_audio_mix=False, audio_blinded=False):
         # create logging interface
-        self.log = logging.getLogger('AVPreviewOutput[{}]'.format(source))
+        if not hasattr(self, 'log'):
+            self.log = logging.getLogger('AVPreviewOutput[{}]'.format(source))
 
         # initialize super
         super().__init__(port)
@@ -40,7 +39,7 @@ class AVPreviewOutput(TCPMultiConnection):
                         name=queue-mux-preview-{source}
                     ! mux-preview-{source}.
                     """.format(source=self.source,
-                               vpipeline=self.construct_video_pipeline(),
+                               vpipeline=construct_video_encoder_pipeline('preview'),
                                vcaps=Config.getVideoCaps()
                                )
 
@@ -92,79 +91,6 @@ class AVPreviewOutput(TCPMultiConnection):
 
     def __str__(self):
         return 'AVPreviewOutput[{}]'.format(self.source)
-
-    def construct_video_pipeline(self):
-        if Config.getPreviewVaapi():
-            return self.construct_vaapi_video_pipeline()
-        else:
-            return self.construct_native_video_pipeline()
-
-    def construct_vaapi_video_pipeline(self):
-        # https://blogs.igalia.com/vjaquez/2016/04/06/gstreamer-vaapi-1-8-the-codec-split/
-        if Gst.version() < (1, 8):
-            vaapi_encoders = {
-                'h264': 'vaapiencode_h264',
-                'jpeg': 'vaapiencode_jpeg',
-                'mpeg2': 'vaapiencode_mpeg2',
-            }
-        else:
-            vaapi_encoders = {
-                'h264': 'vaapih264enc',
-                'jpeg': 'vaapijpegenc',
-                'mpeg2': 'vaapimpeg2enc',
-            }
-
-        vaapi_encoder_options = {
-            'h264': """rate-control=cqp
-                       init-qp=10
-                       max-bframes=0
-                       keyframe-period=60""",
-            'jpeg': """quality=90
-                       keyframe-period=0""",
-            'mpeg2': "keyframe-period=60",
-        }
-
-        # prepare selectors
-        size = Config.getPreviewResolution()
-        framerate = Config.getPreviewFramerate()
-        vaapi = Config.getPreviewVaapi()
-        denoise = Config.getDenoiseVaapi()
-        scale_method = Config.getScaleMethodVaapi()
-
-        # generate pipeline
-        # we can also force a video format here (format=I420) but this breaks scalling at least on Intel HD3000 therefore it currently removed
-        return """  ! capsfilter
-                        caps=video/x-raw,interlace-mode=progressive
-                    ! vaapipostproc
-                    ! video/x-raw,width={width},height={height},framerate={n}/{d},deinterlace-mode={imode},deinterlace-method=motion-adaptive,denoise={denoise},scale-method={scale_method}
-                    ! {encoder}
-                        {options}""".format(imode='interlaced' if Config.getDeinterlacePreviews() else 'disabled',
-                                            width=size[0],
-                                            height=size[1],
-                                            encoder=vaapi_encoders[vaapi],
-                                            options=vaapi_encoder_options[vaapi],
-                                            n=framerate[0],
-                                            d=framerate[1],
-                                            denoise=denoise,
-                                            scale_method=scale_method,
-                                            )
-
-    def construct_native_video_pipeline(self):
-        # maybe add deinterlacer
-        if Config.getDeinterlacePreviews():
-            pipeline = """  ! deinterlace
-                                mode=interlaced
-                            """
-        else:
-            pipeline = ""
-
-        # build rest of the pipeline
-        pipeline += """ ! videorate
-                        ! videoscale
-                        ! {vcaps}
-                        ! jpegenc
-                            quality = 90""".format(vcaps=Config.getPreviewCaps())
-        return pipeline
 
     def attach(self, pipeline):
         self.pipeline = pipeline

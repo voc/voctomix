@@ -10,6 +10,7 @@ from lib.clock import Clock
 from vocto.port import Port
 from vocto.debug import gst_generate_dot
 from vocto.pretty import pretty
+from vocto.video_codecs import construct_video_decoder_pipeline
 
 
 class VideoDisplay(object):
@@ -38,27 +39,6 @@ class VideoDisplay(object):
 
         if Config.getPreviewsEnabled():
             self.log.info('using encoded previews instead of raw-video')
-            if Config.getPreviewVaapi():
-                if Gst.version() < (1, 8):
-                    vaapi_decoders = {
-                        'h264': 'vaapidecode_h264',
-                        'mpeg2': 'vaapidecode_mpeg2',
-                    }
-                else:
-                    vaapi_decoders = {
-                        'h264': 'vaapih264dec',
-                        'mpeg2': 'vaapimpeg2dec',
-                    }
-
-                video_decoder = vaapi_decoders[Config.getPreviewDecoder()]
-            else:
-                cpu_decoders = {
-                    'h264': 'video/x-h264\n! avdec_h264',
-                    'jpeg': 'image/jpeg\n! jpegdec',
-                    'mpeg2': 'video/mpeg\nmpegversion=2\n! mpeg2dec'
-                }
-
-                video_decoder = cpu_decoders[Config.getPreviewDecoder()]
 
             pipe += """
                 demux-{name}.
@@ -66,7 +46,7 @@ class VideoDisplay(object):
                     name=queue-video-{name}
                 ! {video_decoder}
                 """.format(name=name,
-                           video_decoder=video_decoder)
+                           video_decoder=construct_video_decoder_pipeline('preview'))
 
         else:
             video_decoder = None

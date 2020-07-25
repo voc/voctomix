@@ -313,50 +313,53 @@ class VocConfigParser(SafeConfigParser):
     def getOutputBuffers(self, channel):
         return self.getint('output-buffers', channel, fallback=500)
 
-    def getPreviewVaapi(self):
-        if self.has_option('previews', 'vaapi'):
-            return self.get('previews', 'vaapi')
+    def getVaapi(self, section):
+        if self.has_option(section, 'vaapi'):
+            return self.get(section, 'vaapi')
         return None
 
-    def getDenoiseVaapi(self):
-        if self.has_option('previews', 'vaapi-denoise'):
-            if self.getboolean('previews', 'vaapi-denoise'):
+    def getVaapiDenoise(self, section):
+        if self.has_option(section, 'vaapi-denoise'):
+            if self.getboolean(section, 'vaapi-denoise'):
                 return 1
         return 0
 
-    def getScaleMethodVaapi(self):
-        if self.has_option('previews', 'scale-method'):
-            return self.getint('previews', 'scale-method')
+    def getVaapiScaleMethod(self, section):
+        if self.has_option(section, 'scale-method'):
+            return self.getint(section, 'scale-method')
         return 0
 
-    def getPreviewCaps(self):
-        if self.has_option('previews', 'videocaps'):
-            return self.get('previews', 'videocaps')
+    def getVCaps(self, section):
+        if self.has_option(section, 'videocaps'):
+            return self.get(section, 'videocaps')
         else:
             return self.getVideoCaps()
 
-    def getPreviewSize(self):
-        width = self.getint('previews', 'width') if self.has_option(
-            'previews', 'width') else 320
-        height = self.getint('previews', 'height') if self.has_option(
-            'previews', 'height') else int(width * 9 / 16)
+    def getVSize(self, section):
+        width = self.getint(section, 'width') if self.has_option(
+            section, 'width') else 320
+        height = self.getint(section, 'height') if self.has_option(
+            section, 'height') else int(width * 9 / 16)
         return(width, height)
 
-    def getPreviewFramerate(self):
+    def getVFramerate(self, section):
         caps = Gst.Caps.from_string(
-            self.getPreviewCaps()).get_structure(0)
+            self.getVCaps(section)).get_structure(0)
         (_, numerator, denominator) = caps.get_fraction('framerate')
         return (numerator, denominator)
 
-    def getPreviewResolution(self):
+    def getVResolution(self, section):
         caps = Gst.Caps.from_string(
-            self.getPreviewCaps()).get_structure(0)
+            self.getVCaps(section)).get_structure(0)
         _, width = caps.get_int('width')
         _, height = caps.get_int('height')
         return (width, height)
 
-    def getDeinterlacePreviews(self):
-        return self.getboolean('previews', 'deinterlace', fallback=False)
+    def getVDeinterlace(self, section):
+        return self.getboolean(section, 'deinterlace', fallback=False)
+
+    def getPreviewSize(self):
+        return self.getVSize('preview')
 
     def getPreviewsEnabled(self):
         return self.getboolean('previews', 'enabled', fallback=False)
@@ -388,12 +391,6 @@ class VocConfigParser(SafeConfigParser):
         else:
             self.log.warning("configuration attribute 'preview/live' is set but blinder is not in use!")
             return []
-
-    def getPreviewDecoder(self):
-        if self.has_option('previews', 'vaapi'):
-            return self.get('previews', 'vaapi')
-        else:
-            return 'jpeg'
 
     def getComposites(self):
         return Composites.configure(self.items('composites'), self.getVideoResolution())
