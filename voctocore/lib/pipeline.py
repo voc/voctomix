@@ -10,6 +10,7 @@ from lib.config import Config
 from lib.sources import spawn_source
 from lib.avrawoutput import AVRawOutput
 from lib.avpreviewoutput import AVPreviewOutput
+from lib.localplayout import LocalPlayout
 from lib.videomix import VideoMix
 from lib.audiomix import AudioMix
 from lib.blinder import Blinder
@@ -88,7 +89,6 @@ class Pipeline(object):
             self.bins.append(ui)
             self.ports.append(Port('mix', ui))
 
-
         # create mix preview TCP output
         if Config.getPreviewsEnabled():
             dest = AVPreviewOutput('mix', Port.MIX_PREVIEW, use_audio_mix=True)
@@ -136,6 +136,12 @@ class Pipeline(object):
                 dest = AVRawOutput('{}-blinded'.format(livesource), Port.LIVE_OUT + idx, use_audio_mix=True, audio_blinded=True )
                 self.bins.append(dest)
                 self.ports.append(Port('{}-live'.format(livesource), dest))
+
+        if Config.getLocalPlayoutEnabled():
+            playout = LocalPlayout('mix', Port.LOCALPLAYOUT_OUT, use_audio_mix=True, audio_blinded=True )
+            self.bins.append(playout)
+            self.ports.append(Port('{}-playout'.format("mix"), playout))
+
 
         for _bin in self.bins:
             self.log.info("%s\n%s", _bin, pretty(_bin.bin))

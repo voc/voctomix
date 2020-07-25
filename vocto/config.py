@@ -358,8 +358,8 @@ class VocConfigParser(SafeConfigParser):
     def getVDeinterlace(self, section):
         return self.getboolean(section, 'deinterlace', fallback=False)
 
-    def getPreviewSize(self):
-        return self.getVSize('preview')
+    def getLocalPlayoutEnabled(self):
+        return self.getboolean('localplayout', 'enabled', fallback=False)
 
     def getPreviewsEnabled(self):
         return self.getboolean('previews', 'enabled', fallback=False)
