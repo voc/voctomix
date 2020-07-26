@@ -36,7 +36,7 @@ class VideoPreviewsController(object):
         num_previews = len(Config.getSources()) + len(Config.getLivePreviews())
 
         # get preview size
-        self.previewSize = Config.getPreviewSize()
+        self.previewSize = Config.getVSize('preview')
 
         # recalculate preview size if in sum they are too large for screen
         screen = Gdk.Screen.get_default()
