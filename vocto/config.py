@@ -311,14 +311,14 @@ class VocConfigParser(SafeConfigParser):
         return self.getint('output-buffers', channel, fallback=500)
 
     def getVideoCodec(self, section):
-        if self.has_option(section, 'codec'):
-            codec, options = self.get(section, 'codec').split(',',1)
+        if self.has_option(section, 'videocodec'):
+            codec, options = self.get(section, 'videocodec').split(',',1)
             return codec, options.split(',')
         return "jpeg", ["quality=90"]
 
     def getVideoEncoder(self, section):
-        if self.has_option(section, 'encoder'):
-            return self.get(section, 'encoder')
+        if self.has_option(section, 'videoencoder'):
+            return self.get(section, 'videoencoder')
         return None
 
     def getVideoDecoder(self, section):
