@@ -8,3 +8,13 @@ document.querySelectorAll(".button").forEach((form)=>{
         event.preventDefault();
     });
 });
+
+function changeColor (id) {
+  Array.from(document.querySelectorAll('.button > input[type="submit"]')).map(function(button) {
+    if (button == id) {
+      button.style.backgroundColor = "green";
+    } else {
+      button.style.backgroundColor = "blue";
+    }
+  })
+}
