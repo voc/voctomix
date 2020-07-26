@@ -74,7 +74,6 @@ class LocalPlayout():
         self.bin += """
                 srtserversink
                     name=sink-localplayout-{source}
-                    wait-for-connection=false
                     uri=srt://:{port}
                 """.format(source=self.source,
                            port=self._port)

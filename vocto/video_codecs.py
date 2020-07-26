@@ -20,6 +20,11 @@ else:
         'mpeg2': 'vaapimpeg2enc',
     }
 
+v4l2_encoders = {
+        'h264': 'v4l2h264enc',
+        'jpeg': 'v4l2jpegenc',
+}
+
 cpu_encoders = {
     'jpeg': "jpegenc"
     # TODO: add h264 and mpeg2 ?
@@ -62,6 +67,13 @@ def construct_video_encoder_pipeline(section):
                         ! {vcaps}
                         ! {encoder}""".format(vcaps=vcaps,
                                               encoder=vaapi_encoders[codec]
+                                             )
+    elif encoder == 'v4l2':
+        pipeline = """  ! capsfilter
+                            caps=video/x-raw,interlace-mode=progressive
+                        ! {vcaps}
+                        ! {encoder}""".format(vcaps=vcaps,
+                                              encoder=v4l2_encoders[codec]
                                              )
     else:
         # maybe add deinterlacer
