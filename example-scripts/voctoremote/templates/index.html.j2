@@ -7,9 +7,9 @@
     <body>
         <div class="button-container">
         {% for button in buttons %}
-            <form action="run" method="post" class="button">
+            <form action="run" method="post" class="button {{ button.id }}">
                 <input type="text" name="command" value="{{ button.command }}" />
-                <input type="submit" value="{{ button.text }}" />
+                <input type="submit" value="{{ button.text }}" onclick="changeColor(this)" />
             </form>
         {% endfor %}
         </div>
