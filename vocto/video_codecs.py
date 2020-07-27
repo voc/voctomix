@@ -64,15 +64,15 @@ def construct_video_encoder_pipeline(section):
         pipeline = """  ! capsfilter
                             caps=video/x-raw,interlace-mode=progressive
                         ! vaapipostproc
-                        ! {vcaps}
-                        ! {encoder}""".format(vcaps=vcaps,
+                        ! {encoder}
+                        ! {vcaps} """.format(vcaps=vcaps,
                                               encoder=vaapi_encoders[codec]
                                              )
     elif encoder == 'v4l2':
         pipeline = """  ! capsfilter
                             caps=video/x-raw,interlace-mode=progressive
-                        ! {vcaps}
-                        ! {encoder}""".format(vcaps=vcaps,
+                        ! {encoder}
+                        ! {vcaps} """.format(vcaps=vcaps,
                                               encoder=v4l2_encoders[codec]
                                              )
     else:
