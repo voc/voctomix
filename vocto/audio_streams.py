@@ -21,7 +21,7 @@ class AudioStreams(list):
             # search for entrys like 'audio.*'
             r = re.match(r'^audio\.([\w\-_]+)$', t_name)
             if r:
-                for i, channel in enumerate(t.split("+")):
+                for i, channel in enumerate(set(t.split("+"))):
                     name = source if use_source_as_name else r.group(1)
                     if self.has_stream(name):
                         log.error("input audio stream name '%s' can't be addressed a second time within source '%s'", name, source)
