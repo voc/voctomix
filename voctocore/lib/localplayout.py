@@ -41,13 +41,16 @@ class LocalPlayout():
                            vcaps=Config.getVideoCaps())
 
         # audio pipeline
-        if use_audio_mix or source in Config.getAudioSources(internal=True):
+        #if use_audio_mix or source in Config.getAudioSources(internal=True):
+        if False:
             self.bin += """
                 {use_audio}audio-{audio_source}{audio_blinded}.
                 ! queue
                     max-size-time=3000000000
                     name=queue-audio-localplayout-convert-{source}
                 ! audioconvert
+                ! audio/x-raw,format=S16LE,channels=4,layout=interleaved,rate=48000
+                ! fdkaacenc channel-format=4
                 ! queue
                     max-size-time=3000000000
                     name=queue-mux-audio-{source}
@@ -65,6 +68,7 @@ class LocalPlayout():
             ! queue
                 max-size-time=3000000000
                 name=queue-sink-localplayout-{source}
+                leaky=downstream
             ! sink-localplayout-{source}.
             """.format(source=self.source)
 
