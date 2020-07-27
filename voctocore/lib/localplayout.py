@@ -35,6 +35,7 @@ class LocalPlayout():
                 ! queue
                     max-size-time=3000000000
                     name=queue-mux-localplayout-{source}
+                ! mux-localplayout-{source}.
                 """.format(source=self.source,
                            vpipeline=construct_video_encoder_pipeline('localplayout'),
                            vcaps=Config.getVideoCaps())
@@ -59,15 +60,13 @@ class LocalPlayout():
 
         # mux pipeline
         self.bin += """
-                matroskamux
-                    name=mux-localplayout-{source}
-                    streamable=true
-                    writing-app=Voctomix-LocalPlayout
-                ! queue
-                    max-size-time=3000000000
-                    name=queue-sink-localplayout-{source}
-                ! sink-localplayout-{source}.
-                """.format(source=self.source)
+            mpegtsmux
+                name=mux-localplayout-{source}
+            ! queue
+                max-size-time=3000000000
+                name=queue-sink-localplayout-{source}
+            ! sink-localplayout-{source}.
+            """.format(source=self.source)
 
         # sink pipeline
         self.bin += """
