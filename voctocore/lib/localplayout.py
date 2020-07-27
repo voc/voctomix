@@ -35,10 +35,8 @@ class LocalPlayout():
                 ! queue
                     max-size-time=3000000000
                     name=queue-mux-localplayout-{source}
-                ! mux-localplayout-{source}.
                 """.format(source=self.source,
-                           vpipeline=construct_video_encoder_pipeline(
-                               Config.getVaapi('localplayout')),
+                           vpipeline=construct_video_encoder_pipeline('localplayout'),
                            vcaps=Config.getVideoCaps())
 
         # audio pipeline

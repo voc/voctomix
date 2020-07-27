@@ -234,9 +234,6 @@ class VocConfigParser(SafeConfigParser):
             self.log.error("number of audio channels in mix/audiocaps differs from the available audio input channels within the sources!")
         return num_audio_streams
 
-    def getVideoCaps(self):
-        return self.get('mix', 'videocaps', fallback="video/x-raw,format=I420,width=1920,height=1080,framerate=25/1,pixel-aspect-ratio=1/1")
-
     def getAudioCaps(self, section='mix'):
         return self.get(section, 'audiocaps', fallback="audio/x-raw,format=S16LE,channels=2,layout=interleaved,rate=48000")
 
@@ -313,50 +310,54 @@ class VocConfigParser(SafeConfigParser):
     def getOutputBuffers(self, channel):
         return self.getint('output-buffers', channel, fallback=500)
 
-    def getVaapi(self, section):
-        if self.has_option(section, 'vaapi'):
-            return self.get(section, 'vaapi')
+    def getVideoCodec(self, section):
+        if self.has_option(section, 'videocodec'):
+            codec = self.get(section, 'videocodec').split(',',1)
+            if len(codec) > 1:
+                codec, options = self.get(section, 'videocodec').split(',',1)
+                return codec, options.split(',') if options else None
+            else:
+                return codec[0], None
+        return "jpeg", ["quality=90"]
+
+    def getVideoEncoder(self, section):
+        if self.has_option(section, 'videoencoder'):
+            return self.get(section, 'videoencoder')
         return None
 
-    def getVaapiDenoise(self, section):
-        if self.has_option(section, 'vaapi-denoise'):
-            if self.getboolean(section, 'vaapi-denoise'):
+    def getVideoDecoder(self, section):
+        if self.has_option(section, 'decoder'):
+            return self.get(section, 'decoder')
+        return None
+
+    def getDenoise(self, section):
+        if self.has_option(section, 'denoise'):
+            if self.getboolean(section, 'denoise'):
                 return 1
         return 0
 
-    def getVaapiScaleMethod(self, section):
+    def getScaleMethod(self, section):
         if self.has_option(section, 'scale-method'):
             return self.getint(section, 'scale-method')
         return 0
 
-    def getVCaps(self, section):
+    def getDeinterlace(self, section):
+        return self.getboolean(section, 'deinterlace', fallback=False)
+
+    def getVideoCaps(self, section='mix'):
         if self.has_option(section, 'videocaps'):
             return self.get(section, 'videocaps')
+        elif self.has_option('mix', 'videocaps'):
+            return self.get('mix', 'videocaps')
         else:
-            return self.getVideoCaps()
+            return "video/x-raw,format=I420,width=1920,height=1080,framerate=25/1,pixel-aspect-ratio=1/1"
 
-    def getVSize(self, section):
-        width = self.getint(section, 'width') if self.has_option(
-            section, 'width') else 320
-        height = self.getint(section, 'height') if self.has_option(
-            section, 'height') else int(width * 9 / 16)
+    def getPreviewSize(self):
+        width = self.getint('preview', 'width') if self.has_option(
+            'preview','width') else 320
+        height = self.getint('preview', 'height') if self.has_option(
+            'preview','height') else int(width * 9 / 16)
         return(width, height)
-
-    def getVFramerate(self, section):
-        caps = Gst.Caps.from_string(
-            self.getVCaps(section)).get_structure(0)
-        (_, numerator, denominator) = caps.get_fraction('framerate')
-        return (numerator, denominator)
-
-    def getVResolution(self, section):
-        caps = Gst.Caps.from_string(
-            self.getVCaps(section)).get_structure(0)
-        _, width = caps.get_int('width')
-        _, height = caps.get_int('height')
-        return (width, height)
-
-    def getVDeinterlace(self, section):
-        return self.getboolean(section, 'deinterlace', fallback=False)
 
     def getLocalPlayoutEnabled(self):
         return self.getboolean('localplayout', 'enabled', fallback=False)

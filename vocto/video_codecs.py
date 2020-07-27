@@ -6,88 +6,99 @@ from gi.repository import Gst
 
 gi.require_version('GstController', '1.0')
 
+# https://blogs.igalia.com/vjaquez/2016/04/06/gstreamer-vaapi-1-8-the-codec-split/
+if Gst.version() < (1, 8):
+    vaapi_encoders = {
+        'h264': 'vaapiencode_h264',
+        'jpeg': 'vaapiencode_jpeg',
+        'mpeg2': 'vaapiencode_mpeg2',
+    }
+else:
+    vaapi_encoders = {
+        'h264': 'vaapih264enc',
+        'jpeg': 'vaapijpegenc',
+        'mpeg2': 'vaapimpeg2enc',
+    }
+
+v4l2_encoders = {
+        'h264': 'v4l2h264enc',
+        'jpeg': 'v4l2jpegenc',
+}
+
+cpu_encoders = {
+    'jpeg': "jpegenc"
+    # TODO: add h264 and mpeg2 ?
+}
+
+if Gst.version() < (1, 8):
+    vaapi_decoders = {
+        'h264': 'vaapidecode_h264',
+        'mpeg2': 'vaapidecode_mpeg2',
+    }
+else:
+    vaapi_decoders = {
+        'h264': 'vaapih264dec',
+        'mpeg2': 'vaapimpeg2dec',
+    }
+
+cpu_decoders = {
+    'h264': """ video/x-h264
+                ! avdec_h264""",
+    'jpeg': """ image/jpeg
+                ! jpegdec""",
+    'mpeg2': """video/mpeg
+                    mpegversion=2
+                ! mpeg2dec"""
+}
 
 def construct_video_encoder_pipeline(section):
-    if Config.getVaapi(section):
-        # https://blogs.igalia.com/vjaquez/2016/04/06/gstreamer-vaapi-1-8-the-codec-split/
-        if Gst.version() < (1, 8):
-            vaapi_encoders = {
-                'h264': 'vaapiencode_h264',
-                'jpeg': 'vaapiencode_jpeg',
-                'mpeg2': 'vaapiencode_mpeg2',
-            }
-        else:
-            vaapi_encoders = {
-                'h264': 'vaapih264enc',
-                'jpeg': 'vaapijpegenc',
-                'mpeg2': 'vaapimpeg2enc',
-            }
+    encoder = Config.getVideoEncoder(section)
+    codec, options = Config.getVideoCodec(section)
+    vcaps = Config.getVideoCaps(section)
 
-        vaapi_encoder_options = {
-            'h264': """rate-control=cqp
-                       init-qp=10
-                       max-bframes=0
-                       keyframe-period=60""",
-            'jpeg': """quality=90
-                       keyframe-period=0""",
-            'mpeg2': "keyframe-period=60",
-        }
-        # prepare selectors
-        size = Config.getVResolution(section)
-        framerate = Config.getVFramerate(section)
-        vaapi = Config.getVaapi(section)
-        denoise = Config.getVaapiDenoise(section)
-        scale_method = Config.getVaapiScaleMethod(section)
+    pipeline = ""
 
+    if encoder == 'vaapi':
         # generate pipeline
         # we can also force a video format here (format=I420) but this breaks scalling at least on Intel HD3000 therefore it currently removed
-        return """  ! capsfilter
-                        caps=video/x-raw,interlace-mode=progressive
-                    ! vaapipostproc
-                    ! video/x-raw,width={width},height={height},framerate={n}/{d},deinterlace-mode={imode},deinterlace-method=motion-adaptive,denoise={denoise},scale-method={scale_method}
-                    ! {encoder}
-                        {options}""".format(imode='interlaced' if Config.getVDeinterlace(section) else 'disabled',
-                                            width=size[0],
-                                            height=size[1],
-                                            encoder=vaapi_encoders[vaapi],
-                                            options=vaapi_encoder_options[vaapi],
-                                            n=framerate[0],
-                                            d=framerate[1],
-                                            denoise=denoise,
-                                            scale_method=scale_method,
-                                            )
+        pipeline = """  ! capsfilter
+                            caps=video/x-raw,interlace-mode=progressive
+                        ! vaapipostproc
+                        ! {encoder}
+                        ! {vcaps} """.format(vcaps=vcaps,
+                                              encoder=vaapi_encoders[codec]
+                                             )
+    elif encoder == 'v4l2':
+        pipeline = """  ! capsfilter
+                            caps=video/x-raw,interlace-mode=progressive
+                        ! {encoder}
+                        ! {vcaps} """.format(vcaps=vcaps,
+                                              encoder=v4l2_encoders[codec]
+                                             )
     else:
-        pipeline = ""
-
         # maybe add deinterlacer
-        if Config.getVDeinterlace(section):
+        if Config.getDeinterlace(section):
             pipeline += """ ! deinterlace
                                 mode=interlaced
                         """
-
         # build rest of the pipeline
         pipeline += """ ! videorate
                         ! videoscale
                         ! {vcaps}
-                        ! jpegenc
-                            quality = 90""".format(vcaps=Config.getVCaps('section'))
-        return pipeline
+                        ! {encoder}""".format(vcaps=vcaps,
+                                              encoder=cpu_encoders[codec],
+                                             )
+    if options:
+        pipeline += """
+                        {options}""".format(options='\n'.join(options))
+
+    return pipeline
 
 
 def construct_video_decoder_pipeline(section):
-    if Config.getVaapi(section):
-        if Gst.version() < (1, 8):
-            vaapi_decoders = {
-                'h264': 'vaapidecode_h264',
-                'mpeg2': 'vaapidecode_mpeg2',
-            }
-        else:
-            vaapi_decoders = {
-                'h264': 'vaapih264dec',
-                'mpeg2': 'vaapimpeg2dec',
-            }
-
-        return vaapi_decoders[Config.getVaapi(section)]
+    decoder = Config.getVideoDecoder(section)
+    codec, options = Config.getVideoCodec(section)
+    if decoder == 'vaapi':
+        return vaapi_decoders[codec]
     else:
-        return """image/jpeg
-                  ! jpegdec"""
+        return cpu_decoders[codec]
