@@ -49,7 +49,9 @@ class RPICamAVSource(AVSource):
     def build_source(self):
         pipe = """
             rpicamsrc
-                bitrate=8000000 preview=false
+                bitrate=8000000 
+                preview=false
+                num-buffers=-1
             """
 
         pipe += """\
@@ -65,9 +67,8 @@ class RPICamAVSource(AVSource):
                 """.format(deinterlacer=self.build_deinterlacer())
 
         pipe += """\
-            ! videoconvert
-            ! videoscale
-            ! videorate
+                ! videorate
+                ! videoscale
                 name=vout-{name}
         """.format(name=self.name)
 
