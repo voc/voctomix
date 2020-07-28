@@ -20,6 +20,7 @@ class RPICamAVSource(AVSource):
         self.height = Config.getRPICamHeight(name)
         self.framerate = Config.getRPICamFramerate(name)
         self.format = Config.getRPICamFormat(name)
+        self.annotation = Config.getRPICamAnnotation(name)
         self.name = name
         self.signalPad = None
 
@@ -54,6 +55,11 @@ class RPICamAVSource(AVSource):
                 num-buffers=-1
                 sensor-mode=1
             """
+
+        if self.annotation:
+            pipe += """
+                annotation-mode={annotation}
+            """.format(annotation=self.annotation)
 
         pipe += """\
             ! video/x-raw,width={width},height={height},format={format},framerate={framerate}

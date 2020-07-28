@@ -157,6 +157,8 @@ class VocConfigParser(SafeConfigParser):
     def getRPICamFramerate(self, source):
         return self.get('source.{}'.format(source), 'framerate', fallback='25/1')
 
+    def getRPICamAnnotation(self, source):
+        return self.get('source.{}'.format(source), 'annotation', fallback=None)
 
     def getImageURI(self,source):
         if self.has_option('source.{}'.format(source), 'imguri'):
