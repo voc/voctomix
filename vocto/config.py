@@ -312,12 +312,26 @@ class VocConfigParser(SafeConfigParser):
     def getOutputBuffers(self, channel):
         return self.getint('output-buffers', channel, fallback=500)
 
+    def splitOptions(line):
+        if len(line) == 0:
+            return None
+        quote = False
+        options = [""]
+        for char in line:
+            if char == ',' and not quote:
+                options.append("")
+            else:
+                if char == '"':
+                    quote = not quote
+                options[-1] += char
+        return options
+
     def getVideoCodec(self, section):
         if self.has_option(section, 'videocodec'):
             codec = self.get(section, 'videocodec').split(',',1)
             if len(codec) > 1:
                 codec, options = self.get(section, 'videocodec').split(',',1)
-                return codec, options.split(',') if options else None
+                return codec, VocConfigParser.splitOptions(options) if options else None
             else:
                 return codec[0], None
         return "jpeg", ["quality=90"]
