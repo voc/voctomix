@@ -52,6 +52,7 @@ class RPICamAVSource(AVSource):
                 bitrate=8000000 
                 preview=false
                 num-buffers=-1
+                sensor-mode=1
             """
 
         pipe += """\
@@ -68,7 +69,7 @@ class RPICamAVSource(AVSource):
 
         pipe += """\
                 ! videorate
-                ! videoscale
+                ! videocrop bottom=8
                 name=vout-{name}
         """.format(name=self.name)
 
