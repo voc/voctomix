@@ -84,8 +84,9 @@ def construct_video_encoder_pipeline(section):
         # build rest of the pipeline
         pipeline += """ ! videorate
                         ! videoscale
+                        ! {encoder}
                         ! {vcaps}
-                        ! {encoder}""".format(vcaps=vcaps,
+                        """.format(vcaps=vcaps,
                                               encoder=cpu_encoders[codec],
                                              )
     if options:
