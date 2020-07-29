@@ -32,7 +32,7 @@ class LocalUi():
                 ! queue
                     max-size-time=3000000000
                     name=queue-mux-video-localui
-                ! {videosink}
+                ! {videosink} sync=false
                 """.format(source=self.source,
                            vcaps=Config.getVideoCaps(),
                            videosink=Config.getLocalUIVideoSystem())
