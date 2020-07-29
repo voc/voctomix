@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
+import logging
 import gi
+import sys
 
 from lib.config import Config
 from gi.repository import Gst
 
 gi.require_version('GstController', '1.0')
+
+log = logging.getLogger('video_codecs')
 
 # https://blogs.igalia.com/vjaquez/2016/04/06/gstreamer-vaapi-1-8-the-codec-split/
 if Gst.version() < (1, 8):
@@ -59,6 +63,9 @@ def construct_video_encoder_pipeline(section):
     pipeline = ""
 
     if encoder == 'vaapi':
+        if codec not in vaapi_encoders:
+            log.error("Unkown codec '{}' for video encoder '{}'. Falling back to 'h264'.".format(codec,encoder))
+            sys.exit(-1)
         # generate pipeline
         # we can also force a video format here (format=I420) but this breaks scalling at least on Intel HD3000 therefore it currently removed
         pipeline = """  ! capsfilter
@@ -69,13 +76,19 @@ def construct_video_encoder_pipeline(section):
                                               encoder=vaapi_encoders[codec]
                                              )
     elif encoder == 'v4l2':
+        if codec not in v4l2_encoders:
+            log.error("Unkown codec '{}' for video encoder '{}'. Falling back to 'h264'.".format(codec,encoder))
+            sys.exit(-1)
         pipeline = """  ! capsfilter
                             caps=video/x-raw,interlace-mode=progressive
                         ! {encoder}
-                        ! {vcaps} """.format(vcaps=vcaps,
+                        ! {vcaps}""".format(vcaps=vcaps,
                                               encoder=v4l2_encoders[codec]
                                              )
-    else:
+    elif encoder == "cpu":
+        if codec not in cpu_encoders:
+            log.error("Unkown codec '{}' for video encoder '{}'.".format(codec,encoder))
+            sys.exit(-1)
         # maybe add deinterlacer
         if Config.getDeinterlace(section):
             pipeline += """ ! deinterlace
@@ -85,10 +98,13 @@ def construct_video_encoder_pipeline(section):
         pipeline += """ ! videorate
                         ! videoscale
                         ! {encoder}
-                        ! {vcaps}
-                        """.format(vcaps=vcaps,
-                                              encoder=cpu_encoders[codec],
-                                             )
+                        ! {vcaps}""".format(vcaps=vcaps,
+                                            encoder=cpu_encoders[codec],
+                                           )
+    else:
+        log.error("Unkown video decoder '{}'.".format(encoder))
+        sys.exit(-1)
+
     if options:
         pipeline += """
                         {options}""".format(options='\n'.join(options))
@@ -101,5 +117,8 @@ def construct_video_decoder_pipeline(section):
     codec, options = Config.getVideoCodec(section)
     if decoder == 'vaapi':
         return vaapi_decoders[codec]
-    else:
+    elif decoder == 'cpu':
         return cpu_decoders[codec]
+    else:
+        log.error("Unkown video decoder '{}'.".format(encoder))
+        exit(-1)
