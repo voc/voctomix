@@ -73,9 +73,7 @@ def construct_video_encoder_pipeline(section):
                             caps=video/x-raw,interlace-mode=progressive
                         ! vaapipostproc
                         ! {encoder}
-                        ! {vcaps} """.format(vcaps=vcaps,
-                                              encoder=vaapi_encoders[codec]
-                                             )
+                        """.format(encoder=vaapi_encoders[codec])
     elif encoder == 'v4l2':
         if codec not in v4l2_encoders:
             log.error("Unkown codec '{}' for video encoder '{}'. Falling back to 'h264'.".format(codec,encoder))
@@ -83,9 +81,7 @@ def construct_video_encoder_pipeline(section):
         pipeline = """  ! capsfilter
                             caps=video/x-raw,interlace-mode=progressive
                         ! {encoder}
-                        ! {vcaps}""".format(vcaps=vcaps,
-                                              encoder=v4l2_encoders[codec]
-                                             )
+                        """.format(encoder=v4l2_encoders[codec])
     elif encoder == "cpu":
         if codec not in cpu_encoders:
             log.error("Unkown codec '{}' for video encoder '{}'.".format(codec,encoder))
@@ -99,16 +95,18 @@ def construct_video_encoder_pipeline(section):
         pipeline += """ ! videorate
                         ! videoscale
                         ! {encoder}
-                        ! {vcaps}""".format(vcaps=vcaps,
-                                            encoder=cpu_encoders[codec],
-                                           )
+                        """.format(encoder=cpu_encoders[codec])
     else:
         log.error("Unkown video decoder '{}'.".format(encoder))
         sys.exit(-1)
 
     if options:
-        pipeline += """
-                        {options}""".format(options='\n'.join(options))
+        pipeline += """{options}
+                        """.format(options='\n'.join(options))
+
+    pipeline += """! {vcaps} """.format(vcaps=vcaps,
+                                        encoder=vaapi_encoders[codec]
+                                        )
 
     return pipeline
 
