@@ -37,7 +37,6 @@ class ImgVSource(AVSource):
         name=imgvsrc-{name}
         uri={uri}
     ! videoconvert
-    ! videoscale
     ! imagefreeze
         name=img-{name}
 """.format(
