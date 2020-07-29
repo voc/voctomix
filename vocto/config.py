@@ -151,6 +151,9 @@ class VocConfigParser(SafeConfigParser):
     def getRPICamHeight(self, source):
         return self.get('source.{}'.format(source), 'height', fallback=1080)
 
+    def getRPICamCrop(self, source):
+        return self.get('source.{}'.format(source), 'crop', fallback=None)
+
     def getRPICamFormat(self, source):
         return self.get('source.{}'.format(source), 'format', fallback='YUY2')
 

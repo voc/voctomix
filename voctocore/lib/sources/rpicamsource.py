@@ -17,6 +17,7 @@ class RPICamAVSource(AVSource):
 
         self.device = Config.getRPICamDevice(name)
         self.width = Config.getRPICamWidth(name)
+        self.crop = Config.getRPICamCrop(name)
         self.height = Config.getRPICamHeight(name)
         self.framerate = Config.getRPICamFramerate(name)
         self.format = Config.getRPICamFormat(name)
@@ -73,11 +74,16 @@ class RPICamAVSource(AVSource):
                 ! {deinterlacer}
                 """.format(deinterlacer=self.build_deinterlacer())
 
+        if self.crop:
+            cropfilter="! videocrop bottom=%s left=%s right=%s top=%s" % tuple(self.crop.split())
+        else:
+            cropfilter=""
+
         pipe += """\
                 ! videorate
-                ! videocrop bottom=8
+                {cropfilter}
                 name=vout-{name}
-        """.format(name=self.name)
+        """.format(name=self.name, cropfilter=cropfilter)
 
         return pipe
 
