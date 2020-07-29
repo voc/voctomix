@@ -30,8 +30,9 @@ v4l2_encoders = {
 }
 
 cpu_encoders = {
-    'jpeg': "jpegenc"
-    # TODO: add h264 and mpeg2 ?
+    'jpeg': "jpegenc",
+    'h264': "x264enc",
+    'mpeg2': "mpeg2enc"
 }
 
 if Gst.version() < (1, 8):
