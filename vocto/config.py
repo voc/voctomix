@@ -401,6 +401,9 @@ class VocConfigParser(SafeConfigParser):
     def getLocalPlayoutEnabled(self):
         return self.getboolean('localplayout', 'enabled', fallback=False)
 
+    def getLocalPlayoutAudioEnabled(self):
+        return self.getboolean('localplayout', 'audioenabled', fallback=True)
+
     def getPreviewsEnabled(self):
         return self.getboolean('previews', 'enabled', fallback=False)
 

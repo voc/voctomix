@@ -42,7 +42,7 @@ class LocalPlayout():
                            vcaps=Config.getVideoCaps())
 
         # audio pipeline
-        if use_audio_mix or source in Config.getAudioSources(internal=True):
+        if Config.getLocalPlayoutAudioEnabled() and (use_audio_mix or source in Config.getAudioSources(internal=True)):
             self.bin += """
                 {use_audio}audio-{audio_source}{audio_blinded}.
                 ! queue
