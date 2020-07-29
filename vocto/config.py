@@ -236,9 +236,6 @@ class VocConfigParser(SafeConfigParser):
             self.log.error("number of audio channels in mix/audiocaps differs from the available audio input channels within the sources!")
         return num_audio_streams
 
-    def getAudioCaps(self, section='mix'):
-        return self.get(section, 'audiocaps', fallback="audio/x-raw,format=S16LE,channels=2,layout=interleaved,rate=48000")
-
     def getAudioChannels(self):
         caps = Gst.Caps.from_string(
             self.getAudioCaps()).get_structure(0)
@@ -326,6 +323,21 @@ class VocConfigParser(SafeConfigParser):
                 options[-1] += char
         return options
 
+    def getAudioCodec(self, section):
+        if self.has_option(section, 'audiocodec'):
+            codec = self.get(section, 'audiocodec').split(',',1)
+            if len(codec) > 1:
+                codec, options = self.get(section, 'audiocodec').split(',',1)
+                return codec, VocConfigParser.splitOptions(options) if options else None
+            else:
+                return codec[0], None
+        return "aac", None
+
+    def getAudioEncoder(self, section):
+        if self.has_option(section, 'audioencoder'):
+            return self.get(section, 'audioencoder')
+        return None
+
     def getVideoCodec(self, section):
         if self.has_option(section, 'videocodec'):
             codec = self.get(section, 'videocodec').split(',',1)
@@ -359,6 +371,14 @@ class VocConfigParser(SafeConfigParser):
 
     def getDeinterlace(self, section):
         return self.getboolean(section, 'deinterlace', fallback=False)
+
+    def getAudioCaps(self, section='mix'):
+        if self.has_option(section, 'audiocaps'):
+            return self.get(section, 'audiocaps')
+        elif self.has_option('mix', 'audiocaps'):
+            return self.get('mix', 'audiocaps')
+        else:
+            return "audio/x-raw,format=S16LE,channels=2,layout=interleaved,rate=48000"
 
     def getVideoCaps(self, section='mix'):
         if self.has_option(section, 'videocaps'):

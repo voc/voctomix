@@ -4,6 +4,7 @@ import gi
 
 from gi.repository import Gst
 from vocto.video_codecs import construct_video_encoder_pipeline
+from vocto.audio_codecs import construct_audio_encoder_pipeline
 from lib.args import Args
 from lib.config import Config
 
@@ -41,21 +42,19 @@ class LocalPlayout():
                            vcaps=Config.getVideoCaps())
 
         # audio pipeline
-        #if use_audio_mix or source in Config.getAudioSources(internal=True):
-        if False:
+        if use_audio_mix or source in Config.getAudioSources(internal=True):
             self.bin += """
                 {use_audio}audio-{audio_source}{audio_blinded}.
                 ! queue
                     max-size-time=3000000000
                     name=queue-audio-localplayout-convert-{source}
-                ! audioconvert
-                ! audio/x-raw,format=S16LE,channels=4,layout=interleaved,rate=48000
-                ! fdkaacenc channel-format=4
+                {apipeline}
                 ! queue
                     max-size-time=3000000000
                     name=queue-mux-audio-{source}
                 ! mux-localplayout-{source}.
                 """.format(source=self.source,
+                           apipeline=construct_audio_encoder_pipeline('localplayout'),
                            use_audio="" if use_audio_mix else "source-",
                            audio_source="mix" if use_audio_mix else self.source,
                            audio_blinded="-blinded" if Config.getBlinderEnabled() and audio_blinded else ""
