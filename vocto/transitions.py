@@ -5,10 +5,6 @@ from vocto.composites import Composite, Composites, swap_name
 from vocto.frame import Frame, L, R, T, B, X, Y
 # for calculating square roots
 import math
-# for generating B-Splines
-from scipy import interpolate as spi
-# for converting arrays
-import numpy as np
 # for cloning objects
 import copy
 
@@ -347,6 +343,10 @@ def bspline(points):
     """ do a B - Spline interpolation between the given points
         returns interpolated points
     """
+    # for generating B-Splines
+    from scipy import interpolate as spi
+    # for converting arrays
+    import numpy as np
     # parameter check
     assert type(points) is np.ndarray
     assert type(points[0]) is np.ndarray and len(points[0]) == 2
@@ -372,6 +372,8 @@ def bspline(points):
 def find_nearest(spline, points):
     """ find indices in spline which are most near to the coordinates in points
     """
+    # for converting arrays
+    import numpy as np
     nearest = []
     for p in points:
         # calculation lamba fn
@@ -416,6 +418,8 @@ def distribute(points, positions, begin, end, x0, x1, n):
         <poisitions> holds a list of distances between all <points> that will
         be used for smoothing the distribution.
     """
+    # for converting arrays
+    import numpy as np
     assert type(points) is np.ndarray
     assert type(positions) is list
     assert type(begin) is np.int64
@@ -489,6 +493,8 @@ def interpolate(key_frames, num_frames, corner):
     """ interpolate < num_frames > points of one corner defined by < corner >
         between the rectangles given by < key_frames >
     """
+    # for converting arrays
+    import numpy as np
     # get corner points defined by index_x,index_y from rectangles
     corners = np.array([i.corner(corner[X], corner[Y]) for i in key_frames])
     # interpolate between corners and get the spline points and the indexes of
