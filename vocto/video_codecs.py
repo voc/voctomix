@@ -97,7 +97,7 @@ def construct_video_encoder_pipeline(section):
                         ! {encoder}
                         """.format(encoder=cpu_encoders[codec])
     else:
-        log.error("Unkown video decoder '{}'.".format(encoder))
+        log.error("Unkown video encoder '{}'.".format(encoder))
         sys.exit(-1)
 
     if options:
