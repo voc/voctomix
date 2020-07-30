@@ -113,11 +113,12 @@ def construct_video_encoder_pipeline(section):
 
 def construct_video_decoder_pipeline(section):
     decoder = Config.getVideoDecoder(section)
+    acaps = Config.getAudioCaps(section)
     codec, options = Config.getVideoCodec(section)
     if decoder == 'vaapi':
-        return vaapi_decoders[codec]
+        return vaapi_decoders[codec] + " ! " + acaps
     elif decoder == 'cpu':
-        return cpu_decoders[codec]
+        return cpu_decoders[codec] + " ! " + acaps
     else:
         log.error("Unkown video decoder '{}'.".format(encoder))
         exit(-1)

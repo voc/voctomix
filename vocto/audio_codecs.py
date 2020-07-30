@@ -19,6 +19,7 @@ def get_spread_matrix(available_channels):
         if channels >= in_channels:
             out_channels = channels
             break
+    out_channels = 2
     if out_channels == in_channels:
         return ""
     if out_channels is None:
@@ -47,8 +48,8 @@ def construct_audio_encoder_pipeline(section):
     if encoder == 'cpu':
         # build rest of the pipeline
         pipeline += """! audioconvert
-                       {spread} ! {encoder}""".format(spread=get_spread_matrix([1,6]),
-                                                      encoder="avenc_aac"
+                       {spread} ! {encoder} ! {acaps}""".format(spread=get_spread_matrix([1,6]),
+                                                      encoder="voaacenc", acaps=acaps
                                                       )
     else:
         log.error("Unknown audio encoder {}".format(encoder))
