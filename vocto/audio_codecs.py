@@ -49,7 +49,7 @@ def construct_audio_encoder_pipeline(section):
         # build rest of the pipeline
         pipeline += """! audioconvert
                        {spread} ! {encoder} ! {acaps}""".format(spread=get_spread_matrix([1,6]),
-                                                      encoder="voaacenc", acaps=acaps
+                                                      encoder="fdkaacenc", acaps=acaps
                                                       )
     else:
         log.error("Unknown audio encoder {}".format(encoder))
