@@ -32,7 +32,7 @@ class LocalPlayout():
                 ! queue
                     max-size-time=3000000000
                     name=queue-mux-video-localplayout
-                {vpipeline}
+                {vpipeline} ! h264parse config-interval=1
                 ! queue
                     max-size-time=3000000000
                     name=queue-mux-localplayout-{source}
@@ -73,7 +73,7 @@ class LocalPlayout():
 
         # sink pipeline
         self.bin += """
-                srtserversink
+                srtserversink latency=3000
                     name=sink-localplayout-{source}
                     uri=srt://:{port}
                 """.format(source=self.source,
