@@ -20,7 +20,7 @@ $ pip install -r requirements.txt
 # Set the `FLASK_APP` environment variable to point to `voctoremote.py`.
 $ export FLASK_APP=example-scripts/voctoremote/voctoremote.py
 # Run flask's builtin web server (for development purposes only)
-$ flask run
+$ flask run --host=0.0.0.0
 > * Serving Flask app "example-scripts/voctoremote/voctoremote.py"
 ```
 
