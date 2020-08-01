@@ -1,18 +1,33 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
     <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <title>Voctoremote</title>
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='index.css') }}"/>
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap-4.5.0.min.css') }}"/>
     </head>
     <body>
-        <div class="button-container">
-        {% for button in buttons %}
-            <form action="run" method="post" class="button {{ button.id }}">
-                <input type="text" name="command" value="{{ button.command }}" />
-                <input type="submit" value="{{ button.text }}" onclick="changeColor(this)" />
-            </form>
-        {% endfor %}
+        <div class="container-lg" id="voctoremote-buttons">
+            {% for button in buttons %}
+                <div class="row my-sm-5">
+                    <div class="container-fluid">
+                        <form action="run" method="post">
+                            <input type="hidden" name="command" value="{{ button.command }}" />
+                            <button type="submit" class="btn btn-primary btn-lg btn-block" id="voctobutton-{{ button.id }}">{{ button.text }}</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
         </div>
+
+        <!-- JavaScript -->
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script src="{{ url_for('static', filename='jquery-3.5.1.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='popper-2.4.4.js') }}"></script>
+        <script src="{{ url_for('static', filename='bootstrap-4.5.0.min.js') }}"></script>
         <script src="{{ url_for('static', filename='index.js') }}"></script>
     </body>
 </html>

@@ -1,20 +1,18 @@
-document.querySelectorAll(".button").forEach((form)=>{
-    form.addEventListener("submit",(event)=>{
-        fetch(form.getAttribute("action"),{
-            method: "POST",
-            redirect: "manual",
-            body: new FormData(form)
-        });
-        event.preventDefault();
+
+$(document).ready(function() {
+    // Set the status of all the buttons to secondary
+    $('.btn').addClass('btn-secondary');
+    $('#voctobutton-fs-c').removeClass('btn-secondary')
+    $('#voctobutton-fs-c').addClass('btn-primary')
+
+
+    $('.btn').click(function() {
+        //When a button is clicked, remove primary from all and set secondary (ie greyed out or a variant)
+        $('.btn').removeClass('btn-primary');
+        $('.btn').addClass('btn-secondary');
+
+        // And then make currently clicked button the primary and not the secodnary
+        $(this).removeClass('btn-secondary');
+        $(this).addClass('btn-primary');
     });
 });
-
-function changeColor (id) {
-  Array.from(document.querySelectorAll('.button > input[type="submit"]')).map(function(button) {
-    if (button == id) {
-      button.style.backgroundColor = "green";
-    } else {
-      button.style.backgroundColor = "blue";
-    }
-  })
-}
