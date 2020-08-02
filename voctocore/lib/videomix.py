@@ -93,7 +93,7 @@ class VideoMix(object):
                 ! queue
                     max-size-time=3000000000
                     name=queue-cropper-{name}
-                ! videobox
+                ! queue
                     name=cropper-{name}
                 ! queue
                     max-size-time=3000000000
