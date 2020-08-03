@@ -7,6 +7,7 @@ from vocto.video_codecs import construct_video_encoder_pipeline
 from vocto.audio_codecs import construct_audio_encoder_pipeline
 from lib.args import Args
 from lib.config import Config
+import datetime
 
 
 class LocalPlayout():
@@ -36,10 +37,19 @@ class LocalPlayout():
                 ! queue
                     max-size-time=3000000000
                     name=queue-mux-localplayout-{source}
-                ! mux-localplayout-{source}.
+                ! tee name=videomix-localplayout-{source}
                 """.format(source=self.source,
                            vpipeline=construct_video_encoder_pipeline('localplayout'),
                            vcaps=Config.getVideoCaps())
+
+        self.bin += """
+            videomix-localplayout-{source}. ! queue ! mux-localplayout-{source}.
+            """.format(source=self.source)
+
+        if Config.getRecordingEnabled():
+            self.bin += """
+                videomix-localplayout-{source}. ! queue leaky=downstream ! recording-{source}.
+                """.format(source=self.source)
 
         # audio pipeline
         if Config.getLocalPlayoutAudioEnabled() and (use_audio_mix or source in Config.getAudioSources(internal=True)):
@@ -52,13 +62,28 @@ class LocalPlayout():
                 ! queue
                     max-size-time=3000000000
                     name=queue-mux-audio-{source}
-                ! mux-localplayout-{source}.
+                ! tee name=audiomix-localplayout-{source}
                 """.format(source=self.source,
                            apipeline=construct_audio_encoder_pipeline('localplayout'),
                            use_audio="" if use_audio_mix else "source-",
                            audio_source="mix" if use_audio_mix else self.source,
                            audio_blinded="-blinded" if Config.getBlinderEnabled() and audio_blinded else ""
                            )
+
+            self.bin += """
+                audiomix-localplayout-{source}. ! queue ! mux-localplayout-{source}.
+                """.format(source=self.source)
+
+            if Config.getRecordingEnabled():
+                self.bin += """
+                    audiomix-localplayout-{source}. ! queue ! recording-{source}.audio_0
+                    """.format(source=self.source)
+
+        # recording pipeline
+        if Config.getRecordingEnabled():
+            self.bin += """
+                splitmuxsink async-finalize=true max-size-time=300000000000 muxer-factory=mpegtsmux location="/mnt/video/default.ts" name=recording-{source}
+                """.format(source=self.source)
 
         # mux pipeline
         self.bin += """
@@ -68,12 +93,13 @@ class LocalPlayout():
                 max-size-time=3000000000
                 name=queue-sink-localplayout-{source}
                 leaky=downstream
-            ! sink-localplayout-{source}.
+            ! tee name=source-localplayout-{source}
             """.format(source=self.source)
 
         # sink pipeline
         self.bin += """
-                srtserversink latency=3000
+                source-localplayout-{source}.
+                ! srtserversink latency=3000
                     name=sink-localplayout-{source}
                     uri=srt://:{port}
                 """.format(source=self.source,
@@ -100,5 +126,12 @@ class LocalPlayout():
     def is_input(self):
         return False
 
+    def format_location_callback(self, splitmux, fragment_id):
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        return "/mnt/video/isdn-{timestamp}-{fragment_id}.ts".format(timestamp=timestamp, fragment_id=fragment_id)
+
     def attach(self, pipeline):
         self.pipeline = pipeline
+
+        recording_sink = self.pipeline.get_by_name("recording-{source}".format(source=self.source))
+        recording_sink.connect("format-location", self.format_location_callback)
