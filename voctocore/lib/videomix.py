@@ -91,9 +91,6 @@ class VideoMix(object):
             self.bin += """
                 video-{name}.
                 ! queue
-                    max-size-time=3000000000
-                    name=queue-cropper-{name}
-                ! queue
                     name=cropper-{name}
                 ! queue
                     max-size-time=3000000000
@@ -117,7 +114,7 @@ class VideoMix(object):
         self.log.debug('Initializing Mixer-State')
         # initialize pipeline bindings for all sources
         self.bgScene = Scene(self.bgSources, pipeline, self.transitions.fps, 0, cropping=False)
-        self.scene = Scene(self.sources, pipeline, self.transitions.fps, len(self.bgSources))
+        self.scene = Scene(self.sources, pipeline, self.transitions.fps, len(self.bgSources), cropping=False)
         self.compositeMode = None
         self.sourceA = None
         self.sourceB = None
