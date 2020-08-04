@@ -82,10 +82,14 @@ class VocConfigParser(SafeConfigParser):
     def getBackgroundSources(self):
         if self.has_option('mix', 'backgrounds'):
             return self.getList('mix', 'backgrounds')
-        else:
+        elif self.has_section('source.background'):
             return ["background"]
+        else:
+            return []
 
     def getBackgroundSource(self,composite):
+        if not self.getBackgroundSources():
+            return None
         for source in self.getBackgroundSources():
             if composite in self.getList('source.{}'.format(source), 'composites', fallback=[]):
                 return source
