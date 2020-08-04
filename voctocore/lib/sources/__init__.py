@@ -16,6 +16,7 @@ def spawn_source(name, port, has_audio=True, has_video=True):
     from lib.sources.v4l2source import V4l2AVSource
     from lib.sources.rpicamsource import RPICamAVSource
     from lib.sources.pulseaudiosource import PulseAudioSource
+    from lib.sources.alsaaudiosource import AlsaAudioSource
 
     kind = Config.getSourceKind(name)
 
@@ -33,6 +34,8 @@ def spawn_source(name, port, has_audio=True, has_video=True):
         sources[name] = RPICamAVSource(name)
     elif kind == 'pa':
         sources[name] = PulseAudioSource(name)
+    elif kind == 'alsa':
+        sources[name] = AlsaAudioSource(name)
     else:
         if kind != 'test':
             log.warning(

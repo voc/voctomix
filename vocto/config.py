@@ -125,6 +125,9 @@ class VocConfigParser(SafeConfigParser):
     def getPulseAudioDevice(self, source):
         return self.get('source.{}'.format(source), 'device', fallback='auto')
 
+    def getAlsaAudioDevice(self, source):
+        return self.get('source.{}'.format(source), 'device', fallback='hw:0')
+
     def getV4l2Device(self, source):
         return self.get('source.{}'.format(source), 'device', fallback='/dev/video0')
 
