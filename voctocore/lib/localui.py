@@ -48,7 +48,7 @@ class LocalUi():
                 ! queue
                     max-size-time=3000000000
                     name=queue-mux-audio-{source}
-                ! autoaudiosink
+                ! audioresample ! autoaudiosink
                 """.format(
                 source=self.source,
                 use_audio="" if use_audio_mix else "source-",
