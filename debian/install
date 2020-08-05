@@ -1,1 +1,11 @@
-* opt/voctomix
+LICENSE.txt opt/voctomix
+README-TRANSITIONS.md opt/voctomix
+README.md opt/voctomix
+configs opt/voctomix
+data  opt/voctomix
+doc opt/voctomix
+example-scripts opt/voctomix 
+schedule.xml opt/voctomix
+vocto opt/voctomix
+voctocore opt/voctomix
+voctogui opt/voctomix

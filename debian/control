@@ -29,7 +29,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends},
     python3-scipy,
     gstreamer1.0-gl,
     gstreamer1.0-pulseaudio
-Recommends: gstreamer1.0-vaapi,
+Suggests: gstreamer1.0-vaapi,
     python3-pyinotify,
     gstreamer1.0-libav,
     rlwrap,
