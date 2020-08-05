@@ -28,21 +28,14 @@ Depends: ${shlibs:Depends}, ${misc:Depends},
     python3-sdnotify,
     python3-scipy,
     gstreamer1.0-gl,
-    gstreamer1.0-pulseaudio,
-    gstreamer1.0-vaapi,
+    gstreamer1.0-pulseaudio
+Recommends: gstreamer1.0-vaapi,
     python3-pyinotify,
     gstreamer1.0-libav,
     rlwrap,
     fbset,
     ffmpeg,
     netcat,
-    flask
-Recommends: gstreamer1.0-vaapi,
-    python3-pyinotify,
-    gstreamer1.0-libav,
-    rlwrap fbset,
-    ffmpeg,
-    netcat,
-    flask
+    python3-flask
 Description: Voc2Mix ISDN version
  Full-HD Software Live-Video-Mixer in python
