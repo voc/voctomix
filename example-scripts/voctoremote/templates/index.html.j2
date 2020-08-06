@@ -10,17 +10,19 @@
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap-4.5.0.min.css') }}"/>
     </head>
     <body>
+        {# <div class="container-lg" id="voctoremote-buttons"> #}
         <div class="container-lg" id="voctoremote-buttons">
-            {% for button in buttons %}
-                <div class="row my-sm-5">
-                    <div class="container-fluid">
+             <div class="row">
+                {% for button in buttons %}
+                    {# <div class="col-12 col-sm-12 col-md-12 col-lg-2 col-xl-2 mb-1"> #}
+                    <div class="col-12 mb-1">
                         <form action="run" method="post">
                             <input type="hidden" name="command" value="{{ button.command }}" />
                             <button type="submit" class="btn btn-primary btn-lg btn-block" id="voctobutton-{{ button.id }}">{{ button.text }}</button>
                         </form>
                     </div>
-                </div>
-            {% endfor %}
+                {% endfor %}
+            </div>
         </div>
 
         <!-- JavaScript -->
