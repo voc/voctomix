@@ -17,16 +17,8 @@ $ pip install -r requirements.txt
 ## Development
 
 ```bash
-# Set the `FLASK_APP` environment variable to point to `voctoremote.py`.
-$ export FLASK_APP=example-scripts/voctoremote/voctoremote.py
-# Run flask's builtin web server (for development purposes only)
-$ flask run
-> * Serving Flask app "example-scripts/voctoremote/voctoremote.py"
-# etc
-#
-# If you want to listen on all interfaces:
-# $ flask run --host=0.0.0.0
-# Change 0.0.0.0 to a known IP address on your machine to *only* listen on that interface 
+# start the application (or with appropriate variations of it for your situation)
+$ ./voctoremote.py
 ```
 
 ## Production

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import socket
 from lib.config import Config
 from flask import Flask, render_template, request, redirect, url_for
@@ -26,3 +28,7 @@ def send_command(command: str) -> str:
 
     sock.close()
     return response
+
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=5000)
