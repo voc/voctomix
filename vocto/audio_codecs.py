@@ -45,12 +45,11 @@ def construct_audio_encoder_pipeline(section):
 
     pipeline = ""
 
-    if encoder == 'cpu':
-        # build rest of the pipeline
+    # build rest of the pipeline
+    if encoder in ('fdkaacenc', 'avenc_aac'):
         pipeline += """! audioconvert
-                       {spread} ! {encoder} ! {acaps}""".format(spread=get_spread_matrix([1,6]),
-                                                      encoder="fdkaacenc", acaps=acaps
-                                                      )
+                           {spread} ! {encoder} ! {acaps}""".format(spread=get_spread_matrix([1,6]),
+                                                          encoder=encoder, acaps=acaps)
     else:
         log.error("Unknown audio encoder {}".format(encoder))
         sys.exit(-1)
