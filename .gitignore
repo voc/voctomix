@@ -60,3 +60,8 @@ target/
 # IDE project files
 /*.iml
 /.idea
+
+.mypy_cache/
+
+venv/
+
