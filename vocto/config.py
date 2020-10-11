@@ -58,7 +58,6 @@ GST_TYPE_AUDIO_TEST_SRC_WAVE = [
 
 
 class VocConfigParser(SafeConfigParser):
-
     log = logging.getLogger('VocConfigParser')
     audio_streams = None
 
@@ -87,7 +86,7 @@ class VocConfigParser(SafeConfigParser):
         else:
             return []
 
-    def getBackgroundSource(self,composite):
+    def getBackgroundSource(self, composite):
         if not self.getBackgroundSources():
             return None
         for source in self.getBackgroundSources():
@@ -100,7 +99,7 @@ class VocConfigParser(SafeConfigParser):
 
     def getNoSignal(self):
         nosignal = self.get('mix', 'nosignal', fallback='smpte100').lower()
-        if nosignal in ['none','false','no']:
+        if nosignal in ['none', 'false', 'no']:
             return None
         elif nosignal in GST_TYPE_VIDEO_TEST_SRC_PATTERN:
             return nosignal
@@ -170,7 +169,7 @@ class VocConfigParser(SafeConfigParser):
     def getRPICamAnnotation(self, source):
         return self.get('source.{}'.format(source), 'annotation', fallback=None)
 
-    def getImageURI(self,source):
+    def getImageURI(self, source):
         if self.has_option('source.{}'.format(source), 'imguri'):
             return self.get('source.{}'.format(source), 'imguri')
         else:
@@ -179,10 +178,10 @@ class VocConfigParser(SafeConfigParser):
                 self.log.error("image file '%s' could not be found" % path)
             return "file://{}".format(path)
 
-    def getLocation(self,source):
+    def getLocation(self, source):
         return self.get('source.{}'.format(source), 'location')
 
-    def getLoop(self,source):
+    def getLoop(self, source):
         return self.get('source.{}'.format(source), 'loop', fallback="true")
 
     def getTestPattern(self, source):
@@ -200,7 +199,7 @@ class VocConfigParser(SafeConfigParser):
             testPatternCount += 1
             pattern = GST_TYPE_VIDEO_TEST_SRC_PATTERN[testPatternCount % len(GST_TYPE_VIDEO_TEST_SRC_PATTERN)]
             self.log.info("Test pattern of source '{}' unspecified, picking '{} ({})'"
-                          .format(source,pattern, testPatternCount))
+                          .format(source, pattern, testPatternCount))
         return pattern
 
     def getTestWave(self, source):
@@ -214,7 +213,8 @@ class VocConfigParser(SafeConfigParser):
     def getSourceScan(self, source):
         section = 'source.{}'.format(source)
         if self.has_option(section, 'deinterlace'):
-            self.log.error("source attribute 'deinterlace' is obsolete. Use 'scan' instead! Falling back to 'progressive' scheme")
+            self.log.error(
+                "source attribute 'deinterlace' is obsolete. Use 'scan' instead! Falling back to 'progressive' scheme")
         return self.get(section, 'scan', fallback='progressive')
 
     def getAudioStreams(self):
@@ -235,6 +235,11 @@ class VocConfigParser(SafeConfigParser):
         return audio_streams
 
     def getAudioStream(self, source):
+        '''
+        get the number of audio streams configured for a given source
+        :param source: name of the source in the config file
+        :return:
+        '''
         section = 'source.{}'.format(source)
         if self.has_section(section):
             return AudioStreams.configure(self.items(section), source)
@@ -243,12 +248,16 @@ class VocConfigParser(SafeConfigParser):
     def getNumAudioStreams(self):
         num_audio_streams = len(self.getAudioStreams())
         if self.getAudioChannels() < num_audio_streams:
-            self.log.error("number of audio channels in mix/audiocaps differs from the available audio input channels within the sources!")
+            self.log.error(
+                "number of audio channels in mix/audiocaps differs from the available audio input channels within the sources!")
         return num_audio_streams
 
     def getAudioChannels(self):
-        caps = Gst.Caps.from_string(
-            self.getAudioCaps()).get_structure(0)
+        '''
+        get the number of audio channels configured for voc2mix
+        :return:
+        '''
+        caps = Gst.Caps.from_string(self.getAudioCaps()).get_structure(0)
         _, channels = caps.get_int('channels')
         return channels
 
@@ -261,7 +270,7 @@ class VocConfigParser(SafeConfigParser):
 
     def getVideoRatio(self):
         width, height = self.getVideoResolution()
-        return float(width)/float(height)
+        return float(width) / float(height)
 
     def getFramerate(self):
         caps = Gst.Caps.from_string(
@@ -333,26 +342,20 @@ class VocConfigParser(SafeConfigParser):
                 options[-1] += char
         return options
 
-    def getAudioCodec(self, section):
-        if self.has_option(section, 'audiocodec'):
-            codec = self.get(section, 'audiocodec').split(',',1)
-            if len(codec) > 1:
-                codec, options = self.get(section, 'audiocodec').split(',',1)
-                return codec, VocConfigParser.splitOptions(options) if options else None
-            else:
-                return codec[0], None
-        return "aac", None
+    def get_audio_encoder(self, section):
+        return self.get(section, 'audioencoder')  # => move to audio_codec class
 
-    def getAudioEncoder(self, section):
-        if self.has_option(section, 'audioencoder'):
-            return self.get(section, 'audioencoder')
-        return None
+    def get_sink_audio_channels(self, section):
+        return self.getint(section, 'audio_channels')
+
+    def get_sink_audio_map(self, section):
+        return self.get(section, 'audio_map')
 
     def getVideoCodec(self, section):
         if self.has_option(section, 'videocodec'):
-            codec = self.get(section, 'videocodec').split(',',1)
+            codec = self.get(section, 'videocodec').split(',', 1)
             if len(codec) > 1:
-                codec, options = self.get(section, 'videocodec').split(',',1)
+                codec, options = self.get(section, 'videocodec').split(',', 1)
                 return codec, VocConfigParser.splitOptions(options) if options else None
             else:
                 return codec[0], None
@@ -400,10 +403,10 @@ class VocConfigParser(SafeConfigParser):
 
     def getPreviewSize(self):
         width = self.getint('preview', 'width') if self.has_option(
-            'preview','width') else 320
+            'preview', 'width') else 320
         height = self.getint('preview', 'height') if self.has_option(
-            'preview','height') else int(width * 9 / 16)
-        return(width, height)
+            'preview', 'height') else int(width * 9 / 16)
+        return (width, height)
 
     def getLocalPlayoutEnabled(self):
         return self.getboolean('localplayout', 'enabled', fallback=False)
@@ -429,7 +432,7 @@ class VocConfigParser(SafeConfigParser):
     def getLivePreviews(self):
         if self.getBlinderEnabled():
             singleval = self.get('previews', 'live').lower()
-            if singleval in [ "true", "yes" ]:
+            if singleval in ["true", "yes"]:
                 return ["mix"]
             if singleval == "all":
                 return self.getLiveSources()
@@ -437,7 +440,8 @@ class VocConfigParser(SafeConfigParser):
             result = []
             for preview in previews:
                 if preview not in self.getLiveSources():
-                    self.log.error("source '{}' configured in 'preview/live' must be listed in 'mix/livesources'!".format(preview))
+                    self.log.error(
+                        "source '{}' configured in 'preview/live' must be listed in 'mix/livesources'!".format(preview))
                 else:
                     result.append(preview)
             return result
@@ -474,12 +478,14 @@ class VocConfigParser(SafeConfigParser):
     def getVideoSources(self):
         def source_has_video(source):
             return kind_has_video(self.getSourceKind(source))
+
         sources = self.getSources()
         return list(filter(source_has_video, sources))
 
     def getAudioSources(self, internal=False):
         def source_has_audio(source):
             return kind_has_audio(self.getSourceKind(source))
+
         sources = self.getSources()
         if internal:
             sources += ['mix']
