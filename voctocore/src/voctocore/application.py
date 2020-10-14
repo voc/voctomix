@@ -8,8 +8,11 @@ gi.require_version('Gst', '1.0')
 gi.require_version('GstNet', '1.0')
 from gi.repository import Gst, GLib
 
-from voctocore import cli
-from voctocore import logging
+from voctocore import (
+    cli,
+    logging,
+    configuration,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +26,7 @@ def start():
 
     # Bootstrap application: Logging, Pipeline and Server
     logging.configure_from_args(args)
+    config = configuration.load_from_args(args)
 
 
     # initialize subsystem

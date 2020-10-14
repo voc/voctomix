@@ -10,7 +10,9 @@ def parse_args():
     """Parse cli arguments"""
     # Defaults
     default_config_filename = os.path.join(
-        os.path.dirname(os.path.realpath(__file__)), '../default-config.ini')
+        os.path.dirname(os.path.realpath(__file__)),
+        "../../config/",
+        "default-config.ini")
 
     parser = argparse.ArgumentParser(description='Voctocore')
     parser.add_argument('-v', '--verbose', action='count', default=0,
@@ -26,6 +28,7 @@ def parse_args():
                         help="Enable timestamps in the Log-Output")
 
     parser.add_argument('-i', '--ini-file', action='store',
+                        default=default_config_filename,
                         help="Load a custom config.ini-File")
 
     parser.add_argument('-p', '--pipeline', action='store_true',

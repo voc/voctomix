@@ -12,6 +12,8 @@ from datetime import datetime, timedelta
 from vocto.config import VocConfigParser
 
 
+logger = logging.getLogger(__name__)
+
 def scandatetime(str):
     return datetime.strptime(str[:19], "%Y-%m-%dT%H:%M:%S")
 
@@ -276,17 +278,17 @@ class VoctocoreConfigParser(VocConfigParser):
         return matrix
 
 
+def load_from_args(args):
+    """Load config file form provided args"""
+    return load(args.ini_file)
+
+
 def load(filename):
+    """Load configuration from filename"""
+    config = VoctocoreConfigParser()
+    if not config.read([filename]):
+        raise RuntimeError("no configuration could be read")
 
-    Config = VoctocoreConfigParser()
-
-    config_file_name = Args.ini_file if Args.ini_file else os.path.join(
-        os.path.dirname(os.path.realpath(__file__)), '../default-config.ini')
-    readfiles = Config.read([config_file_name])
-
-    log = logging.getLogger('ConfigParser')
-    log.debug("successfully parsed config-file: '%s'", config_file_name)
-
-    if Args.ini_file is not None and Args.ini_file not in readfiles:
-        raise RuntimeError('explicitly requested config-file "{}" '
-                           'could not be read'.format(Args.ini_file))
+    logger.debug(
+        "successfully parsed config-file: '%s'",
+        filename)
