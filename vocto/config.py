@@ -231,7 +231,7 @@ class VocConfigParser(SafeConfigParser):
         self.audio_streams = AudioStreams()
         section = 'source.blinder'
         if self.has_section(section):
-            self.audio_streams += AudioStreams.configure_source(self.items(section), "blinder", use_source_as_name=True)
+            self.audio_streams.configure_source(self.items(section), "blinder", use_source_as_name=True)
         return self.audio_streams
 
     def getAudioStream(self, source):
