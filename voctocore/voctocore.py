@@ -23,4 +23,7 @@ if __name__ == '__main__':
 
     # Start the voctocore server
     from voctocore import application
-    application.start()
+    try:
+        application.start()
+    except KeyboardInterrupt:
+        print("Terminated via Ctrl-C")

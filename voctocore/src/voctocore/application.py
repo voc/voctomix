@@ -23,29 +23,11 @@ def start():
 
     # Bootstrap application
     logging.configure_from_args(args)
-    app = Application()
-    app.run()
 
-
-class Application():
-    """The voctocore main application"""
-    def __init__(self):
-        """Initialize application"""
-        logger.debug('Creating GLib-MainLoop')
-        self.mainloop = GLib.MainLoop()
-
-    def run(self):
-        """Run the main loop"""
-        logger.info('Running. Waiting for connections....')
-        try:
-            self.mainloop.run()
-        except KeyboardInterrupt:
-            logger.info('Terminated via Ctrl-C')
-
-    def quit(self):
-        """Stop the main loop"""
-        logger.info('Quitting.')
-        self.mainloop.quit()
+    # Application main loop
+    logger.debug('Creating GLib-MainLoop')
+    main_loop = GLib.MainLoop()
+    main_loop.run()
 
 
 def assert_requirements():
