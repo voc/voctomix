@@ -120,5 +120,5 @@ def construct_video_decoder_pipeline(section):
     elif decoder == 'cpu':
         return cpu_decoders[codec] + " ! " + acaps
     else:
-        log.error("Unkown video decoder '{}'.".format(encoder))
+        log.error("Unknown video decoder '{}'.".format(decoder))
         exit(-1)
