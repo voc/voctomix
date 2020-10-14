@@ -134,7 +134,6 @@ class LocalPlayout():
         return "/mnt/video/isdn-{timestamp}-{fragment_id}.ts".format(timestamp=timestamp, fragment_id=fragment_id)
 
     def attach(self, pipeline):
-        self.pipeline = pipeline
-
-        recording_sink = self.pipeline.get_by_name("recording-{source}".format(source=self.source))
-        recording_sink.connect("format-location", self.format_location_callback)
+        if Config.getRecordingEnabled():
+            recording_sink = pipeline.get_by_name("recording-{source}".format(source=self.source))
+            recording_sink.connect("format-location", self.format_location_callback)
