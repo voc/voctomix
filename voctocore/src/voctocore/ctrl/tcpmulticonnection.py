@@ -14,6 +14,8 @@ class TCPMultiConnection(object, metaclass=ABCMeta):
 
         self._port = None
 
+    def start(self):
+        """Start the server"""
         try:
             self.boundSocket = None
             self.currentConnections = dict()
