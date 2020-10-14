@@ -2,11 +2,16 @@
 CLI related functions e.g. for commandline parsing
 """
 
+import os
 import argparse
 
 
 def parse_args():
     """Parse cli arguments"""
+    # Defaults
+    default_config_filename = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), '../default-config.ini')
+
     parser = argparse.ArgumentParser(description='Voctocore')
     parser.add_argument('-v', '--verbose', action='count', default=0,
                         help="Set verbosity level by using -v, -vv or -vvv.")

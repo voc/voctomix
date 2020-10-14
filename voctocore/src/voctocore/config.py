@@ -1,17 +1,15 @@
-#!/usr/bin/env python3
-import os.path
-import logging
-from configparser import DuplicateSectionError
-from lib.args import Args
-from vocto.config import VocConfigParser
-import xml.etree.ElementTree as ET
-from datetime import date, datetime, timedelta
+"""
+voctocore configuration parsing
+"""
 import re
 import os
+import sys
+import logging
+from configparser import DuplicateSectionError
+import xml.etree.ElementTree as ET
+from datetime import datetime, timedelta
 
-__all__ = ['Config']
-
-Config = None
+from vocto.config import VocConfigParser
 
 
 def scandatetime(str):
@@ -278,8 +276,7 @@ class VoctocoreConfigParser(VocConfigParser):
         return matrix
 
 
-def load():
-    global Config
+def load(filename):
 
     Config = VoctocoreConfigParser()
 
