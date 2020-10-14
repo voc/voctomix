@@ -6,6 +6,7 @@ import sys
 from gi.repository import Gst
 from vocto.debug import gst_generate_dot
 from vocto.pretty import pretty
+from vocto.port import Port
 
 from voctocore.sources import spawn_source
 from voctocore.components import (
@@ -18,18 +19,26 @@ from voctocore.components import (
     LocalUi,
     Clock,
 )
-# --> .... vocto.port import Port
 
 
 def from_config(config):
     """Create A/V pipeline from config"""
 
 
-class Pipeline(object):
-    """mixing, streaming and encoding pipeline constuction and control"""
+class Pipeline:
+    """
+    Mixing, streaming and encoding pipeline
+    constuction and control.
+    """
 
     def __init__(self):
-        self.log = logging.getLogger('Pipeline')
+        """Initialize A/V pipeline"""
+        # collect bins for all modules
+        self.bins = []
+        self.ports = []
+        self.vmix = None
+        self.amix = None
+
         # log capabilities
         self.log.info('Video-Caps configured to: %s', Config.getVideoCaps())
         self.log.info('Audio-Caps configured to: %s', Config.getAudioCaps())
@@ -39,9 +48,6 @@ class Pipeline(object):
         if len(sources) < 1:
             raise RuntimeError("At least one AVSource must be configured!")
 
-        # collect bins for all modules
-        self.bins = []
-        self.ports = []
 
         # create A/V sources
         self.log.info('Creating %u AVSources: %s', len(sources), sources)
