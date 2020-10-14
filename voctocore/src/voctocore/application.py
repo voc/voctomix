@@ -21,8 +21,17 @@ def start():
     Gst.init([])  # initialize library
     assert_requirements()
 
-    # Bootstrap application
+    # Bootstrap application: Logging, Pipeline and Server
     logging.configure_from_args(args)
+
+
+    # initialize subsystem
+    logger.debug('Creating A/V-Pipeline')
+    # pipeline = Pipeline()
+
+    logger.debug('Creating ControlServer')
+    # ctrl = ControlServer(self.pipeline)
+
 
     # Application main loop
     logger.debug('Creating GLib-MainLoop')
