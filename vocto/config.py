@@ -367,8 +367,8 @@ class VocConfigParser(SafeConfigParser):
         return None
 
     def getVideoDecoder(self, section):
-        if self.has_option(section, 'decoder'):
-            return self.get(section, 'decoder')
+        if self.has_option(section, 'videodecoder'):
+            return self.get(section, 'videodecoder')
         return None
 
     def getDenoise(self, section):
@@ -402,10 +402,10 @@ class VocConfigParser(SafeConfigParser):
             return "video/x-raw,format=I420,width=1920,height=1080,framerate=25/1,pixel-aspect-ratio=1/1"
 
     def getPreviewSize(self):
-        width = self.getint('preview', 'width') if self.has_option(
-            'preview', 'width') else 320
-        height = self.getint('preview', 'height') if self.has_option(
-            'preview', 'height') else int(width * 9 / 16)
+        width = self.getint('previews', 'width') if self.has_option(
+            'previews', 'width') else 320
+        height = self.getint('previews', 'height') if self.has_option(
+            'previews', 'height') else int(width * 9 / 16)
         return (width, height)
 
     def getLocalPlayoutEnabled(self):

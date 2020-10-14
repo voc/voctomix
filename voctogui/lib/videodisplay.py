@@ -46,7 +46,7 @@ class VideoDisplay(object):
                     name=queue-video-{name}
                 ! {video_decoder}
                 """.format(name=name,
-                           video_decoder=construct_video_decoder_pipeline('preview'))
+                           video_decoder=construct_video_decoder_pipeline('previews'))
 
         else:
             video_decoder = None

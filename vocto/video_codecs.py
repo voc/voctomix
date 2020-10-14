@@ -25,8 +25,8 @@ else:
     }
 
 v4l2_encoders = {
-        'h264': 'v4l2h264enc',
-        'jpeg': 'v4l2jpegenc',
+    'h264': 'v4l2h264enc',
+    'jpeg': 'v4l2jpegenc',
 }
 
 cpu_encoders = {
@@ -56,6 +56,7 @@ cpu_decoders = {
                 ! mpeg2dec"""
 }
 
+
 def construct_video_encoder_pipeline(section):
     encoder = Config.getVideoEncoder(section)
     codec, options = Config.getVideoCodec(section)
@@ -65,7 +66,7 @@ def construct_video_encoder_pipeline(section):
 
     if encoder == 'vaapi':
         if codec not in vaapi_encoders:
-            log.error("Unkown codec '{}' for video encoder '{}'. Falling back to 'h264'.".format(codec,encoder))
+            log.error("Unknown codec '{}' for video encoder '{}'. Falling back to 'h264'.".format(codec, encoder))
             sys.exit(-1)
         # generate pipeline
         # we can also force a video format here (format=I420) but this breaks scalling at least on Intel HD3000 therefore it currently removed
@@ -76,7 +77,7 @@ def construct_video_encoder_pipeline(section):
                         """.format(encoder=vaapi_encoders[codec])
     elif encoder == 'v4l2':
         if codec not in v4l2_encoders:
-            log.error("Unkown codec '{}' for video encoder '{}'. Falling back to 'h264'.".format(codec,encoder))
+            log.error("Unknown codec '{}' for video encoder '{}'. Falling back to 'h264'.".format(codec, encoder))
             sys.exit(-1)
         pipeline = """  ! capsfilter
                             caps=video/x-raw,interlace-mode=progressive
@@ -84,7 +85,7 @@ def construct_video_encoder_pipeline(section):
                         """.format(encoder=v4l2_encoders[codec])
     elif encoder == "cpu":
         if codec not in cpu_encoders:
-            log.error("Unkown codec '{}' for video encoder '{}'.".format(codec,encoder))
+            log.error("Unknown codec '{}' for video encoder '{}'.".format(codec, encoder))
             sys.exit(-1)
         # maybe add deinterlacer
         if Config.getDeinterlace(section):
@@ -107,18 +108,16 @@ def construct_video_encoder_pipeline(section):
     pipeline += """! {vcaps} """.format(vcaps=vcaps,
                                         encoder=vaapi_encoders[codec]
                                         )
-
     return pipeline
 
 
 def construct_video_decoder_pipeline(section):
     decoder = Config.getVideoDecoder(section)
-    acaps = Config.getAudioCaps(section)
     codec, options = Config.getVideoCodec(section)
     if decoder == 'vaapi':
-        return vaapi_decoders[codec] + " ! " + acaps
+        return vaapi_decoders[codec]
     elif decoder == 'cpu':
-        return cpu_decoders[codec] + " ! " + acaps
+        return cpu_decoders[codec]
     else:
         log.error("Unknown video decoder '{}'.".format(decoder))
         exit(-1)
