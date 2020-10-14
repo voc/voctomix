@@ -6,6 +6,7 @@ voctocore application entry point.
 
 import sys
 import os
+import signal
 
 
 if __name__ == '__main__':
@@ -16,6 +17,9 @@ if __name__ == '__main__':
         os.path.join(file_path, "../")))  # Libraries
     sys.path.insert(0, os.path.abspath(
         os.path.join(file_path, "src/")))  # Application
+
+    # Install signal handler
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
 
     # Start the voctocore server
     from voctocore import application

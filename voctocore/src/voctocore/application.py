@@ -23,7 +23,6 @@ def start():
 
     # Bootstrap application
     logging.configure_from_args(args)
-
     app = Application()
     app.run()
 
