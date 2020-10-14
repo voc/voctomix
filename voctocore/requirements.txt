@@ -1,0 +1,4 @@
+mock==4.0.2
+pycairo==1.20.0
+PyGObject==3.38.0
+sdnotify==0.3.2
