@@ -3,6 +3,8 @@ voctocore server application
 """
 
 import sys
+
+import sdnotify
 import gi
 gi.require_version('Gst', '1.0')
 gi.require_version('GstNet', '1.0')
@@ -38,10 +40,19 @@ def start():
     ctrl = ControlServer(pipeline)
     ctrl.start()
 
+    # We are ready
+    notify_systemd()
+
     # Start application main loop
     logger.debug('Creating GLib-MainLoop')
     main_loop = GLib.MainLoop()
     main_loop.run()
+
+
+def notify_systemd():
+    """Inform systemd that we started"""
+    sdn = sdnotify.SystemdNotifier()
+    sdn.notify("READY=1")
 
 
 def assert_requirements():
