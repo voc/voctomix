@@ -11,7 +11,7 @@ from gi.repository import Gst, GLib
 from voctocore import cli
 from voctocore import logging
 
-logger = logging.getLogger("Voctocore")
+logger = logging.getLogger(__name__)
 
 
 def start():
@@ -26,7 +26,6 @@ def start():
 
     app = Application()
     app.run()
-
 
 
 class Application():
