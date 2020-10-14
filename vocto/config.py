@@ -228,15 +228,15 @@ class VocConfigParser(SafeConfigParser):
         return self.audio_streams
 
     def getBlinderAudioStreams(self):
-        audio_streams = AudioStreams()
+        self.audio_streams = AudioStreams()
         section = 'source.blinder'
         if self.has_section(section):
-            audio_streams += AudioStreams.configure(self.items(section), "blinder", use_source_as_name=True)
-        return audio_streams
+            self.audio_streams += AudioStreams.configure_source(self.items(section), "blinder", use_source_as_name=True)
+        return self.audio_streams
 
     def getAudioStream(self, source):
         '''
-        get the number of audio streams configured for a given source
+
         :param source: name of the source in the config file
         :return:
         '''

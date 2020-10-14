@@ -11,6 +11,9 @@ import datetime
 
 
 class LocalPlayout():
+    """
+    The local playout class handels outputs for the voctocore that are played out directly by the gstreamer pipline.
+    """
 
     def __init__(self, source, port, use_audio_mix=False, audio_blinded=False):
         # create logging interface
