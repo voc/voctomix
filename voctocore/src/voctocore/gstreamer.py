@@ -1,3 +1,0 @@
-"""
-voctocore is using gstreamer
-"""

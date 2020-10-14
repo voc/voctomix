@@ -5,6 +5,7 @@ vocotocore logging
 import sys
 import logging
 import time
+from logging import getLogger  # noqa
 
 import gi
 gi.require_version('Gst', '1.0')
