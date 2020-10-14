@@ -12,7 +12,9 @@ from voctocore import (
     cli,
     logging,
     configuration,
+    pipeline,
 )
+from voctocore.ctrl.server import ControlServer
 
 logger = logging.getLogger(__name__)
 
@@ -26,18 +28,17 @@ def start():
 
     # Bootstrap application: Logging, Pipeline and Server
     logging.configure_from_args(args)
+    logger.debug("Loading configuration")
     config = configuration.load_from_args(args)
 
+    logger.debug("Creating A/V-Pipeline")
+    pipeline = pipeline.from_config(config)
 
-    # initialize subsystem
-    logger.debug('Creating A/V-Pipeline')
-    # pipeline = Pipeline()
+    logger.debug("Creating ControlServer")
+    ctrl = ControlServer(pipeline)
+    ctrl.start()
 
-    logger.debug('Creating ControlServer')
-    # ctrl = ControlServer(self.pipeline)
-
-
-    # Application main loop
+    # Start application main loop
     logger.debug('Creating GLib-MainLoop')
     main_loop = GLib.MainLoop()
     main_loop.run()

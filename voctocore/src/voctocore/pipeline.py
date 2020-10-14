@@ -4,22 +4,26 @@ import re
 import sys
 
 from gi.repository import Gst
-
-# import library components
-from lib.config import Config
-from lib.sources import spawn_source
-from lib.avrawoutput import AVRawOutput
-from lib.avpreviewoutput import AVPreviewOutput
-from lib.localplayout import LocalPlayout
-from lib.videomix import VideoMix
-from lib.audiomix import AudioMix
-from lib.blinder import Blinder
-from lib.localui import LocalUi
-from lib.args import Args
-from lib.clock import Clock
-from vocto.port import Port
 from vocto.debug import gst_generate_dot
 from vocto.pretty import pretty
+
+from voctocore.sources import spawn_source
+from voctocore.components import (
+    AVRawOutput,
+    AVPreviewOutput,
+    LocalPlayout,
+    VideoMix,
+    AudioMix,
+    Blinder,
+    LocalUi,
+    Clock,
+)
+# --> .... vocto.port import Port
+
+
+def from_config(config):
+    """Create A/V pipeline from config"""
+
 
 class Pipeline(object):
     """mixing, streaming and encoding pipeline constuction and control"""
