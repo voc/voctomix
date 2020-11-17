@@ -23,6 +23,10 @@ sudo = True
 
 
 def get_cards():
+    """
+    fetch the render devices and corresponding drivers
+    :return: dict of device nodes and driver names
+    """
     cards = {}
     if not sudo:
         print("running without sudo, can't detect cards")
@@ -39,6 +43,10 @@ def get_cards():
 
 
 def get_drivers():
+    """
+    get the installed media drivers from the packet manager
+    :return: dict of drivers with install state
+    """
     drivers = {}
     if distribution == "debian":
         drivers = {"i965-va-driver-shaders": False,
@@ -51,21 +59,23 @@ def get_drivers():
             if cache[driver].is_installed:
                 drivers[driver] = True
 
-    # check if we are on the iHD driver and therefore want to load the firmware
-    if drivers["intel-media-va-driver"] or drivers["intel-media-va-driver-non-free"]:
-        if sudo:
-            guc = subprocess.check_output(["sudo", "cat", "/sys/kernel/debug/dri/0/gt/uc/guc_info"]).decode()
-            if "status: RUNNING" in guc:
-                print(colored("+ GUC firmware loaded and running", "green"))
+        # check if we are on the iHD driver and therefore want to load the firmware
+        if drivers["intel-media-va-driver"] or drivers["intel-media-va-driver-non-free"]:
+            if sudo:
+                guc = subprocess.check_output(["sudo", "cat", "/sys/kernel/debug/dri/0/gt/uc/guc_info"]).decode()
+                if "status: RUNNING" in guc:
+                    print(colored("+ GUC firmware loaded and running", "green"))
+                else:
+                    print(colored("+ GUC firmware not loaded", "red"))
+                huc = subprocess.check_output(["sudo", "cat", "/sys/kernel/debug/dri/0/gt/uc/huc_info"]).decode()
+                if "status: RUNNING" in huc:
+                    print(colored("+ HUC firmware loaded and running", "green"))
+                else:
+                    print(colored("+ HUC firmware not loaded", "red"))
             else:
-                print(colored("+ GUC firmware not loaded", "red"))
-            huc = subprocess.check_output(["sudo", "cat", "/sys/kernel/debug/dri/0/gt/uc/huc_info"]).decode()
-            if "status: RUNNING" in huc:
-                print(colored("+ HUC firmware loaded and running", "green"))
-            else:
-                print(colored("+ HUC firmware not loaded", "red"))
-        else:
-            print(colored("running as user: skipping firmware check for iHD driver"))
+                print(colored("running as user: skipping firmware check for iHD driver"))
+    else:
+        print(colored("your distribution: " + distribution + " is not supported yet"))
     return drivers
 
 
@@ -163,6 +173,10 @@ def get_v4l2_devices():
 
 
 def main():
+    """
+    Main function for script use
+    :return: nothing so far
+    """
     global gst
     print("c3voc av-features")
     print("OS type: " + distribution + ", Gstreamer check: " + str(gst))
