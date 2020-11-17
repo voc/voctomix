@@ -150,8 +150,13 @@ def parse_vainfo(driver: str, device: str):
     """
     env_vars = {"LIBVA_DRIVER_NAME": driver}
     os.environ.update(env_vars)
-    vainfo = subprocess.check_output(["vainfo", "--display", "drm", "--device", device],
-                                     stderr=subprocess.DEVNULL).decode().split("\n")
+    try:
+        vainfo = subprocess.check_output(["vainfo", "--display", "drm", "--device", device],
+                                         stderr=subprocess.DEVNULL).decode().split("\n")
+    except subprocess.CalledProcessError as _err:
+        print(colored("An error occurred while calling vainfo for driver: " + driver + " and device: " + device, "red"))
+        return []
+
     features = []
     for line in vainfo:
         if line.strip().startswith("VA"):
@@ -224,19 +229,43 @@ def main():
         else:
             print(colored("+ AMD GPU/iGPU detected but no suitable vaapi driver found"), "red")
 
+    if "nouveau" in cards.values():
+        nouveau_va = False
+        for driver in drivers.items():
+            if "mesa-va-driver" in driver[0]:
+                nouveau_va = True
+        if nouveau_va:
+            print(colored("+ Nvidia GPU/iGPU and mesa va driver found", "green"))
+        else:
+            print(colored("+ Nvidia GPU/iGPU detected but no suitable vaapi driver found", "red"))
+
     # check what vainfo things about the device and driver
     cards_features = []
     for card in cards.items():
         if "i915" in card[1]:
             for driver in drivers.items():
                 if "i965-va-driver" in driver[0] and driver[1]:
-                    cards_features.append(parse_vainfo("i965", card[0]))
+                    vainfo = parse_vainfo("i965", card[0])
+                    if vainfo:
+                        cards_features.append(vainfo)
                 elif "intel-media-va-driver" in driver[0] and driver[1]:
-                    cards_features.append(parse_vainfo("iHD", card[0]))
+                    vainfo = parse_vainfo("iHD", card[0])
+                    if vainfo:
+                        cards_features.append(vainfo)
         elif "amdgpu" in card[1]:
             for driver in drivers.items():
                 if "mesa-va-driver" in driver[0] and driver[1]:
-                    cards_features.append(parse_vainfo("radeonsi", card[0]))
+                    vainfo = parse_vainfo("radeonsi", card[0])
+                    if vainfo:
+                        cards_features.append(vainfo)
+        elif "nouveau" in card[1]:
+            for driver in drivers.items():
+                if "mesa-va-driver" in driver[0] and driver[1]:
+                    vainfo = parse_vainfo("nouveau", card[0])
+                    if vainfo:
+                        cards_features.append(vainfo)
+        else:
+            print(colored("the driver " + card[1] + " is not supported yet"))
 
     for i, card in enumerate(cards_features):
         print("Card " + str(i) + " vainfo:")
