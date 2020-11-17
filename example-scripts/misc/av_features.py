@@ -18,21 +18,21 @@ distribution = "debian"
 if distribution == "debian":
     import apt
 
-root = False
-if os.geteuid() == 0:
-    root = True
+# disable sudo features
+sudo = True
 
 
 def get_cards():
     cards = {}
-    if not root:
-        print("running as user, can't detect cards")
+    if not sudo:
+        print("running without sudo, can't detect cards")
     else:
-        devices = int(len(os.listdir("/sys/kernel/debug/dri/")) / 2)
+        devices = int(
+            len(subprocess.check_output(["sudo", "ls", "/sys/kernel/debug/dri/"]).decode().strip().split("\n")) / 2)
         i = 0
         while i < devices:
-            name = open("/sys/kernel/debug/dri/" + str(i) + "/name", "r")
-            properties = name.read().split(" ")
+            properties = subprocess.check_output(
+                ["sudo", "cat", "/sys/kernel/debug/dri/" + str(i) + "/name"]).decode().strip().split(" ")
             cards["/dev/dri/card" + str(i)] = properties[0]
             i += 1
     return cards
@@ -53,13 +53,13 @@ def get_drivers():
 
     # check if we are on the iHD driver and therefore want to load the firmware
     if drivers["intel-media-va-driver"] or drivers["intel-media-va-driver-non-free"]:
-        if root:
-            guc = subprocess.check_output(["cat", "/sys/kernel/debug/dri/0/gt/uc/guc_info"]).decode()
+        if sudo:
+            guc = subprocess.check_output(["sudo", "cat", "/sys/kernel/debug/dri/0/gt/uc/guc_info"]).decode()
             if "status: RUNNING" in guc:
                 print(colored("+ GUC firmware loaded and running", "green"))
             else:
                 print(colored("+ GUC firmware not loaded", "red"))
-            huc = subprocess.check_output(["cat", "/sys/kernel/debug/dri/0/gt/uc/huc_info"]).decode()
+            huc = subprocess.check_output(["sudo", "cat", "/sys/kernel/debug/dri/0/gt/uc/huc_info"]).decode()
             if "status: RUNNING" in huc:
                 print(colored("+ HUC firmware loaded and running", "green"))
             else:
@@ -70,6 +70,11 @@ def get_drivers():
 
 
 def get_gst(drivers: {}):
+    """
+    get informations of gstreamers view on vaapi on the machine
+    :param drivers:
+    :return:
+    """
     # todo collect results in data structure and return it
     # debian specific stuff
     cache = apt.Cache()
@@ -107,6 +112,11 @@ def get_gst(drivers: {}):
 
 
 def parse_gst_inspect(driver: str):
+    """
+    calls gst-inspect for a specific driver and return a list of gstreamer element names (en/decoder)
+    :param driver: driver name
+    :return: list of gstreamer element names
+    """
     # see https://github.com/GStreamer/gstreamer-vaapi for documentation
     env_vars = {"GST_VAAPI_ALL_DRIVERS": "1", "LIBVA_DRIVER_NAME": driver}
     os.environ.update(env_vars)
@@ -122,6 +132,12 @@ def parse_gst_inspect(driver: str):
 
 
 def parse_vainfo(driver: str, device: str):
+    """
+    calls vainfo for a specific device and driver and returns a list of en/decoder
+    :param driver: va driver name
+    :param device: path of render device
+    :return: list of en/decoder supported
+    """
     env_vars = {"LIBVA_DRIVER_NAME": driver}
     os.environ.update(env_vars)
     vainfo = subprocess.check_output(["vainfo", "--display", "drm", "--device", device],
@@ -134,6 +150,10 @@ def parse_vainfo(driver: str, device: str):
 
 
 def get_v4l2_devices():
+    """
+    get an instance of v4l2ctl python class for each video device present
+    :return: list of v4l2ctlDevice instances
+    """
     devs = os.listdir("/dev/")
     v4l2_devs = []
     for dev in devs:
@@ -146,8 +166,9 @@ def main():
     global gst
     print("c3voc av-features")
     print("OS type: " + distribution + ", Gstreamer check: " + str(gst))
-    if root:
-        print("Running with root privileges this will print all information but is also dangerous ... whohoo")
+    if sudo:
+        print("Running with sudo privileges this will print all information but is also dangerous ... whohoo")
+        print("sudo is only used to query information from the sys filesystem")
     else:
         print("Running without root, not all features will work....most likely")
 
