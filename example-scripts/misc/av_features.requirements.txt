@@ -1,0 +1,3 @@
+termcolor
+v4l2ctl
+apt
