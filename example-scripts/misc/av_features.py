@@ -2,6 +2,8 @@ import errno
 import subprocess
 import sys
 import os
+import argparse
+
 from termcolor import colored
 
 # todo add command line switch for this
@@ -153,8 +155,12 @@ def parse_vainfo(driver: str, device: str):
     try:
         vainfo = subprocess.check_output(["vainfo", "--display", "drm", "--device", device],
                                          stderr=subprocess.DEVNULL).decode().split("\n")
-    except subprocess.CalledProcessError as _err:
+    except subprocess.CalledProcessError:
         print(colored("An error occurred while calling vainfo for driver: " + driver + " and device: " + device, "red"))
+    except FileNotFoundError:
+        print(colored("vainfo was not found. Please install vainfo", "red"))
+        if "debian" in distribution:
+            print(colored("sudo apt install vainfo", "red"))
         return []
 
     features = []
@@ -184,7 +190,7 @@ def main():
     """
     global gst
     print("c3voc av-features")
-    print("OS type: " + distribution + ", Gstreamer check: " + str(gst))
+    print("OS type: " + distribution + ", Gstreamer check: " + str(gst) + " v4l2 check: " + str(v4l2))
     if sudo:
         print("Running with sudo privileges this will print all information but is also dangerous ... whohoo")
         print("sudo is only used to query information from the sys filesystem")
