@@ -44,6 +44,29 @@ def get_cards():
     return cards
 
 
+def get_firmware(fw_type: str):
+    """
+    fetch the state of different firmwares to load
+    :param fw_type: firmware type to look for
+    """
+    if "intel-va" in fw_type:
+        if sudo:
+            guc = subprocess.check_output(["sudo", "cat", "/sys/kernel/debug/dri/0/gt/uc/guc_info"]).decode()
+            if "status: RUNNING" in guc:
+                print(colored("+ GUC firmware loaded and running", "green"))
+            else:
+                print(colored("+ GUC firmware not loaded", "red"))
+            huc = subprocess.check_output(["sudo", "cat", "/sys/kernel/debug/dri/0/gt/uc/huc_info"]).decode()
+            if "status: RUNNING" in huc:
+                print(colored("+ HUC firmware loaded and running", "green"))
+            else:
+                print(colored("+ HUC firmware not loaded", "red"))
+        else:
+            print(colored("running as user: skipping firmware check for iHD driver"))
+    else:
+        print(colored("Firmware type unknown: " + fw_type))
+
+
 def get_drivers():
     """
     get the installed media drivers from the packet manager
@@ -60,22 +83,6 @@ def get_drivers():
             cache = apt.Cache()
             if cache[driver].is_installed:
                 drivers[driver] = True
-
-        # check if we are on the iHD driver and therefore want to load the firmware
-        if drivers["intel-media-va-driver"] or drivers["intel-media-va-driver-non-free"]:
-            if sudo:
-                guc = subprocess.check_output(["sudo", "cat", "/sys/kernel/debug/dri/0/gt/uc/guc_info"]).decode()
-                if "status: RUNNING" in guc:
-                    print(colored("+ GUC firmware loaded and running", "green"))
-                else:
-                    print(colored("+ GUC firmware not loaded", "red"))
-                huc = subprocess.check_output(["sudo", "cat", "/sys/kernel/debug/dri/0/gt/uc/huc_info"]).decode()
-                if "status: RUNNING" in huc:
-                    print(colored("+ HUC firmware loaded and running", "green"))
-                else:
-                    print(colored("+ HUC firmware not loaded", "red"))
-            else:
-                print(colored("running as user: skipping firmware check for iHD driver"))
     else:
         print(colored("your distribution: " + distribution + " is not supported yet"))
     return drivers
@@ -258,6 +265,8 @@ def main():
                     vainfo = parse_vainfo("iHD", card[0])
                     if vainfo:
                         cards_features.append(vainfo)
+            get_firmware("intel-va")
+
         elif "amdgpu" in card[1]:
             for driver in drivers.items():
                 if "mesa-va-driver" in driver[0] and driver[1]:
