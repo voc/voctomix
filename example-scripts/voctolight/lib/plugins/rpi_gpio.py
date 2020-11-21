@@ -20,11 +20,10 @@ class RpiGpio(BasePlugin):
         if not GPIO:
             raise NotImplementedError('RpiGpio will not work on this platform. Is RPi.GPIO installed?')
 
-        all_gpios = [int(i) for i in config.get('rpi', 'gpios').split(',')]
-        self.gpio_port = int(config.get('rpi', 'gpio_red'))
+        self.gpio_port = int(config.get('rpi', 'gpio'))
 
-        GPIO.setup(all_gpios, GPIO.OUT)
-        GPIO.output(all_gpios, GPIO.HIGH)
+        GPIO.setup(self.gpio_port, GPIO.OUT)
+        GPIO.output(self.gpio_port, GPIO.HIGH)
 
     def tally_on(self):
         GPIO.output(self.gpio_port, GPIO.LOW)
