@@ -65,8 +65,8 @@ class V4l2AVSource(AVSource):
                 """.format(deinterlacer=self.build_deinterlacer())
 
         pipe += """\
-            ! videoconvert
             ! videoscale
+            ! videoconvert
             ! videorate
                 name=vout-{name}
         """.format(name=self.name)
