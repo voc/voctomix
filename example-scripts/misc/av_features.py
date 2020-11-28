@@ -44,14 +44,26 @@ def get_cards():
     return cards
 
 
-def get_firmware(fw_type: str):
+def get_firmware(fw_type: str, dri_device: int):
     """
     fetch the state of different firmwares to load
     :param fw_type: firmware type to look for
+    :param dri_device: number of dri device
     """
     if "intel-va" in fw_type:
         if sudo:
-            guc = subprocess.check_output(["sudo", "cat", "/sys/kernel/debug/dri/0/gt/uc/guc_info"]).decode()
+            error = False
+            guc = ""
+            try:
+                guc = subprocess.check_output(["sudo", "cat", "/sys/kernel/debug/dri/0/gt/uc/guc_info"]).decode()
+            except:
+                print(colored("No firmware info node at /sys/kernel/debug/dri/0/gt/uc/guc_info"))
+                error = True
+            if error:
+                try:
+                    guc = subprocess.check_output(["sudo", "cat", "/sys/kernel/debug/dri/0/i915_guc_load_status"]).decode()
+                except:
+                    print(colored("No firmware info node at /sys/kernel/debug/dri/0/i915_guc_load_status"))
             if "status: RUNNING" in guc:
                 print(colored("+ GUC firmware loaded and running", "green"))
             else:
@@ -265,7 +277,7 @@ def main():
                     vainfo = parse_vainfo("iHD", card[0])
                     if vainfo:
                         cards_features.append(vainfo)
-            get_firmware("intel-va")
+            get_firmware("intel-va", int(card[0][-1]))
 
         elif "amdgpu" in card[1]:
             for driver in drivers.items():
