@@ -94,7 +94,7 @@ def get_firmware(fw_type: str, dri_device: int):
                 error = True
             if error:  # older kernel have the device node here
                 try:
-                    guc = subprocess.check_output(
+                    huc = subprocess.check_output(
                         ["sudo", "cat", "/sys/kernel/debug/dri/" + str(dri_device) + "/i915_huc_load_status"],
                         stderr=subprocess.DEVNULL).decode()
                     error = False
