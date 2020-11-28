@@ -55,16 +55,23 @@ def get_firmware(fw_type: str, dri_device: int):
             error = False
             guc = ""
             try:
-                guc = subprocess.check_output(["sudo", "cat", "/sys/kernel/debug/dri/" + str(dri_device) + "/gt/uc/guc_info"], stderr=subprocess.DEVNULL).decode()
+                guc = subprocess.check_output(
+                    ["sudo", "cat", "/sys/kernel/debug/dri/" + str(dri_device) + "/gt/uc/guc_info"],
+                    stderr=subprocess.DEVNULL).decode()
             except:
-                print(colored("No firmware info node at /sys/kernel/debug/dri/" + str(dri_device) + "/gt/uc/guc_info", "red"))
+                print(colored("- No firmware info node at /sys/kernel/debug/dri/" + str(dri_device) + "/gt/uc/guc_info",
+                              "red"))
                 error = True
-            if error: # older kernel have the device node here
+            if error:  # older kernel have the device node here
                 try:
-                    guc = subprocess.check_output(["sudo", "cat", "/sys/kernel/debug/dri/" + str(dri_device) + "/i915_guc_load_status"], stderr=subprocess.DEVNULL).decode()
+                    guc = subprocess.check_output(
+                        ["sudo", "cat", "/sys/kernel/debug/dri/" + str(dri_device) + "/i915_guc_load_status"],
+                        stderr=subprocess.DEVNULL).decode()
                     error = False
                 except:
-                    print(colored("No firmware info node at /sys/kernel/debug/dri/" + str(dri_device) + "/i915_guc_load_status", "red"))
+                    print(colored(
+                        "- No firmware info node at /sys/kernel/debug/dri/" + str(dri_device) + "/i915_guc_load_status",
+                        "red"))
                     error = True
 
             if not error:
@@ -73,21 +80,28 @@ def get_firmware(fw_type: str, dri_device: int):
                 else:
                     print(colored("+ GUC firmware not loaded", "red"))
             else:
-                print(colored("error while looking up GUC firmware state. State unclear", "red"))
+                print(colored("- error while looking up GUC firmware state. State unclear", "red"))
 
             huc = ""
             error = False
             try:
-                huc = subprocess.check_output(["sudo", "cat", "/sys/kernel/debug/dri/" + str(dri_device) + "/gt/uc/huc_info"], stderr=subprocess.DEVNULL).decode()
+                huc = subprocess.check_output(
+                    ["sudo", "cat", "/sys/kernel/debug/dri/" + str(dri_device) + "/gt/uc/huc_info"],
+                    stderr=subprocess.DEVNULL).decode()
             except:
-                print(colored("No firmware info node at /sys/kernel/debug/dri/" + str(dri_device) + "/gt/uc/huc_info", "red"))
+                print(colored("No firmware info node at /sys/kernel/debug/dri/" + str(dri_device) + "/gt/uc/huc_info",
+                              "red"))
                 error = True
             if error:  # older kernel have the device node here
                 try:
-                    guc = subprocess.check_output(["sudo", "cat", "/sys/kernel/debug/dri/" + str(dri_device) + "/i915_huc_load_status"], stderr=subprocess.DEVNULL).decode()
+                    guc = subprocess.check_output(
+                        ["sudo", "cat", "/sys/kernel/debug/dri/" + str(dri_device) + "/i915_huc_load_status"],
+                        stderr=subprocess.DEVNULL).decode()
                     error = False
                 except:
-                    print(colored("No firmware info node at /sys/kernel/debug/dri/" + str(dri_device) + "/i915_huc_load_status", "red"))
+                    print(colored(
+                        "No firmware info node at /sys/kernel/debug/dri/" + str(dri_device) + "/i915_huc_load_status",
+                        "red"))
                     error = True
             if not error:
                 if "status: RUNNING" in huc:
@@ -136,11 +150,15 @@ def get_gst(drivers: {}):
         print(colored("+ " + "gstreamer1.0-vaapi installed", "green"))
     else:
         print(colored("+ " + "gstreamer1.0-vaapi not installed", "red"))
+        if "debian" in distribution:
+            print(colored("try apt install gstreamer1.0-vaapi", "red"))
     try:
         subprocess.check_output(["gst-inspect-1.0"])
     except OSError as e:
         if e.errno == errno.ENOENT:
             print(colored("gst-inspect-1.0 seems not to be present, can't run gst tests.", "red"))
+            if "debian" in distribution:
+                print(colored("try apt install gstreamer1.0-tools", "red"))
             sys.exit(-1)
         else:
             print(colored("Something strange happened while looking for gst-inspect-1.0"), "red")
@@ -192,24 +210,33 @@ def parse_vainfo(driver: str, device: str):
     :param device: path of render device
     :return: list of en/decoder supported
     """
-    env_vars = {"LIBVA_DRIVER_NAME": driver}
-    os.environ.update(env_vars)
-    try:
-        vainfo = subprocess.check_output(["vainfo", "--display", "drm", "--device", "/dev/dri/renderD" + str(int(device[-1])+128)],
-                                         stderr=subprocess.DEVNULL).decode().split("\n")
-    except subprocess.CalledProcessError:
-        print(colored("An error occurred while calling vainfo for driver: " + driver + " and device: /dev/dri/renderD" + str(int(device[-1])+128), "red"))
-    except FileNotFoundError:
-        print(colored("vainfo was not found. Please install vainfo", "red"))
-        if "debian" in distribution:
-            print(colored("sudo apt install vainfo", "red"))
-        return []
+    if sudo:
+        env_vars = {"LIBVA_DRIVER_NAME": driver}
+        os.environ.update(env_vars)
+        try:
+            vainfo = subprocess.check_output(
+                ["sudo", "vainfo", "--display", "drm", "--device", "/dev/dri/renderD" + str(int(device[-1]) + 128)],
+                stderr=subprocess.DEVNULL).decode().split("\n")
+        except subprocess.CalledProcessError:
+            print(colored(
+                "- An error occurred while calling vainfo for driver: " + driver + " and device: /dev/dri/renderD" + str(
+                    int(device[-1]) + 128), "red"))
+            return []
+        except FileNotFoundError:
+            print(colored("vainfo was not found. Please install vainfo", "red"))
+            if "debian" in distribution:
+                print(colored("sudo apt install vainfo", "red"))
+            return []
 
-    features = []
-    for line in vainfo:
-        if line.strip().startswith("VA"):
-            features.append(line.strip())
-    return features
+        features = []
+
+        for line in vainfo:
+            if line.strip().startswith("VA"):
+                features.append(line.strip())
+        return features
+    else:
+        print(colored("- running without sudo, not checking vainfo"))
+        return []
 
 
 def get_v4l2_devices():
