@@ -55,24 +55,47 @@ def get_firmware(fw_type: str, dri_device: int):
             error = False
             guc = ""
             try:
-                guc = subprocess.check_output(["sudo", "cat", "/sys/kernel/debug/dri/0/gt/uc/guc_info"]).decode()
+                guc = subprocess.check_output(["sudo", "cat", "/sys/kernel/debug/dri/" + str(dri_device) + "/gt/uc/guc_info"]).decode()
             except:
-                print(colored("No firmware info node at /sys/kernel/debug/dri/0/gt/uc/guc_info"))
+                print(colored("No firmware info node at /sys/kernel/debug/dri/" + str(dri_device) + "/gt/uc/guc_info", "red"))
                 error = True
-            if error:
+            if error: # older kernel have the device node here
                 try:
-                    guc = subprocess.check_output(["sudo", "cat", "/sys/kernel/debug/dri/0/i915_guc_load_status"]).decode()
+                    guc = subprocess.check_output(["sudo", "cat", "/sys/kernel/debug/dri/" + str(dri_device) + "/i915_guc_load_status"]).decode()
+                    error = False
                 except:
-                    print(colored("No firmware info node at /sys/kernel/debug/dri/0/i915_guc_load_status"))
-            if "status: RUNNING" in guc:
-                print(colored("+ GUC firmware loaded and running", "green"))
+                    print(colored("No firmware info node at /sys/kernel/debug/dri/" + str(dri_device) + "/i915_guc_load_status", "red"))
+                    error = True
+
+            if not error:
+                if "status: RUNNING" in guc:
+                    print(colored("+ GUC firmware loaded and running", "green"))
+                else:
+                    print(colored("+ GUC firmware not loaded", "red"))
             else:
-                print(colored("+ GUC firmware not loaded", "red"))
-            huc = subprocess.check_output(["sudo", "cat", "/sys/kernel/debug/dri/0/gt/uc/huc_info"]).decode()
-            if "status: RUNNING" in huc:
-                print(colored("+ HUC firmware loaded and running", "green"))
+                print(colored("error while looking up GUC firmware state. State unclear", "red"))
+
+            huc = ""
+            error = False
+            try:
+                huc = subprocess.check_output(["sudo", "cat", "/sys/kernel/debug/dri/" + str(dri_device) + "/gt/uc/huc_info"]).decode()
+            except:
+                print(colored("No firmware info node at /sys/kernel/debug/dri/" + str(dri_device) + "/gt/uc/huc_info", "red"))
+                error = True
+            if error:  # older kernel have the device node here
+                try:
+                    guc = subprocess.check_output(["sudo", "cat", "/sys/kernel/debug/dri/" + str(dri_device) + "/i915_huc_load_status"]).decode()
+                    error = False
+                except:
+                    print(colored("No firmware info node at /sys/kernel/debug/dri/" + str(dri_device) + "/i915_huc_load_status", "red"))
+                    error = True
+            if not error:
+                if "status: RUNNING" in huc:
+                    print(colored("+ HUC firmware loaded and running", "green"))
+                else:
+                    print(colored("+ HUC firmware not loaded", "red"))
             else:
-                print(colored("+ HUC firmware not loaded", "red"))
+                print(colored("error while looking up HUC firmware state. State unclear", "red"))
         else:
             print(colored("running as user: skipping firmware check for iHD driver"))
     else:
