@@ -195,10 +195,10 @@ def parse_vainfo(driver: str, device: str):
     env_vars = {"LIBVA_DRIVER_NAME": driver}
     os.environ.update(env_vars)
     try:
-        vainfo = subprocess.check_output(["vainfo", "--display", "drm", "--device", device],
+        vainfo = subprocess.check_output(["vainfo", "--display", "drm", "--device", "/dev/dri/renderD" + str(int(device[-1])+128)],
                                          stderr=subprocess.DEVNULL).decode().split("\n")
     except subprocess.CalledProcessError:
-        print(colored("An error occurred while calling vainfo for driver: " + driver + " and device: " + device, "red"))
+        print(colored("An error occurred while calling vainfo for driver: " + driver + " and device: /dev/dri/renderD" + str(int(device[-1])+128), "red"))
     except FileNotFoundError:
         print(colored("vainfo was not found. Please install vainfo", "red"))
         if "debian" in distribution:
