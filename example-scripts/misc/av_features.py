@@ -55,13 +55,13 @@ def get_firmware(fw_type: str, dri_device: int):
             error = False
             guc = ""
             try:
-                guc = subprocess.check_output(["sudo", "cat", "/sys/kernel/debug/dri/" + str(dri_device) + "/gt/uc/guc_info"]).decode()
+                guc = subprocess.check_output(["sudo", "cat", "/sys/kernel/debug/dri/" + str(dri_device) + "/gt/uc/guc_info"], stderr=subprocess.DEVNULL).decode()
             except:
                 print(colored("No firmware info node at /sys/kernel/debug/dri/" + str(dri_device) + "/gt/uc/guc_info", "red"))
                 error = True
             if error: # older kernel have the device node here
                 try:
-                    guc = subprocess.check_output(["sudo", "cat", "/sys/kernel/debug/dri/" + str(dri_device) + "/i915_guc_load_status"]).decode()
+                    guc = subprocess.check_output(["sudo", "cat", "/sys/kernel/debug/dri/" + str(dri_device) + "/i915_guc_load_status"], stderr=subprocess.DEVNULL).decode()
                     error = False
                 except:
                     print(colored("No firmware info node at /sys/kernel/debug/dri/" + str(dri_device) + "/i915_guc_load_status", "red"))
@@ -78,13 +78,13 @@ def get_firmware(fw_type: str, dri_device: int):
             huc = ""
             error = False
             try:
-                huc = subprocess.check_output(["sudo", "cat", "/sys/kernel/debug/dri/" + str(dri_device) + "/gt/uc/huc_info"]).decode()
+                huc = subprocess.check_output(["sudo", "cat", "/sys/kernel/debug/dri/" + str(dri_device) + "/gt/uc/huc_info"], stderr=subprocess.DEVNULL).decode()
             except:
                 print(colored("No firmware info node at /sys/kernel/debug/dri/" + str(dri_device) + "/gt/uc/huc_info", "red"))
                 error = True
             if error:  # older kernel have the device node here
                 try:
-                    guc = subprocess.check_output(["sudo", "cat", "/sys/kernel/debug/dri/" + str(dri_device) + "/i915_huc_load_status"]).decode()
+                    guc = subprocess.check_output(["sudo", "cat", "/sys/kernel/debug/dri/" + str(dri_device) + "/i915_huc_load_status"], stderr=subprocess.DEVNULL).decode()
                     error = False
                 except:
                     print(colored("No firmware info node at /sys/kernel/debug/dri/" + str(dri_device) + "/i915_huc_load_status", "red"))
