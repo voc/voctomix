@@ -262,9 +262,9 @@ def main():
     print("OS type: " + distribution + ", Gstreamer check: " + str(gst) + " v4l2 check: " + str(v4l2))
     if sudo:
         print("Running with sudo privileges this will print all information but is also dangerous ... whohoo")
-        print("sudo is only used to query information from the sys filesystem")
+        print("sudo is only used to query information from the sys filesystem and call vainfo")
     else:
-        print("Running without root, not all features will work....most likely")
+        print("Running without root, not all features are enabled this way")
 
     print("Looking for render devices:")
     cards = get_cards()
