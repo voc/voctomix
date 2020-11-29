@@ -26,7 +26,7 @@ class AVPreviewOutput(TCPMultiConnection):
                 """.format(source=self.source)
 
         # video pipeline
-        if source in Config.getVideoSources():
+        if source in Config.getVideoSources() or "mix" in source:
             self.bin += """
                     video-{source}.
                     ! {vcaps}
