@@ -107,7 +107,8 @@ def construct_video_encoder_pipeline(section):
         pipeline += """{options}
                         """.format(options='\n'.join(options))
 
-    pipeline += """! {vcaps} """.format(vcaps=vcaps)
+    pipeline += """! {vcaps}
+                """.format(vcaps=vcaps)
 
     if codec == "h264":
         pipeline += """! h264parse"""
