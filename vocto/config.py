@@ -483,7 +483,7 @@ class VocConfigParser(SafeConfigParser):
         if internal:
             sources += ["mix"]
             if self.getBlinderEnabled():
-                sources += ['blinder', 'mix-blinded']
+                sources += ['blinder', 'mix-live']
         return list(filter(source_has_video, sources))
 
     def getAudioSources(self, internal=False):

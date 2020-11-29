@@ -57,7 +57,7 @@ class VideoPreviewsController(object):
 
         if source in Config.getAudioSources() and Config.getAudioStreams().get_source_streams(source):
             mix_audio_display = AudioDisplay(self.audio_box, source, uibuilder, has_volume)
-        if source in Config.getVideoSources():
+        if source in Config.getVideoSources(internal=True):
             video = uibuilder.load_check_widget('video',
                                                 os.path.dirname(uibuilder.uifile) +
                                                 "/widgetpreview.ui")
