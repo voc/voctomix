@@ -475,11 +475,15 @@ class VocConfigParser(SafeConfigParser):
     def getOverlayUserAutoOff(self):
         return self.getboolean('overlay', 'user-auto-off', fallback=False)
 
-    def getVideoSources(self):
+    def getVideoSources(self, internal=False):
         def source_has_video(source):
             return kind_has_video(self.getSourceKind(source))
 
         sources = self.getSources()
+        if internal:
+            sources += ["mix"]
+            if self.getBlinderEnabled():
+                sources += ['blinder', 'mix-blinded']
         return list(filter(source_has_video, sources))
 
     def getAudioSources(self, internal=False):
