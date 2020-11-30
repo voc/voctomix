@@ -28,12 +28,13 @@ class AudioStreams(list):
                 for i, channel in enumerate(set(t.split("+"))):
                     name = source if use_source_as_name else r.group(1)
                     if self.has_stream(name):
-                        log.error("input audio stream name '%s' can't be addressed a second time within source '%s'", name, source)
+                        log.error("input audio stream name '%s' can't be addressed a second time within source '%s'",
+                                  name, source)
                     else:
                         audiostreams.append(AudioStream(source, i, name, channel))
         self.extend(audiostreams)
-        
-    def has_stream( self, name, channel=None ):
+
+    def has_stream(self, name, channel=None):
         for s in self:
             if s.name == name:
                 if channel is None or s.channel == int(channel):
@@ -93,11 +94,8 @@ class AudioStreams(list):
             # build result row based on number of channels in that source
             for ch in range(0, self.num_channels(source, grid)):
                 # map source channels to out channels
-                row.append(1.0
-                           if audio_stream.source == source
-                           and audio_stream.source_channel == ch
-                           and (stream is None or stream == audio_stream.name) else
-                           0.0)
+                row.append(1.0 if audio_stream.source == source and audio_stream.source_channel == ch and (
+                        stream is None or stream == audio_stream.name) else 0.0)
             result.append(row)
         # if out channels are given
         if out_channels:
