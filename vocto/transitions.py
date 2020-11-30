@@ -40,7 +40,7 @@ class Transitions:
         """
         return len(self.transitions)
 
-    def add(self,transition,frames):
+    def add(self, transition,frames):
         # check if a compatible transition is already in our pool
         for t in self.transitions:
             if t.begin().equals(transition.begin(), True) and t.end().equals(transition.end(), True):
@@ -53,7 +53,7 @@ class Transitions:
         transition.calculate(frames - 1)
         self.transitions.append(transition)
 
-    def configure(cfg, composites, targets=None, fps=25):
+    def configure(self, cfg, composites, targets=None, fps=25):
         """ generate all transitions configured in the INI-like configuration
             string in <cfg> by using the given <composites> and return them
             in a dictonary
@@ -66,7 +66,7 @@ class Transitions:
 
         # filter target composites from given composites
         if not targets:
-            targets = Composites.targets(composites)
+            targets = Composites.targets(self, composites)
         # prepare result
         transitions = Transitions(targets,fps)
 

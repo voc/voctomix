@@ -450,13 +450,13 @@ class VocConfigParser(SafeConfigParser):
             return []
 
     def getComposites(self):
-        return Composites.configure(self.items('composites'), self.getVideoResolution())
+        return Composites.configure(self, self.items('composites'), self.getVideoResolution())
 
     def getTargetComposites(self):
-        return Composites.targets(self.getComposites())
+        return Composites.targets(self, self.getComposites())
 
     def getTransitions(self, composites):
-        return Transitions.configure(self.items('transitions'),
+        return Transitions.configure(self, self.items('transitions'),
                                      composites,
                                      fps=self.getFramesPerSecond())
 
@@ -483,7 +483,7 @@ class VocConfigParser(SafeConfigParser):
         if internal:
             sources += ["mix"]
             if self.getBlinderEnabled():
-                sources += ['blinder', 'mix-live']
+                sources += ['blinder', 'mix-blinded']
         return list(filter(source_has_video, sources))
 
     def getAudioSources(self, internal=False):

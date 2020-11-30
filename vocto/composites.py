@@ -15,7 +15,7 @@ class Composites:
     """ a namespace for composite related methods
     """
 
-    def configure(cfg, size, add_swap=True):
+    def configure(self, cfg, size, add_swap=True):
         """ read INI like configuration from <cfg> and return all the defined
             composites. <size> is the overall frame size which all proportional
             (floating point) coordinates are related to.
@@ -46,7 +46,7 @@ class Composites:
             add_swapped_targets(composites)
         return composites
 
-    def targets(composites):
+    def targets(self, composites):
         """ return a list of all composites that are not intermediate
         """
         result = []
@@ -55,7 +55,7 @@ class Composites:
                 result.append(c)
         return sorted(result, key=lambda c: c.order)
 
-    def intermediates(composites):
+    def intermediates(self, composites):
         """ return a list of all composites that are intermediate
         """
         result = []
@@ -78,7 +78,7 @@ class Composite:
         self.mirror = False
         self.order = order
 
-    def str_title():
+    def str_title(self):
         return "Key A%s\tB%s  Name" % (Frame.str_title(), Frame.str_title())
 
     def __str__(self):
