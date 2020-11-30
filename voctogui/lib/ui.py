@@ -88,10 +88,10 @@ class Ui(UiBuilder):
         for idx, livepreview in enumerate(Config.getLivePreviews()):
             if Config.getPreviewsEnabled():
                 self.video_previews.addPreview(
-                    self, '{}-live'.format(livepreview), Port.LIVE_PREVIEW + idx, has_volume=False)
+                    self, '{}-blinded'.format(livepreview), Port.LIVE_PREVIEW + idx, has_volume=False)
             else:
                 self.video_previews.addPreview(
-                    self, '{}-live'.format(livepreview), Port.LIVE_OUT + idx, has_volume=False)
+                    self, '{}-blinded'.format(livepreview), Port.LIVE_OUT + idx, has_volume=False)
 
         self.preview_toolbar_controller = PreviewToolbarController(
             win=self.win,

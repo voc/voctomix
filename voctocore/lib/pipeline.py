@@ -130,12 +130,12 @@ class Pipeline(object):
                 for idx, livepreview in enumerate(Config.getLivePreviews()):
                     dest = AVPreviewOutput('{}-blinded'.format(livepreview), Port.LIVE_PREVIEW+idx, use_audio_mix=True, audio_blinded=True)
                     self.bins.append(dest)
-                    self.ports.append(Port('preview-{}-live'.format(livepreview), dest))
+                    self.ports.append(Port('preview-{}-blinded'.format(livepreview), dest))
 
             for idx, livesource in enumerate(Config.getLiveSources()):
                 dest = AVRawOutput('{}-blinded'.format(livesource), Port.LIVE_OUT + idx, use_audio_mix=True, audio_blinded=True )
                 self.bins.append(dest)
-                self.ports.append(Port('{}-live'.format(livesource), dest))
+                self.ports.append(Port('{}-blinded'.format(livesource), dest))
 
         if Config.getLocalPlayoutEnabled():
             playout = LocalPlayout('mix', Port.LOCALPLAYOUT_OUT, use_audio_mix=True, audio_blinded=True )
