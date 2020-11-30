@@ -8,13 +8,17 @@ log = logging.getLogger('AudioStreams')
 class AudioStreams(list):
 
     def __init__(self):
-        ''' just init the container '''
-        self = []
+        super().__init__()
 
     def configure_source(self, cfg, source, use_source_as_name=False):
-        ''' create an instance of <AudioStreams> for <source> that gets configured by INI section <cfg>
-            If <use_source_as_name> is True items will be named as <source>.
-        '''
+        """
+        create an instance of <AudioStreams> for <source> that gets configured by INI section <cfg>
+        If <use_source_as_name> is True items will be named as <source>.
+        :param cfg:
+        :param source:
+        :param use_source_as_name:
+        :return:
+        """
         audiostreams = []
         # walk through all items within the configuration string
         for t_name, t in cfg:
@@ -27,7 +31,7 @@ class AudioStreams(list):
                         log.error("input audio stream name '%s' can't be addressed a second time within source '%s'", name, source)
                     else:
                         audiostreams.append(AudioStream(source, i, name, channel))
-        self += audiostreams
+        self.extend(audiostreams)
         
     def has_stream( self, name, channel=None ):
         for s in self:
@@ -44,16 +48,23 @@ class AudioStreams(list):
         return result
 
     def source_channels(self, source):
-        ''' Return all audio channels by source.
-        '''
+        """
+        Return all audio channels by source.
+        :param source:
+        :return:
+        """
         # collect source's channels into a set and count them
         return [audio_stream.source_channel for audio_stream in self if audio_stream.source == source]
 
     def num_channels(self, source, grid=[x for x in range(0, 255)]):
-        ''' Return the number of different audio channels overall or by source.
+        """
+        Return the number of different audio channels overall or by source.
             Filter by <source> if given.
             Round up to values in <grid> to match external capabilities.
-        '''
+        :param source:
+        :param grid:
+        :return:
+        """
         # collect source's channels into a set and count them
         channels = self.source_channels(source)
         result = max(channels) + 1 if channels else 0
@@ -63,12 +74,18 @@ class AudioStreams(list):
         return result
 
     def matrix(self, source, stream=None, out_channels=None, grid=[x for x in range(0, 255)]):
-        ''' Return matrix that maps in to out channels of <source>.
+        """
+        Return matrix that maps in to out channels of <source>.
             Filter by <stream> if given.
             Fill matrix up to <out_channel> rows if given.
             Round up number of matrix columns to values in <grid> to match
             external capabilities.
-        '''
+        :param source:
+        :param stream:
+        :param out_channels:
+        :param grid:
+        :return:
+        """
         # collect result rows
         result = []
         for out, audio_stream in enumerate(self):
@@ -94,7 +111,11 @@ class AudioStreams(list):
         return result
 
     def get_source_streams(self, source):
-        ''' filter all stream channels of given <source> '''
+        """
+        filter all stream channels of given <source>
+        :param source:
+        :return:
+        """
         result = {}
         for audio_stream in self:
             if source == audio_stream.source:
@@ -104,9 +125,12 @@ class AudioStreams(list):
         return result
 
     def get_stream_names(self, source=None):
-        ''' Get names of all streams.
+        """
+        Get names of all streams.
             Filter by <source> if given.
-        '''
+        :param source:
+        :return:
+        """
         result = []
         for audio_stream in self:
             if not source or source == audio_stream.source:
@@ -115,9 +139,12 @@ class AudioStreams(list):
         return result
 
     def get_stream_source(self, source=None):
-        ''' Get sources of all streams.
+        """
+        Get sources of all streams.
                     Filter by <source> if given.
-                '''
+        :param source:
+        :return:
+        """
         result = []
         for audio_stream in self:
             if not source or source == audio_stream.source:
@@ -128,7 +155,13 @@ class AudioStreams(list):
 
 class AudioStream:
     def __init__(self, source, channel, name, source_channel):
-        ''' initialize stream data '''
+        """
+        initialize stream data
+        :param source:
+        :param channel:
+        :param name:
+        :param source_channel:
+        """
         self.source = source
         self.channel = int(channel)
         self.name = name
