@@ -51,8 +51,9 @@ To understand what you are able to control with **VOC2GUI** you might first try 
 In this document we presume that you know what your core was configured for.
 
 ## 1.3. Installation
+On top of the dependencies of the core the following is needed.
 
-Todo.
+sudo apt-get install python-gi-cairo
 
 ## 1.4. Running
 

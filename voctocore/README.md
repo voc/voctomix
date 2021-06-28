@@ -96,14 +96,14 @@ One can use a simple terminal connection to control the mixing process or **VOC2
 
 ## 1.4. Installation
 
-Currently voc2mix is only works on linux based operating systems. Currently its tested on ubuntu 18.04 and 19.10 as well
-as debian buster. It will probably work on most linux distributions which can satisfy the dependencies below.
+Currently, voc2mix is only works on linux based operating systems. It is tested on ubuntu 20.04 as well
+as debian buster and bullseye. It will probably work on most linux distributions which can satisfy the dependencies below.
 Voc2mix can run on Gstreamer version < 1.8 but at least 1.14 is recommended.
 
 ### 1.4.1. Debian / Ubuntu
 
-On Ubuntu 18.04 to 19.10 and Debian buster the following packages are needed. The python dependencies can also be handled in a venv.
-Both Debian and Ubuntu provide voctomix packages which my or may not be outdated. Currently its recommended to check out voc2mix from the git repository.
+On Ubuntu 18.04 to 20.04 and Debian buster/bullseye the following packages are needed. The python dependencies can also be handled in a venv.
+Both Debian and Ubuntu provide voctomix packages which my or may not be outdated. Currently, its recommended to check out voc2mix from the git repository.
 
 ````bash
 git clone https://github.com/voc/voctomix.git
