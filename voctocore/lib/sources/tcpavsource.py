@@ -104,6 +104,7 @@ class TCPAVSource(AVSource, TCPSingleConnection):
 
     def disconnect(self):
         self.pipeline.set_state(Gst.State.NULL)
+        self.pipeline.bus.remove_signal_watch()
         self.pipeline = None
         self.close_connection()
 
