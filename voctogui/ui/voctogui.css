@@ -27,7 +27,7 @@
 
 #mixer button:checked, #mixer button:active {
   background-image: none;
-  background-color: #ddbb00;
+  background-color: #00bb00;
   color: #000000;
 }
 
@@ -112,10 +112,11 @@ toolbar {
 }
 
 #mixer .glow button {
-  box-shadow: 0 0 0.3em #ddbb00;
-  text-shadow: 0 0 0.3em #ddbb00;
-  color: #ffee80;
-  border-color: #ddbb00;
+  background-color: #ff3322;
+  box-shadow: 0 0 0.3em #ff3322;
+  text-shadow: 0 0 0.3em #ff3322;
+  color: #ffffff;
+  border-color: #ff3322;
 }
 
 #mixer .glow button:disabled {
