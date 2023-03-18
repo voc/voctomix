@@ -58,6 +58,7 @@ cpu_decoders = {
 
 
 def construct_video_encoder_pipeline(section):
+    log.debug(f"constructing video encoder for section {section}")
     encoder = Config.getVideoEncoder(section)
     codec, options = Config.getVideoCodec(section)
     vcaps = Config.getVideoCaps(section)
@@ -117,6 +118,7 @@ def construct_video_encoder_pipeline(section):
 
 
 def construct_video_decoder_pipeline(section):
+    log.debug(f"constructing video decoder for section {section}")
     decoder = Config.getVideoDecoder(section)
     codec, options = Config.getVideoCodec(section)
     if decoder == 'vaapi':
