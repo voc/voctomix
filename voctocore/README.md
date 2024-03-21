@@ -322,7 +322,7 @@ These attributes can be set for all *kinds* of sources:
 The `background` source is *obligatory* and does not have to be listed in `mix/sources`.
 The background source will be placed on bottom (z-order) of the video mix.
 By default the background source is a `black` video test source.
-You need to configure the background source (as any other) if you want to change that:
+Yout need to configure the background source (as any other) if you want to change that:
 
 ```ini
 [source.background]
