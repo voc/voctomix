@@ -25,6 +25,7 @@
   color: #505050;
 }
 
+/* green, preselected for next cut/transition */
 #mixer button:checked, #mixer button:active {
   background-image: none;
   background-color: #00bb00;
@@ -111,19 +112,21 @@ toolbar {
   background-color:rgba(0,0,0,0);
 }
 
-#mixer .glow button {
 
-  background-color: #FF0000;
+/* glow means stuf behind button is live */
+#mixer .glow button {
+  background-color: #dd0000;
   color: #FFFFFF;
   border-color: #FF8080;
-  text-shadow: 0 0 0.3em #FFFFFF;
+  text-shadow: 0 0 0.3em #000000;
 }
 
+/* live and selected for next cut/transition */
 #mixer .glow button:checked {
-  background-image: linear-gradient(90deg, red, #505050, green);
+  background-image: linear-gradient(90deg, #dd0000, #505050, #00dd00);
   color: #FFFFFF;
   border-color: #505050;
-  text-shadow: 0 0 0.3em #FFFFFF;
+  text-shadow: 0 0 0.3em #000000;
 }
 
 #mixer .glow button:disabled {
