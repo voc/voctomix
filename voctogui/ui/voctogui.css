@@ -112,11 +112,18 @@ toolbar {
 }
 
 #mixer .glow button {
-  background-color: #ff3322;
-  box-shadow: 0 0 0.3em #ff3322;
-  text-shadow: 0 0 0.3em #ff3322;
-  color: #ffffff;
-  border-color: #ff3322;
+
+  background-color: #FF0000;
+  color: #FFFFFF;
+  border-color: #FF8080;
+  text-shadow: 0 0 0.3em #FFFFFF;
+}
+
+#mixer .glow button:checked {
+  background-image: linear-gradient(90deg, red, #505050, green);
+  color: #FFFFFF;
+  border-color: #505050;
+  text-shadow: 0 0 0.3em #FFFFFF;
 }
 
 #mixer .glow button:disabled {
@@ -132,7 +139,7 @@ toolbar {
 }
 
 #mixer .glow button:checked label:backdrop {
-  color: #ffee80;
+  color: #ff00ff;
 }
 
 .notebook {
