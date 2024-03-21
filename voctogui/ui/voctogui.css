@@ -119,6 +119,7 @@ toolbar {
   color: #FFFFFF;
   border-color: #FF8080;
   text-shadow: 0 0 0.3em #000000;
+  box-shadow: 0 0 0.3em #FF8080;
 }
 
 /* live and selected for next cut/transition */
@@ -127,6 +128,7 @@ toolbar {
   color: #FFFFFF;
   border-color: #505050;
   text-shadow: 0 0 0.3em #000000;
+  box-shadow: 0 0 0.3em #FF8080;
 }
 
 #mixer .glow button:disabled {
