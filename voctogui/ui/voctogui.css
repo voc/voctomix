@@ -55,7 +55,7 @@
 }
 
 #mixer button:checked label:backdrop {
-  color: #997700;
+  color: #707070;
 }
 
 #mixer button:checked:disabled label:backdrop {
@@ -154,11 +154,11 @@ toolbar {
 }
 
 #mixer .glow button label:backdrop {
-  color: #ddbb00;
+  color: #707070;
 }
 
 #mixer .glow button:checked label:backdrop {
-  color: #ff00ff;
+  color: #707070;
 }
 
 .notebook {
