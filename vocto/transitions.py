@@ -183,7 +183,7 @@ class Transition:
         result = "\t%s = %s -> %s:\n" % (self.name(),
                                       self.begin().name, self.end().name)
         # add table title
-        result += "\tNo. %s\n" % Composite.str_title()
+        result += "\tNo. %s\n" % Composite.str_title(self)
         # add composites until flipping point
         for i in range(self.frames()):
             if (not logKeyFramesOnly) or self.A(i).key:
