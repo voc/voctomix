@@ -113,7 +113,7 @@ class VideoMix(object):
 
         self.log.debug('Initializing Mixer-State')
         # initialize pipeline bindings for all sources
-        self.bgScene = Scene(self.bgSources, pipeline, self.transitions.fps, 0)
+        self.bgScene = Scene(self.bgSources, pipeline, self.transitions.fps, 0, cropping=False)
         self.scene = Scene(self.sources, pipeline, self.transitions.fps, len(self.bgSources))
         self.compositeMode = None
         self.sourceA = None
