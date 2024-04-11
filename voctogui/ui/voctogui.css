@@ -1,3 +1,18 @@
+/* red, green isn'T too great because of colour blindness, but industry standard?? */
+
+@define-color live #dd0000;
+@define-color live-text white;
+@define-color preview #00bb00;
+@define-color preview-text black;
+
+/* alternative colour scheme*/
+/*
+@define-color live #bb4a05;
+@define-color live-text white;
+@define-color preview #167bdc;
+@define-color preview-text black;
+*/
+
 #mixer {
   font-family: roboto condensed;
 }
@@ -25,10 +40,11 @@
   color: #505050;
 }
 
+/* green, preselected for next cut/transition */
 #mixer button:checked, #mixer button:active {
   background-image: none;
-  background-color: #ddbb00;
-  color: #000000;
+  background-color: @preview;
+  color: @preview-text;
 }
 
 #mixer button:checked:disabled {
@@ -40,7 +56,7 @@
 }
 
 #mixer button:checked label:backdrop {
-  color: #997700;
+  color: #707070;
 }
 
 #mixer button:checked:disabled label:backdrop {
@@ -111,11 +127,23 @@ toolbar {
   background-color:rgba(0,0,0,0);
 }
 
+
+/* glow means stuf behind button is live */
 #mixer .glow button {
-  box-shadow: 0 0 0.3em #ddbb00;
-  text-shadow: 0 0 0.3em #ddbb00;
-  color: #ffee80;
-  border-color: #ddbb00;
+  background-color: @live;
+  color: @live-text;
+  border-color: shade(@live, 1.5);
+  text-shadow: 0 0 0.3em #000000;
+  box-shadow: 0 0 0.3em shade(@live, 1.5);
+}
+
+/* live and selected for next cut/transition */
+#mixer .glow button:checked {
+  background-image: linear-gradient(90deg, @live, #505050, @preview);
+  color: @live-text;
+  border-color: #505050;
+  text-shadow: 0 0 0.3em #000000;
+  box-shadow: 0 0 0.3em shade(@live, 1.5);
 }
 
 #mixer .glow button:disabled {
@@ -127,11 +155,11 @@ toolbar {
 }
 
 #mixer .glow button label:backdrop {
-  color: #ddbb00;
+  color: #707070;
 }
 
 #mixer .glow button:checked label:backdrop {
-  color: #ffee80;
+  color: #707070;
 }
 
 .notebook {
