@@ -19,7 +19,7 @@ if Gst.version() < (1, 8):
     }
 else:
     vaapi_encoders = {
-        'h264': 'vaapih264enc',
+        'h264': 'vaapih264enc keyframe-period=1',
         'jpeg': 'vaapijpegenc',
         'mpeg2': 'vaapimpeg2enc',
     }
@@ -43,6 +43,7 @@ if Gst.version() < (1, 8):
 else:
     vaapi_decoders = {
         'h264': 'vaapih264dec',
+        'jpeg': 'vaapijpegdec',
         'mpeg2': 'vaapimpeg2dec',
     }
 
