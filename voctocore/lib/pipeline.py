@@ -195,6 +195,7 @@ class Pipeline(object):
 
     def on_error(self, bus, message):
         (error, debug) = message.parse_error()
+        self.log.debug(debug)
         self.log.error("GStreamer pipeline element '%s' signaled an error #%u: %s" % (message.src.name, error.code, error.message) )
         sys.exit(-1)
 
