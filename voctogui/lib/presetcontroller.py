@@ -71,7 +71,7 @@ class PresetController(object):
         if btn.get_active():
             if id not in self.buttons:
                 return
-            self.preview_controller.set_command(self.button_to_composites[id], False)
+            self.preview_controller.set_command(self.button_to_composites[id])
 
     def on_best(self, best, targetA, targetB):
         if f'preset_{best}_{targetA}' in self.button_to_composites:
@@ -80,7 +80,7 @@ class PresetController(object):
             self.current_state = f'preset_{best}_{targetA}_{targetB}'
         else:
             self.current_state = None
-        self.log.debug(f'on_best {best=} {targetA=} {targetB=}{self.current_state=}')
+        self.log.debug(f'on_best {best=} {targetA=} {targetB=} {self.current_state=}')
         self.update_glow()
 
     def on_composite(self, command):
