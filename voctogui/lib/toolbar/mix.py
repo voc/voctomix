@@ -25,9 +25,12 @@ class MixToolbarController(object):
 
         self.mix = Buttons(Config.getToolbarMix())
 
-        self.toolbar = uibuilder.find_widget_recursive(win, 'toolbar_mix')
+        self.toolbar_composites = uibuilder.find_widget_recursive(win, 'toolbar_mix')
+        self.toolbar_presets = uibuilder.find_widget_recursive(win, 'toolbar_mix1')
 
-        self.mix.create(self.toolbar, accelerators,
+        self.mix.create(self.toolbar_composites, accelerators,
+                        self.on_btn_clicked, radio=False)
+        self.mix.create(self.toolbar_presets, accelerators,
                         self.on_btn_clicked, radio=False)
         Connection.on('best', self.on_best)
 
