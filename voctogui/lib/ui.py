@@ -10,6 +10,7 @@ from lib.audiodisplay import AudioDisplay
 from lib.videopreviews import VideoPreviewsController
 from lib.queues import QueuesWindowController
 from lib.ports import PortsWindowController
+from lib.presetcontroller import PresetController
 
 from lib.toolbar.mix import MixToolbarController
 from lib.toolbar.preview import PreviewToolbarController
@@ -96,6 +97,12 @@ class Ui(UiBuilder):
         self.preview_toolbar_controller = PreviewToolbarController(
             win=self.win,
             uibuilder=self
+        )
+
+        self.preset_controller = PresetController(
+            win=self.win,
+            preview_controller=self.preview_toolbar_controller,
+            uibuilder=self,
         )
 
         self.overlay_toolbar_controller = OverlayToolbarController(
