@@ -24,6 +24,7 @@ class PresetController(object):
 
         buttons = {}
         self.button_to_composites = {}
+        self.current_state = None
 
         if 'buttons' not in sources:
             self.box.hide()
@@ -59,6 +60,8 @@ class PresetController(object):
         self.buttons = Buttons(buttons)
         self.buttons.create(self.toolbar, accelerators, self.on_btn_toggled)
 
+        Connection.on('best', self.on_best)
+        Connection.on('composite', self.on_composite)
 
     def on_btn_toggled(self, btn):
         self.log.info(repr(btn))
@@ -68,5 +71,31 @@ class PresetController(object):
         if btn.get_active():
             if id not in self.buttons:
                 return
-
             self.preview_controller.set_command(self.button_to_composites[id], False)
+
+    def on_best(self, best, targetA, targetB):
+        if f'preset_{best}_{targetA}' in self.button_to_composites:
+            self.current_state = f'preset_{best}_{targetA}'
+        elif f'preset_{best}_{targetA}_{targetB}' in self.button_to_composites:
+            self.current_state = f'preset_{best}_{targetA}_{targetB}'
+        else:
+            self.current_state = None
+        self.update_glow()
+
+    def on_composite(self, command):
+        cmd = CompositeCommand.from_str(command)
+        for name, composite in self.button_to_composites.items():
+            if cmd == composite:
+                self.current_state = name
+                break
+        else:
+            self.current_state = None
+        self.update_glow()
+
+    def update_glow(self):
+        for id, item in self.buttons.items():
+            if id == self.current_state:
+                item['button'].get_style_context().add_class("glow")
+            else:
+                item['button'].get_style_context().remove_class("glow")
+
