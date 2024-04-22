@@ -13,11 +13,6 @@ from lib.toolbar.buttons import Buttons
 
 
 class PresetController(object):
-    """Manages Accelerators and Clicks on the Composition Toolbar-Buttons"""
-
-    # set resolution of the blink timer in seconds
-    timer_resolution = 1.0
-
     def __init__(self, win, preview_controller, uibuilder):
         self.log = logging.getLogger('PresetController')
         self.box = uibuilder.find_widget_recursive(win, 'preset_box')
@@ -38,7 +33,12 @@ class PresetController(object):
         source_buttons = sources['buttons'].split(',')
         for sourceA in source_buttons:
             buttons[f'preset_fs_{sourceA}.name'] = f'FS {sourceA}'
-            self.button_to_composites[f'preset_fs_{sourceA}'] = CompositeCommand('fs', sourceA, None)
+            for sourceB in source_buttons:
+                if sourceA != sourceB:
+                    self.button_to_composites[f'preset_fs_{sourceA}'] = CompositeCommand('fs', sourceA, sourceB)
+                    break
+            else:
+                self.button_to_composites[f'preset_fs_{sourceA}'] = CompositeCommand('fs', sourceA, None)
 
         for sourceA in source_buttons:
             if sourceA not in Config.getLiveSources():
