@@ -80,6 +80,7 @@ class PresetController(object):
             self.current_state = f'preset_{best}_{targetA}_{targetB}'
         else:
             self.current_state = None
+        self.log.debug(f'on_best {best=} {targetA=} {targetB=}{self.current_state=}')
         self.update_glow()
 
     def on_composite(self, command):
@@ -90,6 +91,7 @@ class PresetController(object):
                 break
         else:
             self.current_state = None
+        self.log.debug(f'on_composite {command=} {self.current_state=}')
         self.update_glow()
 
     def update_glow(self):
