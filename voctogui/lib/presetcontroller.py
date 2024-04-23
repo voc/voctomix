@@ -35,7 +35,7 @@ class PresetController(object):
         source = toolbar_sources["buttons"].split(",")
         if "fs" in composites:
             for sourceA in source:
-                buttons[f"preset_fs_{sourceA}.name"] = f"FS {sourceA}"
+                buttons[f"preset_fs_{sourceA}.name"] = f"Fullscreen\n{sourceA}"
                 for sourceB in source:
                     if sourceA != sourceB:
                         self.button_to_composites[f"preset_fs_{sourceA}"] = (
@@ -54,7 +54,7 @@ class PresetController(object):
                 for sourceB in sources:
                     if sourceB not in Config.getLiveSources():
                         buttons[f"preset_lec_{sourceA}_{sourceB}.name"] = (
-                            f"Lecture {sourceA} {sourceB}"
+                            f"Lecture\n{sourceA}\n{sourceB}"
                         )
                         self.button_to_composites[f"preset_lec_{sourceA}_{sourceB}"] = (
                             CompositeCommand("lec", sourceA, sourceB)
@@ -67,7 +67,7 @@ class PresetController(object):
                 for sourceB in sources:
                     if sourceB not in Config.getLiveSources():
                         buttons[f"preset_sbs_{sourceA}_{sourceB}.name"] = (
-                            f"SideBySide {sourceA} {sourceB}"
+                            f"Side-by-Side\n{sourceA}\n{sourceB}"
                         )
                         self.button_to_composites[f"preset_sbs_{sourceA}_{sourceB}"] = (
                             CompositeCommand("sbs", sourceA, sourceB)
