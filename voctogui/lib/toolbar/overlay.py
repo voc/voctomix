@@ -114,7 +114,9 @@ class OverlayToolbarController(object):
         # enable 'INSERT' button if there is a selection
         self.insert.set_sensitive(not self.inserts.get_active_iter() is None)
 
-    def on_overlays(self, overlays):
+    def on_overlays(self, overlays=None):
+        if overlays is None:
+            return
         # decode parameter
         overlays = [dequote(o).split('|') for o in overlays.split(",")]
         overlays = [o if len(o) == 2 else (o[0], o[0]) for o in overlays]
