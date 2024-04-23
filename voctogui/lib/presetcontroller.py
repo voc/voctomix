@@ -19,43 +19,48 @@ class PresetController(object):
         self.toolbar = uibuilder.find_widget_recursive(win, 'preset_toolbar')
         self.preview_controller = preview_controller
 
-        sources = Config.getToolbarSourcesA()
+        toolbar_sources = Config.getToolbarSourcesA()
+        toolbar_composites = Config.getToolbarComposites()
         accelerators = Gtk.AccelGroup()
 
         buttons = {}
         self.button_to_composites = {}
         self.current_state = None
 
-        if 'buttons' not in sources:
+        if 'buttons' not in sources or 'buttons' not in composites:
             self.box.hide()
             self.box.set_no_show_all(True)
             return
 
-        source_buttons = sources['buttons'].split(',')
-        for sourceA in source_buttons:
-            buttons[f'preset_fs_{sourceA}.name'] = f'FS {sourceA}'
-            for sourceB in source_buttons:
-                if sourceA != sourceB:
-                    self.button_to_composites[f'preset_fs_{sourceA}'] = CompositeCommand('fs', sourceA, sourceB)
-                    break
-            else:
-                self.button_to_composites[f'preset_fs_{sourceA}'] = CompositeCommand('fs', sourceA, None)
+        composites = toolbar_composites['buttons'].split(',')
+        source = toolbar_sources['buttons'].split(',')
+        if 'fs' in composites:
+            for sourceA in source:
+                buttons[f'preset_fs_{sourceA}.name'] = f'FS {sourceA}'
+                for sourceB in source:
+                    if sourceA != sourceB:
+                        self.button_to_composites[f'preset_fs_{sourceA}'] = CompositeCommand('fs', sourceA, sourceB)
+                        break
+                else:
+                    self.button_to_composites[f'preset_fs_{sourceA}'] = CompositeCommand('fs', sourceA, None)
 
-        for sourceA in source_buttons:
-            if sourceA not in Config.getLiveSources():
-                continue
-            for sourceB in source_buttons:
-                if sourceB not in Config.getLiveSources():
-                    buttons[f'preset_lec_{sourceA}_{sourceB}.name'] = f'Lecture {sourceA} {sourceB}'
-                    self.button_to_composites[f'preset_lec_{sourceA}_{sourceB}'] = CompositeCommand('lec', sourceA, sourceB)
+        if 'lec' in composites:
+            for sourceA in sources:
+                if sourceA not in Config.getLiveSources():
+                    continue
+                for sourceB in sources:
+                    if sourceB not in Config.getLiveSources():
+                        buttons[f'preset_lec_{sourceA}_{sourceB}.name'] = f'Lecture {sourceA} {sourceB}'
+                        self.button_to_composites[f'preset_lec_{sourceA}_{sourceB}'] = CompositeCommand('lec', sourceA, sourceB)
 
-        for sourceA in source_buttons:
-            if sourceA not in Config.getLiveSources():
-                continue
-            for sourceB in source_buttons:
-                if sourceB not in Config.getLiveSources():
-                    buttons[f'preset_sbs_{sourceA}_{sourceB}.name'] = f'SideBySide {sourceA} {sourceB}'
-                    self.button_to_composites[f'preset_sbs_{sourceA}_{sourceB}'] = CompositeCommand('sbs', sourceA, sourceB)
+        if 'sbs' in composites:
+            for sourceA in sources:
+                if sourceA not in Config.getLiveSources():
+                    continue
+                for sourceB in sources:
+                    if sourceB not in Config.getLiveSources():
+                        buttons[f'preset_sbs_{sourceA}_{sourceB}.name'] = f'SideBySide {sourceA} {sourceB}'
+                        self.button_to_composites[f'preset_sbs_{sourceA}_{sourceB}'] = CompositeCommand('sbs', sourceA, sourceB)
 
         self.buttons = Buttons(buttons)
         self.buttons.create(self.toolbar, accelerators, self.on_btn_toggled)
