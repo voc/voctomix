@@ -42,7 +42,7 @@ class PresetController(object):
         if "fs" in composites:
             for sourceA in sources_fullscreen:
                 button_name = f"preset_fs_{sourceA}"
-                buttons[f"{button_name}.name"] = f"Fullscreen\n{sourceA}"
+                buttons[f"{button_name}.name"] = f"{sourceA}"
                 if 'slides' in sourceA:
                     buttons[f"{button_name}.icon"] = "slides.svg"
                 else:
@@ -72,7 +72,7 @@ class PresetController(object):
                     if sourceB not in Config.getLiveSources():
                         button_name = f"preset_lec_{sourceA}_{sourceB}"
                         buttons[f"{button_name}.name"] = (
-                            f"Lecture\n{sourceA}\n{sourceB}"
+                            f"{sourceA}\n{sourceB}"
                         )
                         buttons[f"{button_name}.icon"] = (
                             "side-by-side-preview.svg"
@@ -95,7 +95,7 @@ class PresetController(object):
                     if sourceB not in Config.getLiveSources():
                         button_name = f"preset_sbs_{sourceA}_{sourceB}"
                         buttons[f"{button_name}.name"] = (
-                            f"Side-by-Side\n{sourceA}\n{sourceB}"
+                            f"{sourceA}\n{sourceB}"
                         )
                         buttons[f"{button_name}.icon"] = (
                             "side-by-side.svg"
