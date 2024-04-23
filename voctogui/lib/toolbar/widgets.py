@@ -101,7 +101,6 @@ class Widgets(dict):
                 widget.set_expand(True)
 
             if 'icon' in attr:
-                print(f"loading icon {os.path.join(self.iconpath, attr['icon'])}")
                 img = Gtk.Image.new_from_file(os.path.join(self.iconpath, attr['icon']))
                 widget.set_icon_widget(img)
 

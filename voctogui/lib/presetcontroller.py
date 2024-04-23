@@ -43,6 +43,11 @@ class PresetController(object):
             for sourceA in sources_fullscreen:
                 button_name = f"preset_fs_{sourceA}"
                 buttons[f"{button_name}.name"] = f"Fullscreen\n{sourceA}"
+                if 'slides' in sourceA:
+                    buttons[f"{button_name}.icon"] = "slides.svg"
+                else:
+                    buttons[f"{button_name}.icon"] = "speaker.svg"
+
                 try:
                     buttons[f"{button_name}.key"] = keybindings[idx]
                     idx += 1
@@ -69,6 +74,10 @@ class PresetController(object):
                         buttons[f"{button_name}.name"] = (
                             f"Lecture\n{sourceA}\n{sourceB}"
                         )
+                        buttons[f"{button_name}.icon"] = (
+                            "side-by-side-preview.svg"
+                        )
+
                         try:
                             buttons[f"{button_name}.key"] = keybindings[idx]
                             idx += 1
@@ -87,6 +96,9 @@ class PresetController(object):
                         button_name = f"preset_sbs_{sourceA}_{sourceB}"
                         buttons[f"{button_name}.name"] = (
                             f"Side-by-Side\n{sourceA}\n{sourceB}"
+                        )
+                        buttons[f"{button_name}.icon"] = (
+                            "side-by-side.svg"
                         )
                         try:
                             buttons[f"{button_name}.key"] = keybindings[idx]
