@@ -27,6 +27,10 @@ class PresetController(object):
         self.button_to_composites = {}
         self.current_state = None
 
+        self.log.debug(f'{sources_composites=}')
+        self.log.debug(f'{sources_fullscreen=}')
+        self.log.debug(f'{composites=}')
+
         if (not sources_composites and not sources_fullscreen) or not composites:
             self.box.hide()
             self.box.set_no_show_all(True)

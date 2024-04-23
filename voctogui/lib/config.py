@@ -47,6 +47,7 @@ class VoctoguiConfigParser(VocConfigParser):
 
     def _filterPresetSources(self, sources):
         toolbar_sources = self.getToolbarSourcesA().get("buttons", "").split(",")
+        sources = [source for source in sources if source]
         if not sources:
             return toolbar_sources
         else:
