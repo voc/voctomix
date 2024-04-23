@@ -26,17 +26,17 @@ class PresetController(object):
         self.button_to_composites = {}
         self.current_state = None
 
-        if "buttons" not in sources or "buttons" not in composites:
+        if "buttons" not in toolbar_sources or "buttons" not in toolbar_composites:
             self.box.hide()
             self.box.set_no_show_all(True)
             return
 
         composites = toolbar_composites["buttons"].split(",")
-        source = toolbar_sources["buttons"].split(",")
+        sources = toolbar_sources["buttons"].split(",")
         if "fs" in composites:
-            for sourceA in source:
+            for sourceA in sources:
                 buttons[f"preset_fs_{sourceA}.name"] = f"Fullscreen\n{sourceA}"
-                for sourceB in source:
+                for sourceB in sources:
                     if sourceA != sourceB:
                         self.button_to_composites[f"preset_fs_{sourceA}"] = (
                             CompositeCommand("fs", sourceA, sourceB)
@@ -85,7 +85,7 @@ class PresetController(object):
         id = btn.get_name()
         self.log.info(f"Preset Button {id} was pressed")
         if btn.get_active():
-            if id not in self.button_to_composite:
+            if id not in self.button_to_composites:
                 self.log.error(f"Button {id} not found in composites!")
                 return
             self.preview_controller.set_command(self.button_to_composites[id])
@@ -97,7 +97,7 @@ class PresetController(object):
         self.log.debug(f">on_best {best=} {targetA=} {targetB=} {self.current_state=}")
         c = self.preview_controller.command()
         for name, composite in self.button_to_composites.items():
-            self.buttons[name].set_active(c == composite)
+            self.buttons[name]['button'].set_active(c == composite)
         self.log.debug(f"<on_best {best=} {targetA=} {targetB=} {self.current_state=}")
         self.update_glow()
 
