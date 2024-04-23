@@ -18,7 +18,8 @@ class PresetController(object):
         self.toolbar = uibuilder.find_widget_recursive(win, "preset_toolbar")
         self.preview_controller = preview_controller
 
-        sources = Config.getPresetSources()
+        sources_composites = Config.getPresetSourcesComposites()
+        sources_fullscreen = Config.getPresetSourcesFullscreen()
         composites = Config.getPresetComposites()
         accelerators = Gtk.AccelGroup()
 
@@ -26,15 +27,15 @@ class PresetController(object):
         self.button_to_composites = {}
         self.current_state = None
 
-        if not sources or not composites:
+        if (not sources_composites and not sources_fullscreen) or not composites:
             self.box.hide()
             self.box.set_no_show_all(True)
             return
 
         if "fs" in composites:
-            for sourceA in sources:
+            for sourceA in sources_fullscreen:
                 buttons[f"preset_fs_{sourceA}.name"] = f"Fullscreen\n{sourceA}"
-                for sourceB in sources:
+                for sourceB in sources_fullscreen:
                     if sourceA != sourceB:
                         self.button_to_composites[f"preset_fs_{sourceA}"] = (
                             CompositeCommand("fs", sourceA, sourceB)
@@ -46,10 +47,10 @@ class PresetController(object):
                     )
 
         if "lec" in composites:
-            for sourceA in sources:
+            for sourceA in sources_composites:
                 if sourceA not in Config.getLiveSources():
                     continue
-                for sourceB in sources:
+                for sourceB in sources_composites:
                     if sourceB not in Config.getLiveSources():
                         buttons[f"preset_lec_{sourceA}_{sourceB}.name"] = (
                             f"Lecture\n{sourceA}\n{sourceB}"
@@ -59,10 +60,10 @@ class PresetController(object):
                         )
 
         if "sbs" in composites:
-            for sourceA in sources:
+            for sourceA in sources_composites:
                 if sourceA not in Config.getLiveSources():
                     continue
-                for sourceB in sources:
+                for sourceB in sources_composites:
                     if sourceB not in Config.getLiveSources():
                         buttons[f"preset_sbs_{sourceA}_{sourceB}.name"] = (
                             f"Side-by-Side\n{sourceA}\n{sourceB}"
@@ -95,7 +96,7 @@ class PresetController(object):
         self.log.debug(f">on_best {best=} {targetA=} {targetB=} {self.current_state=}")
         c = self.preview_controller.command()
         for name, composite in self.button_to_composites.items():
-            self.buttons[name]['button'].set_active(c == composite)
+            self.buttons[name]["button"].set_active(c == composite)
         self.log.debug(f"<on_best {best=} {targetA=} {targetB=} {self.current_state=}")
         self.update_glow()
 

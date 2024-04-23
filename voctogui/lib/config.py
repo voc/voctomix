@@ -39,8 +39,13 @@ class VoctoguiConfigParser(VocConfigParser):
     def getPresetComposites(self):
         return self.get('preset', 'composites', fallback=self.getToolbarComposites().get("buttons", "")).split(",")
 
-    def getPresetSources(self):
-        sources = self.get('preset', 'sources', fallback="").split(",")
+    def getPresetSourcesComposites(self):
+        return self._filterPresetSources(self.get('preset', 'sources_composites', fallback="").split(","))
+
+    def getPresetSourcesFullscreen(self):
+        return self._filterPresetSources(self.get('preset', 'sources_fullscreen', fallback="").split(","))
+
+    def _filterPresetSources(self, sources):
         toolbar_sources = self.getToolbarSourcesA().get("buttons", "").split(",")
         if not sources:
             return toolbar_sources
