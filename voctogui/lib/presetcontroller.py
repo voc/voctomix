@@ -75,6 +75,9 @@ class PresetController(object):
 
     def on_best(self, best, targetA, targetB):
         self.log.debug(f'on_best {best=} {targetA=} {targetB=} {self.current_state=}')
+        c = self.preview_controller.command()
+        for name, composite in self.button_to_composites.items():
+            self.buttons[name].set_active(c == composite)
         self.update_glow()
 
     def on_composite(self, command):
