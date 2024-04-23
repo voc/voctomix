@@ -599,7 +599,7 @@
                                                     <property name="visible">True</property>
                                                     <property name="can-focus">False</property>
                                                     <property name="halign">center</property>
-                                                    <property name="toolbar-style">text</property>
+                                                    <property name="toolbar-style">both</property>
                                                     <property name="show-arrow">False</property>
                                                     <style>
                                                       <class name="secondary-toolbar"/>
@@ -642,6 +642,7 @@
                                                     <property name="visible">True</property>
                                                     <property name="can-focus">False</property>
                                                     <property name="halign">center</property>
+                                                    <property name="toolbar-style">text</property>
                                                     <property name="show-arrow">False</property>
                                                   </object>
                                                 </child>
@@ -687,6 +688,7 @@
                                                         <property name="visible">True</property>
                                                         <property name="can-focus">False</property>
                                                         <property name="halign">center</property>
+                                                        <property name="toolbar-style">text</property>
                                                         <property name="show-arrow">False</property>
                                                       </object>
                                                     </child>
@@ -726,6 +728,7 @@
                                                         <property name="visible">True</property>
                                                         <property name="can-focus">False</property>
                                                         <property name="halign">center</property>
+                                                        <property name="toolbar-style">text</property>
                                                         <property name="show-arrow">False</property>
                                                       </object>
                                                     </child>
@@ -978,6 +981,7 @@
                                         <property name="can-focus">False</property>
                                         <property name="halign">center</property>
                                         <property name="orientation">vertical</property>
+                                        <property name="toolbar-style">text</property>
                                         <property name="show-arrow">False</property>
                                       </object>
                                     </child>
@@ -1129,7 +1133,7 @@
                                                 <property name="visible">True</property>
                                                 <property name="can-focus">False</property>
                                                 <property name="halign">center</property>
-                                                <property name="toolbar-style">text</property>
+                                                <property name="toolbar-style">both</property>
                                                 <property name="show-arrow">False</property>
                                                 <style>
                                                   <class name="secondary-toolbar"/>
@@ -1187,6 +1191,7 @@
                                         <property name="can-focus">False</property>
                                         <property name="halign">center</property>
                                         <property name="orientation">vertical</property>
+                                        <property name="toolbar-style">text</property>
                                         <property name="show-arrow">False</property>
                                       </object>
                                     </child>
