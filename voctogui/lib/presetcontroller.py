@@ -73,6 +73,7 @@ class PresetController(object):
                             CompositeCommand("sbs", sourceA, sourceB)
                         )
 
+        self.log.debug(f"{buttons=}")
         self.buttons = Buttons(buttons)
         self.buttons.create(self.toolbar, accelerators, self.on_btn_toggled)
 
@@ -80,23 +81,28 @@ class PresetController(object):
         Connection.on("composite", self.on_composite)
 
     def on_btn_toggled(self, btn):
-        self.log.info(repr(btn))
-
+        self.log.debug(f">on_btn_toggle {btn=}")
         id = btn.get_name()
-        self.log.info(id)
+        self.log.info(f"Preset Button {id} was pressed")
         if btn.get_active():
-            if id not in self.buttons:
+            if id not in self.button_to_composite:
+                self.log.error(f"Button {id} not found in composites!")
                 return
             self.preview_controller.set_command(self.button_to_composites[id])
+            self.log.debug(f"{self.button_to_composites[id]=}")
+            self.log.info(f"Selecting {self.button_to_composites[id]} for next scene")
+        self.log.debug(f"<on_btn_toggle {btn=}")
 
     def on_best(self, best, targetA, targetB):
-        self.log.debug(f"on_best {best=} {targetA=} {targetB=} {self.current_state=}")
+        self.log.debug(f">on_best {best=} {targetA=} {targetB=} {self.current_state=}")
         c = self.preview_controller.command()
         for name, composite in self.button_to_composites.items():
             self.buttons[name].set_active(c == composite)
+        self.log.debug(f"<on_best {best=} {targetA=} {targetB=} {self.current_state=}")
         self.update_glow()
 
     def on_composite(self, command):
+        self.log.debug(f">on_composite {command=} {self.current_state=}")
         cmd = CompositeCommand.from_str(command)
         for name, composite in self.button_to_composites.items():
             if cmd == composite:
@@ -104,7 +110,7 @@ class PresetController(object):
                 break
         else:
             self.current_state = None
-        self.log.debug(f"on_composite {command=} {self.current_state=}")
+        self.log.debug(f"<on_composite {command=} {self.current_state=}")
         self.update_glow()
 
     def update_glow(self):
