@@ -18,6 +18,7 @@ class PresetController(object):
         self.toolbar = uibuilder.find_widget_recursive(win, "preset_toolbar")
         self.preview_controller = preview_controller
 
+        keybindings = Config.getPresetKeybindings()
         sources_composites = Config.getPresetSourcesComposites()
         sources_fullscreen = Config.getPresetSourcesFullscreen()
         composites = Config.getPresetComposites()
@@ -27,6 +28,7 @@ class PresetController(object):
         self.button_to_composites = {}
         self.current_state = None
 
+        self.log.debug(f"{keybindings=}")
         self.log.debug(f"{sources_composites=}")
         self.log.debug(f"{sources_fullscreen=}")
         self.log.debug(f"{composites=}")
@@ -36,10 +38,16 @@ class PresetController(object):
             self.box.set_no_show_all(True)
             return
 
+        idx = 0
         if "fs" in composites:
             for sourceA in sources_fullscreen:
                 button_name = f"preset_fs_{sourceA}"
                 buttons[f"{button_name}.name"] = f"Fullscreen\n{sourceA}"
+                try:
+                    buttons[f"{button_name}.key"] = keybindings[idx]
+                    idx += 1
+                except IndexError:
+                    pass
                 for sourceB in sources_fullscreen:
                     if sourceA != sourceB:
                         self.button_to_composites[button_name] = CompositeCommand(
@@ -57,10 +65,15 @@ class PresetController(object):
                     continue
                 for sourceB in sources_composites:
                     if sourceB not in Config.getLiveSources():
-                        butonn_name = f"preset_lec_{sourceA}_{sourceB}"
+                        button_name = f"preset_lec_{sourceA}_{sourceB}"
                         buttons[f"{button_name}.name"] = (
                             f"Lecture\n{sourceA}\n{sourceB}"
                         )
+                        try:
+                            buttons[f"{button_name}.key"] = keybindings[idx]
+                            idx += 1
+                        except IndexError:
+                            pass
                         self.button_to_composites[button_name] = CompositeCommand(
                             "lec", sourceA, sourceB
                         )
@@ -71,10 +84,15 @@ class PresetController(object):
                     continue
                 for sourceB in sources_composites:
                     if sourceB not in Config.getLiveSources():
-                        butonn_name = f"preset_sbs_{sourceA}_{sourceB}"
+                        button_name = f"preset_sbs_{sourceA}_{sourceB}"
                         buttons[f"{button_name}.name"] = (
                             f"Side-by-Side\n{sourceA}\n{sourceB}"
                         )
+                        try:
+                            buttons[f"{button_name}.key"] = keybindings[idx]
+                            idx += 1
+                        except IndexError:
+                            pass
                         self.button_to_composites[button_name] = CompositeCommand(
                             "sbs", sourceA, sourceB
                         )
