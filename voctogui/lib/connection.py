@@ -124,6 +124,7 @@ def on_loop():
 
     signal = words[0]
     args = words[1:]
+    log.debug(f"on_loop {signal=} {args=}")
     if signal == "error":
         log.error('received error: %s', line )
     if signal not in signal_handlers:
