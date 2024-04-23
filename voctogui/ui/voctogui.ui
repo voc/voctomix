@@ -2,6 +2,16 @@
 <!-- Generated with glade 3.38.2 -->
 <interface>
   <requires lib="gtk+" version="3.10"/>
+  <object class="GtkImage" id="image-break">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="pixbuf">blank-stream.svg</property>
+  </object>
+  <object class="GtkImage" id="image-live">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="pixbuf">stream-live.svg</property>
+  </object>
   <object class="GtkImage" id="img-logo">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
@@ -423,8 +433,8 @@
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
                                             <property name="tooltip-text" translatable="yes">Put output on air</property>
-                                            <property name="label" translatable="yes">LIVE</property>
                                             <property name="use-underline">True</property>
+                                            <property name="icon-widget">image-live</property>
                                             <property name="active">True</property>
                                             <style>
                                               <class name="mode"/>
@@ -441,8 +451,8 @@
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
                                             <property name="tooltip-text" translatable="yes">Put pause stream on air</property>
-                                            <property name="label" translatable="yes">PAUSE</property>
                                             <property name="use-underline">True</property>
+                                            <property name="icon-widget">image-break</property>
                                             <property name="active">True</property>
                                             <property name="group">stream_live</property>
                                             <style>
@@ -981,7 +991,7 @@
                                         <property name="can-focus">False</property>
                                         <property name="halign">center</property>
                                         <property name="orientation">vertical</property>
-                                        <property name="toolbar-style">text</property>
+                                        <property name="toolbar-style">both-horiz</property>
                                         <property name="show-arrow">False</property>
                                       </object>
                                     </child>
