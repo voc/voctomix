@@ -27,9 +27,9 @@ class PresetController(object):
         self.button_to_composites = {}
         self.current_state = None
 
-        self.log.debug(f'{sources_composites=}')
-        self.log.debug(f'{sources_fullscreen=}')
-        self.log.debug(f'{composites=}')
+        self.log.debug(f"{sources_composites=}")
+        self.log.debug(f"{sources_fullscreen=}")
+        self.log.debug(f"{composites=}")
 
         if (not sources_composites and not sources_fullscreen) or not composites:
             self.box.hide()
@@ -38,16 +38,17 @@ class PresetController(object):
 
         if "fs" in composites:
             for sourceA in sources_fullscreen:
-                buttons[f"preset_fs_{sourceA}.name"] = f"Fullscreen\n{sourceA}"
+                button_name = f"preset_fs_{sourceA}"
+                buttons[f"{button_name}.name"] = f"Fullscreen\n{sourceA}"
                 for sourceB in sources_fullscreen:
                     if sourceA != sourceB:
-                        self.button_to_composites[f"preset_fs_{sourceA}"] = (
-                            CompositeCommand("fs", sourceA, sourceB)
+                        self.button_to_composites[button_name] = CompositeCommand(
+                            "fs", sourceA, sourceB
                         )
                         break
                 else:
-                    self.button_to_composites[f"preset_fs_{sourceA}"] = (
-                        CompositeCommand("fs", sourceA, None)
+                    self.button_to_composites[button_name] = CompositeCommand(
+                        "fs", sourceA, None
                     )
 
         if "lec" in composites:
@@ -56,11 +57,12 @@ class PresetController(object):
                     continue
                 for sourceB in sources_composites:
                     if sourceB not in Config.getLiveSources():
-                        buttons[f"preset_lec_{sourceA}_{sourceB}.name"] = (
+                        butonn_name = f"preset_lec_{sourceA}_{sourceB}"
+                        buttons[f"{button_name}.name"] = (
                             f"Lecture\n{sourceA}\n{sourceB}"
                         )
-                        self.button_to_composites[f"preset_lec_{sourceA}_{sourceB}"] = (
-                            CompositeCommand("lec", sourceA, sourceB)
+                        self.button_to_composites[button_name] = CompositeCommand(
+                            "lec", sourceA, sourceB
                         )
 
         if "sbs" in composites:
@@ -69,11 +71,12 @@ class PresetController(object):
                     continue
                 for sourceB in sources_composites:
                     if sourceB not in Config.getLiveSources():
-                        buttons[f"preset_sbs_{sourceA}_{sourceB}.name"] = (
+                        butonn_name = f"preset_sbs_{sourceA}_{sourceB}"
+                        buttons[f"{button_name}.name"] = (
                             f"Side-by-Side\n{sourceA}\n{sourceB}"
                         )
-                        self.button_to_composites[f"preset_sbs_{sourceA}_{sourceB}"] = (
-                            CompositeCommand("sbs", sourceA, sourceB)
+                        self.button_to_composites[button_name] = CompositeCommand(
+                            "sbs", sourceA, sourceB
                         )
 
         self.log.debug(f"{buttons=}")
