@@ -18,21 +18,19 @@ class PresetController(object):
         self.toolbar = uibuilder.find_widget_recursive(win, "preset_toolbar")
         self.preview_controller = preview_controller
 
-        toolbar_sources = Config.getToolbarSourcesA()
-        toolbar_composites = Config.getToolbarComposites()
+        sources = Config.getPresetSources()
+        composites = Config.getPresetComposites()
         accelerators = Gtk.AccelGroup()
 
         buttons = {}
         self.button_to_composites = {}
         self.current_state = None
 
-        if "buttons" not in toolbar_sources or "buttons" not in toolbar_composites:
+        if not sources or not composites:
             self.box.hide()
             self.box.set_no_show_all(True)
             return
 
-        composites = toolbar_composites["buttons"].split(",")
-        sources = toolbar_sources["buttons"].split(",")
         if "fs" in composites:
             for sourceA in sources:
                 buttons[f"preset_fs_{sourceA}.name"] = f"Fullscreen\n{sourceA}"
