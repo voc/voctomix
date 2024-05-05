@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-from gi.repository import Gtk
 import sys
+
+from gi.repository import Gtk
 
 
 def _decode(text, multiline=True):

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
+import logging
+import signal
+import sys
+
 import gi
 import sdnotify
-import signal
-import logging
-import sys
 
 sys.path.insert(0, '.')
 from vocto.debug import gst_log_messages
@@ -11,8 +12,7 @@ from vocto.debug import gst_log_messages
 # import GStreamer and GLib-Helper classes
 gi.require_version('Gst', '1.0')
 gi.require_version('GstNet', '1.0')
-from gi.repository import Gst, GLib
-
+from gi.repository import GLib, Gst
 # import local classes
 from lib.loghandler import LogHandler
 
@@ -43,8 +43,8 @@ class Voctocore(object):
         # import local which use the config or the logging system
         # this is required, so that we can configure logging,
         # before reading the config
-        from lib.pipeline import Pipeline
         from lib.controlserver import ControlServer
+        from lib.pipeline import Pipeline
 
         self.log = logging.getLogger('Voctocore')
         self.log.debug('Creating GLib-MainLoop')

@@ -1,14 +1,13 @@
 import logging
 import sys
 
-from gi.repository import Gst, Gdk
-
+from gi.repository import Gdk, Gst
 from lib.args import Args
-from lib.config import Config
 from lib.clock import Clock
+from lib.config import Config
 
-from vocto.port import Port
 from vocto.debug import gst_generate_dot
+from vocto.port import Port
 from vocto.pretty import pretty
 from vocto.video_codecs import construct_video_decoder_pipeline
 

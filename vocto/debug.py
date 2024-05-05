@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-import os
 import logging
-from gi.repository import Gst
+import os
+
 import gi
+from gi.repository import Gst
 
 gi.require_version('Gst', '1.0')
 

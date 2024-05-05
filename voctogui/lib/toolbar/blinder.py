@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 import logging
 import os
-
 import time
 
-from gi.repository import Gtk, GLib
 import lib.connection as Connection
-
+from gi.repository import GLib, Gtk
 from lib.config import Config
 
 

@@ -2,8 +2,7 @@
 import logging
 import re
 
-from gi.repository import Gst, GLib
-
+from gi.repository import GLib, Gst
 from lib.config import Config
 from lib.sources.avsource import AVSource
 

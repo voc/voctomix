@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 # for debug logging
-import logging
-
 # for cloning objects
 import copy
+import logging
 
 # substitute array coordinate mappings fer better reading
 X, Y = 0, 1

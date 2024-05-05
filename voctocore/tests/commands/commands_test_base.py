@@ -1,7 +1,6 @@
-from mock import MagicMock
-
-from tests.helper.voctomix_test import VoctomixTest
 from lib.commands import ControlServerCommands
+from mock import MagicMock
+from tests.helper.voctomix_test import VoctomixTest
 
 
 class CommandsTestBase(VoctomixTest):

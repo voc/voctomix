@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import logging
+
 import gi
 
 gi.require_version('GstNet', '1.0')

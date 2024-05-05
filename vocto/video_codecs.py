@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 import logging
-import gi
 import sys
 
-from lib.config import Config
+import gi
 from gi.repository import Gst
+from lib.config import Config
 
 gi.require_version('GstController', '1.0')
 

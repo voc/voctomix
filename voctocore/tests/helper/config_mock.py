@@ -1,4 +1,4 @@
-from configparser import NoSectionError, NoOptionError, DuplicateSectionError
+from configparser import DuplicateSectionError, NoOptionError, NoSectionError
 
 from lib.config import VocConfigParser
 

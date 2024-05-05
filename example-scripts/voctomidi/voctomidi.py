@@ -4,9 +4,9 @@ import atexit
 import socket
 import sys
 import time
-from rtmidi.midiutil import open_midiport
 
 from lib.config import get_config
+from rtmidi.midiutil import open_midiport
 
 NOTE_ON = 0x90
 NOTE_OFF = 0x80

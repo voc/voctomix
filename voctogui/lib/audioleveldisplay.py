@@ -1,7 +1,7 @@
 import math
-import cairo
 
-from gi.repository import Gtk, GLib
+import cairo
+from gi.repository import GLib, Gtk
 
 
 class AudioLevelDisplay(Gtk.DrawingArea):

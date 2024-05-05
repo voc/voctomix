@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-import socket
-import sys
 import json
-import shlex
-import subprocess
 import logging
+import shlex
+import socket
+import subprocess
+import sys
 from configparser import SafeConfigParser
 
 logging.basicConfig(level=logging.DEBUG)

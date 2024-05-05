@@ -1,10 +1,10 @@
 import logging
 from queue import Queue
-from gi.repository import GObject
 
+from gi.repository import GObject
 from lib.commands import ControlServerCommands
-from lib.tcpmulticonnection import TCPMultiConnection
 from lib.response import NotifyResponse
+from lib.tcpmulticonnection import TCPMultiConnection
 
 from vocto.port import Port
 

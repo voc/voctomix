@@ -1,6 +1,5 @@
-from tests.helper.voctomix_test import VoctomixTest
-
 from lib.config import Config
+from tests.helper.voctomix_test import VoctomixTest
 
 
 # noinspection PyUnusedLocal

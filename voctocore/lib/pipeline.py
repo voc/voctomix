@@ -4,7 +4,6 @@ import re
 import sys
 
 from gi.repository import Gst
-
 # import library components
 from lib.args import Args
 from lib.audiomix import AudioMix

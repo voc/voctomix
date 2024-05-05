@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-from gi.repository import Gst, GstController
 import logging
+
 import gi
+from gi.repository import Gst, GstController
 
 gi.require_version('GstController', '1.0')
 

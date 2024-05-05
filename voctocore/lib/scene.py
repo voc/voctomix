@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 import logging
+
 import gi
 
 gi.require_version('GstController', '1.0')
 from gi.repository import Gst, GstController
-from vocto.transitions import Frame, L, T, R, B
+
+from vocto.transitions import B, Frame, L, R, T
 
 
 class Scene:

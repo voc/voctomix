@@ -2,8 +2,9 @@
 import gi
 
 gi.require_version('Gst', '1.0')
-from gi.repository import Gst
 import os
+
+from gi.repository import Gst
 
 # set GST debug dir for dot files
 if 'GST_DEBUG_DUMP_DOT_DIR' not in os.environ:

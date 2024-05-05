@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
 # for debug logging
-import logging
-
-# use Frame
-from vocto.frame import Frame, X, Y, L, T, R, B
-
 # for cloning objects
 import copy
-
+import logging
 # for parsing configuration items
 import re
+
+# use Frame
+from vocto.frame import B, Frame, L, R, T, X, Y
 
 log = logging.getLogger('Composites')
 

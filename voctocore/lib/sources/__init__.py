@@ -8,15 +8,15 @@ sources = {}
 def spawn_source(name, port, has_audio=True, has_video=True):
 
     from lib.config import Config
+    from lib.sources.alsaaudiosource import AlsaAudioSource
     from lib.sources.decklinkavsource import DeckLinkAVSource
+    from lib.sources.filesource import FileSource
     from lib.sources.imgvsource import ImgVSource
+    from lib.sources.pulseaudiosource import PulseAudioSource
+    from lib.sources.rpicamsource import RPICamAVSource
     from lib.sources.tcpavsource import TCPAVSource
     from lib.sources.testsource import TestSource
-    from lib.sources.filesource import FileSource
     from lib.sources.v4l2source import V4l2AVSource
-    from lib.sources.rpicamsource import RPICamAVSource
-    from lib.sources.pulseaudiosource import PulseAudioSource
-    from lib.sources.alsaaudiosource import AlsaAudioSource
 
     kind = Config.getSourceKind(name)
 

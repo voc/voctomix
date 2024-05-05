@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
-from configparser import SafeConfigParser
-from vocto.transitions import Composites, Transitions, L, T, R, B, X, Y
-from PIL import Image, ImageDraw, ImageFont
-
+import argparse
+import copy
+import logging
+import re
 # for integer maximum size
 import sys
-
+from configparser import SafeConfigParser
 # for calling convert to generate animated GIF
 from subprocess import call
-import copy
-import re
-import logging
-import argparse
+
+from PIL import Image, ImageDraw, ImageFont
+
+from vocto.transitions import B, Composites, L, R, T, Transitions, X, Y
 
 
 def read_arguments():

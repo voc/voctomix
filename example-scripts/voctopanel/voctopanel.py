@@ -3,8 +3,8 @@ import atexit
 import socket
 import sys
 import time
-import serial
 
+import serial
 from lib.config import Config
 
 server_address = Config.get("server", "address")

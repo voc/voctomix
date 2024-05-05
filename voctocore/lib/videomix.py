@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 import logging
-
 from configparser import NoOptionError
 from enum import Enum, unique
+
 import gi
 
 gi.require_version('GstController', '1.0')
 from gi.repository import Gst
-from lib.config import Config
-from vocto.transitions import Composites, Transitions, Frame, fade_alpha
-from lib.scene import Scene
-from lib.overlay import Overlay
 from lib.args import Args
+from lib.config import Config
+from lib.overlay import Overlay
+from lib.scene import Scene
 
 from vocto.composite_commands import CompositeCommand
+from vocto.transitions import Composites, Frame, Transitions, fade_alpha
 
 
 class VideoMix(object):

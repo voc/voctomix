@@ -1,10 +1,10 @@
 import logging
 
-from vocto.video_codecs import construct_video_encoder_pipeline
-
-from lib.tcpmulticonnection import TCPMultiConnection
-from lib.config import Config
 from lib.args import Args
+from lib.config import Config
+from lib.tcpmulticonnection import TCPMultiConnection
+
+from vocto.video_codecs import construct_video_encoder_pipeline
 
 
 class AVPreviewOutput(TCPMultiConnection):

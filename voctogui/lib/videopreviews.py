@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-import logging
 import json
+import logging
 import math
 import os
 from configparser import NoOptionError
 
-from gi.repository import Gtk, Gdk, GObject
-from lib.videodisplay import VideoDisplay
-from lib.audiodisplay import AudioDisplay
 import lib.connection as Connection
-
+from gi.repository import Gdk, GObject, Gtk
+from lib.audiodisplay import AudioDisplay
 from lib.config import Config
+from lib.videodisplay import VideoDisplay
+
 from vocto.port import Port
 
 

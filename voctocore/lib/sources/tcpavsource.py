@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 import logging
-
-from gi.repository import Gst, GObject
 import socket
 
+from gi.repository import GObject, Gst
 from lib.config import Config
 from lib.sources.avsource import AVSource
 

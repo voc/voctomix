@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-import logging
-import json
 import inspect
+import json
+import logging
+import os
 
 from lib.config import Config
 from lib.response import NotifyResponse, OkResponse
+
+from vocto.command_helpers import dequote, quote, str2bool
 from vocto.composite_commands import CompositeCommand
-from vocto.command_helpers import quote, dequote, str2bool
-import os
 
 
 class ControlServerCommands(object):

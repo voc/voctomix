@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-import socket
-from lib.config import Config
-import time
 import re
+import socket
+import time
+
+from lib.config import Config
 
 DO_GPIO = True
 try:

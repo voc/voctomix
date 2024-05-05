@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-import os
 import logging
-
-from gi.repository import Gtk
-import lib.connection as Connection
-
-from lib.config import Config
-from lib.uibuilder import UiBuilder
-from lib.toolbar.widgets import Widgets
+import os
 from datetime import datetime, timedelta
-from vocto.command_helpers import quote, dequote, str2bool
+
+import lib.connection as Connection
+from gi.repository import Gtk
+from lib.config import Config
+from lib.toolbar.widgets import Widgets
+from lib.uibuilder import UiBuilder
+
+from vocto.command_helpers import dequote, quote, str2bool
 
 
 class OverlayToolbarController(object):

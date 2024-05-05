@@ -1,7 +1,6 @@
-from mock import ANY
-
 from lib.response import NotifyResponse
 from lib.videomix import CompositeModes
+from mock import ANY
 from tests.commands.commands_test_base import CommandsTestBase
 
 

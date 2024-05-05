@@ -2,10 +2,9 @@
 import logging
 
 from gi.repository import Gst
-
-from lib.config import Config
-from lib.clock import Clock
 from lib.args import Args
+from lib.clock import Clock
+from lib.config import Config
 
 
 class Blinder(object):

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-import re
 import logging
+import re
 
 log = logging.getLogger('AudioStreams')
 

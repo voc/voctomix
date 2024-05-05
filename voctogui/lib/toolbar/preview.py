@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-import os
-import logging
 import copy
+import logging
+import os
 
-from gi.repository import Gtk
 import lib.connection as Connection
-
+from gi.repository import Gtk
 from lib.config import Config
-from vocto.composite_commands import CompositeCommand
 from lib.toolbar.buttons import Buttons
 from lib.uibuilder import UiBuilder
+
+from vocto.composite_commands import CompositeCommand
 
 
 class PreviewToolbarController(object):

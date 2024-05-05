@@ -1,8 +1,9 @@
 import logging
 import socket
 import sys
-from queue import Queue
 from abc import ABCMeta, abstractmethod
+from queue import Queue
+
 from gi.repository import GObject
 
 

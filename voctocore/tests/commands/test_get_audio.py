@@ -1,8 +1,7 @@
 import json
 
-from mock import ANY
-
 from lib.response import OkResponse
+from mock import ANY
 from tests.commands.commands_test_base import CommandsTestBase
 
 

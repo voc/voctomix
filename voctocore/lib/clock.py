@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import logging
+
 from gi.repository import Gst, GstNet
 
 __all__ = ['Clock', 'NetTimeProvider']

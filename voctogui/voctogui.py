@@ -6,12 +6,12 @@ gi.require_version('Gtk', '3.0')
 gi.require_version('Gst', '1.0')
 gi.require_version('GstVideo', '1.0')
 gi.require_version('GstNet', '1.0')
-from gi.repository import Gtk, Gdk, Gst, GstVideo
-
-import signal
 import logging
-import sys
 import os
+import signal
+import sys
+
+from gi.repository import Gdk, Gst, GstVideo, Gtk
 
 sys.path.insert(0, '.')
 from vocto.debug import gst_log_messages
@@ -141,10 +141,9 @@ def main():
 
     config.load()
 
-    from lib.config import Config
-
     # establish a synchronus connection to server
     import lib.connection as Connection
+    from lib.config import Config
 
     Connection.establish(Config.getHost())
 
@@ -165,8 +164,8 @@ def main():
             Config.getHost(),
         )
 
-    import lib.connection as Connection
     import lib.clock as ClockManager
+    import lib.connection as Connection
 
     # obtain network-clock
     ClockManager.obtainClock(Connection.ip)

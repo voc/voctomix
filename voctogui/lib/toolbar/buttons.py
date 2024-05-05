@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-from gi.repository import Gtk
 import sys
-from lib.toolbar.widgets import _decode, Widgets
+
+from gi.repository import Gtk
+from lib.toolbar.widgets import Widgets, _decode
 
 
 class Buttons(Widgets):

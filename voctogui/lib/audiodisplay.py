@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-import logging
-import os
 import json
+import logging
 import math
+import os
 from configparser import NoOptionError
 
-from gi.repository import Gtk, Gdk, GObject
 import lib.connection as Connection
-
+from gi.repository import Gdk, GObject, Gtk
 from lib.config import Config
+
 from vocto.port import Port
 
 

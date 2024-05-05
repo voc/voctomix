@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 import logging
 from abc import ABCMeta, abstractmethod
-from gi.repository import GLib
 
-from lib.config import Config
+from gi.repository import GLib
 from lib.args import Args
+from lib.config import Config
 
 
 class AVSource(object, metaclass=ABCMeta):

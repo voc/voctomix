@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
+import json
 import logging
 import os
-import json
-from gi.repository import Gtk, Gst, GLib
 
+import lib.connection as Connection
+from gi.repository import GLib, Gst, Gtk
 from lib.config import Config
 from lib.uibuilder import UiBuilder
-import lib.connection as Connection
 
 # time interval to re-fetch queue timings
 TIMER_RESOLUTION = 1.0

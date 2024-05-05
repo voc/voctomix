@@ -1,8 +1,8 @@
 import math
 import time
-import cairo
 
-from gi.repository import Gtk, GLib
+import cairo
+from gi.repository import GLib, Gtk
 
 
 # studio clock that displays a clock like mentioned in:

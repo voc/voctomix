@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
 import socket
+
+from flask import Flask, redirect, render_template, request, url_for
 from lib.config import Config
-from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
 

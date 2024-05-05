@@ -1,7 +1,6 @@
-from mock import ANY
-
-from tests.commands.commands_test_base import CommandsTestBase
 from lib.videomix import CompositeModes
+from mock import ANY
+from tests.commands.commands_test_base import CommandsTestBase
 
 
 class CommandsSetVideosAndComposite(CommandsTestBase):

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-import gi
 import logging
 import sys
 
-from lib.config import Config
+import gi
 from gi.repository import Gst
+from lib.config import Config
 
 gi.require_version('GstController', '1.0')
 log = logging.getLogger('audio_codecs')

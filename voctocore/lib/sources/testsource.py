@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 import logging
-
 from configparser import NoOptionError
-from gi.repository import Gst
 
+from gi.repository import Gst
 from lib.config import Config
 from lib.sources.avsource import AVSource
 

@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 # for debug logging
+# for cloning objects
+import copy
 import logging
-from vocto.composites import Composite, Composites, swap_name
-from vocto.frame import Frame, L, R, T, B, X, Y
-
 # for calculating square roots
 import math
 
-# for cloning objects
-import copy
+from vocto.composites import Composite, Composites, swap_name
+from vocto.frame import B, Frame, L, R, T, X, Y
 
 V = 2  # distance (velocity) index
 
@@ -379,10 +378,9 @@ def bspline(points):
     returns interpolated points
     """
     # for generating B-Splines
-    from scipy import interpolate as spi
-
     # for converting arrays
     import numpy as np
+    from scipy import interpolate as spi
 
     # parameter check
     assert isinstance(points, np.ndarray)

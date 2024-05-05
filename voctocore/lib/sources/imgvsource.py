@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 import logging
-import re
 import os
+import re
 
 from gi.repository import Gst
-
 from lib.config import Config
 from lib.sources.avsource import AVSource
 

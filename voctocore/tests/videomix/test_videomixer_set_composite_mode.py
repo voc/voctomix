@@ -1,8 +1,7 @@
-from mock import MagicMock
-
-from tests.helper.voctomix_test import VoctomixTest
 from lib.config import Config
-from lib.videomix import VideoMix, CompositeModes
+from lib.videomix import CompositeModes, VideoMix
+from mock import MagicMock
+from tests.helper.voctomix_test import VoctomixTest
 
 
 class VideomixerSetCompositeMode(VoctomixTest):

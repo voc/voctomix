@@ -2,9 +2,8 @@ import socket
 import unittest
 
 import gi.repository
-from mock import MagicMock
-
 import lib.config
+from mock import MagicMock
 from tests.helper.config_mock import ConfigMock
 
 gi.repository.Gst = MagicMock()

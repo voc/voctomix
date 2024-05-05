@@ -1,23 +1,20 @@
 import logging
-from gi.repository import Gtk, Gdk
 
-from lib.config import Config
-from lib.uibuilder import UiBuilder
-
-from lib.videodisplay import VideoDisplay
-from lib.audioleveldisplay import AudioLevelDisplay
+from gi.repository import Gdk, Gtk
 from lib.audiodisplay import AudioDisplay
-from lib.videopreviews import VideoPreviewsController
-from lib.queues import QueuesWindowController
+from lib.audioleveldisplay import AudioLevelDisplay
+from lib.config import Config
 from lib.ports import PortsWindowController
-
-from lib.toolbar.mix import MixToolbarController
-from lib.toolbar.preview import PreviewToolbarController
-from lib.toolbar.overlay import OverlayToolbarController
+from lib.queues import QueuesWindowController
+from lib.studioclock import StudioClock
 from lib.toolbar.blinder import BlinderToolbarController
 from lib.toolbar.misc import MiscToolbarController
-
-from lib.studioclock import StudioClock
+from lib.toolbar.mix import MixToolbarController
+from lib.toolbar.overlay import OverlayToolbarController
+from lib.toolbar.preview import PreviewToolbarController
+from lib.uibuilder import UiBuilder
+from lib.videodisplay import VideoDisplay
+from lib.videopreviews import VideoPreviewsController
 
 from vocto.port import Port
 

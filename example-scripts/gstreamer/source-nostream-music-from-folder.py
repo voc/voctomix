@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
-import os
-import sys
-import gi
-import signal
-import random
 import argparse
 import logging
+import os
+import random
+import signal
+import sys
+
+import gi
 import pyinotify
 
 gi.require_version('Gst', '1.0')
-from gi.repository import Gst, GObject, GLib
+from gi.repository import GLib, GObject, Gst
 
 # init GObject & Co. before importing local classes
 GObject.threads_init()

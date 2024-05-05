@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-import socket
 import datetime
+import socket
 import sys
 
 host = 'localhost'

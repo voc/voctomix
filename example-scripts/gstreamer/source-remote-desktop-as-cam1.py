@@ -1,13 +1,14 @@
 #!/usr/bin/python3
-import os
-import sys
-import gi
-import signal
 import argparse
+import os
+import signal
 import socket
+import sys
+
+import gi
 
 gi.require_version('Gst', '1.0')
-from gi.repository import Gst, GstNet, GObject
+from gi.repository import GObject, Gst, GstNet
 
 # init GObject & Co. before importing local classes
 GObject.threads_init()
