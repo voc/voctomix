@@ -154,8 +154,8 @@ class VideoDisplay(object):
             # launch gstreamer pipeline
             self.pipeline = Gst.parse_launch(pipe)
             self.log.info("pipeline launched successfuly")
-        except:
-            self.log.error("Can not launch pipeline")
+        except Exception:
+            self.log.exception("Can not launch pipeline")
             sys.exit(-1)
 
         if Args.dot:
@@ -190,7 +190,7 @@ class VideoDisplay(object):
         self.pipeline.set_state(Gst.State.PLAYING)
 
     def on_syncmsg(self, bus, msg):
-        if type(msg) == Gst.Message and self.imagesink:
+        if isinstance(msg, Gst.Message) and self.imagesink:
             if msg.get_structure().get_name() == "prepare-window-handle":
                 self.log.info('Setting imagesink window-handle to 0x%x', self.xid)
                 self.imagesink.set_window_handle(self.xid)

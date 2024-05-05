@@ -13,7 +13,7 @@ class Overlay:
         # get overlay element and config
         self.overlay = pipeline.get_by_name('overlay')
         self.location = location
-        self.isVisible = location != None
+        self.isVisible = location is not None
         self.blend_time = blend_time
 
         # initialize overlay control binding

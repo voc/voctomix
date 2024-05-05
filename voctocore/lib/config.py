@@ -337,11 +337,11 @@ class VoctocoreConfigParser(VocConfigParser):
         if self.has_option('mix', 'audiomixmatrix'):
             # read matrix from config (columns separated by space, rows by slash
             matrix = []
-            for l, line in enumerate(self.get('mix', 'audiomixmatrix').split('/')):
+            for idx, line in enumerate(self.get('mix', 'audiomixmatrix').split('/')):
                 matrix.append([])
                 for v, value in enumerate(line.split()):
                     matrix[l].append(float(value))
-                if len(matrix[0]) != len(matrix[l]):
+                if len(matrix[0]) != len(matrix[idx]):
                     self.log.error('Mix matrix has lines of different lengths')
                     sys.exit(-1)
         else:

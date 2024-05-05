@@ -207,7 +207,7 @@ def draw_text(draw, size, line_or_pos, text, fill=(255, 255, 255, 255), align=0)
     font = ImageFont.truetype(
         "FreeSans.ttf", 11 if size[X] < 400 else (13 if size[X] < 800 else 20)
     )
-    if type(line_or_pos) == int:
+    if isinstance(line_or_pos, int):
         assert not align
         line_factor = 1.3
         line_height = font.getsize("|")[Y] * line_factor
@@ -335,7 +335,7 @@ def draw_transition(size, transition, info=None):
 
         if Args.title:
             draw_text(drawFg, size, -3, transition.name())
-            if not info is None:
+            if info is not None:
                 draw_text(drawFg, size, -2, info)
             draw_text(drawFg, size, -1, " → ".join([c.name for c in transition.keys()]))
             draw_text(drawFg, size, 1, "Frame %d" % i)

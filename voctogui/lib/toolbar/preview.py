@@ -151,7 +151,7 @@ class PreviewToolbarController(object):
     def set_command(self, command, do_test=True):
         self.do_test = do_test
         self.log.info("Changing new composite to '%s'", str(self.command()))
-        if type(command) == str:
+        if isinstance(command, str):
             command = CompositeCommand.from_str(command)
         for id, item in self.mods.items():
             item['button'].set_active(command.modify(item['replace'], reverse=True))

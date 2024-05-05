@@ -49,7 +49,7 @@ class RPICamAVSource(AVSource):
     def build_source(self):
         pipe = """
             rpicamsrc
-                bitrate=8000000 
+                bitrate=8000000
                 preview=false
                 num-buffers=-1
                 sensor-mode=1

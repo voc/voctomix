@@ -6,7 +6,7 @@ from gi.repository import Gst
 import os
 
 # set GST debug dir for dot files
-if not 'GST_DEBUG_DUMP_DOT_DIR' in os.environ:
+if 'GST_DEBUG_DUMP_DOT_DIR' not in os.environ:
     os.environ['GST_DEBUG_DUMP_DOT_DIR'] = os.getcwd()
 
 

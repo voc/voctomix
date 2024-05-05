@@ -360,7 +360,7 @@ def parse_asterisk(sequence, composites):
         if sequence[k] == '*':
             for c in composites:
                 sequences += parse_asterisk(
-                    sequence[:k] + [c.name] + sequence[k + 1 :], composites
+                    sequence[:k] + [c.name] + sequence[k + 1:], composites
                 )
     if not sequences:
         sequences.append(sequence)
@@ -586,7 +586,7 @@ def is_in(sequence, part):
     """returns true if 2-item list 'part' is in list 'sequence'"""
     assert len(part) == 2
     for i in range(0, len(sequence) - 1):
-        if sequence[i : i + 2] == part:
+        if sequence[i:i + 2] == part:
             return True
     return False
 

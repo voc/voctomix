@@ -178,9 +178,9 @@ class VideoMix(object):
         dry=False,
     ):
         # expect strings or None as parameters
-        assert not newCompositeName or type(newCompositeName) == str
-        assert not newA or type(newA) == str
-        assert not newB or type(newB) == str
+        assert not newCompositeName or isinstance(newCompositeName, str)
+        assert not newA or isinstance(newA, str)
+        assert not newB or isinstance(newB, str)
 
         # get current composite
         if not self.compositeMode:
@@ -372,9 +372,9 @@ class VideoMix(object):
             # report unknown elements of the target scene
             if not newComposite:
                 self.log.error("Unknown composite '%s'", newCompositeName)
-            if not newA in self.sources:
+            if newA not in self.sources:
                 self.log.error("Unknown source '%s'", newA)
-            if not newB in self.sources:
+            if newB not in self.sources:
                 self.log.error("Unknown source '%s'", newB)
 
         # remember scene we've set
