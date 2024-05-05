@@ -385,7 +385,7 @@ class VideoMix(object):
     def setComposite(self, command, useTransitions=False):
         '''parse switch to the composite described by string command'''
         # expect string as parameter
-        assert type(command) == str
+        assert isinstance(command, str)
         # parse command
         command = CompositeCommand.from_str(command)
         self.log.debug("Setting new composite by string '%s'", command)
@@ -393,7 +393,7 @@ class VideoMix(object):
 
     def testCut(self, command):
         # expect string as parameter
-        assert type(command) == str
+        assert isinstance(command, str)
         # parse command
         command = CompositeCommand.from_str(command)
         if (
@@ -407,7 +407,7 @@ class VideoMix(object):
 
     def testTransition(self, command):
         # expect string as parameter
-        assert type(command) == str
+        assert isinstance(command, str)
         # parse command
         command = CompositeCommand.from_str(command)
         self.log.debug("Testing if transition is available to '%s'", command)

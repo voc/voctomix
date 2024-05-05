@@ -218,7 +218,7 @@ def draw_text(draw, size, line_or_pos, text, fill=(255, 255, 255, 255), align=0)
         else:
             y = size[Y] + line_height * line_or_pos
     else:
-        assert type(line_or_pos) == list
+        assert isinstance(line_or_pos, list)
         x, y = line_or_pos
         if align == 0:
             x = (x - draw.textsize(text, font=font)[X]) / 2

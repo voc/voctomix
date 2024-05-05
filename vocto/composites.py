@@ -71,8 +71,8 @@ class Composites:
 class Composite:
 
     def __init__(self, order, name, a=Frame(True), b=Frame(True)):
-        assert type(order) is int or order is None
-        assert type(name) is str or not name
+        assert isinstance(order, int) or order is None
+        assert isinstance(name, str) or not name
         self.name = name
         self.frame = [copy.deepcopy(a), copy.deepcopy(b)]
         self.default = [None, None]

@@ -179,20 +179,20 @@ class Transitions:
 class Transition:
 
     def __init__(self, name, a=None, b=None):
-        assert type(name) is str
+        assert isinstance(name, str)
         self._name = name
         if a:
             # no overloaded constructors available in python m(
             if b:
                 # got lists of frames in a and b with same length?
                 assert len(a) == len(b)
-                assert type(a[0]) is Frame
-                assert type(b[0]) is Frame
+                assert isinstance(a[0], Frame)
+                assert isinstance(b[0], Frame)
                 # rearrange composites
                 self.composites = [Composite("...", a[i], b[i]) for i in range(len(a))]
             else:
                 # if we got only one list then it must be composites
-                assert type(a[0]) is Composite
+                assert isinstance(a[0], Composite)
                 self.composites = a
         else:
             self.composites = []
@@ -238,7 +238,7 @@ class Transition:
             return self._name
 
     def append(self, composite):
-        assert type(composite) == Composite
+        assert isinstance(composite, Composite)
         self.composites.append(composite)
 
     def frames(self):
@@ -248,14 +248,14 @@ class Transition:
         if n is None:
             return [c.A() for c in self.composites]
         else:
-            assert type(n) is int
+            assert isinstance(n, int)
             return self.composites[n].A()
 
     def B(self, n=None):
         if n is None:
             return [c.B() for c in self.composites]
         else:
-            assert type(n) is int
+            assert isinstance(n, int)
             return self.composites[n].B()
 
     def Az(self, z0, z1):
@@ -385,9 +385,9 @@ def bspline(points):
     import numpy as np
 
     # parameter check
-    assert type(points) is np.ndarray
-    assert type(points[0]) is np.ndarray and len(points[0]) == 2
-    assert type(points[1]) is np.ndarray and len(points[1]) == 2
+    assert isinstance(points, np.ndarray)
+    assert isinstance(points[0], np.ndarray) and len(points[0]) == 2
+    assert isinstance(points[1], np.ndarray) and len(points[1]) == 2
     resolution = Transitions.resolution
     # check if we have more than two points
     if len(points) > 2:
