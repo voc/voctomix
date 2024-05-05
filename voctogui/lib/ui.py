@@ -36,8 +36,7 @@ class Ui(UiBuilder):
 
         # check for configuration option mainwindow/force_fullscreen
         if Config.getForceFullScreen():
-            self.log.info(
-                'Forcing main window to full screen by configuration')
+            self.log.info('Forcing main window to full screen by configuration')
             # set window into fullscreen mode
             self.win.fullscreen()
         else:
@@ -51,7 +50,8 @@ class Ui(UiBuilder):
         self.win.connect('delete-event', Gtk.main_quit)
 
         output_aspect_ratio = self.find_widget_recursive(
-            self.win, 'output_aspect_ratio')
+            self.win, 'output_aspect_ratio'
+        )
         output_aspect_ratio.props.ratio = Config.getVideoRatio()
 
         audio_box = self.find_widget_recursive(self.win, 'audio_box')
@@ -61,19 +61,18 @@ class Ui(UiBuilder):
             self.find_widget_recursive(self.win, 'preview_box'),
             audio_box,
             win=self.win,
-            uibuilder=self
+            uibuilder=self,
         )
         if Config.getPreviewsEnabled():
             for idx, source in enumerate(Config.getSources()):
-                self.video_previews.addPreview(self, source,
-                                               Port.SOURCES_PREVIEW + idx)
+                self.video_previews.addPreview(self, source, Port.SOURCES_PREVIEW + idx)
         elif Config.getMirrorsEnabled():
             for idx, source in enumerate(Config.getMirrorsSources()):
-                self.video_previews.addPreview(
-                    self, source, Port.SOURCES_OUT + idx)
+                self.video_previews.addPreview(self, source, Port.SOURCES_OUT + idx)
         else:
             self.log.warning(
-                'Can not show source previews because neither previews nor mirrors are enabled (see previews/enabled and mirrors/enabled in core configuration)')
+                'Can not show source previews because neither previews nor mirrors are enabled (see previews/enabled and mirrors/enabled in core configuration)'
+            )
 
         self.mix_audio_display = AudioDisplay(audio_box, "mix", uibuilder=self)
 
@@ -82,37 +81,42 @@ class Ui(UiBuilder):
             self.find_widget_recursive(self.win, 'video_main'),
             self.mix_audio_display,
             port=Port.MIX_PREVIEW if Config.getPreviewsEnabled() else Port.MIX_OUT,
-            name="MIX"
+            name="MIX",
         )
 
         for idx, livepreview in enumerate(Config.getLivePreviews()):
             if Config.getPreviewsEnabled():
                 self.video_previews.addPreview(
-                    self, '{}-blinded'.format(livepreview), Port.LIVE_PREVIEW + idx, has_volume=False)
+                    self,
+                    '{}-blinded'.format(livepreview),
+                    Port.LIVE_PREVIEW + idx,
+                    has_volume=False,
+                )
             else:
                 self.video_previews.addPreview(
-                    self, '{}-blinded'.format(livepreview), Port.LIVE_OUT + idx, has_volume=False)
+                    self,
+                    '{}-blinded'.format(livepreview),
+                    Port.LIVE_OUT + idx,
+                    has_volume=False,
+                )
 
         self.preview_toolbar_controller = PreviewToolbarController(
-            win=self.win,
-            uibuilder=self
+            win=self.win, uibuilder=self
         )
 
         self.overlay_toolbar_controller = OverlayToolbarController(
-            win=self.win,
-            uibuilder=self
+            win=self.win, uibuilder=self
         )
 
         self.mix_toolbar_controller = MixToolbarController(
             win=self.win,
             uibuilder=self,
             preview_controller=self.preview_toolbar_controller,
-            overlay_controller=self.overlay_toolbar_controller
+            overlay_controller=self.overlay_toolbar_controller,
         )
 
         self.blinder_toolbar_controller = BlinderToolbarController(
-            win=self.win,
-            uibuilder=self
+            win=self.win, uibuilder=self
         )
 
         self.queues_controller = QueuesWindowController(self)
@@ -123,7 +127,7 @@ class Ui(UiBuilder):
             uibuilder=self,
             queues_controller=self.queues_controller,
             ports_controller=self.ports_controller,
-            video_display=self.mix_video_display
+            video_display=self.mix_video_display,
         )
 
         # Setup Shortcuts window

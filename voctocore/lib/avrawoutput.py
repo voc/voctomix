@@ -19,10 +19,16 @@ class AVRawOutput(TCPMultiConnection):
         self.source = source
 
         # open bin
-        self.bin = "" if Args.no_bins else """
+        self.bin = (
+            ""
+            if Args.no_bins
+            else """
             bin.(
                 name=AVRawOutput-{source}
-                """.format(source=self.source)
+                """.format(
+                source=self.source
+            )
+        )
 
         # video pipeline
         self.bin += """
@@ -32,8 +38,9 @@ class AVRawOutput(TCPMultiConnection):
                     max-size-time=3000000000
                     name=queue-mux-video-{source}
                 ! mux-{source}.
-                """.format(source=self.source,
-                           vcaps=Config.getVideoCaps())
+                """.format(
+            source=self.source, vcaps=Config.getVideoCaps()
+        )
 
         # audio pipeline
         if use_audio_mix or source in Config.getAudioSources(internal=True):
@@ -51,7 +58,7 @@ class AVRawOutput(TCPMultiConnection):
                 source=self.source,
                 use_audio="" if use_audio_mix else "source-",
                 audio_source="mix" if use_audio_mix else self.source,
-                audio_blinded="-blinded" if audio_blinded else ""
+                audio_blinded="-blinded" if audio_blinded else "",
             )
 
         # playout pipeline
@@ -69,8 +76,7 @@ class AVRawOutput(TCPMultiConnection):
                     sync-method=next-keyframe
                     name=fd-{source}
                 """.format(
-            buffers_max=Config.getOutputBuffers(self.source),
-            source=self.source
+            buffers_max=Config.getOutputBuffers(self.source), source=self.source
         )
 
         # close bin
@@ -103,12 +109,16 @@ class AVRawOutput(TCPMultiConnection):
             if fileno == conn.fileno():
                 self.log.debug('fd %u removed from multifdsink', fileno)
                 self.close_connection(conn)
+
         fdsink.connect('client-fd-removed', on_client_fd_removed)
 
         # catch client-removed
         def on_client_removed(multifdsink, fileno, status):
             # GST_CLIENT_STATUS_SLOW = 3,
             if fileno == conn.fileno() and status == 3:
-                self.log.warning('about to remove fd %u from multifdsink '
-                                 'because it is too slow!', fileno)
+                self.log.warning(
+                    'about to remove fd %u from multifdsink ' 'because it is too slow!',
+                    fileno,
+                )
+
         fdsink.connect('client-removed', on_client_removed)

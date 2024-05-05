@@ -39,7 +39,11 @@ def spawn_source(name, port, has_audio=True, has_video=True):
     else:
         if kind != 'test':
             log.warning(
-                'Unknown value "%s" in attribute "kind" in definition of source %s (see section [source.%s] in configuration). Falling back to kind "test".', kind, name, name)
+                'Unknown value "%s" in attribute "kind" in definition of source %s (see section [source.%s] in configuration). Falling back to kind "test".',
+                kind,
+                name,
+                name,
+            )
         sources[name] = TestSource(name, has_audio, has_video)
 
     return sources[name]

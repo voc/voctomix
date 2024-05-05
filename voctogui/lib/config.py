@@ -4,6 +4,7 @@ import logging
 from lib.args import Args
 import lib.connection as Connection
 from vocto.config import VocConfigParser
+
 __all__ = ['Config']
 
 Config = None
@@ -25,11 +26,14 @@ class VoctoguiConfigParser(VocConfigParser):
         return Args.host if Args.host else self.get('server', 'host')
 
     def getWindowSize(self):
-        if self.has_option('mainwindow', 'width') \
-                and self.has_option('mainwindow', 'height'):
+        if self.has_option('mainwindow', 'width') and self.has_option(
+            'mainwindow', 'height'
+        ):
             # get size from config
-            return (self.getint('mainwindow', 'width'),
-                    self.getint('mainwindow', 'height'))
+            return (
+                self.getint('mainwindow', 'width'),
+                self.getint('mainwindow', 'height'),
+            )
         else:
             return None
 
@@ -49,10 +53,7 @@ class VoctoguiConfigParser(VocConfigParser):
         return self.getboolean('toolbar', 'ports', fallback=True)
 
     def getToolbarSourcesDefault(self):
-        return {"%s.name" % source:
-                source.upper()
-                for source in self.getVideoSources()
-                }
+        return {"%s.name" % source: source.upper() for source in self.getVideoSources()}
 
     def trySection(self, section_name, default_result=None):
         return self[section_name] if self.has_section(section_name) else default_result
@@ -64,10 +65,10 @@ class VoctoguiConfigParser(VocConfigParser):
         return self.trySection('toolbar.sources.b', self.getToolbarSourcesDefault())
 
     def getToolbarCompositesDefault(self):
-        return {"%s.name" % composite.name:
-                composite.name.upper()
-                for composite in self.getTargetComposites()
-                }
+        return {
+            "%s.name" % composite.name: composite.name.upper()
+            for composite in self.getTargetComposites()
+        }
 
     def getToolbarComposites(self):
         return self.trySection('toolbar.composites', self.getToolbarCompositesDefault())
@@ -76,10 +77,7 @@ class VoctoguiConfigParser(VocConfigParser):
         return self.trySection('toolbar.mods', {})
 
     def getToolbarMixDefault(self):
-        return {"retake.name": "RETAKE",
-                "cut.name": "CUT",
-                "trans.name": "TRANS"
-                }
+        return {"retake.name": "RETAKE", "cut.name": "CUT", "trans.name": "TRANS"}
 
     def getToolbarMix(self):
         return self.trySection('toolbar.mix', self.getToolbarMixDefault())
@@ -93,12 +91,19 @@ def load():
 
     Config = VoctoguiConfigParser()
 
-    config_file_name = Args.ini_file if Args.ini_file else os.path.join(
-        os.path.dirname(os.path.realpath(__file__)), '../default-config.ini')
+    config_file_name = (
+        Args.ini_file
+        if Args.ini_file
+        else os.path.join(
+            os.path.dirname(os.path.realpath(__file__)), '../default-config.ini'
+        )
+    )
     readfiles = Config.read([config_file_name])
 
     log.debug("successfully parsed config-file: '%s'", config_file_name)
 
     if Args.ini_file is not None and Args.ini_file not in readfiles:
-        raise RuntimeError('explicitly requested config-file "{}" '
-                           'could not be read'.format(Args.ini_file))
+        raise RuntimeError(
+            'explicitly requested config-file "{}" '
+            'could not be read'.format(Args.ini_file)
+        )

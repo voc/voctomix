@@ -29,11 +29,7 @@ v4l2_encoders = {
     'jpeg': 'v4l2jpegenc',
 }
 
-cpu_encoders = {
-    'jpeg': "jpegenc",
-    'h264': "x264enc",
-    'mpeg2': "mpeg2enc"
-}
+cpu_encoders = {'jpeg': "jpegenc", 'h264': "x264enc", 'mpeg2': "mpeg2enc"}
 
 if Gst.version() < (1, 8):
     vaapi_decoders = {
@@ -54,7 +50,7 @@ cpu_decoders = {
                 ! jpegdec""",
     'mpeg2': """video/mpeg
                     mpegversion=2
-                ! mpeg2dec"""
+                ! mpeg2dec""",
 }
 
 
@@ -67,7 +63,11 @@ def construct_video_encoder_pipeline(section):
 
     if encoder == 'vaapi':
         if codec not in vaapi_encoders:
-            log.error("Unknown codec '{}' for video encoder '{}'. Falling back to 'h264'.".format(codec, encoder))
+            log.error(
+                "Unknown codec '{}' for video encoder '{}'. Falling back to 'h264'.".format(
+                    codec, encoder
+                )
+            )
             sys.exit(-1)
         # generate pipeline
         # we can also force a video format here (format=I420) but this breaks scalling at least on Intel HD3000 therefore it currently removed
@@ -75,20 +75,30 @@ def construct_video_encoder_pipeline(section):
                             caps=video/x-raw,interlace-mode=progressive
                         ! vaapipostproc
                         ! {encoder}
-                        """.format(encoder=vaapi_encoders[codec])
+                        """.format(
+            encoder=vaapi_encoders[codec]
+        )
 
     elif encoder == 'v4l2':
         if codec not in v4l2_encoders:
-            log.error("Unknown codec '{}' for video encoder '{}'. Falling back to 'h264'.".format(codec, encoder))
+            log.error(
+                "Unknown codec '{}' for video encoder '{}'. Falling back to 'h264'.".format(
+                    codec, encoder
+                )
+            )
             sys.exit(-1)
         pipeline = """  ! capsfilter
                             caps=video/x-raw,interlace-mode=progressive
                         ! {encoder}
-                        """.format(encoder=v4l2_encoders[codec])
+                        """.format(
+            encoder=v4l2_encoders[codec]
+        )
 
     elif encoder == "cpu":
         if codec not in cpu_encoders:
-            log.error("Unknown codec '{}' for video encoder '{}'.".format(codec, encoder))
+            log.error(
+                "Unknown codec '{}' for video encoder '{}'.".format(codec, encoder)
+            )
             sys.exit(-1)
         # maybe add deinterlacer
         if Config.getDeinterlace(section):
@@ -99,17 +109,23 @@ def construct_video_encoder_pipeline(section):
         pipeline += """ ! videorate
                         ! videoscale
                         ! {encoder}
-                        """.format(encoder=cpu_encoders[codec])
+                        """.format(
+            encoder=cpu_encoders[codec]
+        )
     else:
         log.error("Unknown video encoder '{}'.".format(encoder))
         sys.exit(-1)
 
     if options:
         pipeline += """{options}
-                        """.format(options='\n'.join(options))
+                        """.format(
+            options='\n'.join(options)
+        )
 
     pipeline += """! {vcaps}
-                """.format(vcaps=vcaps)
+                """.format(
+        vcaps=vcaps
+    )
 
     if codec == "h264":
         pipeline += """! h264parse"""

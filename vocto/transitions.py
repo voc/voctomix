@@ -3,8 +3,10 @@
 import logging
 from vocto.composites import Composite, Composites, swap_name
 from vocto.frame import Frame, L, R, T, B, X, Y
+
 # for calculating square roots
 import math
+
 # for cloning objects
 import copy
 
@@ -13,14 +15,14 @@ V = 2  # distance (velocity) index
 log = logging.getLogger('Transitions')
 logKeyFramesOnly = True
 
+
 class Transitions:
-    """ transition table and interface
-    """
+    """transition table and interface"""
 
     # interpolation resolution
-    HiRes       = 0.001
-    LoRes       = 0.01
-    resolution  = HiRes
+    HiRes = 0.001
+    LoRes = 0.01
+    resolution = HiRes
 
     def __init__(self, targets=[], fps=25):
         self.transitions = []
@@ -28,25 +30,27 @@ class Transitions:
         self.fps = fps
 
     def __str__(self):
-        """ write transition table into a string
-        """
+        """write transition table into a string"""
         return "\n".join([t.name() for t in self.transitions])
 
     def __len__(self):
         return len(self.transitions)
 
     def count(self):
-        """ count available transition
-        """
+        """count available transition"""
         return len(self.transitions)
 
-    def add(self, transition,frames):
+    def add(self, transition, frames):
         # check if a compatible transition is already in our pool
         for t in self.transitions:
-            if t.begin().equals(transition.begin(), True) and t.end().equals(transition.end(), True):
+            if t.begin().equals(transition.begin(), True) and t.end().equals(
+                transition.end(), True
+            ):
                 # skip if found
                 return
-            elif t.begin().equals(transition.end(), True) and t.end().equals(transition.begin(), True):
+            elif t.begin().equals(transition.end(), True) and t.end().equals(
+                transition.begin(), True
+            ):
                 self.transitions.append(t.reversed())
                 return
         # otherwise calculate transition and add it to out pool
@@ -54,10 +58,11 @@ class Transitions:
         self.transitions.append(transition)
 
     def configure(self, cfg, composites, targets=None, fps=25):
-        """ generate all transitions configured in the INI-like configuration
-            string in <cfg> by using the given <composites> and return them
-            in a dictonary
+        """generate all transitions configured in the INI-like configuration
+        string in <cfg> by using the given <composites> and return them
+        in a dictonary
         """
+
         def index(composite):
             for i in range(len(targets)):
                 if composites[targets[i]].equals(composite, True):
@@ -68,7 +73,7 @@ class Transitions:
         if not targets:
             targets = Composites.targets(self, composites)
         # prepare result
-        transitions = Transitions(targets,fps)
+        transitions = Transitions(targets, fps)
 
         # walk through all items within the configuration string
         for t_name, t in cfg:
@@ -89,7 +94,7 @@ class Transitions:
                 try:
                     # walk trough composite sequence
                     for c_name in seq:
-                        #c_name = c_name.lower()
+                        # c_name = c_name.lower()
                         if c_name[0] == '^':
                             # find a composite with that name
                             transition.append(composites[c_name[1:]].swapped())
@@ -99,34 +104,52 @@ class Transitions:
                 # log any failed find
                 except KeyError as err:
                     raise RuntimeError(
-                        'composite "{}" could not be found in transition {}'.format(err, name))
-                transitions.add(transition,frames - 1)
+                        'composite "{}" could not be found in transition {}'.format(
+                            err, name
+                        )
+                    )
+                transitions.add(transition, frames - 1)
         log.debug("Loaded %d transitions from configuration.", len(transitions))
         # return dictonary
         return transitions
 
     def solve(self, begin, end, flip):
-        log.debug("Solving transition %s(A,B) -> %s(%s)\n\t    %s\n\t    %s", begin.name, end.name, "B,A" if flip else "A,B", begin, end)
+        log.debug(
+            "Solving transition %s(A,B) -> %s(%s)\n\t    %s\n\t    %s",
+            begin.name,
+            end.name,
+            "B,A" if flip else "A,B",
+            begin,
+            end,
+        )
         for transition in self.transitions:
             # try to find original transition
-            if transition.begin().equals(begin, True) and transition.end().equals(end, True, flip):
+            if transition.begin().equals(begin, True) and transition.end().equals(
+                end, True, flip
+            ):
                 log.debug("Solved #1 %s\n%s", transition.name(), transition)
                 return transition, False
-            if transition.begin().equals(begin, True, flip) and transition.end().equals(end, True):
+            if transition.begin().equals(begin, True, flip) and transition.end().equals(
+                end, True
+            ):
                 log.debug("Solved #2 %s\n%s", transition.name(), transition)
                 return transition, True
             # try reverse
-            if transition.begin().equals(end, True) and transition.end().equals(begin, True, flip):
+            if transition.begin().equals(end, True) and transition.end().equals(
+                begin, True, flip
+            ):
                 log.debug("Solved #3 %s\n%s", transition.name(), transition)
                 return transition.reversed(), True
-            if transition.begin().equals(end, True, flip) and transition.end().equals(begin, True):
+            if transition.begin().equals(end, True, flip) and transition.end().equals(
+                begin, True
+            ):
                 log.debug("Solved #4 %s\n%s", transition.name(), transition)
                 return transition.reversed(), False
         return None, False
 
     def travel(composites, previous=None):
-        """ return a list of pairs of composites along all possible transitions
-            between all given composites by walking the tree of all combinations
+        """return a list of pairs of composites along all possible transitions
+        between all given composites by walking the tree of all combinations
         """
         # if there is only one composite
         if len(composites) == 1:
@@ -152,6 +175,7 @@ class Transitions:
         # no findings
         return None
 
+
 class Transition:
 
     def __init__(self, name, a=None, b=None):
@@ -165,8 +189,7 @@ class Transition:
                 assert type(a[0]) is Frame
                 assert type(b[0]) is Frame
                 # rearrange composites
-                self.composites = [Composite("...", a[i], b[i])
-                                   for i in range(len(a))]
+                self.composites = [Composite("...", a[i], b[i]) for i in range(len(a))]
             else:
                 # if we got only one list then it must be composites
                 assert type(a[0]) is Composite
@@ -176,22 +199,33 @@ class Transition:
         self.flip = None
 
     def __str__(self):
-        def hidden( x, hidden ):
-            return str(x).replace(' ','_') if hidden else str(x)
+        def hidden(x, hidden):
+            return str(x).replace(' ', '_') if hidden else str(x)
 
         # remember index when to flip sources A/B
-        result = "\t%s = %s -> %s:\n" % (self.name(),
-                                      self.begin().name, self.end().name)
+        result = "\t%s = %s -> %s:\n" % (
+            self.name(),
+            self.begin().name,
+            self.end().name,
+        )
         # add table title
         result += "\tNo. %s\n" % Composite.str_title(self)
         # add composites until flipping point
         for i in range(self.frames()):
             if (not logKeyFramesOnly) or self.A(i).key:
-                result += (("\t%3d %s " + ("B%s\tA%s" if self.flip and i >= self.flip else "A%s\tB%s") + "  %s\n") %
-                        (i, " * " if self.A(i).key else "   ",
-                            hidden(self.A(i), self.A(i).invisible() or self.composites[i].covered()),
-                            hidden(self.B(i), self.B(i).invisible()),
-                            self.composites[i].name))
+                result += (
+                    "\t%3d %s "
+                    + ("B%s\tA%s" if self.flip and i >= self.flip else "A%s\tB%s")
+                    + "  %s\n"
+                ) % (
+                    i,
+                    " * " if self.A(i).key else "   ",
+                    hidden(
+                        self.A(i), self.A(i).invisible() or self.composites[i].covered()
+                    ),
+                    hidden(self.B(i), self.B(i).invisible()),
+                    self.composites[i].name,
+                )
         return result
 
     def phi(self):
@@ -207,7 +241,8 @@ class Transition:
         assert type(composite) == Composite
         self.composites.append(composite)
 
-    def frames(self): return len(self.composites)
+    def frames(self):
+        return len(self.composites)
 
     def A(self, n=None):
         if n is None:
@@ -225,7 +260,7 @@ class Transition:
 
     def Az(self, z0, z1):
         frames = []
-        for i,c in enumerate(self.composites):
+        for i, c in enumerate(self.composites):
             if (not self.flip) or i < self.flip:
                 frames.append(c.Az(z0))
             else:
@@ -234,16 +269,18 @@ class Transition:
 
     def Bz(self, z0, z1):
         frames = []
-        for i,c in enumerate(self.composites):
+        for i, c in enumerate(self.composites):
             if (not self.flip) or i < self.flip:
                 frames.append(c.Bz(z0))
             else:
                 frames.append(c.Bz(z1))
         return frames
 
-    def begin(self): return self.composites[0]
+    def begin(self):
+        return self.composites[0]
 
-    def end(self): return self.composites[-1]
+    def end(self):
+        return self.composites[-1]
 
     def reversed(self):
         return Transition(self._name + "⁻¹", self.composites[::-1])
@@ -252,15 +289,15 @@ class Transition:
         return Transition(swap_name(self._name), [c.swapped() for c in self.composites])
 
     def calculate_flip(self):
-        """ find the first non overlapping rectangle pair within parameters and
-            return it's index
+        """find the first non overlapping rectangle pair within parameters and
+        return it's index
         """
         # check if a phi was applied
         if self.phi():
 
             # check if rectangle a and b overlap
             def overlap(a, b):
-                return (a[L] < b[R] and a[R] > b[L] and a[T] < b[B] and a[B] > b[T])
+                return a[L] < b[R] and a[R] > b[L] and a[T] < b[B] and a[B] > b[T]
 
             # find the first non overlapping composite
             for i in range(self.frames() - 2):
@@ -272,9 +309,9 @@ class Transition:
         return None
 
     def calculate(self, frames, a_corner=(R, T), b_corner=(L, T)):
-        """ calculate a transition between the given composites which shall
-            have the given amount of frames. Use a_corner of frames in A and
-            b_corner of frames in B to interpolate the animation movement.
+        """calculate a transition between the given composites which shall
+        have the given amount of frames. Use a_corner of frames in A and
+        b_corner of frames in B to interpolate the animation movement.
         """
         if len(self.composites) != frames:
             num_keys = len(self.keys())
@@ -282,10 +319,10 @@ class Transition:
                 log.warning("Recalculating transition %s" % self.name())
                 self.composites = self.keys()
             # calculate that transition and place it into the dictonary
-            log.debug("Calculating transition %s\t= %s \t(%s key frames)" %
-                      (self.name(),
-                       " / ".join([c.name for c in self.composites]),
-                       num_keys))
+            log.debug(
+                "Calculating transition %s\t= %s \t(%s key frames)"
+                % (self.name(), " / ".join([c.name for c in self.composites]), num_keys)
+            )
 
             # extract two lists of frames for use with interpolate()
             a = [c.A() for c in self.composites]
@@ -310,43 +347,43 @@ class Transition:
             self.flip = self.calculate_flip()
 
     def keys(self):
-        """ return the indices of all key composites
-        """
+        """return the indices of all key composites"""
         return [i for i in self.composites if i.key()]
 
 
 def parse_asterisk(sequence, composites):
-    """ parses a string like '*/*' and returns all available variants with '*'
-        being replaced by composite names in 'composites'.
+    """parses a string like '*/*' and returns all available variants with '*'
+    being replaced by composite names in 'composites'.
     """
     sequences = []
     for k in range(len(sequence)):
         if sequence[k] == '*':
             for c in composites:
-                sequences += parse_asterisk(sequence[: k] +
-                                            [c.name] + sequence[k + 1:],
-                                            composites)
+                sequences += parse_asterisk(
+                    sequence[:k] + [c.name] + sequence[k + 1 :], composites
+                )
     if not sequences:
         sequences.append(sequence)
     return sequences
 
 
 def frange(x, y, jump):
-    """ like range() but for floating point values
-    """
+    """like range() but for floating point values"""
     while x < y:
         yield x
         x += jump
 
 
 def bspline(points):
-    """ do a B - Spline interpolation between the given points
-        returns interpolated points
+    """do a B - Spline interpolation between the given points
+    returns interpolated points
     """
     # for generating B-Splines
     from scipy import interpolate as spi
+
     # for converting arrays
     import numpy as np
+
     # parameter check
     assert type(points) is np.ndarray
     assert type(points[0]) is np.ndarray and len(points[0]) == 2
@@ -370,14 +407,14 @@ def bspline(points):
 
 
 def find_nearest(spline, points):
-    """ find indices in spline which are most near to the coordinates in points
-    """
+    """find indices in spline which are most near to the coordinates in points"""
     # for converting arrays
     import numpy as np
+
     nearest = []
     for p in points:
         # calculation lamba fn
-        distance = (spline[X] - p[X])**2 + (spline[Y] - p[Y])**2
+        distance = (spline[X] - p[X]) ** 2 + (spline[Y] - p[Y]) ** 2
         # get index of point with the minimum distance
         idx = np.where(distance == distance.min())
         nearest.append(idx[0][0])
@@ -386,8 +423,7 @@ def find_nearest(spline, points):
 
 
 def measure(points):
-    """ measure distances between every given 2D point and the first point
-    """
+    """measure distances between every given 2D point and the first point"""
     positions = [(0, 0, 0)]
     # enumerate between all points
     for i in range(1, len(points)):
@@ -407,26 +443,25 @@ def measure(points):
 
 
 def smooth(x):
-    """ smooth value x by using a cosinus wave (0.0 <= x <= 1.0)
-    """
+    """smooth value x by using a cosinus wave (0.0 <= x <= 1.0)"""
     return (-math.cos(math.pi * x) + 1) / 2
 
 
 def distribute(points, positions, begin, end, x0, x1, n):
-    """ from the sub set given by <points>[<begin>:<end>+1] selects <n> points
-        whose distances are smoothly distributed and returns them.
-        <poisitions> holds a list of distances between all <points> that will
-        be used for smoothing the distribution.
+    """from the sub set given by <points>[<begin>:<end>+1] selects <n> points
+    whose distances are smoothly distributed and returns them.
+    <poisitions> holds a list of distances between all <points> that will
+    be used for smoothing the distribution.
     """
     # for converting arrays
     import numpy as np
-    assert type(points) is np.ndarray
-    assert type(positions) is list
-    assert type(begin) is np.int64
-    assert type(end) is np.int64
-    assert type(x0) is float
-    assert type(x1) is float
-    assert type(n) is int
+    assert isinstance(points, np.ndarray)
+    assert isinstance(positions, list)
+    assert isinstance(begin, np.int64)
+    assert isinstance(end, np.int64)
+    assert isinstance(x0, float)
+    assert isinstance(x1, float)
+    assert isinstance(n, int)
     # calculate overall distance from begin to end
     length = positions[end - 1][V] - positions[begin][V]
     # begin result with the first point
@@ -455,8 +490,7 @@ def distribute(points, positions, begin, end, x0, x1, n):
 
 
 def fade(begin, end, factor):
-    """ return value within begin and end at < factor > (0.0..1.0)
-    """
+    """return value within begin and end at < factor > (0.0..1.0)"""
     # check if we got a bunch of values to morph
     if type(begin) in [list, tuple]:
         result = []
@@ -468,20 +502,22 @@ def fade(begin, end, factor):
         result = begin + (end - begin) * factor
     return result
 
+
 def morph(begin, end, pt, corner, factor):
-    """ interpolates a new frame between two given frames 'begin and 'end'
-        putting the given 'corner' of the new frame's rectangle to point 'pt'.
-        'factor' is the position bewteen begin (0.0) and end (1.0).
+    """interpolates a new frame between two given frames 'begin and 'end'
+    putting the given 'corner' of the new frame's rectangle to point 'pt'.
+    'factor' is the position bewteen begin (0.0) and end (1.0).
     """
     result = Frame()
     # calculate current size
     size = fade(begin.size(), end.size(), factor)
     # calculate current rectangle
-    result.rect = [pt[X] if corner[X] is L else int(round(pt[X] - size[X])),
-                   pt[Y] if corner[Y] is T else int(round(pt[Y] - size[Y])),
-                   pt[X] if corner[X] is R else int(round(pt[X] + size[X])),
-                   pt[Y] if corner[Y] is B else int(round(pt[Y] + size[Y])),
-                   ]
+    result.rect = [
+        pt[X] if corner[X] is L else int(round(pt[X] - size[X])),
+        pt[Y] if corner[Y] is T else int(round(pt[Y] - size[Y])),
+        pt[X] if corner[X] is R else int(round(pt[X] + size[X])),
+        pt[Y] if corner[Y] is B else int(round(pt[Y] + size[Y])),
+    ]
     # calculate current alpha value and cropping
     result.alpha = int(round(fade(begin.alpha, end.alpha, factor)))
     result.crop = [int(round(x)) for x in fade(begin.crop, end.crop, factor)]
@@ -489,12 +525,14 @@ def morph(begin, end, pt, corner, factor):
     result.original_size = begin.original_size
     return result
 
+
 def interpolate(key_frames, num_frames, corner):
-    """ interpolate < num_frames > points of one corner defined by < corner >
-        between the rectangles given by < key_frames >
+    """interpolate < num_frames > points of one corner defined by < corner >
+    between the rectangles given by < key_frames >
     """
     # for converting arrays
     import numpy as np
+
     # get corner points defined by index_x,index_y from rectangles
     corners = np.array([i.corner(corner[X], corner[Y]) for i in key_frames])
     # interpolate between corners and get the spline points and the indexes of
@@ -522,15 +560,20 @@ def interpolate(key_frames, num_frames, corner):
         _x1 = i / (len(corner_indices) - 1)
         # create distribution of points between these corners
         corner_animation = distribute(
-            spline, positions, begin, end, _x0, _x1, num_frames_per_move - 1)
+            spline, positions, begin, end, _x0, _x1, num_frames_per_move - 1
+        )
         # append first rectangle from parameters
         animation.append(key_frames[i - 1])
         # cound index
         for j in range(len(corner_animation)):
             # calculate current sinus wave acceleration
-            frame = morph(key_frames[i - 1], key_frames[i],
-                          corner_animation[j], corner,
-                          smooth(j / len(corner_animation)))
+            frame = morph(
+                key_frames[i - 1],
+                key_frames[i],
+                corner_animation[j],
+                corner,
+                smooth(j / len(corner_animation)),
+            )
             # append to resulting animation
             animation.append(frame)
     # append last rectangle from parameters
@@ -540,18 +583,18 @@ def interpolate(key_frames, num_frames, corner):
 
 
 def is_in(sequence, part):
-    """ returns true if 2-item list 'part' is in list 'sequence'
-    """
+    """returns true if 2-item list 'part' is in list 'sequence'"""
     assert len(part) == 2
     for i in range(0, len(sequence) - 1):
-        if sequence[i: i + 2] == part:
+        if sequence[i : i + 2] == part:
             return True
     return False
 
-def fade_alpha(frame,alpha,frames):
+
+def fade_alpha(frame, alpha, frames):
     result = []
-    for i in range(0,frames):
+    for i in range(0, frames):
         f = frame.duplicate()
-        f.alpha = fade(frame.alpha,alpha,smooth(float(i)/frames))
+        f.alpha = fade(frame.alpha, alpha, smooth(float(i) / frames))
         result.append(f)
     return result

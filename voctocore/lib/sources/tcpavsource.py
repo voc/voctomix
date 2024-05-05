@@ -14,10 +14,17 @@ ALL_VIDEO_CAPS = Gst.Caps.from_string('video/x-raw')
 class TCPAVSource(AVSource):
     timer_resolution = 0.5
 
-    def __init__(self, name, listen_port, has_audio=True, has_video=True,
-                 force_num_streams=None):
-        super().__init__('TCPAVSource', name, has_audio, has_video,
-                         force_num_streams, show_no_signal=True)
+    def __init__(
+        self, name, listen_port, has_audio=True, has_video=True, force_num_streams=None
+    ):
+        super().__init__(
+            'TCPAVSource',
+            name,
+            has_audio,
+            has_video,
+            force_num_streams,
+            show_no_signal=True,
+        )
 
         self.listen_port = listen_port
         self.tcpsrc = None
@@ -27,7 +34,7 @@ class TCPAVSource(AVSource):
         self.connected = False
 
     def port(self):
-        return"%s:%d" % (socket.gethostname(), self.listen_port)
+        return "%s:%d" % (socket.gethostname(), self.listen_port)
 
     def num_connections(self):
         if self.connected:
@@ -40,21 +47,23 @@ class TCPAVSource(AVSource):
         self.log.debug("connecting to pads")
 
         # create probe at static tcpserversrc.src to get EOS and trigger a restart
-        self.tcpsrc = pipeline.get_by_name(
-            'tcpsrc-{name}'.format(name=self.name))
+        self.tcpsrc = pipeline.get_by_name('tcpsrc-{name}'.format(name=self.name))
         self.tcpsrc.get_static_pad("src").add_probe(
-            Gst.PadProbeType.EVENT_DOWNSTREAM | Gst.PadProbeType.BLOCK, self.on_pad_event)
+            Gst.PadProbeType.EVENT_DOWNSTREAM | Gst.PadProbeType.BLOCK,
+            self.on_pad_event,
+        )
 
         # subscribe to creation of dynamic pads in matroskademux
-        self.demux = pipeline.get_by_name(
-            'demux-{name}'.format(name=self.name))
+        self.demux = pipeline.get_by_name('demux-{name}'.format(name=self.name))
         self.demux.connect('pad-added', self.on_pad_added)
 
         # remember queues the demux is connected to to reconnect them when necessary
         self.queue_audio = pipeline.get_by_name(
-            'queue-tcpsrc-audio-{name}'.format(name=self.name))
+            'queue-tcpsrc-audio-{name}'.format(name=self.name)
+        )
         self.queue_video = pipeline.get_by_name(
-            'queue-tcpsrc-video-{name}'.format(name=self.name))
+            'queue-tcpsrc-video-{name}'.format(name=self.name)
+        )
 
         self.src = pipeline.get_by_name('src-{name}'.format(name=self.name))
 
@@ -62,8 +71,11 @@ class TCPAVSource(AVSource):
         return 'TCPAVSource[{name}] listening at {listen} ({port})'.format(
             name=self.name,
             listen=self.port(),
-            port=self.tcpsrc.get_property(
-                "current-port") if self.tcpsrc else "<disconnected>"
+            port=(
+                self.tcpsrc.get_property("current-port")
+                if self.tcpsrc
+                else "<disconnected>"
+            ),
         )
 
     def build_source(self):
@@ -78,8 +90,7 @@ class TCPAVSource(AVSource):
             matroskademux
                 name=demux-{name}
             """.format(
-            name=self.name,
-            port=self.listen_port
+            name=self.name, port=self.listen_port
         )
 
         if deinterlacer:
@@ -90,8 +101,7 @@ class TCPAVSource(AVSource):
                     name=queue-tcpsrc-video-{name}
                 ! video/x-raw
                 ! {deinterlacer}""".format(
-                name=self.name,
-                deinterlacer=deinterlacer
+                name=self.name, deinterlacer=deinterlacer
             )
         return pipe
 
@@ -107,26 +117,32 @@ class TCPAVSource(AVSource):
         self.log.debug('demuxer added pad w/ caps: %s', caps.to_string())
 
         if self.has_audio and caps.can_intersect(ALL_AUDIO_CAPS):
-            self.log.debug('new demuxer-pad is an audio-pad, '
-                           'testing against configured audio-caps')
+            self.log.debug(
+                'new demuxer-pad is an audio-pad, '
+                'testing against configured audio-caps'
+            )
             if not caps.can_intersect(self.audio_caps):
-                self.log.warning('the incoming connection presented '
-                                 'an audio-stream that is not compatible '
-                                 'to the configured caps')
+                self.log.warning(
+                    'the incoming connection presented '
+                    'an audio-stream that is not compatible '
+                    'to the configured caps'
+                )
                 self.log.warning('   incoming caps:   %s', caps.to_string())
-                self.log.warning('   configured caps: %s',
-                                 self.audio_caps.to_string())
+                self.log.warning('   configured caps: %s', self.audio_caps.to_string())
 
         elif self.has_video and caps.can_intersect(ALL_VIDEO_CAPS):
-            self.log.debug('new demuxer-pad is a video-pad, '
-                           'testing against configured video-caps')
+            self.log.debug(
+                'new demuxer-pad is a video-pad, '
+                'testing against configured video-caps'
+            )
             if not caps.can_intersect(self.video_caps):
-                self.log.warning('the incoming connection presented '
-                                 'a video-stream that is not compatible '
-                                 'to the configured caps')
+                self.log.warning(
+                    'the incoming connection presented '
+                    'a video-stream that is not compatible '
+                    'to the configured caps'
+                )
                 self.log.warning('   incoming caps:   %s', caps.to_string())
-                self.log.warning('   configured caps: %s',
-                                 self.video_caps.to_string())
+                self.log.warning('   configured caps: %s', self.video_caps.to_string())
 
             self.test_and_warn_interlace_mode(caps)
 
@@ -155,16 +171,22 @@ class TCPAVSource(AVSource):
         return """
     ! queue
         max-size-time=3000000000
-        name=queue-{name}.audio""".format(name=self.name)
+        name=queue-{name}.audio""".format(
+            name=self.name
+        )
 
     def build_videoport(self):
         deinterlacer = self.build_deinterlacer()
         if deinterlacer:
             return """
-    deinter-{name}.""".format(name=self.name)
+    deinter-{name}.""".format(
+                name=self.name
+            )
         else:
             return """
-    demux-{name}.""".format(name=self.name)
+    demux-{name}.""".format(
+                name=self.name
+            )
 
     def test_and_warn_interlace_mode(self, caps):
         interlace_mode = caps.get_structure(0).get_string('interlace-mode')

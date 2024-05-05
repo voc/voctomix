@@ -20,14 +20,19 @@ class Blinder(object):
         self.volume = Config.getBlinderVolume()
         self.blindersources = Config.getBlinderSources()
 
-        self.log.info('Configuring video blinders for %u sources',
-                      len(self.blindersources))
+        self.log.info(
+            'Configuring video blinders for %u sources', len(self.blindersources)
+        )
 
         # open bin
-        self.bin = "" if Args.no_bins else """
+        self.bin = (
+            ""
+            if Args.no_bins
+            else """
             bin.(
                 name=blinders
                 """
+        )
 
         # list blinders
         self.livesources = Config.getLiveSources()
@@ -48,7 +53,9 @@ class Blinder(object):
                     max-size-time=3000000000
                     name=queue-video-{livesource}-compositor-blinder-{livesource}
                 ! compositor-blinder-{livesource}.
-                """.format(livesource=livesource)
+                """.format(
+                livesource=livesource
+            )
 
             for blindersource in self.blindersources:
                 self.bin += """
@@ -58,8 +65,7 @@ class Blinder(object):
                         name=queue-video-blinder-{blindersource}-compositor-blinder-{livesource}
                     ! compositor-blinder-{livesource}.
                     """.format(
-                    blindersource=blindersource,
-                    livesource=livesource
+                    blindersource=blindersource, livesource=livesource
                 )
 
         # Audiomixer
@@ -84,9 +90,9 @@ class Blinder(object):
                 max-size-time=3000000000
                 name=queue-audiomixer-blinder
             ! audiomixer-blinder.
-            """.format(acaps=self.acaps,
-                       volume=Config.getBlinderVolume()
-                       )
+            """.format(
+            acaps=self.acaps, volume=Config.getBlinderVolume()
+        )
 
         # Source from the Blank-Audio-Tee into the Audiomixer
         self.bin += """
@@ -111,10 +117,8 @@ class Blinder(object):
 
     def applyMixerState(self):
         for livesource in self.livesources:
-            self.applyMixerStateVideo(
-                'compositor-blinder-{}'.format(livesource))
-            self.applyMixerStateVideo(
-                'compositor-blinder-{}'.format(livesource))
+            self.applyMixerStateVideo('compositor-blinder-{}'.format(livesource))
+            self.applyMixerStateVideo('compositor-blinder-{}'.format(livesource))
         self.applyMixerStateAudio('audiomixer-blinder')
 
     def applyMixerStateVideo(self, mixername):
@@ -123,11 +127,11 @@ class Blinder(object):
             self.log.error("Video mixer '%s' not found", mixername)
         else:
             mixer.get_static_pad('sink_0').set_property(
-                'alpha', int(self.blind_source is None))
+                'alpha', int(self.blind_source is None)
+            )
             for idx, name in enumerate(self.blindersources):
                 blinder_pad = mixer.get_static_pad('sink_%u' % (idx + 1))
-                blinder_pad.set_property(
-                    'alpha', int(self.blind_source == idx))
+                blinder_pad.set_property('alpha', int(self.blind_source == idx))
 
     def applyMixerStateAudio(self, mixername):
         mixer = self.pipeline.get_by_name(mixername)
@@ -135,9 +139,11 @@ class Blinder(object):
             self.log.error("Audio mixer '%s' not found", mixername)
         else:
             mixer.get_static_pad('sink_0').set_property(
-                'volume', 1.0 if self.blind_source is None else 0.0)
+                'volume', 1.0 if self.blind_source is None else 0.0
+            )
             mixer.get_static_pad('sink_1').set_property(
-                'volume', 0.0 if self.blind_source is None else 1.0)
+                'volume', 0.0 if self.blind_source is None else 1.0
+            )
 
     def setBlindSource(self, source):
         self.blind_source = source

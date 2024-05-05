@@ -4,6 +4,7 @@ import re
 import sys
 
 from gi.repository import Gst
+
 # import library components
 from lib.args import Args
 from lib.audiomix import AudioMix
@@ -75,7 +76,8 @@ class Pipeline(object):
         for idx, background in enumerate(Config.getBackgroundSources()):
             # create background source
             source = spawn_source(
-                background, Port.SOURCES_BACKGROUND+idx, has_audio=False)
+                background, Port.SOURCES_BACKGROUND + idx, has_audio=False
+            )
             self.bins.append(source)
             self.ports.append(Port(background, source))
 
@@ -101,25 +103,26 @@ class Pipeline(object):
         if Config.getBlinderEnabled():
             sources = Config.getBlinderSources()
             if len(sources) < 1:
-                raise RuntimeError('At least one Blinder-Source must '
-                                   'be configured or the '
-                                   'Blinder disabled!')
+                raise RuntimeError(
+                    'At least one Blinder-Source must '
+                    'be configured or the '
+                    'Blinder disabled!'
+                )
             if Config.isBlinderDefault():
-                source = spawn_source('blinder',
-                                      Port.SOURCES_BLANK)
+                source = spawn_source('blinder', Port.SOURCES_BLANK)
                 self.bins.append(source)
                 self.ports.append(Port('blinder', source))
             else:
                 for idx, source_name in enumerate(sources):
-                    source = spawn_source(source_name,
-                                          Port.SOURCES_BLANK + idx,
-                                          has_audio=False)
+                    source = spawn_source(
+                        source_name, Port.SOURCES_BLANK + idx, has_audio=False
+                    )
                     self.bins.append(source)
                     self.ports.append(Port('blinded-{}'.format(source_name), source))
 
-                source = spawn_source('blinder',
-                                      Port.AUDIO_SOURCE_BLANK,
-                                      has_video=False)
+                source = spawn_source(
+                    'blinder', Port.AUDIO_SOURCE_BLANK, has_video=False
+                )
                 self.bins.append(source)
                 self.ports.append(Port('blinder-audio', source))
 
@@ -130,27 +133,38 @@ class Pipeline(object):
             # check for source preview selection
             if Config.getPreviewsEnabled():
                 for idx, livepreview in enumerate(Config.getLivePreviews()):
-                    dest = AVPreviewOutput('{}-blinded'.format(livepreview), Port.LIVE_PREVIEW+idx, use_audio_mix=True, audio_blinded=True)
+                    dest = AVPreviewOutput(
+                        '{}-blinded'.format(livepreview),
+                        Port.LIVE_PREVIEW + idx,
+                        use_audio_mix=True,
+                        audio_blinded=True,
+                    )
                     self.bins.append(dest)
-                    self.ports.append(Port('preview-{}-blinded'.format(livepreview), dest))
+                    self.ports.append(
+                        Port('preview-{}-blinded'.format(livepreview), dest)
+                    )
 
             for idx, livesource in enumerate(Config.getLiveSources()):
-                dest = AVRawOutput('{}-blinded'.format(livesource), Port.LIVE_OUT + idx, use_audio_mix=True, audio_blinded=True )
+                dest = AVRawOutput(
+                    '{}-blinded'.format(livesource),
+                    Port.LIVE_OUT + idx,
+                    use_audio_mix=True,
+                    audio_blinded=True,
+                )
                 self.bins.append(dest)
                 self.ports.append(Port('{}-blinded'.format(livesource), dest))
 
         # TODO test after 2.0 is released
-        #if Config.getLocalRecordingEnabled():
+        # if Config.getLocalRecordingEnabled():
         #    playout = LocalRecordingSink('mix', Port.LOCALPLAYOUT_OUT, use_audio_mix=True, audio_blinded=True)
         #    self.bins.append(playout)
         #    self.ports.append(Port('{}-playout'.format("mix"), playout))
 
         # TODO test after 2.0 is released
-        #if Config.getSRTServerEnabled():
+        # if Config.getSRTServerEnabled():
         #    playout = SRTServerSink('mix', Port.LOCALPLAYOUT_OUT, use_audio_mix=True, audio_blinded=True)
         #    self.bins.append(playout)
         #    self.ports.append(Port('{}-playout'.format("mix"), playout))
-
 
         for _bin in self.bins:
             self.log.info("%s\n%s", _bin, pretty(_bin.bin))
@@ -159,7 +173,7 @@ class Pipeline(object):
         pipeline = "\n\n".join(bin.bin for bin in self.bins)
 
         if Args.pipeline:
-            with open("core.pipeline.txt","w") as file:
+            with open("core.pipeline.txt", "w") as file:
                 file.write(pretty(pipeline))
 
         self.prevstate = None
@@ -184,8 +198,7 @@ class Pipeline(object):
         self.pipeline.bus.add_signal_watch()
         self.pipeline.bus.connect("message::eos", self.on_eos)
         self.pipeline.bus.connect("message::error", self.on_error)
-        self.pipeline.bus.connect(
-            "message::state-changed", self.on_state_changed)
+        self.pipeline.bus.connect("message::state-changed", self.on_state_changed)
 
         self.pipeline.set_state(Gst.State.PLAYING)
 
@@ -196,6 +209,7 @@ class Pipeline(object):
         def query(element):
             if re.match(regex, element.get_name()):
                 result.append(element)
+
         self.pipeline.iterate_recurse().foreach(query)
         return result
 
@@ -205,18 +219,27 @@ class Pipeline(object):
     def on_error(self, bus, message):
         (error, debug) = message.parse_error()
         self.log.debug(debug)
-        self.log.error("GStreamer pipeline element '%s' signaled an error #%u: %s" % (message.src.name, error.code, error.message) )
+        self.log.error(
+            "GStreamer pipeline element '%s' signaled an error #%u: %s"
+            % (message.src.name, error.code, error.message)
+        )
         sys.exit(-1)
 
     def on_state_changed(self, bus, message):
         newstate = message.parse_state_changed().newstate
         states = ["PENDING", "NULL", "READY", "PAUSED", "PLAYING"]
-        self.log.debug("element state changed to '%s' by element '%s'", states[newstate], message.src.name )
+        self.log.debug(
+            "element state changed to '%s' by element '%s'",
+            states[newstate],
+            message.src.name,
+        )
         if self.prevstate != newstate and message.src.name == "pipeline0":
             self.prevstate = newstate
-            self.log.debug("pipeline state changed to '%s'", states[newstate] )
+            self.log.debug("pipeline state changed to '%s'", states[newstate])
             if newstate == Gst.State.PLAYING:
-                self.log.info("\n\n====================== UP AN RUNNING ======================\n" )
+                self.log.info(
+                    "\n\n====================== UP AN RUNNING ======================\n"
+                )
 
             if Args.dot or Args.gst_debug_details:
                 # make DOT file from pipeline

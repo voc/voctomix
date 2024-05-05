@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import gi
+
 # import GStreamer and GLib-Helper classes
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gst', '1.0')
@@ -21,12 +22,18 @@ minPy = (3, 0)
 
 Gst.init([])
 if Gst.version() < minGst:
-    raise Exception('GStreamer version', Gst.version(),
-                    'is too old, at least', minGst, 'is required')
+    raise Exception(
+        'GStreamer version',
+        Gst.version(),
+        'is too old, at least',
+        minGst,
+        'is required',
+    )
 
 if sys.version_info < minPy:
-    raise Exception('Python version', sys.version_info,
-                    'is too old, at least', minPy, 'is required')
+    raise Exception(
+        'Python version', sys.version_info, 'is too old, at least', minPy, 'is required'
+    )
 
 Gdk.init([])
 Gtk.init([])
@@ -34,7 +41,9 @@ Gtk.init([])
 # select Awaita:Dark theme
 settings = Gtk.Settings.get_default()
 settings.set_property("gtk-theme-name", "Adwaita")
-settings.set_property("gtk-application-prefer-dark-theme", True)  # if you want use dark theme, set second arg to True
+settings.set_property(
+    "gtk-application-prefer-dark-theme", True
+)  # if you want use dark theme, set second arg to True
 
 
 # main class
@@ -46,7 +55,9 @@ class Voctogui(object):
         from lib.ui import Ui
 
         # Load UI file
-        path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ui/voctogui.ui')
+        path = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)), 'ui/voctogui.ui'
+        )
         self.log.info('Loading ui-file from file %s', path)
         if os.path.isfile(path):
             self.ui = Ui(path)
@@ -60,7 +71,9 @@ class Voctogui(object):
         css_provider = Gtk.CssProvider()
         context = Gtk.StyleContext()
 
-        path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ui/voctogui.css')
+        path = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)), 'ui/voctogui.css'
+        )
         self.log.info('Loading css-file from file %s', path)
         if os.path.isfile(path):
             css_provider.load_from_path(path)
@@ -68,9 +81,7 @@ class Voctogui(object):
             raise Exception("Can't find .css file '{}'".format(path))
 
         context.add_provider_for_screen(
-            Gdk.Screen.get_default(),
-            css_provider,
-            Gtk.STYLE_PROVIDER_PRIORITY_USER
+            Gdk.Screen.get_default(), css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER
         )
 
         self.ui.setup()
@@ -95,20 +106,27 @@ class Voctogui(object):
 def main():
     # parse command-line args
     from lib import args
+
     args.parse()
 
     from lib.args import Args
-    docolor = (Args.color == 'always') \
-        or (Args.color == 'auto' and sys.stderr.isatty())
+
+    docolor = (Args.color == 'always') or (Args.color == 'auto' and sys.stderr.isatty())
 
     from lib.loghandler import LogHandler
+
     handler = LogHandler(docolor, Args.timestamp)
     logging.root.addHandler(handler)
 
-    levels = { 3 : logging.DEBUG, 2 : logging.INFO, 1 : logging.WARNING, 0 : logging.ERROR }
+    levels = {3: logging.DEBUG, 2: logging.INFO, 1: logging.WARNING, 0: logging.ERROR}
     logging.root.setLevel(levels[Args.verbose])
 
-    gst_levels = { 3 : Gst.DebugLevel.DEBUG, 2 : Gst.DebugLevel.INFO, 1 : Gst.DebugLevel.WARNING, 0 : Gst.DebugLevel.ERROR }
+    gst_levels = {
+        3: Gst.DebugLevel.DEBUG,
+        2: Gst.DebugLevel.INFO,
+        1: Gst.DebugLevel.WARNING,
+        0: Gst.DebugLevel.ERROR,
+    }
     gst_log_messages(gst_levels[Args.gstreamer_log])
 
     # make killable by ctrl-c
@@ -120,12 +138,14 @@ def main():
 
     logging.debug('loading Config')
     from lib import config
+
     config.load()
 
     from lib.config import Config
 
     # establish a synchronus connection to server
     import lib.connection as Connection
+
     Connection.establish(Config.getHost())
 
     # fetch config from server
@@ -135,16 +155,14 @@ def main():
     # The list-comparison is not complete
     # (one could use a local hostname or the local system ip),
     # but it's only here to warn that one might be making a mistake
-    localhosts = ['::1',
-                  '127.0.0.1',
-                  'localhost']
+    localhosts = ['::1', '127.0.0.1', 'localhost']
     if not Config.getPreviewsEnabled() and Config.getHost() not in localhosts:
         logging.warning(
             'Connecting to `%s` (which looks like a remote host) '
             'might not work without enabeling the preview encoders '
             '(set `[previews] enabled=true` on the core) or it might saturate '
             'your ethernet link between the two machines.',
-            Config.getHost()
+            Config.getHost(),
         )
 
     import lib.connection as Connection

@@ -13,15 +13,14 @@ class SetStoreFetchValueTest(CommandsTestBase):
 
     def test_store_json_value(self):
         response = self.commands.store_value(
-            'somekey',
-            '{"json": ["rigid", "better for data interchange"]}')
+            'somekey', '{"json": ["rigid", "better for data interchange"]}'
+        )
 
         self.assertIsInstance(response, NotifyResponse)
-        self.assertEqual(response.args, (
-            'value',
-            'somekey',
-            '{"json": ["rigid", "better for data interchange"]}'
-        ))
+        self.assertEqual(
+            response.args,
+            ('value', 'somekey', '{"json": ["rigid", "better for data interchange"]}'),
+        )
 
     def test_retrieve_value(self):
         self.commands.store_value('somekey', 'some-value')

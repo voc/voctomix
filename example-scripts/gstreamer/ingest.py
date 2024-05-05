@@ -35,17 +35,20 @@ import voctogui.lib.connection as Connection
 def mk_video_src(args, videocaps):
     # make video soure part of pipeline
 
-    video_device = "device={}".format(args.video_dev) \
-        if args.video_dev else ""
+    video_device = "device={}".format(args.video_dev) if args.video_dev else ""
 
-    monitor = """
+    monitor = (
+        """
         tee name=t !
         queue !
         videoconvert !
         fpsdisplaysink sync=false
 
         t. ! queue !
-    """ if args.monitor else ""
+    """
+        if args.monitor
+        else ""
+    )
 
     if args.video_source == 'dv':
         video_src = """
@@ -122,8 +125,7 @@ def mk_video_src(args, videocaps):
 
 
 def mk_audio_src(args, audiocaps):
-    audio_device = "device={}".format(args.audio_dev) \
-        if args.audio_dev else ""
+    audio_device = "device={}".format(args.audio_dev) if args.audio_dev else ""
 
     if args.audio_source in ['dv', 'hdv']:
         # this only works if video is from DV also.
@@ -136,12 +138,16 @@ def mk_audio_src(args, audiocaps):
     elif args.audio_source == 'pulse':
         audio_src = """
             pulsesrc {audio_device} name=audiosrc !
-        """.format(audio_device=audio_device)
+        """.format(
+            audio_device=audio_device
+        )
 
     elif args.audio_source == 'alsa':
         audio_src = """
             alsasrc {audio_device} name=audiosrc !
-        """.format(audio_device=audio_device)
+        """.format(
+            audio_device=audio_device
+        )
 
     elif args.audio_source == 'blackmagichdmi':
         audio_src = """
@@ -169,7 +175,9 @@ def mk_client(args):
     core_ip = socket.gethostbyname(args.host)
     client = """
         tcpclientsink host={host} port={port}
-    """.format(host=core_ip, port=args.port)
+    """.format(
+        host=core_ip, port=args.port
+    )
 
     return client
 
@@ -191,8 +199,10 @@ def mk_pipeline(args, server_caps):
 def get_server_caps():
     # fetch config from server
     server_config = Connection.fetchServerConfig()
-    server_caps = {'videocaps': server_config['mix']['videocaps'],
-                   'audiocaps': server_config['mix']['audiocaps']}
+    server_caps = {
+        'videocaps': server_config['mix']['videocaps'],
+        'audiocaps': server_config['mix']['audiocaps'],
+    }
 
     return server_caps
 
@@ -250,43 +260,53 @@ def get_args():
         '''
     )
 
-    parser.add_argument('-v', '--verbose', action='count', default=0,
-                        help="Also print INFO and DEBUG messages.")
+    parser.add_argument(
+        '-v',
+        '--verbose',
+        action='count',
+        default=0,
+        help="Also print INFO and DEBUG messages.",
+    )
 
-    parser.add_argument('--video-source', action='store',
-                        choices=['dv', 'hdv', 'hdmi2usb',
-                                 'blackmagichdmi', 'ximage', 'test'],
-                        default='test',
-                        help="Where to get video from")
+    parser.add_argument(
+        '--video-source',
+        action='store',
+        choices=['dv', 'hdv', 'hdmi2usb', 'blackmagichdmi', 'ximage', 'test'],
+        default='test',
+        help="Where to get video from",
+    )
 
-    parser.add_argument('--video-dev', action='store',
-                        help="video device")
+    parser.add_argument('--video-dev', action='store', help="video device")
 
-    parser.add_argument('--audio-source', action='store',
-                        choices=['dv', 'alsa', 'pulse',
-                                 'blackmagichdmi', 'test'],
-                        default='test',
-                        help="Where to get audio from")
+    parser.add_argument(
+        '--audio-source',
+        action='store',
+        choices=['dv', 'alsa', 'pulse', 'blackmagichdmi', 'test'],
+        default='test',
+        help="Where to get audio from",
+    )
 
     # maybe hw:1,0
-    parser.add_argument('--audio-dev', action='store',
-                        default='hw:CARD=CODEC',
-                        help="for alsa/pulse, audio device")
+    parser.add_argument(
+        '--audio-dev',
+        action='store',
+        default='hw:CARD=CODEC',
+        help="for alsa/pulse, audio device",
+    )
 
-    parser.add_argument('--audio-delay', action='store',
-                        default='10',
-                        help="ms to delay audio")
+    parser.add_argument(
+        '--audio-delay', action='store', default='10', help="ms to delay audio"
+    )
 
-    parser.add_argument('-m', '--monitor', action='store_true',
-                        help="fps display sink")
+    parser.add_argument('-m', '--monitor', action='store_true', help="fps display sink")
 
-    parser.add_argument('--host', action='store',
-                        default='localhost',
-                        help="hostname of vocto core")
+    parser.add_argument(
+        '--host', action='store', default='localhost', help="hostname of vocto core"
+    )
 
-    parser.add_argument('--port', action='store',
-                        default='10000',
-                        help="port of vocto core")
+    parser.add_argument(
+        '--port', action='store', default='10000', help="port of vocto core"
+    )
 
     args = parser.parse_args()
 

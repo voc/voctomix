@@ -2,8 +2,9 @@
 from gi.repository import Gtk
 import sys
 
+
 def _decode(text, multiline=True):
-    ''' decode multiline text '''
+    '''decode multiline text'''
     if multiline:
         text = text.replace('\\n', '\n')
     else:
@@ -12,31 +13,30 @@ def _decode(text, multiline=True):
 
 
 class Widgets(dict):
-    ''' reads widget setup from configuration from INI file.
-        shall look like this:
+    '''reads widget setup from configuration from INI file.
+    shall look like this:
 
-        myitem.name = My Item
-        myitem.key = <Shift>F1
-        myitem.tip = Some tooltip text
+    myitem.name = My Item
+    myitem.key = <Shift>F1
+    myitem.tip = Some tooltip text
 
-        'myitem' will be the ID of the item used to identify the button.
-        'name' is an optional attribute which replaces the item ID in the button label
-        'tip' is an optional attribute which will be used for a tool tip message
+    'myitem' will be the ID of the item used to identify the button.
+    'name' is an optional attribute which replaces the item ID in the button label
+    'tip' is an optional attribute which will be used for a tool tip message
 
-        additional some attributes will be added automatically:
+    additional some attributes will be added automatically:
 
-        'id' is a copy of the ID within the attributes
-        'button' is the created button instance
+    'id' is a copy of the ID within the attributes
+    'button' is the created button instance
 
-        an extra member 'ids' becomes a list of all available IDs
+    an extra member 'ids' becomes a list of all available IDs
     '''
 
     def __init__(self, cfg_items, listname="widgets"):
         # read all config items with their attributes
         self.ids = []
         if cfg_items:
-            filter = cfg_items[listname].split(
-                ',') if listname in cfg_items else None
+            filter = cfg_items[listname].split(',') if listname in cfg_items else None
             for cfg_name, cfg_value in cfg_items.items():
                 if cfg_name != listname:
                     id, attr = cfg_name.rsplit('.', 1)
@@ -47,7 +47,18 @@ class Widgets(dict):
                             self[id]['id'] = id
                         self[id][attr] = cfg_value
 
-    def add(self, widget, id, accelerators=None, callback=None, signal='clicked', css=[], sensitive=True, visible=True, multiline_names=True):
+    def add(
+        self,
+        widget,
+        id,
+        accelerators=None,
+        callback=None,
+        signal='clicked',
+        css=[],
+        sensitive=True,
+        visible=True,
+        multiline_names=True,
+    ):
         # set button properties
         widget.set_can_focus(False)
         widget.set_sensitive(sensitive)
@@ -83,14 +94,13 @@ class Widgets(dict):
             # set accelerator key and tooltip
             if accelerators and 'key' in attr:
                 key, mod = Gtk.accelerator_parse(attr['key'])
-                widget.set_tooltip_text(
-                    "%s\nKey: '%s'" % (tip, attr['key'].upper()))
+                widget.set_tooltip_text("%s\nKey: '%s'" % (tip, attr['key'].upper()))
                 # @HACK: found no explanation why ToolItems must attach their
                 # accelerators to the child window
-                w = widget.get_child() if isinstance(widget,Gtk.ToolItem) else widget
+                w = widget.get_child() if isinstance(widget, Gtk.ToolItem) else widget
                 w.add_accelerator(
-                    'clicked', accelerators,
-                    key, mod, Gtk.AccelFlags.VISIBLE)
+                    'clicked', accelerators, key, mod, Gtk.AccelFlags.VISIBLE
+                )
             else:
                 widget.set_tooltip_text(tip)
 

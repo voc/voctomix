@@ -28,8 +28,11 @@ class AudioStreams(list):
                 for i, channel in enumerate(set(t.split("+"))):
                     name = source if use_source_as_name else r.group(1)
                     if self.has_stream(name):
-                        log.error("input audio stream name '%s' can't be addressed a second time within source '%s'",
-                                  name, source)
+                        log.error(
+                            "input audio stream name '%s' can't be addressed a second time within source '%s'",
+                            name,
+                            source,
+                        )
                     else:
                         audiostreams.append(AudioStream(source, i, name, channel))
         self.extend(audiostreams)
@@ -45,7 +48,12 @@ class AudioStreams(list):
         result = ""
         for index, audio_stream in enumerate(self):
             result += "mix.%d: %s.%d = %s.%d\n" % (
-                index, audio_stream.name, audio_stream.channel, audio_stream.source, audio_stream.source_channel)
+                index,
+                audio_stream.name,
+                audio_stream.channel,
+                audio_stream.source,
+                audio_stream.source_channel,
+            )
         return result
 
     def source_channels(self, source):
@@ -55,7 +63,11 @@ class AudioStreams(list):
         :return:
         """
         # collect source's channels into a set and count them
-        return [audio_stream.source_channel for audio_stream in self if audio_stream.source == source]
+        return [
+            audio_stream.source_channel
+            for audio_stream in self
+            if audio_stream.source == source
+        ]
 
     def num_channels(self, source, grid=[x for x in range(0, 255)]):
         """
@@ -74,7 +86,9 @@ class AudioStreams(list):
             result += 1
         return result
 
-    def matrix(self, source, stream=None, out_channels=None, grid=[x for x in range(0, 255)]):
+    def matrix(
+        self, source, stream=None, out_channels=None, grid=[x for x in range(0, 255)]
+    ):
         """
         Return matrix that maps in to out channels of <source>.
             Filter by <stream> if given.
@@ -94,8 +108,13 @@ class AudioStreams(list):
             # build result row based on number of channels in that source
             for ch in range(0, self.num_channels(source, grid)):
                 # map source channels to out channels
-                row.append(1.0 if audio_stream.source == source and audio_stream.source_channel == ch and (
-                        stream is None or stream == audio_stream.name) else 0.0)
+                row.append(
+                    1.0
+                    if audio_stream.source == source
+                    and audio_stream.source_channel == ch
+                    and (stream is None or stream == audio_stream.name)
+                    else 0.0
+                )
             result.append(row)
         # if out channels are given
         if out_channels:
@@ -104,8 +123,9 @@ class AudioStreams(list):
                 log.error("too many audio channels in source %s", source)
             else:
                 # append rows up to out_channels
-                result += [[0.0] *
-                           self.num_channels(source, grid)] * (out_channels - len(result))
+                result += [[0.0] * self.num_channels(source, grid)] * (
+                    out_channels - len(result)
+                )
         return result
 
     def get_source_streams(self, source):

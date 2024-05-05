@@ -34,11 +34,11 @@ class Source(object):
 
             matroskamux name=mux !
             tcpclientsink host={IP} port=10000
-        """.format_map(settings)
+        """.format_map(
+            settings
+        )
 
-        self.clock = GstNet.NetClientClock.new('voctocore',
-                                               settings['IP'], 9998,
-                                               0)
+        self.clock = GstNet.NetClientClock.new('voctocore', settings['IP'], 9998, 0)
         print('obtained NetClientClock from host', self.clock)
 
         print('waiting for NetClientClock to sync…')
@@ -86,8 +86,11 @@ def main():
     settings = {}
 
     for prefix in ['default-', '']:
-        config = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                              '..', '{}config.sh'.format(prefix))
+        config = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            '..',
+            '{}config.sh'.format(prefix),
+        )
         if not os.path.exists(config):
             continue
 
@@ -97,10 +100,12 @@ def main():
             for pair in pairs:
                 settings[pair[0]] = pair[1]
 
-    if not ('FRAMERATE' in settings and
-            'WIDTH' in settings and
-            'HEIGHT' in settings and
-            'AUDIORATE' in settings):
+    if not (
+        'FRAMERATE' in settings
+        and 'WIDTH' in settings
+        and 'HEIGHT' in settings
+        and 'AUDIORATE' in settings
+    ):
         print("Config needs: FRAMERATE, WIDTH, HEIGHT, and AUDIORATE")
         return
 

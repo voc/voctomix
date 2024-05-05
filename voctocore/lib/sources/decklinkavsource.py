@@ -11,7 +11,9 @@ class DeckLinkAVSource(AVSource):
     timer_resolution = 0.5
 
     def __init__(self, name, has_audio=True, has_video=True):
-        super().__init__('DecklinkAVSource', name, has_audio, has_video, show_no_signal=True)
+        super().__init__(
+            'DecklinkAVSource', name, has_audio, has_video, show_no_signal=True
+        )
 
         self.device = Config.getDeckLinkDeviceNumber(name)
         self.aconn = Config.getDeckLinkAudioConnection(name)
@@ -28,8 +30,7 @@ class DeckLinkAVSource(AVSource):
 
     def attach(self, pipeline):
         super().attach(pipeline)
-        self.signalPad = pipeline.get_by_name(
-            'decklinkvideosrc-{}'.format(self.name))
+        self.signalPad = pipeline.get_by_name('decklinkvideosrc-{}'.format(self.name))
 
     def num_connections(self):
         return 1 if self.signalPad and self.signalPad.get_property('signal') else 0
@@ -39,8 +40,7 @@ class DeckLinkAVSource(AVSource):
 
     def __str__(self):
         return 'DecklinkAVSource[{name}] reading card #{device}'.format(
-            name=self.name,
-            device=self.device
+            name=self.name, device=self.device
         )
 
     def build_source(self):
@@ -52,12 +52,13 @@ class DeckLinkAVSource(AVSource):
                 connection={conn}
                 video-format={fmt}
                 mode={mode}
-            """.format(name=self.name,
-                       device=self.device,
-                       conn=self.vconn,
-                       mode=self.vmode,
-                       fmt=self.vfmt
-                       )
+            """.format(
+            name=self.name,
+            device=self.device,
+            conn=self.vconn,
+            mode=self.vmode,
+            fmt=self.vfmt,
+        )
 
         # add rest of the video pipeline
         if self.has_video:
@@ -65,7 +66,9 @@ class DeckLinkAVSource(AVSource):
             if self.build_deinterlacer():
                 pipe += """\
                     ! {deinterlacer}
-                    """.format(deinterlacer=self.build_deinterlacer())
+                    """.format(
+                    deinterlacer=self.build_deinterlacer()
+                )
 
             pipe += """\
                 ! videoconvert
@@ -73,8 +76,7 @@ class DeckLinkAVSource(AVSource):
                 ! videorate
                     name=vout-{name}
                 """.format(
-                deinterlacer=self.build_deinterlacer(),
-                name=self.name
+                deinterlacer=self.build_deinterlacer(), name=self.name
             )
         else:
             pipe += """\
@@ -88,10 +90,12 @@ class DeckLinkAVSource(AVSource):
                     device-number={device}
                     connection={conn}
                     channels={channels}
-                """.format(name=self.name,
-                           device=self.device,
-                           conn=self.aconn,
-                           channels=self.internal_audio_channels())
+                """.format(
+                name=self.name,
+                device=self.device,
+                conn=self.aconn,
+                channels=self.internal_audio_channels(),
+            )
 
         return pipe
 

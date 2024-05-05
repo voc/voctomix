@@ -9,10 +9,8 @@ from lib.sources.avsource import AVSource
 
 
 class TestSource(AVSource):
-    def __init__(self, name, has_audio=True, has_video=True,
-                 force_num_streams=None):
-        super().__init__('TestSource', name, has_audio, has_video,
-                         force_num_streams)
+    def __init__(self, name, has_audio=True, has_video=True, force_num_streams=None):
+        super().__init__('TestSource', name, has_audio, has_video, force_num_streams)
 
         self.name = name
         self.pattern = Config.getTestPattern(name)
@@ -35,9 +33,7 @@ class TestSource(AVSource):
 
     def __str__(self):
         return 'TestSource[{name}] ({pattern}, {wave})'.format(
-            name=self.name,
-            pattern=self.pattern,
-            wave=self.wave
+            name=self.name, pattern=self.pattern, wave=self.wave
         )
 
     def build_audioport(self):
@@ -59,6 +55,5 @@ class TestSource(AVSource):
                       do-timestamp=true
                       pattern={pattern}
                       is-live=true""".format(
-            name=self.name,
-            pattern=self.pattern
+            name=self.name, pattern=self.pattern
         )

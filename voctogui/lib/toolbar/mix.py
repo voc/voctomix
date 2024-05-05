@@ -27,8 +27,7 @@ class MixToolbarController(object):
 
         self.toolbar = uibuilder.find_widget_recursive(win, 'toolbar_mix')
 
-        self.mix.create(self.toolbar, accelerators,
-                        self.on_btn_clicked, radio=False)
+        self.mix.create(self.toolbar, accelerators, self.on_btn_clicked, radio=False)
         Connection.on('best', self.on_best)
 
     def on_btn_clicked(self, btn):
@@ -36,7 +35,7 @@ class MixToolbarController(object):
 
         # on transition hide overlay if AUTO-OFF is on
         if self.overlay_controller.isAutoOff() and id != 'retake':
-            Connection.send('show_overlay',str(False))
+            Connection.send('show_overlay', str(False))
 
         command = self.preview_controller.command()
         output = self.preview_controller.output
@@ -44,20 +43,29 @@ class MixToolbarController(object):
             output.B = command.B
         if command.B == output.B and command.A != output.A:
             output.A = command.A
-        self.preview_controller.set_command(output,False)
+        self.preview_controller.set_command(output, False)
         if id == 'cut':
             self.log.info('Sending new composite: %s', command)
             Connection.send('cut', str(command))
         elif id == 'trans':
-            self.log.info(
-                'Sending new composite (using transition): %s', command)
+            self.log.info('Sending new composite (using transition): %s', command)
             Connection.send('transition', str(command))
         else:
             Connection.send('get_composite')
-        if "retake" in self.mix: self.mix['retake']['button'].set_sensitive(self.preview_controller.command() != self.preview_controller.output)
+        if "retake" in self.mix:
+            self.mix['retake']['button'].set_sensitive(
+                self.preview_controller.command() != self.preview_controller.output
+            )
 
     def on_best(self, best, targetA, targetB):
         command = self.preview_controller.command()
-        if "retake" in self.mix: self.mix['retake']['button'].set_sensitive(command != self.preview_controller.output)
-        if "trans" in self.mix: self.mix['trans']['button'].set_sensitive(best == "transition")
-        if "cut" in self.mix: self.mix['cut']['button'].set_sensitive((best == "transition" or best == "cut"))
+        if "retake" in self.mix:
+            self.mix['retake']['button'].set_sensitive(
+                command != self.preview_controller.output
+            )
+        if "trans" in self.mix:
+            self.mix['trans']['button'].set_sensitive(best == "transition")
+        if "cut" in self.mix:
+            self.mix['cut']['button'].set_sensitive(
+                (best == "transition" or best == "cut")
+            )

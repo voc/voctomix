@@ -17,15 +17,18 @@ class AudioMix(object):
         # initialize all sources to silent
         self.volumes = [1.0] * len(self.streams)
 
-        self.log.info('Configuring audio mixer for %u streams',
-                      len(self.streams))
+        self.log.info('Configuring audio mixer for %u streams', len(self.streams))
 
         self.mix_volume = 1.0
 
-        self.bin = "" if Args.no_bins else """
+        self.bin = (
+            ""
+            if Args.no_bins
+            else """
             bin.(
                 name=AudioMix
             """
+        )
 
         matrix = Config.getAudioMixMatrix()
         self.bin += """
@@ -44,9 +47,11 @@ class AudioMix(object):
                 name=queue-audio-mix
             ! tee
                 name=audio-mix
-            """.format(in_channels=len(matrix[0]),
-                       out_channels=len(matrix),
-                       matrix=str(matrix).replace("[","<").replace("]",">"))
+            """.format(
+            in_channels=len(matrix[0]),
+            out_channels=len(matrix),
+            matrix=str(matrix).replace("[", "<").replace("]", ">"),
+        )
 
         for stream in self.streams:
             self.bin += """
@@ -55,7 +60,9 @@ class AudioMix(object):
                     max-size-time=3000000000
                     name=queue-audio-{stream}
                 ! audiomixer.
-                """.format(stream=stream)
+                """.format(
+                stream=stream
+            )
         self.bin += "" if Args.no_bins else "\n)"
 
     def attach(self, pipeline):
@@ -83,8 +90,7 @@ class AudioMix(object):
             mixerpad.set_property('volume', volume)
 
     def setAudioSource(self, source):
-        self.volumes = [float(idx == source)
-                        for idx in range(len(self.sources))]
+        self.volumes = [float(idx == source) for idx in range(len(self.sources))]
         self.updateMixerState()
 
     def setAudioSourceVolume(self, stream, volume):

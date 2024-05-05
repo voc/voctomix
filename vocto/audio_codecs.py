@@ -10,19 +10,20 @@ gi.require_version('GstController', '1.0')
 log = logging.getLogger('audio_codecs')
 
 # list of supported audio codecs as named by gst
-encoders = {'fdkaacenc',
-            'avenc_aac',
-            'avdec_mp3',
-            'flacenc',
-            'wavenc',
-            'opus',
-            'avenc_mp3',
-            'lame'
-            'avenc_s302m'}
+encoders = {
+    'fdkaacenc',
+    'avenc_aac',
+    'avdec_mp3',
+    'flacenc',
+    'wavenc',
+    'opus',
+    'avenc_mp3',
+    'lame' 'avenc_s302m',
+}
 
 
 def create_mixmatrix(in_channels: int, out_channels: int, channel_mapping: str):
-    """ create a audiomixmatrix pipeline block from a givin channel mapping
+    """create a audiomixmatrix pipeline block from a givin channel mapping
     :param in_channels: number of input channels
     :param out_channels: number of output channels
     :param channel_mapping: mapping for output channel map
@@ -30,8 +31,7 @@ def create_mixmatrix(in_channels: int, out_channels: int, channel_mapping: str):
     """
 
     # create matrix filled with 0.0 (all channels muted)
-    matrix = [[0.0 for x in range(0, in_channels)]
-              for x in range(0, out_channels)]
+    matrix = [[0.0 for x in range(0, in_channels)] for x in range(0, out_channels)]
 
     # apply channel map to matrix
     mappings = channel_mapping.split(';')
@@ -43,10 +43,11 @@ def create_mixmatrix(in_channels: int, out_channels: int, channel_mapping: str):
                in_channels={in_channels}
                out_channels={out_channels}
                matrix="{matrix}"
-               """.format(in_channels=in_channels,
-                          out_channels=out_channels,
-                          matrix=str(matrix).replace("[", "<").replace("]", ">")
-                          )
+               """.format(
+        in_channels=in_channels,
+        out_channels=out_channels,
+        matrix=str(matrix).replace("[", "<").replace("]", ">"),
+    )
     return pipeline
 
 
@@ -66,11 +67,15 @@ def construct_audio_encoder_pipeline(section):
     if encoder in encoders:
         pipeline += """! audioconvert
                            {mixmatrix} ! {encoder} ! {acaps}
-                    """.format(mixmatrix=create_mixmatrix(Config.getAudioChannels(),
-                                                          Config.get_sink_audio_channels(section),
-                                                          Config.get_sink_audio_map(section)),
-                               encoder=encoder,
-                               acaps=Config.getAudioCaps(section))
+                    """.format(
+            mixmatrix=create_mixmatrix(
+                Config.getAudioChannels(),
+                Config.get_sink_audio_channels(section),
+                Config.get_sink_audio_map(section),
+            ),
+            encoder=encoder,
+            acaps=Config.getAudioCaps(section),
+        )
     else:
         log.error("Unknown audio encoder {}".format(encoder))
         sys.exit(-1)

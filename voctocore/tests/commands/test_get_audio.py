@@ -14,8 +14,6 @@ class GetAudioTest(CommandsTestBase):
 
         self.assertIsInstance(response, OkResponse)
         self.assertEqual(response.args, ('audio_status', ANY))
-        self.assertEqual(json.loads(response.args[1]), {
-            "cam1": 1.0,
-            "cam2": 0.0,
-            "grabber": 0.25
-        })
+        self.assertEqual(
+            json.loads(response.args[1]), {"cam1": 1.0, "cam2": 0.0, "grabber": 0.25}
+        )

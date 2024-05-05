@@ -15,6 +15,6 @@ class CommandsTestBase(VoctomixTest):
         self.assertTrue(
             any(n.args == args for n in notifications),
             msg="Expected notifications {} to contain '{}'".format(
-                [str(n) for n in notifications],
-                ' '.join(args)
-            ))
+                [str(n) for n in notifications], ' '.join(args)
+            ),
+        )

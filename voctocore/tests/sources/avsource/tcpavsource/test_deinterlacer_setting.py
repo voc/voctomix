@@ -15,18 +15,24 @@ class AudiomixMultipleSources(VoctomixTest):
 
         Config.given("mix", "videocaps", "video/x-raw")
 
-        self.source = TCPAVSource('cam1', 42, ['test_mixer', 'test_preview'], has_audio=True, has_video=True)
+        self.source = TCPAVSource(
+            'cam1', 42, ['test_mixer', 'test_preview'], has_audio=True, has_video=True
+        )
         self.mock_fp = MagicMock(spec=io.IOBase)
 
     def test_unconfigured_does_not_add_a_deinterlacer(self):
         pipeline = self.simulate_connection_and_aquire_pipeline_description()
-        self.assertContainsIgnoringWhitespace(pipeline, "demux. ! video/x-raw ! queue ! tee name=vtee")
+        self.assertContainsIgnoringWhitespace(
+            pipeline, "demux. ! video/x-raw ! queue ! tee name=vtee"
+        )
 
     def test_no_does_not_add_a_deinterlacer(self):
         Config.given("source.cam1", "deinterlace", "no")
 
         pipeline = self.simulate_connection_and_aquire_pipeline_description()
-        self.assertContainsIgnoringWhitespace(pipeline, "demux. ! video/x-raw ! queue ! tee name=vtee")
+        self.assertContainsIgnoringWhitespace(
+            pipeline, "demux. ! video/x-raw ! queue ! tee name=vtee"
+        )
 
     def test_yes_does_add_yadif(self):
         Config.given("source.cam1", "deinterlace", "yes")
@@ -34,7 +40,8 @@ class AudiomixMultipleSources(VoctomixTest):
         pipeline = self.simulate_connection_and_aquire_pipeline_description()
         self.assertContainsIgnoringWhitespace(
             pipeline,
-            "demux. ! video/x-raw ! videoconvert ! yadif mode=interlaced name=deinter")
+            "demux. ! video/x-raw ! videoconvert ! yadif mode=interlaced name=deinter",
+        )
 
     def test_assume_progressive_does_add_capssetter(self):
         Config.given("source.cam1", "deinterlace", "assume-progressive")
@@ -42,7 +49,7 @@ class AudiomixMultipleSources(VoctomixTest):
         pipeline = self.simulate_connection_and_aquire_pipeline_description()
         self.assertContainsIgnoringWhitespace(
             pipeline,
-            "demux. ! video/x-raw ! capssetter caps=video/x-raw,interlace-mode=progressive name=deinter"
+            "demux. ! video/x-raw ! capssetter caps=video/x-raw,interlace-mode=progressive name=deinter",
         )
 
     def simulate_connection_and_aquire_pipeline_description(self):

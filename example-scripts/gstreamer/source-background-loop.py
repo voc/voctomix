@@ -25,7 +25,9 @@ class LoopSource(object):
                 framerate={FRAMERATE}/1,pixel-aspect-ratio=1/1 !
             matroskamux !
             tcpclientsink host=localhost port=16000
-        """.format_map(settings)
+        """.format_map(
+            settings
+        )
 
         print('starting pipeline ' + pipeline)
         self.senderPipeline = Gst.parse_launch(pipeline)
@@ -42,13 +44,13 @@ class LoopSource(object):
     def on_eos(self, bus, message):
         print('Received EOS-Signal, Seeking to start')
         self.src.seek(
-            1.0,                 # rate (float)
-            Gst.Format.TIME,     # format (Gst.Format)
+            1.0,  # rate (float)
+            Gst.Format.TIME,  # format (Gst.Format)
             Gst.SeekFlags.FLUSH,  # flags (Gst.SeekFlags)
-            Gst.SeekType.SET,    # start_type (Gst.SeekType)
-            0,                   # start (int)
-            Gst.SeekType.NONE,   # stop_type (Gst.SeekType)
-            0                    # stop (int)
+            Gst.SeekType.SET,  # start_type (Gst.SeekType)
+            0,  # start (int)
+            Gst.SeekType.NONE,  # stop_type (Gst.SeekType)
+            0,  # stop (int)
         )
 
     def on_error(self, bus, message):
@@ -64,8 +66,11 @@ def main():
     settings = {}
 
     for prefix in ['default-', '']:
-        config = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                              '..', '{}config.sh'.format(prefix))
+        config = os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            '..',
+            '{}config.sh'.format(prefix),
+        )
         if not os.path.exists(config):
             continue
 
@@ -75,9 +80,7 @@ def main():
             for pair in pairs:
                 settings[pair[0]] = pair[1]
 
-    if not ('FRAMERATE' in settings and
-            'WIDTH' in settings and
-            'HEIGHT' in settings):
+    if not ('FRAMERATE' in settings and 'WIDTH' in settings and 'HEIGHT' in settings):
         print("Config needs: FRAMERATE, WIDTH, and HEIGHT")
         return
 

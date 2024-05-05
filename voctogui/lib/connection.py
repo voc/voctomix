@@ -21,9 +21,14 @@ def establish(host):
     log.info('establishing Connection to %s', host)
     try:
         conn = socket.create_connection((host, Port.CORE_LISTENING))
-        log.info("Connection to host %s at port %d successful" % (host, Port.CORE_LISTENING) )
+        log.info(
+            "Connection to host %s at port %d successful" % (host, Port.CORE_LISTENING)
+        )
     except ConnectionRefusedError:
-        log.error("Connecting to %s at port %d has failed. Is voctocore running? Can you ping the host?" % (host, Port.CORE_LISTENING) )
+        log.error(
+            "Connecting to %s at port %d has failed. Is voctocore running? Can you ping the host?"
+            % (host, Port.CORE_LISTENING)
+        )
         sys.exit(-1)
 
     ip = conn.getpeername()[0]
@@ -126,7 +131,7 @@ def on_loop():
     args = words[1:]
     log.debug(f"on_loop {signal=} {args=}")
     if signal == "error":
-        log.error('received error: %s', line )
+        log.error('received error: %s', line)
     if signal not in signal_handlers:
         return True
 

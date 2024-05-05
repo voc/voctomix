@@ -1,10 +1,12 @@
 import logging
+
 #!/usr/bin/env python3
 from vocto.video_codecs import construct_video_encoder_pipeline
 
 from lib.tcpmulticonnection import TCPMultiConnection
 from lib.config import Config
 from lib.args import Args
+
 
 class AVPreviewOutput(TCPMultiConnection):
 
@@ -20,10 +22,16 @@ class AVPreviewOutput(TCPMultiConnection):
         self.source = source
 
         # open bin
-        self.bin = "" if Args.no_bins else """
+        self.bin = (
+            ""
+            if Args.no_bins
+            else """
             bin.(
                 name=AVPreviewOutput-{source}
-                """.format(source=self.source)
+                """.format(
+                source=self.source
+            )
+        )
 
         # video pipeline
         if source in Config.getVideoSources(internal=True):
@@ -38,10 +46,11 @@ class AVPreviewOutput(TCPMultiConnection):
                         max-size-time=3000000000
                         name=queue-mux-preview-{source}
                     ! mux-preview-{source}.
-                    """.format(source=self.source,
-                               vpipeline=construct_video_encoder_pipeline('previews'),
-                               vcaps=Config.getVideoCaps()
-                               )
+                    """.format(
+                source=self.source,
+                vpipeline=construct_video_encoder_pipeline('previews'),
+                vcaps=Config.getVideoCaps(),
+            )
 
         # audio pipeline
         if use_audio_mix or source in Config.getAudioSources(internal=True):
@@ -55,11 +64,12 @@ class AVPreviewOutput(TCPMultiConnection):
                         max-size-time=3000000000
                         name=queue-mux-preview-audio-{source}
                     ! mux-preview-{source}.
-                    """.format(source=self.source,
-                               use_audio="" if use_audio_mix else "source-",
-                               audio_source="mix" if use_audio_mix else self.source,
-                               audio_blinded="-blinded" if audio_blinded else ""
-                               )
+                    """.format(
+                source=self.source,
+                use_audio="" if use_audio_mix else "source-",
+                audio_source="mix" if use_audio_mix else self.source,
+                audio_blinded="-blinded" if audio_blinded else "",
+            )
 
         # playout pipeline
         self.bin += """
@@ -75,7 +85,9 @@ class AVPreviewOutput(TCPMultiConnection):
                     buffers-max=500
                     sync-method=next-keyframe
                     name=fd-preview-{source}
-                """.format(source=self.source)
+                """.format(
+            source=self.source
+        )
 
         # close bin
         self.bin += "" if Args.no_bins else "\n)\n"
@@ -107,12 +119,16 @@ class AVPreviewOutput(TCPMultiConnection):
             if fileno == conn.fileno():
                 self.log.debug('fd %u removed from multifdsink', fileno)
                 self.close_connection(conn)
+
         fdsink.connect('client-fd-removed', on_disconnect)
 
         # catch client-removed
         def on_client_removed(multifdsink, fileno, status):
             # GST_CLIENT_STATUS_SLOW = 3,
             if fileno == conn.fileno() and status == 3:
-                self.log.warning('about to remove fd %u from multifdsink '
-                                 'because it is too slow!', fileno)
+                self.log.warning(
+                    'about to remove fd %u from multifdsink ' 'because it is too slow!',
+                    fileno,
+                )
+
         fdsink.connect('client-removed', on_client_removed)

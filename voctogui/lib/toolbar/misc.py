@@ -9,7 +9,9 @@ import lib.connection as Connection
 class MiscToolbarController(object):
     """Manages Accelerators and Clicks Misc buttons"""
 
-    def __init__(self, win, uibuilder, queues_controller, ports_controller, video_display):
+    def __init__(
+        self, win, uibuilder, queues_controller, ports_controller, video_display
+    ):
         self.win = win
         self.log = logging.getLogger('MiscToolbarController')
         self.toolbar = uibuilder.find_widget_recursive(win, 'toolbar_main')
@@ -26,8 +28,9 @@ class MiscToolbarController(object):
         fullscreenbtn.set_visible(Config.getShowFullScreenButton())
         fullscreenbtn.connect('clicked', self.on_fullscreenbtn_clicked)
         key, mod = Gtk.accelerator_parse('F11')
-        fullscreenbtn.add_accelerator('clicked', accelerators,
-                               key, mod, Gtk.AccelFlags.VISIBLE)
+        fullscreenbtn.add_accelerator(
+            'clicked', accelerators, key, mod, Gtk.AccelFlags.VISIBLE
+        )
         self.fullscreen_button = fullscreenbtn
 
         mutebtn = uibuilder.find_widget_recursive(self.toolbar, 'mute_button')
@@ -52,7 +55,7 @@ class MiscToolbarController(object):
         key, mod = Gtk.accelerator_parse('t')
         tooltip = Gtk.accelerator_get_label(key, mod)
 
-	    # Controller for fullscreen behavior
+        # Controller for fullscreen behavior
         self.__is_fullscreen = False
         win.connect("window-state-event", self.on_window_state_event)
 

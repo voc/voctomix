@@ -7,6 +7,7 @@ import re
 DO_GPIO = True
 try:
     import RPi.GPIO as GPIO
+
     GPIO.setmode(GPIO.BOARD)
 except ModuleNotFoundError:
     DO_GPIO = False
@@ -34,7 +35,6 @@ class TallyHandling:
                 self.tally_on()
             else:
                 self.tally_off()
-
 
     def tally_on(self):
         if DO_GPIO:
@@ -84,8 +84,11 @@ if __name__ in '__main__':
     try:
         all_gpios = Config.get('light', 'gpios').split(',')
         all_gpios = [int(i) for i in all_gpios]
-        tally_handler = TallyHandling(Config.get('light', 'cam'), int(Config.get('light', 'gpio_red')),
-                                      all_gpios=all_gpios)
+        tally_handler = TallyHandling(
+            Config.get('light', 'cam'),
+            int(Config.get('light', 'gpio_red')),
+            all_gpios=all_gpios,
+        )
 
         while True:
             try:

@@ -11,9 +11,10 @@ import lib.connection as Connection
 # time interval to re-fetch queue timings
 TIMER_RESOLUTION = 1.0
 
-class QueuesWindowController():
 
-    def __init__(self,uibuilder):
+class QueuesWindowController:
+
+    def __init__(self, uibuilder):
         self.log = logging.getLogger('QueuesWindowController')
 
         # get related widgets
@@ -41,7 +42,7 @@ class QueuesWindowController():
             for queue, time in report.items():
                 self.store.set_value(self.iterators[queue], 1, time / Gst.SECOND)
 
-    def show(self,visible=True):
+    def show(self, visible=True):
         # check if widget is getting visible
         if visible:
             # request queue timing report from voctocore

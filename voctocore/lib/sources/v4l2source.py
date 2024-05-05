@@ -31,8 +31,7 @@ class V4l2AVSource(AVSource):
 
     def attach(self, pipeline):
         super().attach(pipeline)
-        self.signalPad = pipeline.get_by_name(
-            'v4l2videosrc-{}'.format(self.name))
+        self.signalPad = pipeline.get_by_name('v4l2videosrc-{}'.format(self.name))
         GLib.timeout_add(self.timer_resolution * 1000, self.do_timeout)
 
     def num_connections(self):
@@ -40,8 +39,7 @@ class V4l2AVSource(AVSource):
 
     def __str__(self):
         return 'V4l2AVSource[{name}] reading device {device}'.format(
-            name=self.name,
-            device=self.device
+            name=self.name, device=self.device
         )
 
     def get_valid_channel_numbers(self):
@@ -51,40 +49,48 @@ class V4l2AVSource(AVSource):
         pipe = """
             v4l2src
                 device={device}
-            """.format(device=self.device)
+            """.format(
+            device=self.device
+        )
 
         if self.type == "video/x-raw":
             pipe += """\
             ! {type},width={width},height={height},format={format},framerate={framerate}
-            """.format(width=self.width,
-                       type=self.type,
-                       height=self.height,
-                       format=self.format,
-                       framerate=self.framerate)
+            """.format(
+                width=self.width,
+                type=self.type,
+                height=self.height,
+                format=self.format,
+                framerate=self.framerate,
+            )
 
         elif self.type == "image/jpeg":
             pipe += """\
             ! {type},width={width},height={height},framerate={framerate}
             ! queue
             ! jpegdec
-            """.format(width=self.width,
-                       type=self.type,
-                       height=self.height,
-                       framerate=self.framerate)
+            """.format(
+                width=self.width,
+                type=self.type,
+                height=self.height,
+                framerate=self.framerate,
+            )
 
         if self.build_deinterlacer():
             pipe += """\
                 ! {deinterlacer}
-                """.format(deinterlacer=self.build_deinterlacer())
-
-
+                """.format(
+                deinterlacer=self.build_deinterlacer()
+            )
 
         pipe += """\
             ! videoconvert
             ! videoscale
             ! videorate
                 name=vout-{name}
-        """.format(name=self.name)
+        """.format(
+            name=self.name
+        )
 
         return pipe
 

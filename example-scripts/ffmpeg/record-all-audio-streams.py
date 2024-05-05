@@ -82,7 +82,9 @@ ffmpeg
     -flags +global_header -flags +ilme+ildct
     -f mpegts
     {}
-""".format(' '.join(inputs), ' '.join(maps), output)
+""".format(
+    ' '.join(inputs), ' '.join(maps), output
+)
 log.info('running command:\n%s', cmd)
 args = shlex.split(cmd)
 p = subprocess.run(args)

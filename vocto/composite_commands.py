@@ -14,7 +14,8 @@ class CompositeCommand:
         B = None
         # match case: c(A,B)
         r = re.match(
-            r'^\s*([|+-]?\w[-_\w]*)\s*\(\s*([-_\w*]+)\s*,\s*([-_\w*]+)\)\s*$', command)
+            r'^\s*([|+-]?\w[-_\w]*)\s*\(\s*([-_\w*]+)\s*,\s*([-_\w*]+)\)\s*$', command
+        )
         if r:
             A = r.group(2)
             B = r.group(3)
@@ -34,7 +35,7 @@ class CompositeCommand:
             A = None
         if B == '*':
             B = None
-        return CompositeCommand(composite,A,B)
+        return CompositeCommand(composite, A, B)
 
     def modify(self, mod, reverse=False):
         # get command as string and process all replactions
@@ -56,11 +57,18 @@ class CompositeCommand:
         return self.modify(mod, True)
 
     def __str__(self):
-        return "%s(%s,%s)" % (self.composite if self.composite else "*",
-                               self.A if self.A else "*",
-                               self.B if self.B else "*")
+        return "%s(%s,%s)" % (
+            self.composite if self.composite else "*",
+            self.A if self.A else "*",
+            self.B if self.B else "*",
+        )
 
     def __eq__(self, other):
-        return ((self.composite == other.composite or not(self.composite and other.composite))
-                and (self.A == other.A or not(self.A and other.A))
-                and (self.B == other.B or not(self.B and other.B)))
+        return (
+            (
+                self.composite == other.composite
+                or not (self.composite and other.composite)
+            )
+            and (self.A == other.A or not (self.A and other.A))
+            and (self.B == other.B or not (self.B and other.B))
+        )

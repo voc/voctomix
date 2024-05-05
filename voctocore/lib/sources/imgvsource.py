@@ -17,8 +17,7 @@ class ImgVSource(AVSource):
 
     def __str__(self):
         return 'ImgVSource[{name}] displaying {uri}'.format(
-            name=self.name,
-            uri=self.imguri
+            name=self.name, uri=self.imguri
         )
 
     def port(self):
@@ -40,8 +39,7 @@ class ImgVSource(AVSource):
     ! imagefreeze
         name=img-{name}
 """.format(
-            name=self.name,
-            uri=self.imguri
+            name=self.name, uri=self.imguri
         )
 
     def build_videoport(self):

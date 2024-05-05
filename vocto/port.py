@@ -15,16 +15,16 @@ class Port(object):
     # input ports
     SOURCES_IN = 10000
     SOURCES_BACKGROUND = 16000
-    SOURCE_OVERLAY= 14000
+    SOURCE_OVERLAY = 14000
     SOURCES_BLANK = 17000
     AUDIO_SOURCE_BLANK = 18000
     # output ports
     MIX_OUT = 11000
-    MIX_PREVIEW = MIX_OUT+OFFSET_PREVIEW
+    MIX_PREVIEW = MIX_OUT + OFFSET_PREVIEW
     SOURCES_OUT = 13000
-    SOURCES_PREVIEW = SOURCES_OUT+OFFSET_PREVIEW
+    SOURCES_PREVIEW = SOURCES_OUT + OFFSET_PREVIEW
     LIVE_OUT = 15000
-    LIVE_PREVIEW = LIVE_OUT+OFFSET_PREVIEW
+    LIVE_PREVIEW = LIVE_OUT + OFFSET_PREVIEW
     LOCALPLAYOUT_OUT = 19000
 
     def __init__(self, name, source=None, audio=None, video=None):
@@ -41,7 +41,7 @@ class Port(object):
             'audio': self.audio,
             'video': self.video,
             'io': self.io,
-            'connections': self.connections
+            'connections': self.connections,
         }
 
     def update(self):

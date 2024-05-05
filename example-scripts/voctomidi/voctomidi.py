@@ -10,8 +10,8 @@ from lib.config import get_config
 
 NOTE_ON = 0x90
 NOTE_OFF = 0x80
-CC = 0xb0
-VELOCITY = 0x7f
+CC = 0xB0
+VELOCITY = 0x7F
 
 
 class MidiInputHandler(object):
@@ -57,10 +57,7 @@ class MidiInputHandler(object):
 
         if self.feedback_mode:
             try:
-                self.midiout, _ = open_midiport(
-                    midi_device_name,
-                    type_='output'
-                )
+                self.midiout, _ = open_midiport(midi_device_name, type_='output')
             except (EOFError, KeyboardInterrupt):
                 print("Opening midi output port failed")
                 sys.exit()
@@ -104,16 +101,15 @@ class MidiInputHandler(object):
                 except BrokenPipeError:
                     print("voctocore disconnected, trying to reconnect")
                     try:
-                        self.conn = socket.create_connection(
-                            (self.host, self.port)
-                        )
+                        self.conn = socket.create_connection((self.host, self.port))
                         print("Reconnected to voctocore")
                     except socket.error:
                         pass
             else:
-                print("[{}]: Unhandled NOTE ON event {}".format(
-                    self.midi_portname,
-                    message[1])
+                print(
+                    "[{}]: Unhandled NOTE ON event {}".format(
+                        self.midi_portname, message[1]
+                    )
                 )
 
         else:
@@ -142,9 +138,11 @@ class MidiInputHandler(object):
         for note, mode_string in self.event_map.items():
             sa, sb, cm = mode_string.encode().split()
 
-            if sa == self.source_a \
-                    and (sb == self.source_b or sb == b'*') \
-                    and cm == self.cmode:
+            if (
+                sa == self.source_a
+                and (sb == self.source_b or sb == b'*')
+                and cm == self.cmode
+            ):
                 self.midiout.send_message([NOTE_ON, note, VELOCITY])
 
 
@@ -156,9 +154,7 @@ def main():
 
     parser = argparse.ArgumentParser(description='VoctoMIDI')
     parser.add_argument(
-        '--config-file',
-        default=None,
-        help='Add another config file to the read list.'
+        '--config-file', default=None, help='Add another config file to the read list.'
     )
     args = parser.parse_args()
 
@@ -166,8 +162,7 @@ def main():
 
     host = Config.get("server", "host")
     port = Config.get("server", "port", fallback=9999)
-    feedback_mode = \
-        Config.get("midi", "feedback", fallback="false").lower() == "true"
+    feedback_mode = Config.get("midi", "feedback", fallback="false").lower() == "true"
 
     midi_device_name = Config.get("midi", "device")
 

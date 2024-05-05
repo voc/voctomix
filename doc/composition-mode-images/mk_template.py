@@ -3,11 +3,7 @@
 width = 1920
 height = 1080
 
-side_by_side_equal = {
-    "gutter": 20,
-    "atop": 160,
-    "btop": 480
-}
+side_by_side_equal = {"gutter": 20, "atop": 160, "btop": 480}
 
 side_by_side_preview = {
     "aleft": 20,
@@ -17,14 +13,14 @@ side_by_side_preview = {
     "bleft": 1404,
     "btop": 781,
     "bwidth": 496,
-    "bheight": 279
+    "bheight": 279,
 }
 
-rump = 4./9. * height
-head_x = 2./9. * height
-neck_sleeve = 1./6. * height
-shoulder = 11./36. * height
-shoulder_curve = 5./18. * height
+rump = 4.0 / 9.0 * height
+head_x = 2.0 / 9.0 * height
+neck_sleeve = 1.0 / 6.0 * height
+shoulder = 11.0 / 36.0 * height
+shoulder_curve = 5.0 / 18.0 * height
 
 path = """
 m {start_x:.2f} {start_y:.2f}
@@ -43,18 +39,18 @@ c 0 -{inner_arm:.2f}
   -{shoulder:.2f} {outter_arm:.2f}
 z
 """.format(
-    inner_arm=1./3. * height,
-    outter_arm=1./2. * height,
+    inner_arm=1.0 / 3.0 * height,
+    outter_arm=1.0 / 2.0 * height,
     neck_sleeve=neck_sleeve,
     rump=rump,
-    start_x=(width - rump) / 2.,
-    start_y=height - 15.,
+    start_x=(width - rump) / 2.0,
+    start_y=height - 15.0,
     head_xl=head_x,
     head_xr=head_x + neck_sleeve,
-    head_y=5./12. * height,
+    head_y=5.0 / 12.0 * height,
     shoulder=shoulder,
     shoulder_curve=shoulder_curve,
-    shoulder_div=shoulder - shoulder_curve
+    shoulder_div=shoulder - shoulder_curve,
 )
 
 gutter = side_by_side_equal["gutter"]
@@ -109,11 +105,11 @@ svg = r"""<?xml version="1.0" encoding="UTF-8"?>
 """.format(
     width=width,
     height=height,
-    twidth=3./4. * width,
-    theight=1./5. * height,
-    tround=1./20. * height,
-    ttop=1./5. * height,
-    tleft=1./8. * width,
+    twidth=3.0 / 4.0 * width,
+    theight=1.0 / 5.0 * height,
+    tround=1.0 / 20.0 * height,
+    ttop=1.0 / 5.0 * height,
+    tleft=1.0 / 8.0 * width,
     sspa_xscale=side_by_side_preview["awidth"] / float(width),
     sspa_yscale=side_by_side_preview["aheight"] / float(height),
     sspax=side_by_side_preview["aleft"],
@@ -122,11 +118,11 @@ svg = r"""<?xml version="1.0" encoding="UTF-8"?>
     sspb_yscale=side_by_side_preview["bheight"] / float(height),
     sspbx=side_by_side_preview["bleft"],
     sspby=side_by_side_preview["btop"],
-    sse_scale=(width - gutter) / (2. * width),
+    sse_scale=(width - gutter) / (2.0 * width),
     ssea=side_by_side_equal["atop"],
-    ssebx=(width - gutter) / 2. + gutter,
+    ssebx=(width - gutter) / 2.0 + gutter,
     sseby=side_by_side_equal["btop"],
-    path=path
+    path=path,
 )
 
 print(svg)

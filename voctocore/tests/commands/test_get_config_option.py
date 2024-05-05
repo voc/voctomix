@@ -10,7 +10,10 @@ class GetConfigOptionTest(CommandsTestBase):
         response = self.commands.get_config_option('somesection', 'somekey')
 
         self.assertIsInstance(response, OkResponse)
-        self.assertEqual(response.args, ('server_config_option', 'somesection', 'somekey', 'somevalue'))
+        self.assertEqual(
+            response.args,
+            ('server_config_option', 'somesection', 'somekey', 'somevalue'),
+        )
 
     def test_get_option_from_unknown_config_section_fails(self):
         with self.assertRaises(configparser.NoSectionError):

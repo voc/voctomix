@@ -38,7 +38,7 @@ GST_TYPE_VIDEO_TEST_SRC_PATTERN = [
     "pinwheel",
     "spokes",
     "gradient",
-    "colors"
+    "colors",
 ]
 
 GST_TYPE_AUDIO_TEST_SRC_WAVE = [
@@ -91,7 +91,9 @@ class VocConfigParser(SafeConfigParser):
         if not self.getBackgroundSources():
             return None
         for source in self.getBackgroundSources():
-            if composite in self.getList('source.{}'.format(source), 'composites', fallback=[]):
+            if composite in self.getList(
+                'source.{}'.format(source), 'composites', fallback=[]
+            ):
                 return source
         return self.getBackgroundSources()[0]
 
@@ -105,7 +107,11 @@ class VocConfigParser(SafeConfigParser):
         elif nosignal in GST_TYPE_VIDEO_TEST_SRC_PATTERN:
             return nosignal
         else:
-            self.log.error("Configuration value mix/nosignal has unknown pattern '{}'".format(nosignal))
+            self.log.error(
+                "Configuration value mix/nosignal has unknown pattern '{}'".format(
+                    nosignal
+                )
+            )
 
     def getDeckLinkDeviceNumber(self, source):
         return self.getint('source.{}'.format(source), 'devicenumber', fallback=0)
@@ -198,9 +204,14 @@ class VocConfigParser(SafeConfigParser):
         if not pattern:
             global testPatternCount
             testPatternCount += 1
-            pattern = GST_TYPE_VIDEO_TEST_SRC_PATTERN[testPatternCount % len(GST_TYPE_VIDEO_TEST_SRC_PATTERN)]
-            self.log.info("Test pattern of source '{}' unspecified, picking '{} ({})'"
-                          .format(source, pattern, testPatternCount))
+            pattern = GST_TYPE_VIDEO_TEST_SRC_PATTERN[
+                testPatternCount % len(GST_TYPE_VIDEO_TEST_SRC_PATTERN)
+            ]
+            self.log.info(
+                "Test pattern of source '{}' unspecified, picking '{} ({})'".format(
+                    source, pattern, testPatternCount
+                )
+            )
         return pattern
 
     def getTestWave(self, source):
@@ -215,7 +226,8 @@ class VocConfigParser(SafeConfigParser):
         section = 'source.{}'.format(source)
         if self.has_option(section, 'deinterlace'):
             self.log.error(
-                "source attribute 'deinterlace' is obsolete. Use 'scan' instead! Falling back to 'progressive' scheme")
+                "source attribute 'deinterlace' is obsolete. Use 'scan' instead! Falling back to 'progressive' scheme"
+            )
         return self.get(section, 'scan', fallback='progressive')
 
     def getAudioStreams(self):
@@ -232,7 +244,9 @@ class VocConfigParser(SafeConfigParser):
         self.audio_streams = AudioStreams()
         section = 'source.blinder'
         if self.has_section(section):
-            self.audio_streams.configure_source(self.items(section), "blinder", use_source_as_name=True)
+            self.audio_streams.configure_source(
+                self.items(section), "blinder", use_source_as_name=True
+            )
         return self.audio_streams
 
     def getAudioStream(self, source):
@@ -250,7 +264,8 @@ class VocConfigParser(SafeConfigParser):
         num_audio_streams = len(self.getAudioStreams())
         if self.getAudioChannels() < num_audio_streams:
             self.log.error(
-                "number of audio channels in mix/audiocaps differs from the available audio input channels within the sources!")
+                "number of audio channels in mix/audiocaps differs from the available audio input channels within the sources!"
+            )
         return num_audio_streams
 
     def getAudioChannels(self):
@@ -263,8 +278,7 @@ class VocConfigParser(SafeConfigParser):
         return channels
 
     def getVideoResolution(self):
-        caps = Gst.Caps.from_string(
-            self.getVideoCaps()).get_structure(0)
+        caps = Gst.Caps.from_string(self.getVideoCaps()).get_structure(0)
         _, width = caps.get_int('width')
         _, height = caps.get_int('height')
         return (width, height)
@@ -274,8 +288,7 @@ class VocConfigParser(SafeConfigParser):
         return float(width) / float(height)
 
     def getFramerate(self):
-        caps = Gst.Caps.from_string(
-            self.getVideoCaps()).get_structure(0)
+        caps = Gst.Caps.from_string(self.getVideoCaps()).get_structure(0)
         (_, numerator, denominator) = caps.get_fraction('framerate')
         return (numerator, denominator)
 
@@ -293,8 +306,9 @@ class VocConfigParser(SafeConfigParser):
         # Check if there is a fixed audio source configured.
         # If so, we will remove the volume sliders entirely
         # instead of setting them up.
-        return (self.getboolean('audio', 'volumecontrol', fallback=True)
-                or self.getboolean('audio', 'forcevolumecontrol', fallback=False))
+        return self.getboolean(
+            'audio', 'volumecontrol', fallback=True
+        ) or self.getboolean('audio', 'forcevolumecontrol', fallback=False)
 
     def getBlinderEnabled(self):
         return self.getboolean('blinder', 'enabled', fallback=False)
@@ -403,10 +417,16 @@ class VocConfigParser(SafeConfigParser):
             return "video/x-raw,format=I420,width=1920,height=1080,framerate=25/1,pixel-aspect-ratio=1/1"
 
     def getPreviewSize(self):
-        width = self.getint('previews', 'width') if self.has_option(
-            'previews', 'width') else 320
-        height = self.getint('previews', 'height') if self.has_option(
-            'previews', 'height') else int(width * 9 / 16)
+        width = (
+            self.getint('previews', 'width')
+            if self.has_option('previews', 'width')
+            else 320
+        )
+        height = (
+            self.getint('previews', 'height')
+            if self.has_option('previews', 'height')
+            else int(width * 9 / 16)
+        )
         return (width, height)
 
     def getLocalRecordingEnabled(self):
@@ -442,24 +462,31 @@ class VocConfigParser(SafeConfigParser):
             for preview in previews:
                 if preview not in self.getLiveSources():
                     self.log.error(
-                        "source '{}' configured in 'preview/live' must be listed in 'mix/livesources'!".format(preview))
+                        "source '{}' configured in 'preview/live' must be listed in 'mix/livesources'!".format(
+                            preview
+                        )
+                    )
                 else:
                     result.append(preview)
             return result
         else:
-            self.log.warning("configuration attribute 'preview/live' is set but blinder is not in use!")
+            self.log.warning(
+                "configuration attribute 'preview/live' is set but blinder is not in use!"
+            )
             return []
 
     def getComposites(self):
-        return Composites.configure(self, self.items('composites'), self.getVideoResolution())
+        return Composites.configure(
+            self, self.items('composites'), self.getVideoResolution()
+        )
 
     def getTargetComposites(self):
         return Composites.targets(self, self.getComposites())
 
     def getTransitions(self, composites):
-        return Transitions.configure(self, self.items('transitions'),
-                                     composites,
-                                     fps=self.getFramesPerSecond())
+        return Transitions.configure(
+            self, self.items('transitions'), composites, fps=self.getFramesPerSecond()
+        )
 
     def getPreviewNameOverlay(self):
         return self.getboolean('previews', 'nameoverlay', fallback=True)

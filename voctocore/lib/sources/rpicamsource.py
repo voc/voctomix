@@ -32,8 +32,7 @@ class RPICamAVSource(AVSource):
 
     def attach(self, pipeline):
         super().attach(pipeline)
-        self.signalPad = pipeline.get_by_name(
-            'rpicamvideosrc-{}'.format(self.name))
+        self.signalPad = pipeline.get_by_name('rpicamvideosrc-{}'.format(self.name))
         GLib.timeout_add(self.timer_resolution * 1000, self.do_timeout)
 
     def num_connections(self):
@@ -41,8 +40,7 @@ class RPICamAVSource(AVSource):
 
     def __str__(self):
         return 'RPICamAVSource[{name}] reading device {device}'.format(
-            name=self.name,
-            device=self.device
+            name=self.name, device=self.device
         )
 
     def get_valid_channel_numbers(self):
@@ -60,30 +58,40 @@ class RPICamAVSource(AVSource):
         if self.annotation:
             pipe += """
                 annotation-mode={annotation}
-            """.format(annotation=self.annotation)
+            """.format(
+                annotation=self.annotation
+            )
 
         pipe += """\
             ! video/x-raw,width={width},height={height},format={format},framerate={framerate}
-            """.format(width=self.width,
-                       height=self.height,
-                       format=self.format,
-                       framerate=self.framerate)
+            """.format(
+            width=self.width,
+            height=self.height,
+            format=self.format,
+            framerate=self.framerate,
+        )
 
         if self.build_deinterlacer():
             pipe += """\
                 ! {deinterlacer}
-                """.format(deinterlacer=self.build_deinterlacer())
+                """.format(
+                deinterlacer=self.build_deinterlacer()
+            )
 
         if self.crop:
-            cropfilter="! videocrop bottom=%s left=%s right=%s top=%s" % tuple(self.crop.split())
+            cropfilter = "! videocrop bottom=%s left=%s right=%s top=%s" % tuple(
+                self.crop.split()
+            )
         else:
-            cropfilter=""
+            cropfilter = ""
 
         pipe += """\
                 ! videorate
                 {cropfilter}
                 name=vout-{name}
-        """.format(name=self.name, cropfilter=cropfilter)
+        """.format(
+            name=self.name, cropfilter=cropfilter
+        )
 
         return pipe
 

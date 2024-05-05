@@ -19,7 +19,7 @@ class UiBuilder(object):
             self.log.error(
                 'could find required widget "%s" by ID inside the parent %s',
                 name,
-                str(widget)
+                str(widget),
             )
             raise Exception('Widget not found in parent')
 
@@ -42,8 +42,7 @@ class UiBuilder(object):
         widget = self.builder.get_object(widget_id)
         if not widget:
             self.log.error(
-                'could not load required widget "%s" from the .ui-File',
-                widget_id
+                'could not load required widget "%s" from the .ui-File', widget_id
             )
             raise Exception('Widget not found in .ui-File')
 
@@ -54,12 +53,13 @@ class UiBuilder(object):
         builder.add_from_file(ui_file)
 
         self.log.debug(
-            'loading widget "%s" from extra .ui-File "%s"', widget_id, ui_file)
+            'loading widget "%s" from extra .ui-File "%s"', widget_id, ui_file
+        )
         widget = builder.get_object(widget_id)
         if not widget:
             self.log.error(
                 'could not load required widget "%s" from extra .ui-File "%s"',
-                widget_id
+                widget_id,
             )
             raise Exception('Widget not found in .ui-File "%s"', ui_file)
 

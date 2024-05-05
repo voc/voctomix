@@ -6,6 +6,7 @@ from gi.repository import Gtk, GLib
 
 class AudioLevelDisplay(Gtk.DrawingArea):
     """Displays a Level-Meter of another VideoDisplay into a GtkWidget"""
+
     __gtype_name__ = 'AudioLevelDisplay'
 
     MARGIN = 4
@@ -44,7 +45,7 @@ class AudioLevelDisplay(Gtk.DrawingArea):
 
         yoff = 3
         width = self.get_allocated_width()
-        height = self.get_allocated_height()-yoff
+        height = self.get_allocated_height() - yoff
 
         # normalize db-value to 0…1 and multiply with the height
         rms_px = [self.normalize_db(db) * height for db in self.levelrms]
@@ -63,7 +64,11 @@ class AudioLevelDisplay(Gtk.DrawingArea):
         # draw all level bars for all channels
         for channel in range(0, channels):
             # start-coordinate for this channel
-            x = (channel * self.CHANNEL_WIDTH) + (channel * self.MARGIN) + self.LABEL_WIDTH
+            x = (
+                (channel * self.CHANNEL_WIDTH)
+                + (channel * self.MARGIN)
+                + self.LABEL_WIDTH
+            )
 
             # draw background
             cr.rectangle(x, yoff, self.CHANNEL_WIDTH, height - peak_px[channel])
@@ -72,14 +77,21 @@ class AudioLevelDisplay(Gtk.DrawingArea):
 
             # draw peak bar
             cr.rectangle(
-                x, yoff +height - peak_px[channel], self.CHANNEL_WIDTH, peak_px[channel])
+                x,
+                yoff + height - peak_px[channel],
+                self.CHANNEL_WIDTH,
+                peak_px[channel],
+            )
             cr.set_source(self.peak_lg)
             cr.fill()
 
             # draw rms bar below
             cr.rectangle(
-                x, yoff + height - rms_px[channel], self.CHANNEL_WIDTH,
-                rms_px[channel] - peak_px[channel])
+                x,
+                yoff + height - rms_px[channel],
+                self.CHANNEL_WIDTH,
+                rms_px[channel] - peak_px[channel],
+            )
             cr.set_source(self.rms_lg)
             cr.fill()
 
@@ -93,13 +105,15 @@ class AudioLevelDisplay(Gtk.DrawingArea):
             # draw db text-markers
             for db in [-40, -20, -10, -5, -4, -3, -2, -1]:
                 text = str(db)
-                (xbearing, ybearing,
-                 textwidth, textheight,
-                 xadvance, yadvance) = cr.text_extents(text)
+                (xbearing, ybearing, textwidth, textheight, xadvance, yadvance) = (
+                    cr.text_extents(text)
+                )
 
                 y = self.normalize_db(db) * height
                 cr.set_source_rgb(0.5, 0.5, 0.5)
-                cr.move_to(self.LABEL_WIDTH - textwidth - 4, yoff + height - y - textheight)
+                cr.move_to(
+                    self.LABEL_WIDTH - textwidth - 4, yoff + height - y - textheight
+                )
                 cr.show_text(text)
 
         return True
@@ -117,11 +131,14 @@ class AudioLevelDisplay(Gtk.DrawingArea):
         return max(min(value, max_value), min_value)
 
     def level_callback(self, rms, peak, decay):
-        if self.levelrms != rms or self.levelpeak != peak \
-                or self.leveldecay != decay:
+        if self.levelrms != rms or self.levelpeak != peak or self.leveldecay != decay:
             self.levelrms = rms
             self.levelpeak = peak
             self.leveldecay = decay
 
-            self.set_size_request(len(self.levelrms) * (self.CHANNEL_WIDTH + self.MARGIN) + self.LABEL_WIDTH, 100)
+            self.set_size_request(
+                len(self.levelrms) * (self.CHANNEL_WIDTH + self.MARGIN)
+                + self.LABEL_WIDTH,
+                100,
+            )
             self.queue_draw()

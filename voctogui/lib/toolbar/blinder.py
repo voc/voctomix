@@ -21,21 +21,21 @@ class BlinderToolbarController(object):
         self.toolbar = uibuilder.find_widget_recursive(win, 'toolbar_blinder')
 
         live_button = uibuilder.find_widget_recursive(self.toolbar, 'stream_live')
-        blind_button = uibuilder.find_widget_recursive(
-            self.toolbar, 'stream_blind')
-        blinder_box = uibuilder.find_widget_recursive(
-            win, 'box_blinds')
+        blind_button = uibuilder.find_widget_recursive(self.toolbar, 'stream_blind')
+        blinder_box = uibuilder.find_widget_recursive(win, 'box_blinds')
 
         blind_button_pos = self.toolbar.get_item_index(blind_button)
 
         if not Config.getBlinderEnabled():
-            self.log.info('disabling blinding features '
-                          'because the server does not support them')
+            self.log.info(
+                'disabling blinding features '
+                'because the server does not support them'
+            )
 
             self.toolbar.remove(live_button)
             self.toolbar.remove(blind_button)
 
-            # hide blinder box 
+            # hide blinder box
             blinder_box.hide()
             blinder_box.set_no_show_all(True)
             return
@@ -95,8 +95,9 @@ class BlinderToolbarController(object):
                     Connection.send('set_stream_blind', btn_name)
 
     def on_stream_status(self, status, source=None):
-        self.log.info('on_stream_status callback w/ status %s and source %s',
-                      status, source)
+        self.log.info(
+            'on_stream_status callback w/ status %s and source %s', status, source
+        )
 
         self.current_status = source if source is not None else status
         for button in list(self.blind_buttons.values()) + [self.live_button]:

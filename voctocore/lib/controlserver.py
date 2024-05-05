@@ -22,13 +22,13 @@ class ControlServer(TCPMultiConnection):
 
     def on_accepted(self, conn, addr):
         '''Asynchronous connection listener.
-           Starts a handler for each connection.'''
+        Starts a handler for each connection.'''
         self.log.debug('setting gobject io-watch on connection')
         GObject.io_add_watch(conn, GObject.IO_IN, self.on_data, [''])
 
     def on_data(self, conn, _, leftovers, *args):
         '''Asynchronous connection handler.
-           Pushes data from socket into command queue linewise'''
+        Pushes data from socket into command queue linewise'''
         close_after = False
         try:
             while True:
@@ -81,16 +81,18 @@ class ControlServer(TCPMultiConnection):
         self.log.debug('on_loop called')
 
         if self.command_queue.empty():
-            self.log.debug('command_queue is empty again, '
-                           'stopping on_loop scheduling')
+            self.log.debug(
+                'command_queue is empty again, ' 'stopping on_loop scheduling'
+            )
             return False
 
         line, requestor = self.command_queue.get()
 
         words = line.split()
         if len(words) < 1:
-            self.log.debug('command_queue is empty again, '
-                           'stopping on_loop scheduling')
+            self.log.debug(
+                'command_queue is empty again, ' 'stopping on_loop scheduling'
+            )
             return True
 
         self.log.info("processing command '%s'", ' '.join(words))
@@ -154,9 +156,10 @@ class ControlServer(TCPMultiConnection):
             return False
 
         if queue.empty():
-            self.log.debug('write_queue[%u] is empty again, '
-                           'stopping on_write scheduling',
-                           conn.fileno())
+            self.log.debug(
+                'write_queue[%u] is empty again, ' 'stopping on_write scheduling',
+                conn.fileno(),
+            )
             return False
 
         message = queue.get()
@@ -164,6 +167,8 @@ class ControlServer(TCPMultiConnection):
         try:
             conn.send(message.encode())
         except Exception as e:
-            self.log.warning("Failed to send message '%s'", message.encode(), exc_info=True)
+            self.log.warning(
+                "Failed to send message '%s'", message.encode(), exc_info=True
+            )
 
         return True

@@ -11,6 +11,7 @@ from lib.toolbar.widgets import Widgets
 from datetime import datetime, timedelta
 from vocto.command_helpers import quote, dequote, str2bool
 
+
 class OverlayToolbarController(object):
     """Manages Accelerators and Clicks on the Overlay Composition Toolbar-Buttons"""
 
@@ -33,10 +34,18 @@ class OverlayToolbarController(object):
 
             # connect to INSERT toggle button
             self.insert = uibuilder.get_check_widget('insert')
-            widgets.add(self.insert, 'insert', accelerators, self.on_insert_toggled, signal='toggled' )
+            widgets.add(
+                self.insert,
+                'insert',
+                accelerators,
+                self.on_insert_toggled,
+                signal='toggled',
+            )
 
             self.update_inserts = uibuilder.get_check_widget('update-inserts')
-            widgets.add(self.update_inserts, 'update', accelerators, self.update_overlays)
+            widgets.add(
+                self.update_inserts, 'update', accelerators, self.update_overlays
+            )
 
             # initialize to AUTO-OFF toggle button
             self.autooff = uibuilder.get_check_widget('insert-auto-off')
@@ -45,8 +54,7 @@ class OverlayToolbarController(object):
             widgets.add(self.autooff, 'auto-off', accelerators)
 
             # remember overlay description label
-            self.overlay_description = uibuilder.get_check_widget(
-                'overlay-description')
+            self.overlay_description = uibuilder.get_check_widget('overlay-description')
 
             # initialize our overlay list until we get one from the core
             self.overlays = []
@@ -73,16 +81,14 @@ class OverlayToolbarController(object):
         Connection.send('show_overlay', str(self.insert.get_active()))
 
     def on_inserts_changed(self, combobox):
-        ''' new insert was selected
-        '''
+        '''new insert was selected'''
         # can't select insert, if we got no list already
         if not self.initialized:
             return
         # check if there is any useful selection
         if self.inserts.get_active_iter():
             # get name of the selection
-            selected_overlay = self.inserts_store[self.inserts.get_active_iter(
-            )][0]
+            selected_overlay = self.inserts_store[self.inserts.get_active_iter()][0]
             # tell log about user selection
             self.log.info("setting overlay to '%s'", selected_overlay)
             # hide overlay if 'AUTO-OFF' is selected
@@ -92,8 +98,7 @@ class OverlayToolbarController(object):
             Connection.send('set_overlay', quote(str(selected_overlay)))
 
     def on_overlay_visible(self, visible):
-        ''' receive overlay visibility
-        '''
+        '''receive overlay visibility'''
         # set 'insert' button state
         self.insert.set_active(str2bool(visible))
 
@@ -147,10 +152,13 @@ class OverlayToolbarController(object):
             if len(title) == 4:
                 start, end, id, text = title
                 self.overlay_description.set_text(
-                    "{start} - {end} : #{id}  '{text}'".format(start=start.split(" ")[1],
-                                                               end=end.split(" ")[1],
-                                                               id=id,
-                                                               text=text))
+                    "{start} - {end} : #{id}  '{text}'".format(
+                        start=start.split(" ")[1],
+                        end=end.split(" ")[1],
+                        id=id,
+                        text=text,
+                    )
+                )
             else:
                 self.overlay_description.set_text(title[0])
             self.overlay_description.show()
@@ -160,7 +168,7 @@ class OverlayToolbarController(object):
         # tell log about overlay list
         self.log.info("Got title of overlays from server '%s'", title)
 
-    def update_overlays(self,btn=None):
+    def update_overlays(self, btn=None):
         Connection.send('get_overlays')
         Connection.send('get_overlays_title')
 

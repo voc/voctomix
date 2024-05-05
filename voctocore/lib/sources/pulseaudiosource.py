@@ -10,10 +10,10 @@ from lib.sources.avsource import AVSource
 
 class PulseAudioSource(AVSource):
 
-    def __init__(self, name, has_audio=True, has_video=False,
-                 force_num_streams=None):
-        super().__init__('PulseAudioSource', name, has_audio, has_video,
-                         force_num_streams)
+    def __init__(self, name, has_audio=True, has_video=False, force_num_streams=None):
+        super().__init__(
+            'PulseAudioSource', name, has_audio, has_video, force_num_streams
+        )
         self.device = Config.getPulseAudioDevice(name)
         self.name = name
 
@@ -27,8 +27,7 @@ class PulseAudioSource(AVSource):
 
     def __str__(self):
         return 'PulseAudioSource[{name}] ({device})'.format(
-            name=self.name,
-            device=self.device
+            name=self.name, device=self.device
         )
 
     def build_audioport(self):

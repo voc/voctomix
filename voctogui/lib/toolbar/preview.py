@@ -29,11 +29,11 @@ class PreviewToolbarController(object):
         self.mods = Buttons(Config.getToolbarMods())
 
         toolbar_composite = uibuilder.find_widget_recursive(
-            win, 'toolbar_preview_composite')
+            win, 'toolbar_preview_composite'
+        )
         toolbar_a = uibuilder.find_widget_recursive(win, 'toolbar_preview_a')
         toolbar_b = uibuilder.find_widget_recursive(win, 'toolbar_preview_b')
-        toolbar_mod = uibuilder.find_widget_recursive(
-            win, 'toolbar_preview_mod')
+        toolbar_mod = uibuilder.find_widget_recursive(win, 'toolbar_preview_mod')
 
         self.frame_b = uibuilder.find_widget_recursive(win, 'frame_preview_b')
 
@@ -43,7 +43,7 @@ class PreviewToolbarController(object):
             box_modify.hide()
             box_modify.set_no_show_all(True)
 
-        self.composites.create(toolbar_composite,accelerators, self.on_btn_toggled)
+        self.composites.create(toolbar_composite, accelerators, self.on_btn_toggled)
         self.sourcesA.create(toolbar_a, accelerators, self.on_btn_toggled)
         self.sourcesB.create(toolbar_b, accelerators, self.on_btn_toggled)
         self.mods.create(toolbar_mod, accelerators, self.on_btn_toggled, group=False)
@@ -74,7 +74,7 @@ class PreviewToolbarController(object):
         Connection.send('get_composite')
         self.enable_modifiers()
         self.enable_sourcesB()
-        self.enable_sources();
+        self.enable_sources()
 
         self.do_test = True
         self.initialized = True
@@ -93,35 +93,37 @@ class PreviewToolbarController(object):
                         self.sourceB = None
                         self.sourcesB[self.sourceA]['button'].set_active(True)
                     self.sourceA = id
-                    self.log.info(
-                        "Selected '%s' for preview source A", self.sourceA)
+                    self.log.info("Selected '%s' for preview source A", self.sourceA)
                 elif self.sourcesB[id]['button'] == btn:
                     if self.sourcesA[id]['button'].get_active():
                         self.sourceA = None
                         self.sourcesA[self.sourceB]['button'].set_active(True)
                     self.sourceB = id
-                    self.log.info(
-                        "Selected '%s' for preview source B", self.sourceB)
+                    self.log.info("Selected '%s' for preview source B", self.sourceB)
                 self.test()
             elif id in self.composites:
                 self.composite = id
                 self.enable_sourcesB()
                 self.enable_modifiers()
                 self.log.info(
-                    "Selected '%s' for preview target composite", self.composite)
+                    "Selected '%s' for preview target composite", self.composite
+                )
                 self.test()
         if id in self.mods:
             self.modstates[id] = btn.get_active()
-            self.log.info("Turned preview modifier '%s' %s", id,
-                          'on' if self.modstates[id] else 'off')
+            self.log.info(
+                "Turned preview modifier '%s' %s",
+                id,
+                'on' if self.modstates[id] else 'off',
+            )
             self.test()
-        self.enable_sources();
+        self.enable_sources()
         self.log.debug("current command is '%s", self.command())
 
     def enable_modifiers(self):
         command = CompositeCommand(self.composite, self.sourceA, self.sourceB)
         for id, attr in self.mods.items():
-            attr['button'].set_sensitive( command.modify(attr['replace']) )
+            attr['button'].set_sensitive(command.modify(attr['replace']))
 
     def enable_sourcesB(self):
         single = self.composites_[self.composite].single()
@@ -152,8 +154,7 @@ class PreviewToolbarController(object):
         if type(command) == str:
             command = CompositeCommand.from_str(command)
         for id, item in self.mods.items():
-            item['button'].set_active(
-                command.modify(item['replace'], reverse=True))
+            item['button'].set_active(command.modify(item['replace'], reverse=True))
         self.composites[command.composite]['button'].set_active(True)
         self.sourcesA[command.A]['button'].set_active(True)
         self.sourcesB[command.B]['button'].set_active(True)
@@ -205,7 +206,7 @@ class PreviewToolbarController(object):
             else:
                 item['button'].get_style_context().remove_class("glow")
 
-    def validate(self,sources):
+    def validate(self, sources):
         for id, attr in sources.items():
             if id not in Config.getSources():
                 self.invalid_buttons.append(attr['button'])

@@ -27,28 +27,20 @@ class Directory(object):
         self.log.debug('setting up inotify watch for %s', self.path)
         wm = pyinotify.WatchManager()
         notifier = pyinotify.Notifier(
-            wm,
-            timeout=10,
-            default_proc_fun=self.inotify_callback
+            wm, timeout=10, default_proc_fun=self.inotify_callback
         )
 
         wm.add_watch(
             self.path,
             # pyinotify.ALL_EVENTS,
             pyinotify.IN_DELETE | pyinotify.IN_CREATE | pyinotify.IN_MODIFY,
-            rec=True
+            rec=True,
         )
 
-        GLib.io_add_watch(
-            notifier._fd,
-            GLib.IO_IN,
-            self.io_callback,
-            notifier
-        )
+        GLib.io_add_watch(notifier._fd, GLib.IO_IN, self.io_callback, notifier)
 
     def inotify_callback(self, notifier):
-        self.log.info('inotify callback %s: %s',
-                      notifier.maskname, notifier.pathname)
+        self.log.info('inotify callback %s: %s', notifier.maskname, notifier.pathname)
         if not self.scheduled:
             self.scheduled = True
             GLib.timeout_add(100, self.rescan)
@@ -64,8 +56,7 @@ class Directory(object):
 
     def is_playable_file(self, filepath):
         root, ext = os.path.splitext(filepath)
-        return ext in ['.mp3', '.ogg', '.oga', '.wav', '.m4a',
-                       '.flac', 'self.opus']
+        return ext in ['.mp3', '.ogg', '.oga', '.wav', '.m4a', '.flac', 'self.opus']
 
     def rescan(self):
         self.log.info('scanning directory %s', self.path)
@@ -78,8 +69,7 @@ class Directory(object):
             files = map(lambda f: os.path.join(root, f), files)
             files = list(files)
 
-            self.log.debug('found directory %s: %u playable file(s)',
-                           root, len(files))
+            self.log.debug('found directory %s: %u playable file(s)', root, len(files))
             all_files.extend(files)
 
         self.log.info('found %u playable files', len(all_files))
@@ -136,7 +126,7 @@ class LoopSource(object):
         self.log.debug('new pad on decoder, setting pad-probe')
         pad.add_probe(
             Gst.PadProbeType.EVENT_DOWNSTREAM | Gst.PadProbeType.BLOCK,
-            self.on_pad_event
+            self.on_pad_event,
         )
         if self.joinpad.is_linked():
             self.log.debug('unlinking with joinpad')
@@ -145,8 +135,7 @@ class LoopSource(object):
         clock = self.pipeline.get_clock()
         if clock:
             runtime = clock.get_time() - self.pipeline.get_base_time()
-            self.log.debug('setting pad offset to pipeline runtime: %sns',
-                           runtime)
+            self.log.debug('setting pad offset to pipeline runtime: %sns', runtime)
             pad.set_offset(runtime)
 
         self.log.debug('linking with joinpad')
@@ -189,8 +178,13 @@ def main():
     parser = argparse.ArgumentParser(description='Voctocore Music-Source')
     parser.add_argument('directory')
 
-    parser.add_argument('-v|-vv', '--verbose', action='count', default=0,
-                        help="Also print INFO and DEBUG messages.")
+    parser.add_argument(
+        '-v|-vv',
+        '--verbose',
+        action='count',
+        default=0,
+        help="Also print INFO and DEBUG messages.",
+    )
 
     args = parser.parse_args()
 
@@ -201,10 +195,7 @@ def main():
     else:
         level = logging.WARNING
 
-    logging.basicConfig(
-        level=level,
-        format='%(levelname)8s %(name)s: %(message)s'
-    )
+    logging.basicConfig(level=level, format='%(levelname)8s %(name)s: %(message)s')
 
     directory = Directory(args.directory)
     src = LoopSource(directory)

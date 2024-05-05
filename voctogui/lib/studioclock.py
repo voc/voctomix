@@ -44,7 +44,8 @@ class StudioClock(Gtk.ToolItem):
         radius = min(center)
         # setup gradients for clock background to get a smooth border
         bg_lg = cairo.RadialGradient(
-            center[0], center[1], 0, center[0], center[1], radius)
+            center[0], center[1], 0, center[0], center[1], radius
+        )
         bg_lg.add_color_stop_rgba(0.0, 0.1, 0.1, 0.1, 1.0)
         bg_lg.add_color_stop_rgba(0.9, 0.1, 0.1, 0.1, 1.0)
         bg_lg.add_color_stop_rgba(1.0, 0.2, 0.2, 0.2, 0.0)
@@ -62,8 +63,10 @@ class StudioClock(Gtk.ToolItem):
                 cr.set_source_rgb(0.764, 0.804, 0.176)
             # calculate tick position
             angle = tick * math.pi / 30
-            pos = (center[0] + math.sin(angle) * radius * 0.8,
-                   center[1] - math.cos(angle) * radius * 0.8)
+            pos = (
+                center[0] + math.sin(angle) * radius * 0.8,
+                center[1] - math.cos(angle) * radius * 0.8,
+            )
             # draw tick
             cr.arc(pos[0], pos[1], radius / 40, 0, 2 * math.pi)
             cr.fill()
@@ -72,8 +75,10 @@ class StudioClock(Gtk.ToolItem):
         for tick in range(0, 12):
             # calculate tick position
             angle = tick * math.pi / 6
-            pos = (center[0] + math.sin(angle) * radius * 0.9,
-                   center[1] - math.cos(angle) * radius * 0.9)
+            pos = (
+                center[0] + math.sin(angle) * radius * 0.9,
+                center[1] - math.cos(angle) * radius * 0.9,
+            )
             # draw tick
             cr.arc(pos[0], pos[1], radius / 40, 0, 2 * math.pi)
             cr.fill()
@@ -83,9 +88,9 @@ class StudioClock(Gtk.ToolItem):
         # format time into a string
         text = time.strftime("%H:%M")
         # get text drawing extents
-        (xbearing, ybearing,
-         textwidth, textheight,
-         xadvance, yadvance) = cr.text_extents(text)
+        (xbearing, ybearing, textwidth, textheight, xadvance, yadvance) = (
+            cr.text_extents(text)
+        )
         # draw time
         cr.move_to(center[0] - textwidth / 2, center[1] + textheight / 2)
         cr.show_text(text)

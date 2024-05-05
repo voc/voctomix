@@ -13,7 +13,9 @@ class AudiomixMultipleSources(VoctomixTest):
         Config.given("source.cam1", "kind", "decklink")
         Config.given("source.cam1", "devicenumber", "23")
 
-        self.source = DeckLinkAVSource('cam1', ['test_mixer', 'test_preview'], has_audio=True, has_video=True)
+        self.source = DeckLinkAVSource(
+            'cam1', ['test_mixer', 'test_preview'], has_audio=True, has_video=True
+        )
 
     def test_unconfigured_does_not_add_a_deinterlacer(self):
         pipeline = self.simulate_connection_and_aquire_pipeline_description()
@@ -31,7 +33,8 @@ class AudiomixMultipleSources(VoctomixTest):
         pipeline = self.simulate_connection_and_aquire_pipeline_description()
         self.assertContainsIgnoringWhitespace(
             pipeline,
-            "mode=1080i50 ! videoconvert ! yadif mode=interlaced ! videoconvert")
+            "mode=1080i50 ! videoconvert ! yadif mode=interlaced ! videoconvert",
+        )
 
     def test_assume_progressive_does_add_capssetter(self):
         Config.given("source.cam1", "deinterlace", "assume-progressive")
@@ -39,7 +42,7 @@ class AudiomixMultipleSources(VoctomixTest):
         pipeline = self.simulate_connection_and_aquire_pipeline_description()
         self.assertContainsIgnoringWhitespace(
             pipeline,
-            "mode=1080i50 ! capssetter caps=video/x-raw,interlace-mode=progressive ! videoconvert"
+            "mode=1080i50 ! capssetter caps=video/x-raw,interlace-mode=progressive ! videoconvert",
         )
 
     def simulate_connection_and_aquire_pipeline_description(self):

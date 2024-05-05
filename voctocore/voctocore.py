@@ -22,12 +22,18 @@ minPy = (3, 0)
 
 Gst.init([])
 if Gst.version() < minGst:
-    raise Exception('GStreamer version', Gst.version(),
-                    'is too old, at least', minGst, 'is required')
+    raise Exception(
+        'GStreamer version',
+        Gst.version(),
+        'is too old, at least',
+        minGst,
+        'is required',
+    )
 
 if sys.version_info < minPy:
-    raise Exception('Python version', sys.version_info,
-                    'is too old, at least', minPy, 'is required')
+    raise Exception(
+        'Python version', sys.version_info, 'is too old, at least', minPy, 'is required'
+    )
 
 
 # main class
@@ -67,19 +73,25 @@ class Voctocore(object):
 def main():
     # parse command-line args
     from lib import args
+
     args.parse()
 
     from lib.args import Args
-    docolor = (Args.color == 'always') \
-        or (Args.color == 'auto' and sys.stderr.isatty())
+
+    docolor = (Args.color == 'always') or (Args.color == 'auto' and sys.stderr.isatty())
 
     handler = LogHandler(docolor, Args.timestamp)
     logging.root.addHandler(handler)
 
-    levels = { 3 : logging.DEBUG, 2 : logging.INFO, 1 : logging.WARNING, 0 : logging.ERROR }
+    levels = {3: logging.DEBUG, 2: logging.INFO, 1: logging.WARNING, 0: logging.ERROR}
     logging.root.setLevel(levels[Args.verbose])
 
-    gst_levels = { 3 : Gst.DebugLevel.DEBUG, 2 : Gst.DebugLevel.INFO, 1 : Gst.DebugLevel.WARNING, 0 : Gst.DebugLevel.ERROR }
+    gst_levels = {
+        3: Gst.DebugLevel.DEBUG,
+        2: Gst.DebugLevel.INFO,
+        1: Gst.DebugLevel.WARNING,
+        0: Gst.DebugLevel.ERROR,
+    }
     gst_log_messages(gst_levels[Args.gstreamer_log])
 
     # make killable by ctrl-c
@@ -91,6 +103,7 @@ def main():
 
     logging.debug('loading Config')
     from lib import config
+
     config.load()
 
     # init main-class and main-loop

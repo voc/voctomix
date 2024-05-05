@@ -17,7 +17,7 @@ COLOR_WARN = ("darkred", "darkorange")
 COLOR_ERROR = ("white", "red")
 
 
-class PortsWindowController():
+class PortsWindowController:
 
     def __init__(self, uibuilder):
         self.log = logging.getLogger('QueuesWindowController')
@@ -50,14 +50,16 @@ class PortsWindowController():
             self.iterators = dict()
             for p in report:
                 port = Port.from_str(p)
-                self.iterators[port.port] = self.store.append((
-                    port.name,
-                    port.audio,
-                    port.video,
-                    "IN" if port.is_input() else "OUT",
-                    port.port,
-                    *color(port)
-                ))
+                self.iterators[port.port] = self.store.append(
+                    (
+                        port.name,
+                        port.audio,
+                        port.video,
+                        "IN" if port.is_input() else "OUT",
+                        port.port,
+                        *color(port),
+                    )
+                )
         else:
             # just update values of second column
             for p in report:

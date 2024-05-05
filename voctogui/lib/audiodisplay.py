@@ -11,6 +11,7 @@ import lib.connection as Connection
 from lib.config import Config
 from vocto.port import Port
 
+
 class AudioDisplay(object):
 
     def __init__(self, audio_box, source, uibuilder, has_volume=True):
@@ -24,16 +25,16 @@ class AudioDisplay(object):
             self.audio_streams = Config.getAudioStreams().get_source_streams(source)
             for name, stream in self.audio_streams.items():
                 self.panels[name] = self.createAudioPanel(
-                    name, audio_box, has_volume, uibuilder)
+                    name, audio_box, has_volume, uibuilder
+                )
         else:
             self.panel = self.createAudioPanel(source, audio_box, has_volume, uibuilder)
 
     def createAudioPanel(self, name, audio_box, has_volume, uibuilder):
-        audio = uibuilder.load_check_widget('audio',
-                                            os.path.dirname(uibuilder.uifile) +
-                                            "/audio.ui")
-        audio_box.pack_start(audio, fill=False,
-                             expand=False, padding=0)
+        audio = uibuilder.load_check_widget(
+            'audio', os.path.dirname(uibuilder.uifile) + "/audio.ui"
+        )
+        audio_box.pack_start(audio, fill=False, expand=False, padding=0)
         audio_label = uibuilder.find_widget_recursive(audio, 'audio_label')
         audio_label.set_label(name.upper())
 
@@ -56,12 +57,10 @@ class AudioDisplay(object):
             self.panel["level"].level_callback(rms, peak, decay)
 
     def init_volume_slider(self, name, audio_box, has_volume, uibuilder):
-        volume_slider = uibuilder.find_widget_recursive(audio_box,
-                                                        'audio_level')
+        volume_slider = uibuilder.find_widget_recursive(audio_box, 'audio_level')
 
         if has_volume:
-            volume_signal = volume_slider.connect('value-changed',
-                                                  self.slider_changed)
+            volume_signal = volume_slider.connect('value-changed', self.slider_changed)
             volume_slider.set_name(name)
             volume_slider.add_mark(-20.0, Gtk.PositionType.LEFT, "")
             volume_slider.add_mark(0.0, Gtk.PositionType.LEFT, "0")
@@ -71,8 +70,8 @@ class AudioDisplay(object):
                 if value == -20.0:
                     return "-\u221e\u202fdB"
                 else:
-                    return "{:.{}f}\u202fdB".format(value,
-                                                    scale.get_digits())
+                    return "{:.{}f}\u202fdB".format(value, scale.get_digits())
+
             volume_slider.connect('format-value', slider_format)
             self.volume_sliders[name] = (volume_slider, volume_signal)
             if not Config.getVolumeControl():

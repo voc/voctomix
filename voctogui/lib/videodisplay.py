@@ -16,8 +16,16 @@ from vocto.video_codecs import construct_video_decoder_pipeline
 class VideoDisplay(object):
     """Displays a Voctomix-Video-Stream into a GtkWidget"""
 
-    def __init__(self, video_drawing_area, audio_display, port, name, width=None, height=None,
-                 play_audio=False):
+    def __init__(
+        self,
+        video_drawing_area,
+        audio_display,
+        port,
+        name,
+        width=None,
+        height=None,
+        play_audio=False,
+    ):
         self.log = logging.getLogger('VideoDisplay:%s' % name)
         self.name = name
         self.video_drawing_area = video_drawing_area
@@ -33,9 +41,9 @@ class VideoDisplay(object):
                 blocksize=1048576
             ! matroskademux
                 name=demux-{name}
-                """.format(name=name,
-                           host=Config.getHost(),
-                           port=port)
+                """.format(
+            name=name, host=Config.getHost(), port=port
+        )
 
         if Config.getPreviewsEnabled():
             self.log.info('using encoded previews instead of raw-video')
@@ -45,8 +53,9 @@ class VideoDisplay(object):
                 ! queue
                     name=queue-video-{name}
                 ! {video_decoder}
-                """.format(name=name,
-                           video_decoder=construct_video_decoder_pipeline('previews'))
+                """.format(
+                name=name, video_decoder=construct_video_decoder_pipeline('previews')
+            )
 
         else:
             video_decoder = None
@@ -57,9 +66,9 @@ class VideoDisplay(object):
                 ! queue
                     name=queue-video-{name}
                 ! {previewcaps}
-                """.format(name=name,
-                           previewcaps=preview_caps,
-                           vcaps=Config.getVideoCaps())
+                """.format(
+                name=name, previewcaps=preview_caps, vcaps=Config.getVideoCaps()
+            )
 
         pipe += """ ! videoconvert
                     ! videoscale
@@ -74,7 +83,9 @@ class VideoDisplay(object):
                     halignment=center
                     shaded-background=yes
                     font-desc="Roboto, 22"
-                """.format(name=name)
+                """.format(
+                name=name
+            )
 
         # Video Display
         videosystem = Config.getVideoSystem()
@@ -85,27 +96,33 @@ class VideoDisplay(object):
                         ! glcolorconvert
                         ! glimagesinkelement
                             name=imagesink-{name}
-                            """.format(name=name)
+                            """.format(
+                name=name
+            )
 
         elif videosystem == 'xv':
             pipe += """ ! xvimagesink
                             name=imagesink-{name}
-                        """.format(name=name)
+                        """.format(
+                name=name
+            )
 
         elif videosystem == 'x':
             pipe += """ ! ximagesink
                             name=imagesink-{name}
-                        """.format(name=name)
+                        """.format(
+                name=name
+            )
 
         elif videosystem == 'vaapi':
             pipe += """ ! vaapisink
                             name=imagesink-{name}
-                        """.format(name=name)
+                        """.format(
+                name=name
+            )
 
         else:
-            raise Exception(
-                'Invalid Videodisplay-System configured: %s' % videosystem
-            )
+            raise Exception('Invalid Videodisplay-System configured: %s' % videosystem)
 
         # add an Audio-Path through a level-Element
         pipe += """
@@ -126,12 +143,13 @@ class VideoDisplay(object):
         else:
             pipe += """ ! fakesink
                         """
-        pipe = pipe.format(name=name,
-                           acaps=Config.getAudioCaps(),
-                           port=port,
-                           )
+        pipe = pipe.format(
+            name=name,
+            acaps=Config.getAudioCaps(),
+            port=port,
+        )
 
-        self.log.info("Creating Display-Pipeline:\n%s",  pretty(pipe))
+        self.log.info("Creating Display-Pipeline:\n%s", pretty(pipe))
         try:
             # launch gstreamer pipeline
             self.pipeline = Gst.parse_launch(pipe)
@@ -147,7 +165,8 @@ class VideoDisplay(object):
         self.pipeline.use_clock(Clock)
 
         self.video_drawing_area.add_events(
-            Gdk.EventMask.KEY_PRESS_MASK | Gdk.EventMask.KEY_RELEASE_MASK)
+            Gdk.EventMask.KEY_PRESS_MASK | Gdk.EventMask.KEY_RELEASE_MASK
+        )
         self.video_drawing_area.connect("realize", self.on_realize)
         bus = self.pipeline.get_bus()
         bus.add_signal_watch()
@@ -160,7 +179,8 @@ class VideoDisplay(object):
 
     def on_realize(self, win):
         self.imagesink = self.pipeline.get_by_name(
-            'imagesink-{name}'.format(name=self.name))
+            'imagesink-{name}'.format(name=self.name)
+        )
         self.xid = self.video_drawing_area.get_property('window').get_xid()
 
         self.log.debug('Realized Drawing-Area with xid %u', self.xid)
@@ -172,18 +192,20 @@ class VideoDisplay(object):
     def on_syncmsg(self, bus, msg):
         if type(msg) == Gst.Message and self.imagesink:
             if msg.get_structure().get_name() == "prepare-window-handle":
-                self.log.info(
-                    'Setting imagesink window-handle to 0x%x', self.xid)
+                self.log.info('Setting imagesink window-handle to 0x%x', self.xid)
                 self.imagesink.set_window_handle(self.xid)
 
     def on_error(self, bus, message):
         (error, debug) = message.parse_error()
         self.log.error(
-            "GStreamer pipeline element '%s' signaled an error #%u: %s" % (message.src.name, error.code, error.message))
+            "GStreamer pipeline element '%s' signaled an error #%u: %s"
+            % (message.src.name, error.code, error.message)
+        )
 
     def mute(self, mute):
-        self.pipeline.get_by_name("audiosink-{name}".format(name=self.name)).set_property(
-            "volume", 1 if mute else 0)
+        self.pipeline.get_by_name(
+            "audiosink-{name}".format(name=self.name)
+        ).set_property("volume", 1 if mute else 0)
 
     def on_level(self, bus, msg):
         if self.level_callback and msg.src.name == 'lvl':

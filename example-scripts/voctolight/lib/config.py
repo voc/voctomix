@@ -19,14 +19,13 @@ def fetchServerConfig(self, conn):
     log.info("merging server-config %s", server_config)
     self.read_dict(server_config)
 
+
 ConfigParser.getlist = getlist
 ConfigParser.fetchServerConfig = fetchServerConfig
 
 files = [
-    os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                 '../default-config.ini'),
-    os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                 '../config.ini'),
+    os.path.join(os.path.dirname(os.path.realpath(__file__)), '../default-config.ini'),
+    os.path.join(os.path.dirname(os.path.realpath(__file__)), '../config.ini'),
     '/etc/voctomix/voctolight.ini',
     '/etc/voctolight.ini',
     os.path.expanduser('~/.voctolight.ini'),

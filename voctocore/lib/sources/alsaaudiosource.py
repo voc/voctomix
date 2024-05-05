@@ -10,10 +10,10 @@ from lib.sources.avsource import AVSource
 
 class AlsaAudioSource(AVSource):
 
-    def __init__(self, name, has_audio=True, has_video=False,
-                 force_num_streams=None):
-        super().__init__('AlsaAudioSource', name, has_audio, has_video,
-                         force_num_streams)
+    def __init__(self, name, has_audio=True, has_video=False, force_num_streams=None):
+        super().__init__(
+            'AlsaAudioSource', name, has_audio, has_video, force_num_streams
+        )
         self.device = Config.getAlsaAudioDevice(name)
         self.name = name
 
@@ -27,8 +27,7 @@ class AlsaAudioSource(AVSource):
 
     def __str__(self):
         return 'AlsaAudioSource[{name}] ({device})'.format(
-            name=self.name,
-            device=self.device
+            name=self.name, device=self.device
         )
 
     def build_audioport(self):
