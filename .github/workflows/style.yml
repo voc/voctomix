@@ -1,0 +1,56 @@
+name: Code Style
+on: [ push, pull_request ]
+
+jobs:
+  isort:
+    name: isort
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+      - name: Install Dependencies
+        run: pip3 install isort
+      - name: Run isort
+        run: 'isort --check --diff .'
+  black:
+    name: black
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+      - name: Install Dependencies
+        run: pip3 install black
+      - name: Run black
+        run: 'black --check --diff .'
+  pycodestyle1:
+    name: pycodestyle (everything but tests)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+      - name: Install Dependencies
+        run: pip3 install pycodestyle
+      - name: Run pycodestyle
+        run: 'pycodestyle --ignore=E402,E501,W503 --exclude=voctocore/tests,doc,example-scripts .'
+  pycodestyle2:
+    name: pycodestyle (tests only)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+      - name: Install Dependencies
+        run: pip3 install pycodestyle
+      - name: Run pycodestyle
+        run: 'pycodestyle --ignore=E501 voctocore/tests'
