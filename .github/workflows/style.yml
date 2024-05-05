@@ -27,7 +27,7 @@ jobs:
       - name: Install Dependencies
         run: pip3 install black
       - name: Run black
-        run: 'black --check --diff .'
+        run: 'black --check --diff --skip-string-normalization .'
   pycodestyle1:
     name: pycodestyle (everything but tests)
     runs-on: ubuntu-latest
