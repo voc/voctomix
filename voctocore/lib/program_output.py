@@ -57,7 +57,7 @@ class ProgramOutputSink:
                 use_audio="" if use_audio_mix else "source-",
                 audio_source="mix" if use_audio_mix else self.source,
                 audio_blinded="-blinded" if audio_blinded else "",
-                videosink=Config.getProgramOutputAudioSink(),
+                audiosink=Config.getProgramOutputAudioSink(),
             )
 
         # close bin
