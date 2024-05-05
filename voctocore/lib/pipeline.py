@@ -158,8 +158,8 @@ class Pipeline(object):
             # launch gstreamer pipeline
             self.pipeline = Gst.parse_launch(pipeline)
             self.log.info("pipeline launched successfuly")
-        except:
-            self.log.error("Can not launch pipeline")
+        except Exception:
+            self.log.exception("Can not launch pipeline")
             sys.exit(-1)
 
         # attach pads
