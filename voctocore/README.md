@@ -571,6 +571,8 @@ This mix is intended for the **MIX** preview in the GUI.
 
 #### 1.6.2.5. Sources Recording
 
+`local_recording` is not yet implemented for 2.0
+
 #### 1.6.2.6. Sources Preview
 
 Source Preview elements are used to encode the different video streams which will be shown in the GUI.
@@ -604,6 +606,21 @@ enabled=true
 | Attribute Name     | Example Values                      | Default     | Description
 | ------------------ | ----------------------------------- | ----------- | -----------------------------------------
 | `enable`           | `true`                              | false       |
+
+#### 1.6.2.8 SRT Server
+
+`srtserver` not yet implemented for 2.0
+
+#### 1.6.2.9 Program Output
+
+Outputs the current **Mix Recording** (aka **Mix** in GUI) to a defined gstreamer sink
+
+```ini
+[programoutput]
+enabled = true
+videosink = autovideosink # this is the default
+audiosink = autoaudiosink # this is the default
+```
 
 ### 1.6.3. A/V Processing Elements
 

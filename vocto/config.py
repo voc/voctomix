@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 import logging
-import re
 import os
+import re
+from configparser import SafeConfigParser
 
 from gi.repository import Gst
-from configparser import SafeConfigParser
 from lib.args import Args
-from vocto.transitions import Composites, Transitions
-from vocto.audio_streams import AudioStreams
+
 from vocto import kind_has_audio, kind_has_video
+from vocto.audio_streams import AudioStreams
+from vocto.transitions import Composites, Transitions
 
 testPatternCount = 0
 
@@ -408,14 +409,11 @@ class VocConfigParser(SafeConfigParser):
             'previews', 'height') else int(width * 9 / 16)
         return (width, height)
 
-    def getLocalPlayoutEnabled(self):
-        return self.getboolean('localplayout', 'enabled', fallback=False)
+    def getLocalRecordingEnabled(self):
+        return self.getboolean('localrecording', 'enabled', fallback=False)
 
-    def getLocalPlayoutAudioEnabled(self):
-        return self.getboolean('localplayout', 'audioenabled', fallback=True)
-
-    def getRecordingEnabled(self):
-        return self.getboolean('localplayout', 'record', fallback=True)
+    def getSRTServerEnabled(self):
+        return self.getboolean('srtserver', 'enabled', fallback=True)
 
     def getPreviewsEnabled(self):
         return self.getboolean('previews', 'enabled', fallback=False)
@@ -423,11 +421,14 @@ class VocConfigParser(SafeConfigParser):
     def getAVRawOutputEnabled(self):
         return self.getboolean('avrawoutput', 'enabled', fallback=True)
 
-    def getLocalUIEnabled(self):
-        return self.getboolean('localui', 'enabled', fallback=False)
+    def getProgramOutputEnabled(self):
+        return self.getboolean('programoutput', 'enabled', fallback=False)
 
-    def getLocalUIVideoSystem(self):
-        return self.get('localui', 'system', fallback="autovideosink")
+    def getProgramOutputVideoSink(self):
+        return self.get('programoutput', 'videosink', fallback="autovideosink")
+
+    def getProgramOutputAudioSink(self):
+        return self.get('programoutput', 'audiosink', fallback="autoaudiosink")
 
     def getLivePreviews(self):
         if self.getBlinderEnabled():

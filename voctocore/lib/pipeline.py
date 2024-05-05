@@ -4,22 +4,24 @@ import re
 import sys
 
 from gi.repository import Gst
-
 # import library components
-from lib.config import Config
-from lib.sources import spawn_source
-from lib.avrawoutput import AVRawOutput
-from lib.avpreviewoutput import AVPreviewOutput
-from lib.localplayout import LocalPlayout
-from lib.videomix import VideoMix
-from lib.audiomix import AudioMix
-from lib.blinder import Blinder
-from lib.localui import LocalUi
 from lib.args import Args
+from lib.audiomix import AudioMix
+from lib.avpreviewoutput import AVPreviewOutput
+from lib.avrawoutput import AVRawOutput
+from lib.blinder import Blinder
 from lib.clock import Clock
-from vocto.port import Port
+from lib.config import Config
+from lib.local_recording import LocalRecordingSink
+from lib.program_output import ProgramOutputSink
+from lib.sources import spawn_source
+from lib.srtserver import SRTServerSink
+from lib.videomix import VideoMix
+
 from vocto.debug import gst_generate_dot
+from vocto.port import Port
 from vocto.pretty import pretty
+
 
 class Pipeline(object):
     """mixing, streaming and encoding pipeline constuction and control"""
@@ -84,10 +86,10 @@ class Pipeline(object):
             self.ports.append(Port('mix', dest))
 
         # add localui
-        if Config.getLocalUIEnabled():
-            ui = LocalUi("mix", Port.MIX_OUT, use_audio_mix=True)
-            self.bins.append(ui)
-            self.ports.append(Port('mix', ui))
+        if Config.getProgramOutputEnabled():
+            pgmout = ProgramOutputSink("mix", Port.MIX_OUT, use_audio_mix=True)
+            self.bins.append(pgmout)
+            self.ports.append(Port('mix', pgmout))
 
         # create mix preview TCP output
         if Config.getPreviewsEnabled():
@@ -137,10 +139,17 @@ class Pipeline(object):
                 self.bins.append(dest)
                 self.ports.append(Port('{}-blinded'.format(livesource), dest))
 
-        if Config.getLocalPlayoutEnabled():
-            playout = LocalPlayout('mix', Port.LOCALPLAYOUT_OUT, use_audio_mix=True, audio_blinded=True )
-            self.bins.append(playout)
-            self.ports.append(Port('{}-playout'.format("mix"), playout))
+        # TODO test after 2.0 is released
+        #if Config.getLocalRecordingEnabled():
+        #    playout = LocalRecordingSink('mix', Port.LOCALPLAYOUT_OUT, use_audio_mix=True, audio_blinded=True)
+        #    self.bins.append(playout)
+        #    self.ports.append(Port('{}-playout'.format("mix"), playout))
+
+        # TODO test after 2.0 is released
+        #if Config.getSRTServerEnabled():
+        #    playout = SRTServerSink('mix', Port.LOCALPLAYOUT_OUT, use_audio_mix=True, audio_blinded=True)
+        #    self.bins.append(playout)
+        #    self.ports.append(Port('{}-playout'.format("mix"), playout))
 
 
         for _bin in self.bins:

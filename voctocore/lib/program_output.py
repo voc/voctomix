@@ -6,11 +6,11 @@ from lib.config import Config
 from lib.tcpmulticonnection import TCPMultiConnection
 
 
-class LocalUi():
+class ProgramOutputSink:
 
     def __init__(self, source, port, use_audio_mix=False, audio_blinded=False):
         # create logging interface
-        self.log = logging.getLogger('LocalUI'.format(source))
+        self.log = logging.getLogger("ProgramOutputSink".format(source))
 
         # initialize super
         # super().__init__(port)
@@ -33,9 +33,11 @@ class LocalUi():
                     max-size-time=3000000000
                     name=queue-mux-video-localui
                 ! {videosink} sync=false
-                """.format(source=self.source,
-                           vcaps=Config.getVideoCaps(),
-                           videosink=Config.getLocalUIVideoSystem())
+        """.format(
+            source=self.source,
+            vcaps=Config.getVideoCaps(),
+            videosink=Config.getProgramOutputVideoSink(),
+        )
 
         # audio pipeline
         if use_audio_mix or source in Config.getAudioSources(internal=True):
@@ -48,12 +50,14 @@ class LocalUi():
                 ! queue
                     max-size-time=3000000000
                     name=queue-mux-audio-{source}
-                ! audioresample ! autoaudiosink
+                ! audioresample
+                ! {audiosink}
                 """.format(
                 source=self.source,
                 use_audio="" if use_audio_mix else "source-",
                 audio_source="mix" if use_audio_mix else self.source,
-                audio_blinded="-blinded" if audio_blinded else ""
+                audio_blinded="-blinded" if audio_blinded else "",
+                videosink=Config.getProgramOutputAudioSink(),
             )
 
         # close bin
@@ -75,7 +79,7 @@ class LocalUi():
         return False
 
     def __str__(self):
-        return 'LocalUI[{}]'.format(self.source)
+        return "ProgramOutputSink[{}]".format(self.source)
 
     def attach(self, pipeline):
         self.pipeline = pipeline
