@@ -116,20 +116,26 @@ def on_loop():
 
     words = line.split()
     if len(words) < 1:
-        log.debug('command_queue is empty again, stopping on_loop scheduling')
+        log.debug(f'command_queue contained {line!r}, which is invalid, returning early')
         return True
 
     signal = words[0]
     args = words[1:]
     log.debug(f"on_loop {signal=} {args=}")
     if signal == "error":
-        log.error('received error: %s', line )
+        log.error(f'received error: {" ".join(args)}')
+
     if signal not in signal_handlers:
+        log.warning(f'no signal handler for {signal}, ignoring {args!r}')
         return True
 
     for handler in signal_handlers[signal]:
-        handler(*args)
+        try:
+            handler(*args)
+        except Exception:
+            log.exception(f'failed executing handler {handler} with args {args}')
 
+    command_queue.task_done()
     return True
 
 
