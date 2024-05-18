@@ -1,10 +1,11 @@
+import json
 import logging
 import socket
-import json
 import sys
+from queue import Empty, Queue
+from threading import Lock
 
-from queue import Queue, Empty
-from gi.repository import Gtk, GObject
+from gi.repository import GObject, Gtk
 
 from vocto.port import Port
 
@@ -13,6 +14,9 @@ conn = None
 ip = None
 command_queue = Queue()
 signal_handlers = {}
+
+on_loop_lock = Lock()
+on_loop_active = False
 
 
 def establish(host):
@@ -64,6 +68,8 @@ def enterNonblockingMode():
 def on_data(conn, _, leftovers, *args):
     '''Asynchronous connection handler. Pushes data from socket
     into command queue linewise'''
+    global command_queue, on_loop_lock, on_loop_active
+
     try:
         while True:
             try:
@@ -89,10 +95,13 @@ def on_data(conn, _, leftovers, *args):
         log.debug("got line: %r", line)
 
         line = line.strip()
-        log.debug('re-starting on_loop scheduling')
-        GObject.idle_add(on_loop)
-
         command_queue.put((line, conn))
+
+        with on_loop_lock:
+            if not on_loop_active:
+                log.debug('re-starting on_loop scheduling')
+                GObject.idle_add(on_loop)
+                on_loop_active = True
 
     if lines[-1] != '':
         log.debug("remaining %r", lines[-1])
@@ -104,15 +113,16 @@ def on_data(conn, _, leftovers, *args):
 def on_loop():
     '''Command handler. Processes commands in the command queue whenever
     nothing else is happening (registered as GObject idle callback)'''
+    global command_queue, on_loop_lock, on_loop_active
 
-    global command_queue
-
-    try:
-        line, requestor = command_queue.get_nowait()
-        log.debug(f'on_loop {line=} {requestor=}')
-    except Empty:
-        log.debug('command_queue is empty again, stopping on_loop scheduling')
-        return False
+    with on_loop_lock:
+        try:
+            line, requestor = command_queue.get_nowait()
+            log.debug(f'on_loop {line=} {requestor=}')
+        except Empty:
+            log.debug('command_queue is empty again, stopping on_loop scheduling')
+            on_loop_active = False
+            return False
 
     words = line.split()
     if len(words) < 1:
