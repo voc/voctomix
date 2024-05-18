@@ -3,7 +3,7 @@ import socket
 import json
 import sys
 
-from queue import Queue
+from queue import Queue, Empty
 from gi.repository import Gtk, GObject
 
 from vocto.port import Port
@@ -62,8 +62,6 @@ def enterNonblockingMode():
 
 
 def on_data(conn, _, leftovers, *args):
-    global log
-
     '''Asynchronous connection handler. Pushes data from socket
     into command queue linewise'''
     try:
@@ -109,13 +107,12 @@ def on_loop():
 
     global command_queue
 
-    log.debug('on_loop called')
-
-    if command_queue.empty():
+    try:
+        line, requestor = command_queue.get_nowait()
+        log.debug(f'on_loop {line=} {requestor=}')
+    except Empty:
         log.debug('command_queue is empty again, stopping on_loop scheduling')
         return False
-
-    line, requestor = command_queue.get()
 
     words = line.split()
     if len(words) < 1:
