@@ -74,7 +74,9 @@ class PreviewToolbarController(object):
         Connection.send('get_composite')
         self.enable_modifiers()
         self.enable_sourcesB()
-        self.enable_sources();
+        self.enable_sources()
+
+        self.output = CompositeCommand(self.composite, self.sourceA, self.sourceB)
 
         self.do_test = True
         self.initialized = True
