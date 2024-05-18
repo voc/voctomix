@@ -1,4 +1,10 @@
-# VOC2MIX
+# VOCTOMIX
+
+`voctomix` is a video mixing software, written in python.
+
+We support all python versions between "latest stable" and "available in
+debian stable". Older python versions might work, but we don't test on
+those.
 
 ## Current Documentation
 
