@@ -118,15 +118,15 @@ class PresetController(object):
 
     def on_btn_toggled(self, btn):
         self.log.debug(f">on_btn_toggle {btn=}")
-        id = btn.get_name()
-        self.log.info(f"Preset Button {id} was pressed")
         if btn.get_active():
+            id = btn.get_name()
+            self.log.info(f"Preset Button {id} was pressed")
             if id not in self.button_to_composites:
                 self.log.error(f"Button {id} not found in composites!")
                 return
-            self.preview_controller.set_command(self.button_to_composites[id])
             self.log.debug(f"{self.button_to_composites[id]=}")
             self.log.info(f"Selecting {self.button_to_composites[id]} for next scene")
+            self.preview_controller.set_command(self.button_to_composites[id])
         self.log.debug(f"<on_btn_toggle {btn=}")
 
     def on_best(self, best, targetA, targetB):
