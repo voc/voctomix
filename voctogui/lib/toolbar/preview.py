@@ -149,7 +149,7 @@ class PreviewToolbarController(object):
             Connection.send('best', str(self.command()))
 
     def set_command(self, command, do_test=True):
-        self.do_test = do_test
+        self.do_test = False
         self.log.info("Changing new composite to '%s'", str(self.command()))
         if type(command) == str:
             command = CompositeCommand.from_str(command)
@@ -159,6 +159,7 @@ class PreviewToolbarController(object):
         self.composites[command.composite]['button'].set_active(True)
         self.sourcesA[command.A]['button'].set_active(True)
         self.sourcesB[command.B]['button'].set_active(True)
+        self.do_test = do_test
         self.test()
         self.do_test = True
 
@@ -167,9 +168,7 @@ class PreviewToolbarController(object):
         if (c.A, c.B) != (targetA, targetB) and (c.A, c.B) != (targetB, targetA):
             c.A = targetA
             c.B = targetB
-            self.do_test = False
-            self.set_command(c)
-            self.do_test = True
+            self.set_command(c, False)
         self.update_glow()
 
     def on_composite(self, command):
