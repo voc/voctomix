@@ -141,7 +141,16 @@ class PresetController(object):
         self.log.debug(f">on_composite {command=} {self.current_state=}")
         cmd = CompositeCommand.from_str(command)
         for name, composite in self.button_to_composites.items():
-            if cmd == composite:
+            if (
+                composite.A == cmd.A
+                and (
+                    composite.composite == 'fs'
+                    or (
+                        composite.composite == cmd.composite
+                        and composite.B == cmd.B
+                    )
+                )
+            ):
                 self.current_state = name
                 break
         else:
