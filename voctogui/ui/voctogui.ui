@@ -16,7 +16,7 @@
     <property name="visible">True</property>
     <property name="can-focus">False</property>
     <property name="pixbuf">logo.svg</property>
-    <property name="tooltip_text" translatable="yes">voctomix 2.0 - https://github.com/voc/voctomix/</property>
+    <property name="tooltip-text" translatable="yes">voctomix 2.0 - https://github.com/voc/voctomix/</property>
   </object>
   <object class="GtkImage" id="img-ports">
     <property name="visible">True</property>
@@ -33,7 +33,7 @@
   <object class="GtkImage" id="img-voc">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
-    <property name="tooltip_text" translatable="yes">by C3VOC - https://c3voc.de</property>
+    <property name="tooltip-text" translatable="yes">by C3VOC - https://c3voc.de</property>
     <property name="pixbuf">voc2.svg</property>
   </object>
   <object class="GtkListStore" id="insert-store">
