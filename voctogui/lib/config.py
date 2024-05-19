@@ -36,6 +36,29 @@ class VoctoguiConfigParser(VocConfigParser):
     def getForceFullScreen(self):
         return self.getboolean('mainwindow', 'forcefullscreen', fallback=False)
 
+    def getPresetComposites(self):
+        return self.getList('preset', 'composites', fallback=self.getToolbarComposites().get("buttons", ""))
+
+    def getPresetKeybindings(self):
+        return self.getList('preset', 'keybindings', fallback=[])
+
+    def getPresetSourcesComposites(self):
+        return self._filterPresetSources(self.getList('preset', 'sources_composites'))
+
+    def getPresetSourcesFullscreen(self):
+        return self._filterPresetSources(self.getList('preset', 'sources_fullscreen'))
+
+    def _filterPresetSources(self, sources):
+        toolbar_sources = self.getToolbarSourcesA().get("buttons", "").split(",")
+        if not sources:
+            return toolbar_sources
+        else:
+            return [
+                source
+                for source in sources
+                if source in toolbar_sources
+            ]
+
     def getShowCloseButton(self):
         return self.getboolean('toolbar', 'close', fallback=True)
 

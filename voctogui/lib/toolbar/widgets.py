@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from gi.repository import Gtk
 import sys
+import os
 
 def _decode(text, multiline=True):
     ''' decode multiline text '''
@@ -34,6 +35,7 @@ class Widgets(dict):
     def __init__(self, cfg_items, listname="widgets"):
         # read all config items with their attributes
         self.ids = []
+        self.iconpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../ui/')
         if cfg_items:
             filter = cfg_items[listname].split(
                 ',') if listname in cfg_items else None
@@ -97,5 +99,9 @@ class Widgets(dict):
             # set button tooltip
             if 'expand' in attr:
                 widget.set_expand(True)
+
+            if 'icon' in attr:
+                img = Gtk.Image.new_from_file(os.path.join(self.iconpath, attr['icon']))
+                widget.set_icon_widget(img)
 
             widget.set_can_focus(False)
