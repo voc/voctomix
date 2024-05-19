@@ -6,6 +6,7 @@
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="pixbuf">logo.svg</property>
+    <property name="tooltip_text" translatable="yes">voctomix 2.0 - https://github.com/voc/voctomix/</property>
   </object>
   <object class="GtkImage" id="img-ports">
     <property name="visible">True</property>
@@ -22,14 +23,7 @@
   <object class="GtkImage" id="img-voc">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="tooltip_text" translatable="yes">VOC2MIX - VOC2GUI
-
-Full-HD Software Live-Video-Mixer in python
-
-To get in touch with us we'd ask to join #voctomix on the hackint IRC network, mail to voc AT c3voc DOT de or meet us on one of the many conferences we're at. You may also want to watch MaZderMinds talk about Voctomix and a presentation some of us gave about C3VOCs video infrastructure.
-
-https://c3voc.de/
-https://github.com/voc/voctomix </property>
+    <property name="tooltip_text" translatable="yes">by C3VOC - https://c3voc.de</property>
     <property name="pixbuf">voc2.svg</property>
   </object>
   <object class="GtkListStore" id="insert-store">
