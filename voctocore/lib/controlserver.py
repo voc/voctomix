@@ -1,10 +1,11 @@
 import logging
-from queue import Queue
-from gi.repository import GObject
+from queue import Empty, Queue
+from threading import Lock
 
+from gi.repository import GObject
 from lib.commands import ControlServerCommands
-from lib.tcpmulticonnection import TCPMultiConnection
 from lib.response import NotifyResponse
+from lib.tcpmulticonnection import TCPMultiConnection
 
 from vocto.port import Port
 
@@ -17,6 +18,9 @@ class ControlServer(TCPMultiConnection):
         super().__init__(port=Port.CORE_LISTENING)
 
         self.command_queue = Queue()
+
+        self.on_loop_lock = Lock()
+        self.on_loop_active = False
 
         self.commands = ControlServerCommands(pipeline)
 
@@ -59,8 +63,11 @@ class ControlServer(TCPMultiConnection):
                 self.close_connection(conn)
                 return False
 
-            self.log.debug('re-starting on_loop scheduling')
-            GObject.idle_add(self.on_loop)
+            with self.on_loop_lock:
+                if not self.on_loop_active:
+                    self.log.debug('re-starting on_loop scheduling')
+                    GObject.idle_add(self.on_loop)
+                    self.on_loop_active = True
 
             self.command_queue.put((line, conn))
 
@@ -78,25 +85,23 @@ class ControlServer(TCPMultiConnection):
         '''Command handler. Processes commands in the command queue whenever
         nothing else is happening (registered as GObject idle callback)'''
 
-        self.log.debug('on_loop called')
-
-        if self.command_queue.empty():
-            self.log.debug('command_queue is empty again, '
-                           'stopping on_loop scheduling')
-            return False
-
-        line, requestor = self.command_queue.get()
+        with self.on_loop_lock:
+            try:
+                line, requestor = self.command_queue.get_nowait()
+                self.log.debug(f'on_loop {line=} {requestor=}')
+            except Empty:
+                self.log.debug('command_queue is empty again, stopping on_loop scheduling')
+                self.on_loop_active = False
+                return False
 
         words = line.split()
         if len(words) < 1:
-            self.log.debug('command_queue is empty again, '
-                           'stopping on_loop scheduling')
+            self.log.debug(f'command_queue contained {line!r}, which is invalid, returning early')
             return True
-
-        self.log.info("processing command '%s'", ' '.join(words))
 
         command = words[0]
         args = words[1:]
+        self.log.debug(f"on_loop {command=} {args=}")
 
         response = None
         try:
@@ -106,7 +111,6 @@ class ControlServer(TCPMultiConnection):
                 raise KeyError()
 
             command_function = self.commands.__class__.__dict__[command]
-
         except KeyError as e:
             self.log.info("Received unknown command %s", command)
             response = "error unknown command %s\n" % command
@@ -114,8 +118,8 @@ class ControlServer(TCPMultiConnection):
         else:
             try:
                 responseObject = command_function(self.commands, *args)
-
             except Exception as e:
+                self.log.error(f'{command}(*{args!r}) returned exception: {e!r}')
                 message = str(e) or "<no message>"
                 response = "error %s\n" % message
 
@@ -130,12 +134,12 @@ class ControlServer(TCPMultiConnection):
                             self._schedule_write(conn, signal)
                 else:
                     response = "%s\n" % str(responseObject)
-
         finally:
+            self.log.debug(f'on_loop {response=} {requestor=}')
             if response is not None and requestor in self.currentConnections:
                 self._schedule_write(requestor, response)
 
-        return False
+        return True
 
     def _schedule_write(self, conn, message):
         queue = self.currentConnections[conn]
@@ -153,13 +157,13 @@ class ControlServer(TCPMultiConnection):
         except KeyError:
             return False
 
-        if queue.empty():
-            self.log.debug('write_queue[%u] is empty again, '
-                           'stopping on_write scheduling',
-                           conn.fileno())
+        try:
+            message = queue.get_nowait()
+            self.log.debug(f'on_write {message=}')
+        except Empty:
+            self.log.debug(f'write_queue[{conn.fileno()}] is empty again, stopping on_write scheduling')
             return False
 
-        message = queue.get()
         self.log.info("Responding message '%s'", message.strip())
         try:
             conn.send(message.encode())
