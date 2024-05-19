@@ -144,7 +144,7 @@ class PresetController(object):
             if (
                 composite.A == cmd.A
                 and (
-                    composite.composite == 'fs'
+                    cmd.composite == 'fs'
                     or (
                         composite.composite == cmd.composite
                         and composite.B == cmd.B
