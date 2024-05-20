@@ -165,10 +165,9 @@ class PreviewToolbarController(object):
 
     def on_best(self, best, targetA, targetB):
         c = self.command()
-        if (c.A, c.B) != (targetA, targetB) and (c.A, c.B) != (targetB, targetA):
-            c.A = targetA
-            c.B = targetB
-            self.set_command(c, False)
+        c.A = targetA
+        c.B = targetB
+        self.set_command(c, False)
         self.update_glow()
 
     def on_composite(self, command):
