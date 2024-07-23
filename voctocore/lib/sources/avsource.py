@@ -183,7 +183,7 @@ class AVSource(object, metaclass=ABCMeta):
         source_mode = Config.getSourceScan(self.name)
 
         if source_mode == "interlaced":
-            return "videoconvert ! yadif mode=interlaced"
+            return "videoconvert ! deinterlace"
         elif source_mode == "psf":
             return "capssetter " \
                    "caps=video/x-raw,interlace-mode=progressive"
