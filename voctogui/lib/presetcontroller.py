@@ -89,17 +89,24 @@ class PresetController(object):
 
         if "sbs" in composites:
             for sourceA in sources_composites:
-                if sourceA not in Config.getLiveSources():
-                    continue
                 for sourceB in sources_composites:
-                    if sourceB not in Config.getLiveSources():
+                    if ((sourceB not in Config.getLiveSources() and
+                         sourceA in Config.getLiveSources()) or
+                        (sourceA not in Config.getLiveSources() and
+                         sourceB not in Config.getLiveSources() and
+                         sourceB > sourceA)):
                         button_name = f"preset_sbs_{sourceA}_{sourceB}"
                         buttons[f"{button_name}.name"] = (
                             f"{sourceA}\n{sourceB}"
                         )
-                        buttons[f"{button_name}.icon"] = (
-                            "side-by-side.svg"
-                        )
+                        if sourceA == 'slides':
+                            buttons[f"{button_name}.icon"] = (
+                                "side-by-side.svg"
+                            )
+                        else:
+                            buttons[f"{button_name}.icon"] = (
+                                "side-by-side-cams.svg"
+                            )
                         try:
                             buttons[f"{button_name}.key"] = keybindings[idx]
                             idx += 1
