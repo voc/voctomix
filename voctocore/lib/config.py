@@ -6,6 +6,7 @@ import os.path
 import re
 from configparser import DuplicateSectionError
 from datetime import date, datetime, timedelta
+from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from lib.args import Args
@@ -343,8 +344,18 @@ def load():
 
     Config = VoctocoreConfigParser()
 
-    config_file_name = Args.ini_file if Args.ini_file else os.path.join(
-        os.path.dirname(os.path.realpath(__file__)), '../default-config.ini')
+    home_ini_file = os.path.join(Path.home(), '.config/voctomix/voctocore.ini')
+    etc_ini_file = '/etc/voctomix/voctocore.ini'
+    default_ini_file = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                    '../default-config.ini')
+    if Args.ini_file:
+        config_file_name = Args.ini_file
+    elif Path(home_ini_file).is_file():
+        config_file_name = home_ini_file
+    elif Path(etc_ini_file).is_file():
+        config_file_name = etc_ini_file
+    else:
+        config_file_name = default_ini_file
     readfiles = Config.read([config_file_name])
 
     log = logging.getLogger('ConfigParser')
