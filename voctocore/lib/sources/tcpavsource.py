@@ -73,13 +73,15 @@ class TCPAVSource(AVSource):
                 name=tcpsrc-{name}
                 do-timestamp=TRUE
                 port={port}
+                host={hostname}
             ! demux-{name}.
 
             matroskademux
                 name=demux-{name}
             """.format(
             name=self.name,
-            port=self.listen_port
+            port=self.listen_port,
+            hostname=socket.gethostname(),
         )
 
         if deinterlacer:
