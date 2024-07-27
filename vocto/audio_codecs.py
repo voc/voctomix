@@ -15,7 +15,7 @@ encoders = {'fdkaacenc',
             'avdec_mp3',
             'flacenc',
             'wavenc',
-            'opus',
+            'opusenc',
             'avenc_mp3',
             'lame'
             'avenc_s302m'}
