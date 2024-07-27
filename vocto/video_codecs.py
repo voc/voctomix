@@ -49,7 +49,7 @@ else:
 
 cpu_decoders = {
     'h264': """ video/x-h264
-                ! avdec_h264""",
+                ! h264parse ! avdec_h264""",
     'jpeg': """ image/jpeg
                 ! jpegdec""",
     'mpeg2': """video/mpeg
