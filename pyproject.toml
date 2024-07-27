@@ -1,0 +1,36 @@
+[build-system]
+requires = [
+    "hatchling >= 1.10.0",
+    "hatch-vcs",
+]
+build-backend = "hatchling.build"
+
+[project]
+name = "Voctomix"
+description = "voctomix is a video mixing software, written in python."
+dynamic = ["version"]
+readme = "README.md"
+license = { text = "MIT License" }
+requires-python = ">=3.9.0"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+dependencies = [
+    "sdnotify >= 0.3.2",
+    "pygobject == 3.42.2",
+    "scipy >= 1.13.1",
+]
+
+[project.urls]
+Source = "https://github.com/voc/voctomix"
+Issues = "https://github.com/voc/voctomix/issues"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.targets.wheel]
+packages=["."]
