@@ -55,7 +55,8 @@ class VideoPreviewsController(object):
 
         mix_audio_display = None
 
-        if source in Config.getAudioSources() and Config.getAudioStreams().get_source_streams(source):
+        has_audio = source in Config.getAudioSources()
+        if has_audio and Config.getAudioStreams().get_source_streams(source):
             mix_audio_display = AudioDisplay(self.audio_box, source, uibuilder, has_volume)
         if source in Config.getVideoSources(internal=True):
             video = uibuilder.load_check_widget('video',
@@ -68,5 +69,6 @@ class VideoPreviewsController(object):
             player = VideoDisplay(video, mix_audio_display, port=port,
                                   width=self.previewSize[0],
                                   height=self.previewSize[1],
-                                  name=source.upper()
+                                  name=source.upper(),
+                                  has_audio=has_audio,
                                   )
