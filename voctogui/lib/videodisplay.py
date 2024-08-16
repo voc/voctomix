@@ -17,7 +17,7 @@ class VideoDisplay(object):
     """Displays a Voctomix-Video-Stream into a GtkWidget"""
 
     def __init__(self, video_drawing_area, audio_display, port, name, width=None, height=None,
-                 play_audio=False):
+                 has_audio=True, play_audio=False):
         self.log = logging.getLogger('VideoDisplay:%s' % name)
         self.name = name
         self.video_drawing_area = video_drawing_area
@@ -107,29 +107,30 @@ class VideoDisplay(object):
                 'Invalid Videodisplay-System configured: %s' % videosystem
             )
 
-        # add an Audio-Path through a level-Element
-        pipe += """
-            demux-{name}.
-            ! queue
-                name=queue-audio-{name}
-            ! level
-                name=lvl
-                interval=50000000
-            ! audioconvert
-            """
+        if has_audio:
+            # add an Audio-Path through a level-Element
+            pipe += """
+                demux-{name}.
+                ! queue
+                    name=queue-audio-{name}
+                ! level
+                    name=lvl
+                    interval=50000000
+                ! audioconvert
+                """
 
-        # If Playback is requested, push fo pulseaudio
-        if play_audio:
-            pipe += """ ! pulsesink
-                            name=audiosink-{name}
-                        """
-        else:
-            pipe += """ ! fakesink
-                        """
-        pipe = pipe.format(name=name,
-                           acaps=Config.getAudioCaps(),
-                           port=port,
-                           )
+            # If Playback is requested, push fo pulseaudio
+            if play_audio:
+                pipe += """ ! pulsesink
+                                name=audiosink-{name}
+                            """
+            else:
+                pipe += """ ! fakesink
+                            """
+            pipe = pipe.format(name=name,
+                               acaps=Config.getAudioCaps(),
+                               port=port,
+                               )
 
         self.log.info("Creating Display-Pipeline:\n%s",  pretty(pipe))
         try:
