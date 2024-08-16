@@ -216,7 +216,7 @@ class Pipeline(object):
             self.prevstate = newstate
             self.log.debug("pipeline state changed to '%s'", states[newstate] )
             if newstate == Gst.State.PLAYING:
-                self.log.info("\n\n====================== UP AN RUNNING ======================\n" )
+                self.log.info("\n\n====================== UP AND RUNNING =====================\n" )
 
             if Args.dot or Args.gst_debug_details:
                 # make DOT file from pipeline
