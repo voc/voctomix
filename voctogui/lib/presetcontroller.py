@@ -2,6 +2,7 @@
 import logging
 import os
 import time
+from re import match
 
 import lib.connection as Connection
 from gi.repository import GLib, Gtk
@@ -18,96 +19,60 @@ class PresetController(object):
         self.toolbar = uibuilder.find_widget_recursive(win, "preset_toolbar")
         self.preview_controller = preview_controller
 
-        keybindings = Config.getPresetKeybindings()
-        sources_composites = Config.getPresetSourcesComposites()
-        sources_fullscreen = Config.getPresetSourcesFullscreen()
-        composites = Config.getPresetComposites()
-        accelerators = Gtk.AccelGroup()
+        presets = Config.getPresetOptions()
+        defaults_b = Config.getToolbarSourcesB()
 
         buttons = {}
         self.button_to_composites = {}
         self.current_state = None
 
-        self.log.debug(f"{keybindings=}")
-        self.log.debug(f"{sources_composites=}")
-        self.log.debug(f"{sources_fullscreen=}")
-        self.log.debug(f"{composites=}")
+        self.log.debug(f"{presets=}")
+        self.log.debug(f"{defaults_b=}")
 
-        if (not sources_composites and not sources_fullscreen) or not composites:
+        if not presets:
             self.box.hide()
             self.box.set_no_show_all(True)
             return
 
-        idx = 0
-        if "fs" in composites:
-            for sourceA in sources_fullscreen:
-                button_name = f"preset_fs_{sourceA}"
-                buttons[f"{button_name}.name"] = f"{sourceA}"
-                if 'slides' in sourceA:
-                    buttons[f"{button_name}.icon"] = "slides.svg"
-                else:
-                    buttons[f"{button_name}.icon"] = "speaker.svg"
+        for preset in presets:
+            self.log.info(f"creating preset {preset}")
+            parsed = match(r'^([^_]+)_([^_]+)(?:_([^_]+))?$', preset)
+            if not parsed:
+                raise RuntimeError(f"preset {preset} does not parse")
+            transition, sourceA, sourceB = parsed.groups()
+            self.log.debug(f"preset {preset} parses to: {transition=} {sourceA=} {sourceB=}")
 
-                try:
-                    buttons[f"{button_name}.key"] = keybindings[idx]
-                    idx += 1
-                except IndexError:
-                    pass
-                for sourceB in sources_fullscreen:
-                    if sourceA != sourceB:
-                        self.button_to_composites[button_name] = CompositeCommand(
-                            "fs", sourceA, sourceB
-                        )
-                        break
-                else:
-                    self.button_to_composites[button_name] = CompositeCommand(
-                        "fs", sourceA, None
+            if sourceB is None:
+                # We got a preset like "fs_cam1", meaning the user does
+                # not care what's in channel B (either because they really
+                # don't care, or if B is not visible). We need channel
+                # B though, so we just take the first one from the toolbar.
+                options = [
+                    source
+                    for source in defaults_b
+                    if source != sourceB
+                ]
+                if not options:
+                    raise RuntimeError(
+                        f"preset {preset} does not specify source B "
+                        "and could not determine one automatically."
                     )
+                sourceB = options[0]
 
-        if "lec" in composites:
-            for sourceA in sources_composites:
-                if sourceA not in Config.getLiveSources():
-                    continue
-                for sourceB in sources_composites:
-                    if sourceB not in Config.getLiveSources():
-                        button_name = f"preset_lec_{sourceA}_{sourceB}"
-                        buttons[f"{button_name}.name"] = (
-                            f"{sourceA}\n{sourceB}"
-                        )
-                        buttons[f"{button_name}.icon"] = (
-                            "side-by-side-preview.svg"
-                        )
+            button_name = f"preset_{preset}"
+            buttons[f"{button_name}.name"] = Config.getPresetName(preset).replace('|', '\n')
 
-                        try:
-                            buttons[f"{button_name}.key"] = keybindings[idx]
-                            idx += 1
-                        except IndexError:
-                            pass
-                        self.button_to_composites[button_name] = CompositeCommand(
-                            "lec", sourceA, sourceB
-                        )
+            icon = Config.getPresetIcon(preset)
+            if icon:
+                buttons[f"{button_name}.icon"] = icon
 
-        if "sbs" in composites:
-            for sourceA in sources_composites:
-                if sourceA not in Config.getLiveSources():
-                    continue
-                for sourceB in sources_composites:
-                    if sourceB not in Config.getLiveSources():
-                        button_name = f"preset_sbs_{sourceA}_{sourceB}"
-                        buttons[f"{button_name}.name"] = (
-                            f"{sourceA}\n{sourceB}"
-                        )
-                        buttons[f"{button_name}.icon"] = (
-                            "side-by-side.svg"
-                        )
-                        try:
-                            buttons[f"{button_name}.key"] = keybindings[idx]
-                            idx += 1
-                        except IndexError:
-                            pass
-                        self.button_to_composites[button_name] = CompositeCommand(
-                            "sbs", sourceA, sourceB
-                        )
+            key = Config.getPresetKey(preset)
+            if key:
+                buttons[f"{button_name}.key"] = key
+
+            self.button_to_composites[button_name] = CompositeCommand(
+                transition, sourceA, sourceB
+            )
 
         self.log.debug(f"{buttons=}")
         self.buttons = Buttons(buttons)
