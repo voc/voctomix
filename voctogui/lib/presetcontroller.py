@@ -60,7 +60,7 @@ class PresetController(object):
                 sourceB = options[0]
 
             button_name = f"preset_{preset}"
-            buttons[f"{button_name}.name"] = Config.getPresetName(preset)
+            buttons[f"{button_name}.name"] = Config.getPresetName(preset).replace('|', '\n')
 
             icon = Config.getPresetIcon(preset)
             if icon:
