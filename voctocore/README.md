@@ -503,16 +503,17 @@ Below you can see an example consisting of the necessary XML elements and by tha
 From this file **VOC2MIX** will generate the following file names (and descriptions) for which it will search:
 
 ```txt
+event_1_persons.png|How voctocore improved our lifestyle - Alice, Bob, Claire
 event_1_person_1.png|Alice
 event_1_person_2.png|Bob
 event_1_person_3.png|Claire
-event_1_persons.png|Alice, Bob, Claire
 
+event_2_persons.png|How having a winkekatze changed me - Dick
 event_2_person_4.png|Dick
 
+event_3_persons.png|You won't believe what happened next! - Alice, Dick
 event_3_person_1.png|Alice
 event_3_person_4.png|Dick
-event_3_persons.png|Alice, Dick
 ```
 
 **VOC2CORE** will present a list of all available (files present in file system) overlays if asked for.

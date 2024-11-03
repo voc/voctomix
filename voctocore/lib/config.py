@@ -258,20 +258,20 @@ class VoctocoreConfigParser(VocConfigParser):
                     inserts.append(
                         "event_{eid}_persons|{text}".format(
                             eid=event['id'],
-                            text=", ".join(persons),
+                            text="{} - {}".format(
+                                event.get("title", "no title"),
+                                ", ".join(persons),
+                            ),
                         )
                     )
-                    # if we have more than one person, add inserts for
-                    # each one of them
-                    if len(persons) > 1:
-                        for pname, pid in sorted(persons.items()):
-                            inserts.append(
-                                "event_{eid}_person_{pid}|{text}".format(
-                                    eid=event['id'],
-                                    pid=pid,
-                                    text=pname,
-                                )
+                    for pname, pid in sorted(persons.items()):
+                        inserts.append(
+                            "event_{eid}_person_{pid}|{text}".format(
+                                eid=event['id'],
+                                pid=pid,
+                                text=pname,
                             )
+                        )
                 # if empty show warning
                 if not inserts:
                     self.log.warning('schedule file \'%s\' contains no information for inserts of event #%s',
