@@ -7,6 +7,7 @@ from configparser import NoOptionError
 
 from gi.repository import Gtk, Gdk, GObject
 from lib.videodisplay import VideoDisplay
+from lib.audioonlydisplay import AudioOnlyDisplay
 from lib.audiodisplay import AudioDisplay
 import lib.connection as Connection
 
@@ -72,3 +73,5 @@ class VideoPreviewsController(object):
                                   name=source.upper(),
                                   has_audio=has_audio,
                                   )
+        elif has_audio and Config.getAudioStreams().get_source_streams(source):
+            player = AudioOnlyDisplay(mix_audio_display, port=port, name=source.upper())
