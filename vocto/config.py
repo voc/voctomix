@@ -476,15 +476,21 @@ class VocConfigParser(ConfigParser):
     def getOverlayUserAutoOff(self):
         return self.getboolean('overlay', 'user-auto-off', fallback=False)
 
+    def _getInternalSources(self):
+        sources = ["mix"]
+        if self.getBlinderEnabled():
+            sources += ["blinder", "mix-blinded"]
+            for source in self.getLiveSources():
+                sources += [f"{source}-blinded"]
+        return sources
+
     def getVideoSources(self, internal=False):
         def source_has_video(source):
             return kind_has_video(self.getSourceKind(source))
 
         sources = self.getSources()
         if internal:
-            sources += ["mix"]
-            if self.getBlinderEnabled():
-                sources += ['blinder', 'mix-blinded']
+            sources.extend(self._getInternalSources())
         return list(filter(source_has_video, sources))
 
     def getAudioSources(self, internal=False):
@@ -493,7 +499,5 @@ class VocConfigParser(ConfigParser):
 
         sources = self.getSources()
         if internal:
-            sources += ['mix']
-            if self.getBlinderEnabled():
-                sources += ['blinder', 'mix-blinded']
+            sources.extend(self._getInternalSources())
         return list(filter(source_has_audio, sources))
