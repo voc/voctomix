@@ -95,11 +95,23 @@ class PresetController(object):
             self.preview_controller.set_command(self.button_to_composites[id])
         self.log.debug(f"<on_btn_toggle {btn=}")
 
+    def _compare_command(self, commandA, commandB):
+        return (
+            commandA.A == commandB.A
+            and (
+                commandB.composite == 'fs'
+                or (
+                    commandA.composite == commandB.composite
+                    and commandA.B == commandB.B
+                )
+            )
+        )
+
     def on_best(self, best, targetA, targetB):
         self.log.debug(f">on_best {best=} {targetA=} {targetB=} {self.current_state=}")
-        c = self.preview_controller.command()
+        cmd = self.preview_controller.command()
         for name, composite in self.button_to_composites.items():
-            self.buttons[name]["button"].set_active(c == composite)
+            self.buttons[name]["button"].set_active(self._compare_command(composite, cmd))
         self.log.debug(f"<on_best {best=} {targetA=} {targetB=} {self.current_state=}")
         self.update_glow()
 
@@ -107,16 +119,7 @@ class PresetController(object):
         self.log.debug(f">on_composite {command=} {self.current_state=}")
         cmd = CompositeCommand.from_str(command)
         for name, composite in self.button_to_composites.items():
-            if (
-                composite.A == cmd.A
-                and (
-                    cmd.composite == 'fs'
-                    or (
-                        composite.composite == cmd.composite
-                        and composite.B == cmd.B
-                    )
-                )
-            ):
+            if self._compare_command(composite, cmd):
                 self.current_state = name
                 break
         else:
