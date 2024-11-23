@@ -20,7 +20,7 @@ class PresetController(object):
         self.preview_controller = preview_controller
 
         presets = Config.getPresetOptions()
-        defaults_b = Config.getToolbarSourcesB()
+        defaults_b = Config.getVideoSources()
 
         buttons = {}
         self.button_to_composites = {}
