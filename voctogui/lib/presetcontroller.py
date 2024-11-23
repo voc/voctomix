@@ -21,6 +21,7 @@ class PresetController(object):
 
         presets = Config.getPresetOptions()
         defaults_b = Config.getVideoSources()
+        accelerators = Gtk.AccelGroup()
 
         buttons = {}
         self.button_to_composites = {}
