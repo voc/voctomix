@@ -50,7 +50,7 @@ class PresetController(object):
                 options = [
                     source
                     for source in defaults_b
-                    if source != sourceB
+                    if source != sourceA
                 ]
                 if not options:
                     raise RuntimeError(
