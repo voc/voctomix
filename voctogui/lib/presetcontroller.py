@@ -100,16 +100,21 @@ class PresetController(object):
         self.log.debug(f"<on_btn_toggle {btn=} {id=}")
 
     def _compare_command(self, commandA, commandB):
-        return (
+        is_equal = (
             commandA.A == commandB.A
             and (
-                commandB.composite == 'fs'
+                (
+                    commandA.composite == 'fs'
+                    and commandB.composite == 'fs'
+                )
                 or (
                     commandA.composite == commandB.composite
                     and commandA.B == commandB.B
                 )
             )
         )
+        self.log.debug(f"{commandA} {'==' if is_equal else '!='} {commandB}")
+        return is_equal
 
     def on_best(self, best, targetA, targetB):
         self.log.debug(f">on_best {best=} {targetA=} {targetB=} {self.current_state=}")
