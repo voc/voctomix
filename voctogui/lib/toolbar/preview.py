@@ -149,6 +149,7 @@ class PreviewToolbarController(object):
             Connection.send('best', str(self.command()))
 
     def set_command(self, command, do_test=True):
+        self.log.debug(f">set_command {command=} {do_test=}")
         self.do_test = False
         self.log.info("Changing new composite to '%s'", str(self.command()))
         if type(command) == str:
@@ -162,17 +163,22 @@ class PreviewToolbarController(object):
         self.do_test = do_test
         self.test()
         self.do_test = True
+        self.log.debug(f"<set_command {command=} {do_test=}")
 
     def on_best(self, best, targetA, targetB):
+        self.log.debug(f">on_best {best=} {targetA=} {targetB=}")
         c = self.command()
         c.A = targetA
         c.B = targetB
         self.set_command(c, False)
         self.update_glow()
+        self.log.debug(f"<on_best {best=} {targetA=} {targetB=}")
 
     def on_composite(self, command):
+        self.log.debug(f">on_composite {command=}")
         self.output = CompositeCommand.from_str(command)
         self.test()
+        self.log.debug(f"<on_composite {command=}")
 
     def update_glow(self):
         output = copy.copy(self.output)
