@@ -168,9 +168,10 @@ class PreviewToolbarController(object):
     def on_best(self, best, targetA, targetB):
         self.log.debug(f">on_best {best=} {targetA=} {targetB=}")
         c = self.command()
-        c.A = targetA
-        c.B = targetB
-        self.set_command(c, False)
+        if c.A != targetA or c.B != targetB:
+            c.A = targetA
+            c.B = targetB
+            self.set_command(c, False)
         self.update_glow()
         self.log.debug(f"<on_best {best=} {targetA=} {targetB=}")
 
