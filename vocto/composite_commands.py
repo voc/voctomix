@@ -55,7 +55,7 @@ class CompositeCommand:
     def unmodify(self, mod):
         return self.modify(mod, True)
 
-    def __str__(self):
+    def __repr__(self):
         return "%s(%s,%s)" % (self.composite if self.composite else "*",
                                self.A if self.A else "*",
                                self.B if self.B else "*")
