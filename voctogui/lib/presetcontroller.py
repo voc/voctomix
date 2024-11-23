@@ -92,8 +92,12 @@ class PresetController(object):
                 return
             self.log.debug(f"{self.button_to_composites[id]=}")
             self.log.info(f"Selecting {self.button_to_composites[id]} for next scene")
-            self.preview_controller.set_command(self.button_to_composites[id])
-        self.log.debug(f"<on_btn_toggle {btn=}")
+            if not self._compare_command(
+                self.button_to_composites[id],
+                self.preview_controller.command(),
+            ):
+                self.preview_controller.set_command(self.button_to_composites[id])
+        self.log.debug(f"<on_btn_toggle {btn=} {id=}")
 
     def _compare_command(self, commandA, commandB):
         return (
