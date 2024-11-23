@@ -83,9 +83,9 @@ class PresetController(object):
         Connection.on("composite", self.on_composite)
 
     def on_btn_toggled(self, btn):
-        self.log.debug(f">on_btn_toggle {btn=}")
+        id = btn.get_name()
+        self.log.debug(f">on_btn_toggle {btn=} {id=}")
         if btn.get_active():
-            id = btn.get_name()
             self.log.info(f"Preset Button {id} was pressed")
             if id not in self.button_to_composites:
                 self.log.error(f"Button {id} not found in composites!")
