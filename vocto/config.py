@@ -121,6 +121,18 @@ class VocConfigParser(ConfigParser):
 
     def getDeckLinkVideoFormat(self, source):
         return self.get('source.{}'.format(source), 'video_format', fallback='auto')
+    
+    def getAJADeviceIdentifier(self, source):
+        return self.get(f'source.{source}', 'device', fallback='')
+
+    def getAJAInputChannel(self, source):
+        return self.getint(f'source.{source}', 'channel', fallback=0)
+
+    def getAJAVideoMode(self, source):
+        return self.get(f'source.{source}', 'video_mode', fallback='auto')
+
+    def getAJAAudioSource(self, source):
+        return self.get(f'source.{source}', 'audio_source', fallback='embedded')
 
     def getPulseAudioDevice(self, source):
         return self.get('source.{}'.format(source), 'device', fallback='auto')

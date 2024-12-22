@@ -8,6 +8,7 @@ sources = {}
 def spawn_source(name, port, has_audio=True, has_video=True):
 
     from lib.config import Config
+    from lib.sources.ajaavsource import AJAAVSource
     from lib.sources.decklinkavsource import DeckLinkAVSource
     from lib.sources.imgvsource import ImgVSource
     from lib.sources.tcpavsource import TCPAVSource
@@ -24,6 +25,8 @@ def spawn_source(name, port, has_audio=True, has_video=True):
         sources[name] = ImgVSource(name)
     elif kind == 'decklink':
         sources[name] = DeckLinkAVSource(name, has_audio, has_video)
+    elif kind == 'aja':
+        sources[name] = AJAAVSource(name, has_audio, has_video)
     elif kind == 'file':
         sources[name] = FileSource(name, has_audio, has_video)
     elif kind == 'tcp':
