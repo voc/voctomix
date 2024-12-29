@@ -22,7 +22,8 @@
       - [1.6.1.1.4. Decklink Sources](#16114-decklink-sources)
       - [1.6.1.1.5. Image Sources](#16115-image-sources)
       - [1.6.1.1.6. Video4Linux2 Sources](#16116-video4linux2-sources)
-      - [1.6.1.1.7. Common Source Attributes](#16117-common-source-attributes)
+      - [1.6.1.1.7. AJA Sources](#16117-aja-sources)
+      - [1.6.1.1.8. Common Source Attributes](#16118-common-source-attributes)
     - [1.6.1.2. Background Video Source](#1612-background-video-source)
       - [1.6.1.2.1. Multiple Background Video Sources (depending on Composite)](#16121-multiple-background-video-sources-depending-on-composite)
     - [1.6.1.3. Blinding Sources (Video and Audio)](#1613-blinding-sources-video-and-audio)
@@ -43,6 +44,9 @@
     - [1.6.2.5. Sources Recording](#1625-sources-recording)
     - [1.6.2.6. Sources Preview](#1626-sources-preview)
     - [1.6.2.7. Mirror Ports](#1627-mirror-ports)
+    - [1.6.2.8. SRT Server](#1628-srt-server)
+    - [1.6.2.9. Program Output](#1629-program-output)
+      - [1.6.2.9.1. AJA Program Output](#16291-aja-program-output)
   - [1.6.3. A/V Processing Elements](#163-av-processing-elements)
     - [1.6.3.1. DeMux](#1631-demux)
     - [1.6.3.2. Mux](#1632-mux)
@@ -308,7 +312,44 @@ format=YUY2
 | `framerate`        | `10/1`                                             | 25/1        | video frame rate expected from the source
 | `format`           | `YUY2`                                             | YUY2        | video format expected from the source
 
-##### 1.6.1.1.7. Common Source Attributes
+##### 1.6.1.1.7. AJA Sources
+
+You can use `aja` as a source's `kind` if you would like to grab audio and
+video from a [AJA](https://www.aja.com/family/desktop-io) Desktop I/O grabber
+card.
+
+```ini
+[mix]
+sources = cam1,cam2
+
+[source.cam1]
+kind = aja
+device = 00A00012
+channel = 0
+
+[source.cam2]
+kind = aja
+device = 00A00012
+channel = 1
+```
+
+You now have two **AJA A/V grabber** sources, using input channels 0 and 1;
+this usually maps to the first two SDI inputs.
+
+The `device` attribute must be set, and is usually a truncated part of the
+serial number. If set to `?`, then a list of discovered cards will be printed
+at startup by libajantv2, and then voctocore will quit.
+
+Optional attributes of AJA sources are:
+
+| Attribute Name     | Example Values                                          | Default    | Description (follow link)
+| ------------------ | ------------------------------------------------------- | ---------- | -----------------------------------------
+| `device`           | `00A00012`, ...                                         | ``         | [AJA `device-identifier`](https://gstreamer.freedesktop.org/documentation/aja/ajasrc.html#ajasrc:device-identifier)
+| `channel`          | `0`, `1`, `2`, ...                                      | `0`        | [AJA `channel`](https://gstreamer.freedesktop.org/documentation/aja/ajasrc.html#ajasrc:channel)
+| `video_mode`       | `auto`, `1080p-2500`, `1080p-6000-a`, `1080i-5000`, ... | `auto`     | [AJA `video-format`](https://gstreamer.freedesktop.org/documentation/aja/ajasrc.html#GstAjaVideoFormat)
+| `audio_source`     | `embedded`, `aes`, `analog`, `hdmi`, `mic`              | `embedded` | [AJA `audio-source`](https://gstreamer.freedesktop.org/documentation/aja/ajasrc.html#GstAjaAudioSource)
+
+##### 1.6.1.1.8. Common Source Attributes
 
 These attributes can be set for all *kinds* of sources:
 
@@ -608,11 +649,11 @@ enabled=true
 | ------------------ | ----------------------------------- | ----------- | -----------------------------------------
 | `enable`           | `true`                              | false       |
 
-#### 1.6.2.8 SRT Server
+#### 1.6.2.8. SRT Server
 
 `srtserver` not yet implemented for 2.0
 
-#### 1.6.2.9 Program Output
+#### 1.6.2.9. Program Output
 
 Outputs the current **Mix Recording** (aka **Mix** in GUI) to a defined gstreamer sink
 
@@ -621,6 +662,20 @@ Outputs the current **Mix Recording** (aka **Mix** in GUI) to a defined gstreame
 enabled = true
 videosink = autovideosink # this is the default
 audiosink = autoaudiosink # this is the default
+```
+
+##### 1.6.2.9.1. AJA Program Output
+
+You can, for instance, output the Mix recording to an AJA card (including one
+from which you are capturing):
+
+```ini
+[programoutput]
+enabled = true
+# channel=4 --> SDI 5
+videosink=queue max-size-bytes=0 max-size-buffers=0 max-size-time=1000000000 ! videoconvert ! video/x-raw,width=1920,height=1080,framerate=60/1 ! ajaout.video ajasinkcombiner name=ajaout ! ajasink channel=4 reference-source=input-1
+# Note that the audio buffers must be padded to 16 channels and chunked at the framerate or the pipeline will stall or sound very odd
+audiosink=audiomixmatrix in-channels=2 out-channels=16 channel-mask=-1 mode=first-channels ! audiobuffersplit output-buffer-duration=1/60 ! ajaout.audio
 ```
 
 ### 1.6.3. A/V Processing Elements
