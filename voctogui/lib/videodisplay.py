@@ -37,6 +37,7 @@ class VideoDisplay(object):
                            host=Config.getHost(),
                            port=port)
 
+        videosystem = Config.getVideoSystem()
         if Config.getPreviewsEnabled():
             self.log.info('using encoded previews instead of raw-video')
 
@@ -46,7 +47,7 @@ class VideoDisplay(object):
                     name=queue-video-{name}
                 ! {video_decoder}
                 """.format(name=name,
-                           video_decoder=construct_video_decoder_pipeline('previews'))
+                           video_decoder=construct_video_decoder_pipeline('previews', videosystem))
 
         else:
             video_decoder = None
@@ -77,7 +78,6 @@ class VideoDisplay(object):
                 """.format(name=name)
 
         # Video Display
-        videosystem = Config.getVideoSystem()
         self.log.debug('Configuring for Video-System %s', videosystem)
 
         if videosystem == 'gl':
