@@ -29,6 +29,7 @@ class ProgramOutputSink:
         self.bin += """
                 video-mix.
                 ! {vcaps}
+                ! videoconvert
                 ! queue
                     max-size-time=3000000000
                     name=queue-mux-video-localui
