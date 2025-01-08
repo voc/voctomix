@@ -27,7 +27,7 @@ class ProgramOutputSink:
         self.bin = ""
         # video pipeline
         self.bin += """
-                video-mix.
+                video-{source}.
                 ! {vcaps}
                 ! videoconvert
                 ! queue
