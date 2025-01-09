@@ -49,9 +49,9 @@ class VideoPreMix(object):
             self.bin += """\
                 ! queue
                     max-size-time=3000000000
-                    name=queue-overlay
+                    name=queue-preoverlay
                 ! gdkpixbufoverlay
-                    name=overlay
+                    name=preoverlay
                     overlay-width={width}
                     overlay-height={height}
                 """.format(
@@ -83,7 +83,7 @@ class VideoPreMix(object):
                 video-{name}.
                 ! queue
                     max-size-time=3000000000
-                    name=queue-video-{name}
+                    name=queue-prevideo-{name}
                 ! videopremixer.
                 """.format(name=background)
 
@@ -91,7 +91,7 @@ class VideoPreMix(object):
             self.bin += """
                 video-{name}.
                 ! videobox
-                    name=cropper-{name}
+                    name=precropper-{name}
                 ! queue
                     max-size-time=3000000000
                     name=queue-videopremixer-{name}

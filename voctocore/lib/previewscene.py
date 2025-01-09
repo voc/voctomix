@@ -10,7 +10,7 @@ class PreviewScene:
         and voctomix frames.
         With commit() you add frames at a specified play time
     """
-    log = logging.getLogger('Scene')
+    log = logging.getLogger('PreviewScene')
 
     def __init__(self, sources, pipeline, fps, start_sink, cropping=True):
         """ initialize with a gstreamer pipeline and names
@@ -62,7 +62,7 @@ class PreviewScene:
             # get mixer and cropper pad from pipeline
             if self.cpads is not None:
                 cropperpad = (pipeline
-                              .get_by_name("cropper-%s" % source))
+                              .get_by_name("precropper-%s" % source))
                 self.cpads[source] = {
                     'croptop': bind(cropperpad, 'top'),
                     'cropleft': bind(cropperpad, 'left'),
