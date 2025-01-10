@@ -25,7 +25,7 @@ class AudioStreams(list):
             # search for entrys like 'audio.*'
             r = re.match(r'^audio\.([\w\-_]+)$', t_name)
             if r:
-                for i, channel in enumerate(set(t.split("+"))):
+                for i, channel in enumerate(self.channels(t)):
                     name = source if use_source_as_name else r.group(1)
                     if self.has_stream(name):
                         log.error("input audio stream name '%s' can't be addressed a second time within source '%s'",
@@ -33,6 +33,14 @@ class AudioStreams(list):
                     else:
                         audiostreams.append(AudioStream(source, i, name, channel))
         self.extend(audiostreams)
+
+    @staticmethod
+    def channels(channel_positions: str) -> list[str]:
+        channels = []
+        for entry in channel_positions.split("+"):
+            if entry not in channels:
+                channels.append(entry)
+        return channels
 
     def has_stream(self, name, channel=None):
         for s in self:
