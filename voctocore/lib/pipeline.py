@@ -17,6 +17,7 @@ from lib.program_output import ProgramOutputSink
 from lib.sources import spawn_source
 from lib.srtserver import SRTServerSink
 from lib.videomix import VideoMix
+from lib.videopremix import VideoPreMix
 
 from vocto.debug import gst_generate_dot
 from vocto.port import Port
@@ -72,6 +73,12 @@ class Pipeline(object):
         self.vmix = VideoMix()
         self.bins.append(self.vmix)
 
+        self.vpremix = None
+        if Config.getPreviewMixEnabled():
+            self.log.info('Creating Videopremixer')
+            self.vpremix = VideoPreMix()
+            self.bins.append(self.vpremix)
+
         for idx, background in enumerate(Config.getBackgroundSources()):
             # create background source
             source = spawn_source(
@@ -84,6 +91,10 @@ class Pipeline(object):
             dest = AVRawOutput('mix', Port.MIX_OUT, use_audio_mix=True)
             self.bins.append(dest)
             self.ports.append(Port('mix', dest))
+            if Config.getPreviewMixEnabled():
+                dest = AVRawOutput('premix', Port.PREMIX_OUT, use_audio_mix=True)
+                self.bins.append(dest)
+                self.ports.append(Port('premix', dest))
 
         # add localui
         if Config.getProgramOutputEnabled():
@@ -96,6 +107,10 @@ class Pipeline(object):
             dest = AVPreviewOutput('mix', Port.MIX_PREVIEW, use_audio_mix=True)
             self.bins.append(dest)
             self.ports.append(Port('preview-mix', dest))
+            if Config.getPreviewMixEnabled():
+                dest = AVPreviewOutput('premix', Port.PREMIX_PREVIEW, use_audio_mix=True)
+                self.bins.append(dest)
+                self.ports.append(Port('preview-premix', dest))
 
         # create blinding sources and mixer
         if Config.getBlinderEnabled():

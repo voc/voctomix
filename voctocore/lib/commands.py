@@ -199,6 +199,8 @@ class ControlServerCommands(object):
     def best(self, command):
         """tests if transition to the composite described by command is possible.
         """
+        if self.pipeline.vpremix is not None:
+            self.pipeline.vpremix.setComposite(command)
         transition = self.pipeline.vmix.testTransition(command)
         if transition:
             return OkResponse('best','transition', *transition)

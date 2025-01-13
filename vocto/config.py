@@ -418,6 +418,9 @@ class VocConfigParser(ConfigParser):
     def getPreviewsEnabled(self):
         return self.getboolean('previews', 'enabled', fallback=False)
 
+    def getPreviewMixEnabled(self):
+        return self.getboolean('mix', 'preview', fallback=False)
+
     def getAVRawOutputEnabled(self):
         return self.getboolean('avrawoutput', 'enabled', fallback=True)
 
@@ -478,6 +481,8 @@ class VocConfigParser(ConfigParser):
 
     def _getInternalSources(self):
         sources = ["mix"]
+        if self.getPreviewMixEnabled():
+            sources += ["premix"]
         if self.getBlinderEnabled():
             sources += ["blinder", "mix-blinded"]
             for source in self.getLiveSources():
