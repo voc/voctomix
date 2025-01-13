@@ -87,9 +87,9 @@ class Pipeline(object):
 
         # add localui
         if Config.getProgramOutputEnabled():
-            pgmout = ProgramOutputSink("mix", Port.MIX_OUT, use_audio_mix=True)
+            pgmout = ProgramOutputSink(Config.getProgramOutputSource(), Port.MIX_OUT, use_audio_mix=True)
             self.bins.append(pgmout)
-            self.ports.append(Port('mix', pgmout))
+            self.ports.append(Port(Config.getProgramOutputSource(), pgmout))
 
         # create mix preview TCP output
         if Config.getPreviewsEnabled():

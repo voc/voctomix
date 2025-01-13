@@ -424,6 +424,9 @@ class VocConfigParser(ConfigParser):
     def getProgramOutputEnabled(self):
         return self.getboolean('programoutput', 'enabled', fallback=False)
 
+    def getProgramOutputSource(self):
+        return self.get('programoutput', 'source', fallback="mix")
+
     def getProgramOutputVideoSink(self):
         return self.get('programoutput', 'videosink', fallback="autovideosink")
 
