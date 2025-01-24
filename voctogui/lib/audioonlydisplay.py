@@ -67,7 +67,7 @@ class AudioOnlyDisplay(object):
 
         if Args.dot:
             self.log.debug("Generating DOT image of audioonlydisplay pipeline")
-            gst_generate_dot(self.pipeline, "gui.audioonlydisplay.{}".format(name))
+            gst_generate_dot(self.pipeline, "gui.audioonlydisplay.{}".format(name), Args.gst_debug_details)
 
         self.pipeline.use_clock(Clock)
 

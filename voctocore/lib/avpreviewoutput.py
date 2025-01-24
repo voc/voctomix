@@ -39,7 +39,7 @@ class AVPreviewOutput(TCPMultiConnection):
                         name=queue-mux-preview-{source}
                     ! mux-preview-{source}.
                     """.format(source=self.source,
-                               vpipeline=construct_video_encoder_pipeline('previews'),
+                               vpipeline=construct_video_encoder_pipeline(Config, 'previews'),
                                vcaps=Config.getVideoCaps()
                                )
 

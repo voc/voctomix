@@ -3,7 +3,6 @@ import gi
 import logging
 import sys
 
-from lib.config import Config
 from gi.repository import Gst
 
 gi.require_version('GstController', '1.0')
@@ -50,13 +49,13 @@ def create_mixmatrix(in_channels: int, out_channels: int, channel_mapping: str):
     return pipeline
 
 
-def construct_audio_encoder_pipeline(section):
+def construct_audio_encoder_pipeline(config, section):
     """
     Build audio encoder pipeline block including an adapter matrix for channel mapping
     :param section: Name of the config section this block is for
     :return: String containing the pipeline block
     """
-    encoder = Config.get_audio_encoder(section)
+    encoder = config.get_audio_encoder(section)
     encoder_options = None
     # check if we have an option string as part of the codec config
     if ',' in encoder:
@@ -66,11 +65,11 @@ def construct_audio_encoder_pipeline(section):
     if encoder in encoders:
         pipeline += """! audioconvert
                            {mixmatrix} ! {encoder} ! {acaps}
-                    """.format(mixmatrix=create_mixmatrix(Config.getAudioChannels(),
-                                                          Config.get_sink_audio_channels(section),
-                                                          Config.get_sink_audio_map(section)),
+                    """.format(mixmatrix=create_mixmatrix(config.getAudioChannels(),
+                                                          config.get_sink_audio_channels(section),
+                                                          config.get_sink_audio_map(section)),
                                encoder=encoder,
-                               acaps=Config.getAudioCaps(section))
+                               acaps=config.getAudioCaps(section))
     else:
         log.error("Unknown audio encoder {}".format(encoder))
         sys.exit(-1)

@@ -5,7 +5,6 @@ import re
 from configparser import ConfigParser
 
 from gi.repository import Gst
-from lib.args import Args
 
 from vocto import kind_has_audio, kind_has_video
 from vocto.audio_streams import AudioStreams

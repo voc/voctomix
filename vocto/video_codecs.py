@@ -3,7 +3,6 @@ import logging
 import gi
 import sys
 
-from lib.config import Config
 from gi.repository import Gst
 
 gi.require_version('GstController', '1.0')
@@ -58,10 +57,10 @@ cpu_decoders = {
 }
 
 
-def construct_video_encoder_pipeline(section):
-    encoder = Config.getVideoEncoder(section)
-    codec, options = Config.getVideoCodec(section)
-    vcaps = Config.getVideoCaps(section)
+def construct_video_encoder_pipeline(config, section):
+    encoder = config.getVideoEncoder(section)
+    codec, options = config.getVideoCodec(section)
+    vcaps = config.getVideoCaps(section)
 
     pipeline = ""
 
@@ -91,7 +90,7 @@ def construct_video_encoder_pipeline(section):
             log.error("Unknown codec '{}' for video encoder '{}'.".format(codec, encoder))
             sys.exit(-1)
         # maybe add deinterlacer
-        if Config.getDeinterlace(section):
+        if config.getDeinterlace(section):
             pipeline += """ ! deinterlace
                                 mode=interlaced
                         """
@@ -117,9 +116,9 @@ def construct_video_encoder_pipeline(section):
     return pipeline
 
 
-def construct_video_decoder_pipeline(section):
-    decoder = Config.getVideoDecoder(section)
-    codec, options = Config.getVideoCodec(section)
+def construct_video_decoder_pipeline(config, section):
+    decoder = config.getVideoDecoder(section)
+    codec, options = config.getVideoCodec(section)
     if decoder == 'vaapi':
         return vaapi_decoders[codec]
     elif decoder == 'cpu':

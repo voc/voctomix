@@ -220,4 +220,4 @@ class Pipeline(object):
 
             if Args.dot or Args.gst_debug_details:
                 # make DOT file from pipeline
-                gst_generate_dot(self.pipeline, "core.pipeline")
+                gst_generate_dot(self.pipeline, "core.pipeline", Args.gst_debug_details)
