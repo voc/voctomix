@@ -5,7 +5,6 @@ import signal
 import logging
 import sys
 
-sys.path.insert(0, '.')
 from vocto.debug import gst_log_messages
 
 # import GStreamer and GLib-Helper classes
@@ -14,7 +13,7 @@ gi.require_version('GstNet', '1.0')
 from gi.repository import Gst, GLib
 
 # import local classes
-from lib.loghandler import LogHandler
+from voctocore.lib.loghandler import LogHandler
 
 # check min-version
 minGst = (1, 5)
@@ -37,8 +36,8 @@ class Voctocore(object):
         # import local which use the config or the logging system
         # this is required, so that we can configure logging,
         # before reading the config
-        from lib.pipeline import Pipeline
-        from lib.controlserver import ControlServer
+        from voctocore.lib.pipeline import Pipeline
+        from voctocore.lib.controlserver import ControlServer
 
         self.log = logging.getLogger('Voctocore')
         self.log.debug('Creating GLib-MainLoop')
@@ -66,10 +65,10 @@ class Voctocore(object):
 # run mainclass
 def main():
     # parse command-line args
-    from lib import args
+    from voctocore.lib import args
     args.parse()
 
-    from lib.args import Args
+    from voctocore.lib.args import Args
     docolor = (Args.color == 'always') \
         or (Args.color == 'auto' and sys.stderr.isatty())
 
@@ -90,7 +89,7 @@ def main():
     logging.info('GStreamer Version: %s', Gst.version())
 
     logging.debug('loading Config')
-    from lib import config
+    from voctocore.lib import config
     config.load()
 
     # init main-class and main-loop

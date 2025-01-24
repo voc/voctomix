@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from gi.repository import Gtk
 import sys
-from lib.toolbar.widgets import _decode, Widgets
+from voctogui.lib.toolbar.widgets import _decode, Widgets
 
 class Buttons(Widgets):
     ''' reads toolbar buttons from configuration and adds them into a toolbar

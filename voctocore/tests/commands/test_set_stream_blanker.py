@@ -1,6 +1,6 @@
 from mock import ANY
 
-from lib.response import NotifyResponse
+from voctocore.lib.response import NotifyResponse
 from tests.commands.commands_test_base import CommandsTestBase
 
 

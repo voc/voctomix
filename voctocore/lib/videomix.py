@@ -6,11 +6,11 @@ from enum import Enum, unique
 import gi
 gi.require_version('GstController', '1.0')
 from gi.repository import Gst
-from lib.config import Config
+from voctocore.lib.config import Config
 from vocto.transitions import Composites, Transitions, Frame, fade_alpha
-from lib.scene import Scene
-from lib.overlay import Overlay
-from lib.args import Args
+from voctocore.lib.scene import Scene
+from voctocore.lib.overlay import Overlay
+from voctocore.lib.args import Args
 
 from vocto.composite_commands import CompositeCommand
 

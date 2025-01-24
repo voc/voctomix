@@ -3,9 +3,9 @@ from queue import Empty, Queue
 from threading import Lock
 
 from gi.repository import GObject
-from lib.commands import ControlServerCommands
-from lib.response import NotifyResponse
-from lib.tcpmulticonnection import TCPMultiConnection
+from voctocore.lib.commands import ControlServerCommands
+from voctocore.lib.response import NotifyResponse
+from voctocore.lib.tcpmulticonnection import TCPMultiConnection
 
 from vocto.port import Port
 

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import os.path
 import logging
-from lib.args import Args
-import lib.connection as Connection
+from voctogui.lib.args import Args
+import voctogui.lib.connection as Connection
 from vocto.config import VocConfigParser
 __all__ = ['Config']
 

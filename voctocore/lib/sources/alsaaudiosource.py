@@ -4,8 +4,8 @@ import logging
 from configparser import NoOptionError
 from gi.repository import Gst
 
-from lib.config import Config
-from lib.sources.avsource import AVSource
+from voctocore.lib.config import Config
+from voctocore.lib.sources.avsource import AVSource
 
 
 class AlsaAudioSource(AVSource):

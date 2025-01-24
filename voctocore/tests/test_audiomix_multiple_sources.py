@@ -1,9 +1,9 @@
 import unittest
 
-from lib.errors.configuration_error import ConfigurationError
+from voctocore.lib.errors.configuration_error import ConfigurationError
 from tests.helper.voctomix_test import VoctomixTest
-from lib.audiomix import AudioMix
-from lib.config import Config
+from voctocore.lib.audiomix import AudioMix
+from voctocore.lib.config import Config
 
 
 # noinspection PyUnusedLocal

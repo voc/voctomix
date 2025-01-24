@@ -6,8 +6,8 @@ import os
 
 from gi.repository import Gst
 
-from lib.config import Config
-from lib.sources.avsource import AVSource
+from voctocore.lib.config import Config
+from voctocore.lib.sources.avsource import AVSource
 
 class FileSource(AVSource):
     timer_resolution = 0.5

@@ -1,5 +1,5 @@
 from tests.helper.voctomix_test import VoctomixTest
-from lib.videomix import VideoMix
+from voctocore.lib.videomix import VideoMix
 
 
 class VideomixerSetSources(VoctomixTest):

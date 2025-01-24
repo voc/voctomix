@@ -4,8 +4,8 @@ import logging
 
 import gi
 from gi.repository import Gst
-from lib.args import Args
-from lib.config import Config
+from voctocore.lib.args import Args
+from voctocore.lib.config import Config
 
 from vocto.audio_codecs import construct_audio_encoder_pipeline
 from vocto.video_codecs import construct_video_encoder_pipeline

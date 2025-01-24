@@ -1,7 +1,7 @@
 from mock import ANY
 
-from lib.response import NotifyResponse
-from lib.videomix import CompositeModes
+from voctocore.lib.response import NotifyResponse
+from voctocore.lib.videomix import CompositeModes
 from tests.commands.commands_test_base import CommandsTestBase
 
 

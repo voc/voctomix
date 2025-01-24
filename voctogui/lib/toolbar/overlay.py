@@ -3,11 +3,11 @@ import os
 import logging
 
 from gi.repository import Gtk
-import lib.connection as Connection
+import voctogui.lib.connection as Connection
 
-from lib.config import Config
-from lib.uibuilder import UiBuilder
-from lib.toolbar.widgets import Widgets
+from voctogui.lib.config import Config
+from voctogui.lib.uibuilder import UiBuilder
+from voctogui.lib.toolbar.widgets import Widgets
 from datetime import datetime, timedelta
 from vocto.command_helpers import quote, dequote, str2bool
 

@@ -12,7 +12,6 @@ import logging
 import sys
 import os
 
-sys.path.insert(0, '.')
 from vocto.debug import gst_log_messages
 
 # check min-version
@@ -42,8 +41,8 @@ class Voctogui(object):
 
     def __init__(self):
         self.log = logging.getLogger('Voctogui')
-        from lib.args import Args
-        from lib.ui import Ui
+        from voctogui.lib.args import Args
+        from voctogui.lib.ui import Ui
 
         # Load UI file
         path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ui/voctogui.ui')
@@ -94,14 +93,14 @@ class Voctogui(object):
 # run mainclass
 def main():
     # parse command-line args
-    from lib import args
+    from voctogui.lib import args
     args.parse()
 
-    from lib.args import Args
+    from voctogui.lib.args import Args
     docolor = (Args.color == 'always') \
         or (Args.color == 'auto' and sys.stderr.isatty())
 
-    from lib.loghandler import LogHandler
+    from voctogui.lib.loghandler import LogHandler
     handler = LogHandler(docolor, Args.timestamp)
     logging.root.addHandler(handler)
 
@@ -119,13 +118,13 @@ def main():
     logging.info('GStreamer Version: %s', Gst.version())
 
     logging.debug('loading Config')
-    from lib import config
+    from voctogui.lib import config
     config.load()
 
-    from lib.config import Config
+    from voctogui.lib.config import Config
 
     # establish a synchronus connection to server
-    import lib.connection as Connection
+    import voctogui.lib.connection as Connection
     Connection.establish(Config.getHost())
 
     # fetch config from server
@@ -147,8 +146,8 @@ def main():
             Config.getHost()
         )
 
-    import lib.connection as Connection
-    import lib.clock as ClockManager
+    import voctogui.lib.connection as Connection
+    import voctogui.lib.clock as ClockManager
 
     # obtain network-clock
     ClockManager.obtainClock(Connection.ip)

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 import logging
 
-from lib.args import Args
-from lib.config import Config
-from lib.tcpmulticonnection import TCPMultiConnection
+from voctocore.lib.args import Args
+from voctocore.lib.config import Config
+from voctocore.lib.tcpmulticonnection import TCPMultiConnection
 
 
 class AVRawOutput(TCPMultiConnection):

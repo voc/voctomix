@@ -2,7 +2,7 @@ import json
 
 from mock import ANY
 
-from lib.response import OkResponse
+from voctocore.lib.response import OkResponse
 from tests.commands.commands_test_base import CommandsTestBase
 
 

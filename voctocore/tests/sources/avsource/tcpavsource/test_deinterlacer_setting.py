@@ -4,8 +4,8 @@ from mock import MagicMock
 
 from tests.helper.voctomix_test import VoctomixTest
 from gi.repository import Gst
-from lib.sources import TCPAVSource
-from lib.config import Config
+from voctocore.lib.sources import TCPAVSource
+from voctocore.lib.config import Config
 
 
 # noinspection PyUnusedLocal

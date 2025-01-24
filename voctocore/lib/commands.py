@@ -3,8 +3,8 @@ import logging
 import json
 import inspect
 
-from lib.config import Config
-from lib.response import NotifyResponse, OkResponse
+from voctocore.lib.config import Config
+from voctocore.lib.response import NotifyResponse, OkResponse
 from vocto.composite_commands import CompositeCommand
 from vocto.command_helpers import quote, dequote, str2bool
 import os

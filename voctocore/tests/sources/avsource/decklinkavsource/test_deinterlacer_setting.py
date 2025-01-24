@@ -1,7 +1,7 @@
 from tests.helper.voctomix_test import VoctomixTest
 from gi.repository import Gst
-from lib.sources import DeckLinkAVSource
-from lib.config import Config
+from voctocore.lib.sources import DeckLinkAVSource
+from voctocore.lib.config import Config
 
 
 # noinspection PyUnusedLocal

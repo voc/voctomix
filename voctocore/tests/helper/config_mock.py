@@ -1,6 +1,6 @@
 from configparser import NoSectionError, NoOptionError, DuplicateSectionError
 
-from lib.config import VocConfigParser
+from voctocore.lib.config import VocConfigParser
 
 
 class ConfigMock(VocConfigParser):

@@ -6,9 +6,9 @@ import math
 from configparser import NoOptionError
 
 from gi.repository import Gtk, Gdk, GObject
-import lib.connection as Connection
+import voctogui.lib.connection as Connection
 
-from lib.config import Config
+from voctogui.lib.config import Config
 from vocto.port import Port
 
 class AudioDisplay(object):

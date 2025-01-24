@@ -2,8 +2,8 @@
 import logging
 from gi.repository import Gdk, Gtk
 
-from lib.config import Config
-import lib.connection as Connection
+from voctogui.lib.config import Config
+import voctogui.lib.connection as Connection
 
 
 class MiscToolbarController(object):

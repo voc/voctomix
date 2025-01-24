@@ -7,17 +7,17 @@ sources = {}
 
 def spawn_source(name, port, has_audio=True, has_video=True):
 
-    from lib.config import Config
-    from lib.sources.ajaavsource import AJAAVSource
-    from lib.sources.decklinkavsource import DeckLinkAVSource
-    from lib.sources.imgvsource import ImgVSource
-    from lib.sources.tcpavsource import TCPAVSource
-    from lib.sources.testsource import TestSource
-    from lib.sources.filesource import FileSource
-    from lib.sources.v4l2source import V4l2AVSource
-    from lib.sources.rpicamsource import RPICamAVSource
-    from lib.sources.pulseaudiosource import PulseAudioSource
-    from lib.sources.alsaaudiosource import AlsaAudioSource
+    from voctocore.lib.config import Config
+    from voctocore.lib.sources.ajaavsource import AJAAVSource
+    from voctocore.lib.sources.decklinkavsource import DeckLinkAVSource
+    from voctocore.lib.sources.imgvsource import ImgVSource
+    from voctocore.lib.sources.tcpavsource import TCPAVSource
+    from voctocore.lib.sources.testsource import TestSource
+    from voctocore.lib.sources.filesource import FileSource
+    from voctocore.lib.sources.v4l2source import V4l2AVSource
+    from voctocore.lib.sources.rpicamsource import RPICamAVSource
+    from voctocore.lib.sources.pulseaudiosource import PulseAudioSource
+    from voctocore.lib.sources.alsaaudiosource import AlsaAudioSource
 
     kind = Config.getSourceKind(name)
 

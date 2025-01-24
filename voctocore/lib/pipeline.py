@@ -5,18 +5,18 @@ import sys
 
 from gi.repository import Gst
 # import library components
-from lib.args import Args
-from lib.audiomix import AudioMix
-from lib.avpreviewoutput import AVPreviewOutput
-from lib.avrawoutput import AVRawOutput
-from lib.blinder import Blinder
-from lib.clock import Clock
-from lib.config import Config
-from lib.local_recording import LocalRecordingSink
-from lib.program_output import ProgramOutputSink
-from lib.sources import spawn_source
-from lib.srtserver import SRTServerSink
-from lib.videomix import VideoMix
+from voctocore.lib.args import Args
+from voctocore.lib.audiomix import AudioMix
+from voctocore.lib.avpreviewoutput import AVPreviewOutput
+from voctocore.lib.avrawoutput import AVRawOutput
+from voctocore.lib.blinder import Blinder
+from voctocore.lib.clock import Clock
+from voctocore.lib.config import Config
+from voctocore.lib.local_recording import LocalRecordingSink
+from voctocore.lib.program_output import ProgramOutputSink
+from voctocore.lib.sources import spawn_source
+from voctocore.lib.srtserver import SRTServerSink
+from voctocore.lib.videomix import VideoMix
 
 from vocto.debug import gst_generate_dot
 from vocto.port import Port

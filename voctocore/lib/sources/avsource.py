@@ -3,8 +3,8 @@ import logging
 from abc import ABCMeta, abstractmethod
 from gi.repository import GLib
 
-from lib.config import Config
-from lib.args import Args
+from voctocore.lib.config import Config
+from voctocore.lib.args import Args
 
 
 class AVSource(object, metaclass=ABCMeta):

@@ -3,9 +3,9 @@ import sys
 
 from gi.repository import Gst, Gdk
 
-from lib.args import Args
-from lib.config import Config
-from lib.clock import Clock
+from voctogui.lib.args import Args
+from voctogui.lib.config import Config
+from voctogui.lib.clock import Clock
 
 from vocto.port import Port
 from vocto.debug import gst_generate_dot

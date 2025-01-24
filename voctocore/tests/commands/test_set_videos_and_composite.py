@@ -1,7 +1,7 @@
 from mock import ANY
 
 from tests.commands.commands_test_base import CommandsTestBase
-from lib.videomix import CompositeModes
+from voctocore.lib.videomix import CompositeModes
 
 
 class CommandsSetVideosAndComposite(CommandsTestBase):
