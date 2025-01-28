@@ -117,14 +117,10 @@ def construct_video_encoder_pipeline(section):
     return pipeline
 
 
-def construct_video_decoder_pipeline(section, videosystem=None):
+def construct_video_decoder_pipeline(section):
     decoder = Config.getVideoDecoder(section)
     codec, options = Config.getVideoCodec(section)
-    if videosystem == 'vaapi':
-        return vaapi_decoders[codec]
-    elif videosystem is not None:
-        return cpu_decoders[codec]
-    elif decoder == 'vaapi':
+    if decoder == 'vaapi':
         return vaapi_decoders[codec]
     elif decoder == 'cpu':
         return cpu_decoders[codec]
