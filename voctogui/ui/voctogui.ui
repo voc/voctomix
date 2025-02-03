@@ -106,6 +106,30 @@
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <child>
+                  <object class="GtkAspectFrame" id="output_aspect_ratio_preview">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label-xalign">0</property>
+                    <property name="shadow-type">none</property>
+                    <property name="obey-child">False</property>
+                    <child>
+                      <object class="GtkDrawingArea" id="video_main_preview">
+                        <property name="width-request">100</property>
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="double-buffered">False</property>
+                        <property name="hexpand">True</property>
+                        <property name="vexpand">True</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkAspectFrame" id="output_aspect_ratio">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
@@ -126,7 +150,7 @@
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="position">0</property>
+                    <property name="position">1</property>
                   </packing>
                 </child>
                 <child>

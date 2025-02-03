@@ -51,9 +51,18 @@ class Ui(UiBuilder):
         # Connect Close-Handler
         self.win.connect('delete-event', Gtk.main_quit)
 
-        output_aspect_ratio = self.find_widget_recursive(
-            self.win, 'output_aspect_ratio')
+        output_aspect_ratio = self.find_widget_recursive(self.win, 'output_aspect_ratio')
+        output_aspect_ratio_preview = self.find_widget_recursive(self.win, 'output_aspect_ratio_preview')
         output_aspect_ratio.props.ratio = Config.getVideoRatio()
+        if Config.getPreviewMixEnabled():
+            output_aspect_ratio_preview.props.hexpand = True
+            output_aspect_ratio_preview.props.vexpand = True
+            output_aspect_ratio_preview.set_visible(True)
+            output_aspect_ratio_preview.props.ratio = Config.getVideoRatio()
+        else:
+            output_aspect_ratio_preview.props.hexpand = False
+            output_aspect_ratio_preview.props.vexpand = False
+            output_aspect_ratio_preview.set_visible(False)
 
         audio_box = self.find_widget_recursive(self.win, 'audio_box')
 
@@ -85,6 +94,14 @@ class Ui(UiBuilder):
             port=Port.MIX_PREVIEW if Config.getPreviewsEnabled() else Port.MIX_OUT,
             name="MIX"
         )
+        self.premix_video_display = None
+        if Config.getPreviewMixEnabled():
+            self.premix_video_display = VideoDisplay(
+                self.find_widget_recursive(self.win, 'video_main_preview'),
+                None,
+                port=Port.PREMIX_PREVIEW if Config.getPreviewsEnabled() else Port.PREMIX_OUT,
+                name="PREMIX"
+            )
 
         for idx, livepreview in enumerate(Config.getLivePreviews()):
             if Config.getPreviewsEnabled():
