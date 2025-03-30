@@ -84,7 +84,7 @@ class AudioMix(object):
 
     def setAudioSource(self, source):
         self.volumes = [float(idx == source)
-                        for idx in range(len(self.sources))]
+                        for idx in range(len(self.streams))]
         self.updateMixerState()
 
     def setAudioSourceVolume(self, stream, volume):

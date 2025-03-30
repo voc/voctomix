@@ -14,18 +14,18 @@ class CompositeCommand:
         B = None
         # match case: c(A,B)
         r = re.match(
-            r'^\s*([|+-]?\w[-_\w]*)\s*\(\s*([-_\w*]+)\s*,\s*([-_\w*]+)\)\s*$', command)
+            r'^\s*([|+-]?[-_\w*]+)\s*\(\s*([-_\w*]+)\s*,\s*([-_\w*]+)\)\s*$', command)
         if r:
             A = r.group(2)
             B = r.group(3)
         else:
             # match case: c(A)
-            r = re.match(r'^\s*([|+-]?\w[-_\w]*)\s*\(\s*([-_\w*]+)\s*\)\s*$', command)
+            r = re.match(r'^\s*([|+-]?[-_\w*]+)\s*\(\s*([-_\w*]+)\s*\)\s*$', command)
             if r:
                 A = r.group(2)
             else:
                 # match case: c
-                r = re.match(r'^\s*([|+-]?\w[-_\w]*)\s*$', command)
+                r = re.match(r'^\s*([|+-]?[-_\w*]+)\s*$', command)
                 assert r
         composite = r.group(1)
         if composite == '*':
