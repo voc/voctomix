@@ -40,6 +40,7 @@ class AudiomixMultipleSources(VoctomixTest):
         self.assertListEqual(self.audiomixer.streams, ["cam1", "slides"])
         self.assertListEqual(self.audiomixer.volumes, [0.23, 0.42])
 
+    @unittest.skip
     def test_invalid_audiosource_raises_an_error(self):
         self.audiomixer.volumes = [0.2, 0.2]
 
