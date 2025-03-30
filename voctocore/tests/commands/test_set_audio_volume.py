@@ -1,7 +1,7 @@
 from mock import ANY
 
 from voctocore.lib.response import NotifyResponse
-from tests.commands.commands_test_base import CommandsTestBase
+from voctocore.tests.commands.commands_test_base import CommandsTestBase
 
 
 class SetAudioVolumeTest(CommandsTestBase):

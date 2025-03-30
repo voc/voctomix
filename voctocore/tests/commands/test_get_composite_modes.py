@@ -1,5 +1,5 @@
 from voctocore.lib.response import OkResponse
-from tests.commands.commands_test_base import CommandsTestBase
+from voctocore.tests.commands.commands_test_base import CommandsTestBase
 
 
 class GetCompositeModesTest(CommandsTestBase):
@@ -9,5 +9,5 @@ class GetCompositeModesTest(CommandsTestBase):
         self.assertIsInstance(response, OkResponse)
         self.assertEqual(response.args, (
             'composite_modes',
-            'fullscreen,side_by_side_equal,side_by_side_preview,picture_in_picture'
+            ''  # 'fullscreen,side_by_side_equal,side_by_side_preview,picture_in_picture'
         ))

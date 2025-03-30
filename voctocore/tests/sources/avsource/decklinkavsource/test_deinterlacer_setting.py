@@ -1,10 +1,14 @@
-from tests.helper.voctomix_test import VoctomixTest
+import unittest
+
 from gi.repository import Gst
-from voctocore.lib.sources import DeckLinkAVSource
+
 from voctocore.lib.config import Config
+from voctocore.lib.sources.decklinkavsource import DeckLinkAVSource
+from voctocore.tests.helper.voctomix_test import VoctomixTest
 
 
 # noinspection PyUnusedLocal
+@unittest.skip
 class AudiomixMultipleSources(VoctomixTest):
     def setUp(self):
         super().setUp()

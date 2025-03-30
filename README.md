@@ -14,6 +14,12 @@ uv sync
 uv pip install pygobject-stubs --config-settings=config=Gtk3
 ```
 
+## Tests
+
+```bash
+uv run pytest
+```
+
 ## Current Documentation
 
 - [Core](https://github.com/voc/voctomix/tree/voctomix2/voctocore)

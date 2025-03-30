@@ -1,25 +1,18 @@
-import socket
 import unittest
 
-import gi.repository
-from mock import MagicMock
-
 import voctocore.lib.config
-from voctocore.tests.helper.config_mock import ConfigMock
-
-gi.repository.Gst = MagicMock()
-gi.repository.GstNet = MagicMock()
-gi.repository.GObject = MagicMock()
-voctocore.lib.config.Config = ConfigMock.WithBasicConfig()
-
-socket.socket = MagicMock()
+from voctocore.tests.mocks.config import config_mock
 
 
 class VoctomixTest(unittest.TestCase):
+    def __init__(self, *args):
+        super().__init__(*args)
+        voctocore.lib.config.Config = config_mock
+
     """Base-Class for all Voctomix-Tests"""
 
     def setUp(self):
-        voctocore.lib.config.Config.resetToDefaults()
+        config_mock.resetToDefaults()
 
     def assertContainsIgnoringWhitespace(self, text, search):
         regex = search.replace(" ", r"\s*")

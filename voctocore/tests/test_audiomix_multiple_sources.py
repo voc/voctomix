@@ -1,69 +1,53 @@
 import unittest
+from unittest.mock import MagicMock
 
-from voctocore.lib.errors.configuration_error import ConfigurationError
-from tests.helper.voctomix_test import VoctomixTest
+import mock
+
 from voctocore.lib.audiomix import AudioMix
 from voctocore.lib.config import Config
+from voctocore.tests.helper.voctomix_test import VoctomixTest
+from voctocore.tests.mocks import args_mock
+from voctocore.tests.mocks.config import config_mock
 
-
-# noinspection PyUnusedLocal
+@mock.patch("voctocore.lib.audiomix.Args", args_mock)
+@mock.patch("voctocore.lib.audiomix.Config", config_mock)
 class AudiomixMultipleSources(VoctomixTest):
-    def test_no_configured_audiosource_sets_first_to_full(self):
-        audiomixer = AudioMix()
+    @mock.patch("voctocore.lib.audiomix.Args", args_mock)
+    @mock.patch("voctocore.lib.audiomix.Config", config_mock)
+    def setUp(self):
+        super().setUp()
+        self.audiomixer = AudioMix()
+        pipeline_mock = MagicMock()
+        pipeline_mock.amix = self.audiomixer
+        pipeline_mock.amix.attach(pipeline_mock)
 
-        self.assertListEqual(audiomixer.names, ["cam1", "cam2", "grabber"])
-        self.assertListEqual(audiomixer.volumes, [1.0, 0.0, 0.0])
+    def test_no_selected_audiosource_sets_all_to_full(self):
+        self.assertListEqual(self.audiomixer.streams, ["cam1", "slides"])
+        self.assertListEqual(self.audiomixer.volumes, [1.0, 1.0])
 
     def test_audiosource_sets_source_volume_to_full(self):
-        Config.given("mix", "audiosource", "cam2")
+        self.audiomixer.volumes = [0.2, 0.2]
 
-        audiomixer = AudioMix()
+        self.audiomixer.setAudioSource(1)
 
-        self.assertListEqual(audiomixer.names, ["cam1", "cam2", "grabber"])
-        self.assertListEqual(audiomixer.volumes, [0.0, 1.0, 0.0])
+        self.assertListEqual(self.audiomixer.streams, ["cam1", "slides"])
+        self.assertListEqual(self.audiomixer.volumes, [0.0, 1.0])
 
     def test_per_source_volumes_set_volumes_to_configured_level(self):
-        Config.given("source.cam1", "volume", "0.23")
-        Config.given("source.cam2", "volume", "0.0")
-        Config.given("source.grabber", "volume", "0.42")
+        self.audiomixer.setAudioSourceVolume(0, 0.23)
+        self.audiomixer.setAudioSourceVolume(1, 0.42)
 
-        audiomixer = AudioMix()
-
-        self.assertListEqual(audiomixer.names, ["cam1", "cam2", "grabber"])
-        self.assertListEqual(audiomixer.volumes, [0.23, 0.0, 0.42])
-
-    def test_audiosource_together_with_per_source_volumes_for_the_same_source_raises_an_error(self):
-        Config.given("mix", "audiosource", "cam1")
-        Config.given("source.cam1", "volume", "0.23")
-
-        with self.assertRaises(ConfigurationError):
-            audiomixer = AudioMix()
-
-    def test_audiosource_together_with_per_source_volumes_for_different_sources_raises_an_error(self):
-        Config.given("mix", "audiosource", "cam2")
-        Config.given("source.cam1", "volume", "0.23")
-
-        with self.assertRaises(ConfigurationError):
-            audiomixer = AudioMix()
+        self.assertListEqual(self.audiomixer.streams, ["cam1", "slides"])
+        self.assertListEqual(self.audiomixer.volumes, [0.23, 0.42])
 
     def test_invalid_audiosource_raises_an_error(self):
-        Config.given("mix", "audiosource", "camInvalid")
+        self.audiomixer.volumes = [0.2, 0.2]
 
-        with self.assertRaises(ConfigurationError):
-            audiomixer = AudioMix()
+        with self.assertRaises(ValueError):
+            self.audiomixer.setAudioSource(5)
 
-    def test_configuring_audiosource_disables_ui_audio_selector(self):
-        Config.given("mix", "audiosource", "cam1")
-
-        audiomixer = AudioMix()
-        self.assertEqual(Config.getboolean('audio', 'volumecontrol'), False)
-
-    def test_configuring_per_source_volumes_disables_ui_audio_selector(self):
-        Config.given("source.cam1", "volume", "1.0")
-
-        audiomixer = AudioMix()
-        self.assertEqual(Config.getboolean('audio', 'volumecontrol'), False)
-
+        self.assertListEqual(self.audiomixer.streams, ["cam1", "slides"])
+        self.assertListEqual(self.audiomixer.volumes, [0.2, 0.2])
 
 if __name__ == '__main__':
     unittest.main()
