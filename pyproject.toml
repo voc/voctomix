@@ -1,0 +1,15 @@
+[project]
+name = "voctomix"
+version = "0.1.0"
+description = "voctomix is a video mixing software, written in python."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "pygobject-stubs>=2.13.0",
+]
+
+[tool.uv]
+python-preference = "only-system"
