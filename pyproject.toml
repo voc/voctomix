@@ -25,6 +25,10 @@ python-preference = "only-system"
 mypy_path = "python_stubs"
 exclude = "tests|venv"
 
+[[tool.mypy.overrides]]
+module = ["cairo.*"]
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 testpaths = [
     "voctocore/tests",

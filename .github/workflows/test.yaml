@@ -1,4 +1,4 @@
-name: Test
+name: Build
 
 on: [push]
 
@@ -18,8 +18,13 @@ jobs:
         with:
           python-version-file: "pyproject.toml"
       - name: Install the project
-        run: uv sync --dev
-      - name: Run tests
+        run: |-
+          uv venv --system-site-packages
+          uv pip install pygobject-stubs --config-settings=config=Gtk3,Gdk3
+          uv sync --dev
+      - name: Typechecking
+        run: uv run mypy -p voctocore -p voctogui
+      - name: Tests
         run: uv run pytest
   docker:
     runs-on: ubuntu-latest
