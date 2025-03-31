@@ -66,6 +66,7 @@ class CompositeCommand:
                                self.B if self.B else "*")
 
     def __eq__(self, other: object) -> bool:
-        return ((self.composite == other.composite or not(self.composite and other.composite))
+        return isinstance(other, CompositeCommand) and \
+            ((self.composite == other.composite or not(self.composite and other.composite))
                 and (self.A == other.A or not(self.A and other.A))
                 and (self.B == other.B or not(self.B and other.B)))

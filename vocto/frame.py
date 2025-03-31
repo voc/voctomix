@@ -47,7 +47,10 @@ class Frame:
 
     def __eq__(self, other: object) -> bool:
         # do NOT compare zoom
-        return self.rect == other.rect and self.crop == other.crop and self.alpha == other.alpha
+        return isinstance(other, Frame) \
+            and self.rect == other.rect \
+            and self.crop == other.crop \
+            and self.alpha == other.alpha
 
     def zoomx(self) -> float:
         """ calculate x-zoom factor from relation between given size and
