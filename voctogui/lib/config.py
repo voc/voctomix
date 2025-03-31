@@ -48,7 +48,7 @@ class VoctoguiConfigParser(VocConfigParser):
         return self.get(f'preset.{preset}', 'name', fallback=preset)
 
     def getPresetOptions(self):
-        return self.getList('toolbar', 'presets', fallback=[])
+        return self.getList('toolbar', 'presets')
 
     def getShowCloseButton(self):
         return self.getboolean('toolbar', 'close', fallback=True)

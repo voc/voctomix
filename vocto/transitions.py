@@ -77,7 +77,7 @@ class Transitions:
             return None
 
         # filter target composites from given composites
-        if not targets:
+        if targets is None:
             targets = Composites.targets(composites)
         # prepare result
         transitions = Transitions(targets,fps)

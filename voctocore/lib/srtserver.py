@@ -145,4 +145,6 @@ class SRTServerSink:
             recording_sink = pipeline.get_by_name(
                 "recording-{source}".format(source=self.source)
             )
+            if recording_sink is None:
+                raise Exception("could not find pipeline element for {}".format(self))
             recording_sink.connect("format-location", self.format_location_callback)

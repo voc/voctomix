@@ -89,3 +89,4 @@ class StudioClock(Gtk.ToolItem):
         # draw time
         cr.move_to(center[0] - textwidth / 2, center[1] + textheight / 2)
         cr.show_text(text)
+        return False

@@ -103,6 +103,8 @@ class AVRawOutput(TCPMultiConnection):
 
         # find fdsink and emit 'add'
         fdsink = self.pipeline.get_by_name("fd-{}".format(self.source))
+        if fdsink is None:
+            raise Exception("could not find pipeline element for {}".format(self))
         fdsink.emit('add', conn.fileno())
 
         # catch disconnect

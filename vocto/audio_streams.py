@@ -65,7 +65,7 @@ class AudioStreams(list['AudioStream']):
         # collect source's channels into a set and count them
         return [audio_stream.source_channel for audio_stream in self if audio_stream.source == source]
 
-    def num_channels(self, source, grid: list[int]=[x for x in range(0, 255)]):
+    def num_channels(self, source, grid: Optional[list[int]]=None):
         """
         Return the number of different audio channels overall or by source.
             Filter by <source> if given.
@@ -75,6 +75,8 @@ class AudioStreams(list['AudioStream']):
         :return:
         """
         # collect source's channels into a set and count them
+        if grid is None:
+            grid = [x for x in range(0, 255)]
         channels = self.source_channels(source)
         result = max(channels) + 1 if channels else 0
         # fill up to values in grid
@@ -82,7 +84,7 @@ class AudioStreams(list['AudioStream']):
             result += 1
         return result
 
-    def matrix(self, source, stream=None, out_channels=None, grid: list[int]=[x for x in range(0, 255)]) -> list[list[float]]:
+    def matrix(self, source, stream=None, out_channels=None, grid: Optional[list[int]]=None) -> list[list[float]]:
         """
         Return matrix that maps in to out channels of <source>.
             Filter by <stream> if given.
@@ -96,6 +98,8 @@ class AudioStreams(list['AudioStream']):
         :return:
         """
         # collect result rows
+        if grid is None:
+            grid = [x for x in range(0, 255)]
         result: list[list[float]] = []
         for out, audio_stream in enumerate(self):
             row: list[float] = []

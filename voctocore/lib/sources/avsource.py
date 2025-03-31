@@ -64,8 +64,9 @@ class AVSource(object, metaclass=ABCMeta):
     def attach(self, pipeline: Gst.Pipeline):
         if self.show_no_signal:
             # attach self.noSignalSink to no-signal compositor
-            self.noSignalSink = pipeline.get_by_name(
-                'compositor-{}'.format(self.name)).get_static_pad('sink_1')
+            element = pipeline.get_by_name('compositor-{}'.format(self.name))
+            if element is not None:
+                self.noSignalSink = element.get_static_pad('sink_1')
 
     def build_pipeline(self) -> None:
         # open enveloping <bin>
@@ -231,10 +232,10 @@ class AVSource(object, metaclass=ABCMeta):
         raise NotImplementedError("port() not implemented in %s" % self.name)
 
     def build_audioport(self) -> str:
-        raise None
+        raise NotImplementedError("build_audioport() not implemented for {}".format(self.name))
 
     def build_videoport(self) -> str:
-        raise None
+        raise NotImplementedError("build_videoport() not implemented for {}".format(self.name))
 
     def get_nosignal_text(self) -> str:
         return "NO SIGNAL\n" + self.name.upper()

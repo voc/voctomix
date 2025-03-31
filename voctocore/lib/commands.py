@@ -339,8 +339,8 @@ class ControlServerCommands(object):
         def get_overlays_title(self) -> Response:
             """respond with list of all available overlays"""
             return NotifyResponse('overlays_title',
-                                  ",".join(quote(t) for t in Config.getOverlaysTitle()))
+                                  ",".join(quote(t) for t in Config.getOverlaysTitle() or []))
 
         def get_overlays(self) -> Response:
             return NotifyResponse('overlays',
-                                  ",".join([quote(a) for a in Config.getOverlayFiles()]))
+                                  ",".join([quote(a) for a in Config.getOverlayFiles() or []]))

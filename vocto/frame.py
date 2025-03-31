@@ -73,8 +73,6 @@ class Frame:
         return [self.zoomx(), self.zoomy()]
 
     def cropped(self) -> list[float]:
-        if not self.rect:
-            return None
         return [self.rect[L] + self.crop[L] * self.zoomx(),
                 self.rect[T] + self.crop[T] * self.zoomy(),
                 self.rect[R] - self.crop[R] * self.zoomx(),

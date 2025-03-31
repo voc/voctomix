@@ -27,6 +27,8 @@ def scandatetime(str: str) -> datetime:
 
 def scanduration(str: str) -> Optional[timedelta]:
     r = re.match(r'^(\d+):(\d+)$', str)
+    if r is None:
+        return None
     return timedelta(hours=int(r.group(1)), minutes=int(r.group(2)))
 
 
@@ -153,10 +155,12 @@ class VoctocoreConfigParser(VocConfigParser):
         # check for option overlay/event
         if self.getScheduleEvent():
             # find event by ID
-            for event in self._getEvents():
-                if event['id'] == self.getScheduleEvent():
-                    # remember current event
-                    self.event_now = event
+            events = self._getEvents()
+            if events is not None:
+                for event in events:
+                    if event['id'] == self.getScheduleEvent():
+                        # remember current event
+                        self.event_now = event
         else:
             NOW = datetime.now(self.event_tz)
             # If no event is currently running, or the current event
@@ -302,14 +306,15 @@ class VoctocoreConfigParser(VocConfigParser):
         # check overlay/file option
         if self.getOverlayFile():
             # append this file if not already in list
-            if not self.getOverlayNameFromFilePath(self.getOverlayFile()) in inserts:
-                inserts += [self.getOverlayNameFromFilePath(self.getOverlayFile())]
+            name = self.getOverlayNameFromFilePath(self.getOverlayFile())
+            if not name in inserts and name is not None:
+                inserts += [name]
         # make a list of inserts with existing image files
         valid: list[str] = []
         for i in inserts:
             # get absolute file path
             filename = self.getOverlayFilePath(i.split('|')[0])
-            if os.path.isfile(filename):
+            if filename is not None and os.path.isfile(filename):
                 # append to valid if existing
                 valid.append(i)
             else:

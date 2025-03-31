@@ -202,10 +202,13 @@ class Pipeline(object):
         # fetch all watchdogs
         result = []
 
-        def query(element):
-            if re.match(regex, element.get_name()):
+        def query(element: Gst.Element):
+            name = element.get_name()
+            if name is not None and re.match(regex, name):
                 result.append(element)
-        self.pipeline.iterate_recurse().foreach(query)
+        iterator = self.pipeline.iterate_recurse()
+        if iterator is not None:
+            iterator.foreach(query)
         return result
 
     def on_eos(self, bus: Gst.Bus, message: Gst.Message):

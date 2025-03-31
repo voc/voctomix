@@ -126,6 +126,8 @@ class VideoMix(object):
                        'Synchronus mixer manipulation')
         self.pipeline = pipeline
         sig = pipeline.get_by_name('sig')
+        if sig is None:
+            raise Exception("Could not find element sig in pipeline")
         sig.connect('handoff', self.on_handoff)
 
         self.log.debug('Initializing Mixer-State')

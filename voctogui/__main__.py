@@ -32,8 +32,9 @@ Gtk.init([])
 
 # select Awaita:Dark theme
 settings = Gtk.Settings.get_default()
-settings.set_property("gtk-theme-name", "Adwaita")
-settings.set_property("gtk-application-prefer-dark-theme", True)  # if you want use dark theme, set second arg to True
+if settings is not None:
+    settings.set_property("gtk-theme-name", "Adwaita")
+    settings.set_property("gtk-application-prefer-dark-theme", True)  # if you want use dark theme, set second arg to True
 
 
 # main class
@@ -66,8 +67,11 @@ class Voctogui(object):
         else:
             raise Exception("Can't find .css file '{}'".format(path))
 
+        screen = Gdk.Screen.get_default()
+        if screen is None:
+            raise Exception("No default screen available")
         context.add_provider_for_screen(
-            Gdk.Screen.get_default(),
+            screen,
             css_provider,
             Gtk.STYLE_PROVIDER_PRIORITY_USER
         )

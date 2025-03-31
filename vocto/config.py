@@ -67,7 +67,7 @@ class VocConfigParser(ConfigParser):
         super().__init__()
         self.log = logging.getLogger('VocConfigParser')
 
-    def getList(self, section: str, option: str, fallback: list[str] = None) -> list[str]:
+    def getList(self, section: str, option: str) -> list[str]:
         if self.has_option(section, option):
             option = self.get(section, option).strip()
             if len(option) == 0:
@@ -76,13 +76,13 @@ class VocConfigParser(ConfigParser):
             unfiltered = [x.strip() for x in option.split(',')]
             return list(filter(None, unfiltered))
         else:
-            return fallback
+            return []
 
     def getSources(self) -> list[str]:
         return self.getList('mix', 'sources')
 
     def getLiveSources(self) -> list[str]:
-        return ["mix"] + self.getList('mix', 'livesources', [])
+        return ["mix"] + self.getList('mix', 'livesources')
 
     def getBackgroundSources(self) -> list[str]:
         if self.has_option('mix', 'backgrounds'):
@@ -96,7 +96,7 @@ class VocConfigParser(ConfigParser):
         if not self.getBackgroundSources():
             return None
         for source in self.getBackgroundSources():
-            if composite in self.getList('source.{}'.format(source), 'composites', fallback=[]):
+            if composite in self.getList('source.{}'.format(source), 'composites'):
                 return source
         return self.getBackgroundSources()[0]
 
@@ -111,6 +111,7 @@ class VocConfigParser(ConfigParser):
             return nosignal
         else:
             self.log.error("Configuration value mix/nosignal has unknown pattern '{}'".format(nosignal))
+            return None
 
     def getDeckLinkDeviceNumber(self, source) -> int:
         return self.getint('source.{}'.format(source), 'devicenumber', fallback=0)
@@ -275,13 +276,12 @@ class VocConfigParser(ConfigParser):
         get the number of audio channels configured for voc2mix
         :return:
         '''
-        caps = Gst.Caps.from_string(self.getAudioCaps()).get_structure(0)
+        caps = self.parseCaps(self.getAudioCaps())
         _, channels = caps.get_int('channels')
         return channels
 
     def getVideoResolution(self) -> tuple[int, int]:
-        caps = Gst.Caps.from_string(
-            self.getVideoCaps()).get_structure(0)
+        caps = self.parseCaps(self.getVideoCaps())
         _, width = caps.get_int('width')
         _, height = caps.get_int('height')
         return (width, height)
@@ -291,8 +291,7 @@ class VocConfigParser(ConfigParser):
         return float(width) / float(height)
 
     def getFramerate(self) -> tuple[int, int]:
-        caps = Gst.Caps.from_string(
-            self.getVideoCaps()).get_structure(0)
+        caps = self.parseCaps(self.getVideoCaps())
         (_, numerator, denominator) = caps.get_fraction('framerate')
         return (numerator, denominator)
 
@@ -324,7 +323,7 @@ class VocConfigParser(ConfigParser):
             if self.isBlinderDefault():
                 return ["blinder"]
             else:
-                return self.getList('blinder', 'videos', [])
+                return self.getList('blinder', 'videos')
         else:
             return []
 
@@ -360,6 +359,13 @@ class VocConfigParser(ConfigParser):
                     quote = not quote
                 options[-1] += char
         return options
+
+    @staticmethod
+    def parseCaps(caps: str) -> Gst.Structure:
+        caps = Gst.Caps.from_string(caps)
+        if caps is None:
+            raise ValueError("could not parse caps")
+        return caps.get_structure(0)
 
     def get_audio_encoder(self, section: str) -> str:
         return self.get(section, 'audioencoder')  # => move to audio_codec class

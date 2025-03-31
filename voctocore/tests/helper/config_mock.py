@@ -2,6 +2,8 @@ from configparser import NoSectionError, NoOptionError, DuplicateSectionError
 
 from voctocore.lib.config import VoctocoreConfigParser
 
+from typing import Any, Iterable
+
 
 class ConfigMock(VoctocoreConfigParser):
     def __init__(self, *args, **kwargs) -> None:
@@ -29,6 +31,15 @@ class ConfigMock(VoctocoreConfigParser):
             raise NoOptionError(option, section)
 
         return section_values[option]
+
+    def has_section(self, section: str) -> bool:
+        return section in self._sections
+
+    def has_option(self, section: str, option: str) -> bool:
+        return section in self._sections and option in self._sections[section]
+
+    def items(self, section: str) -> Iterable[tuple[str, Any]]:
+        return self._sections[section].items()
 
     def add_section(self, section: str) -> None:
         if section in self._sections:
