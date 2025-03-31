@@ -6,6 +6,8 @@ import sys
 from gi.repository import Gst
 
 gi.require_version('GstController', '1.0')
+
+from vocto.config import VocConfigParser
 log = logging.getLogger('audio_codecs')
 
 # list of supported audio codecs as named by gst
@@ -20,7 +22,7 @@ encoders = {'fdkaacenc',
             'avenc_s302m'}
 
 
-def create_mixmatrix(in_channels: int, out_channels: int, channel_mapping: str):
+def create_mixmatrix(in_channels: int, out_channels: int, channel_mapping: str) -> str:
     """ create a audiomixmatrix pipeline block from a givin channel mapping
     :param in_channels: number of input channels
     :param out_channels: number of output channels
@@ -49,7 +51,7 @@ def create_mixmatrix(in_channels: int, out_channels: int, channel_mapping: str):
     return pipeline
 
 
-def construct_audio_encoder_pipeline(config, section):
+def construct_audio_encoder_pipeline(config: VocConfigParser, section: str) -> str:
     """
     Build audio encoder pipeline block including an adapter matrix for channel mapping
     :param section: Name of the config section this block is for

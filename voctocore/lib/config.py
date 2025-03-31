@@ -4,6 +4,7 @@ import logging
 import os
 import os.path
 import re
+import sys
 from configparser import DuplicateSectionError
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -13,21 +14,31 @@ from voctocore.lib.args import Args
 
 from vocto.config import VocConfigParser
 
+from typing import Optional, Any, overload
+
 __all__ = ['Config']
 
-Config = None
+Config: 'VoctocoreConfigParser' = None  # type: ignore
 
 
-def scandatetime(str):
-    return datetime.strptime(str[:19], "%Y-%m-%dT%H:%M:%S")
+def scandatetime(value: str) -> datetime:
+    return datetime.strptime(value[:19], "%Y-%m-%dT%H:%M:%S")
 
 
-def scanduration(str):
-    r = re.match(r'^(\d+):(\d+)$', str)
+def scanduration(value: str) -> Optional[timedelta]:
+    r = re.match(r'^(\d+):(\d+)$', value)
+    if r is None:
+        return None
     return timedelta(hours=int(r.group(1)), minutes=int(r.group(2)))
 
 
 class VoctocoreConfigParser(VocConfigParser):
+    events: list[dict[str, Any]]
+    event_now: Optional[dict[str, Any]]
+    event_tz: Optional[Any]
+    events_update: Optional[Any]
+    default_insert: Optional[Any]
+
     def __init__(self):
         super().__init__()
         self.events = []
@@ -36,27 +47,27 @@ class VoctocoreConfigParser(VocConfigParser):
         self.events_update = None
         self.default_insert = None
 
-    def add_section_if_missing(self, section):
+    def add_section_if_missing(self, section: str):
         try:
             self.add_section(section)
         except DuplicateSectionError:
             pass
 
-    def getOverlayFile(self):
+    def getOverlayFile(self) -> Optional[str]:
         ''' return overlay/file or <None> from INI configuration '''
         if self.has_option('overlay', 'file'):
             return self.getOverlayNameFromFilePath(self.get('overlay', 'file'))
         else:
             return None
 
-    def getScheduleRoom(self):
+    def getScheduleRoom(self) -> Optional[str]:
         ''' return overlay/room or <None> from INI configuration '''
         if self.has_option('overlay', 'room'):
             return self.get('overlay', 'room')
         else:
             return None
 
-    def getScheduleEvent(self):
+    def getScheduleEvent(self) -> Optional[str]:
         ''' return overlay/event or <None> from INI configuration '''
         if self.has_option('overlay', 'event'):
             if self.has_option('overlay', 'room'):
@@ -66,7 +77,7 @@ class VoctocoreConfigParser(VocConfigParser):
         else:
             return None
 
-    def getSchedule(self):
+    def getSchedule(self) -> Optional[str]:
         ''' return overlay/schedule or <None> from INI configuration '''
         if self.has_option('overlay', 'schedule'):
             if self.has_option('overlay', 'room') or self.has_option('overlay', 'event'):
@@ -77,7 +88,7 @@ class VoctocoreConfigParser(VocConfigParser):
                     "configuration option 'overlay'/'schedule' ignored when not defining 'room' or 'event' too")
         return None
 
-    def _getEvents(self):
+    def _getEvents(self) -> Optional[list[dict[str, Any]]]:
         schedule_path = self.getSchedule()
         if not schedule_path:
             return None
@@ -101,7 +112,7 @@ class VoctocoreConfigParser(VocConfigParser):
         # try parsing the schedule
         try:
             self.event_tz = ZoneInfo(schedule['schedule']['conference']['time_zone_name'])
-            events = []
+            events: list[Any] = []
             for day in schedule['schedule']['conference']['days']:
                 for talks_in_room in day['rooms'].values():
                     events.extend(talks_in_room)
@@ -115,7 +126,7 @@ class VoctocoreConfigParser(VocConfigParser):
                 ):
                     # the other code assumes these values are there, exit
                     # early if we're missing these.
-                    self.logger.error('found malformed talk in {} - missing id/title/date/duration!'.format(
+                    self.log.error('found malformed talk in {} - missing id/title/date/duration!'.format(
                         schedule_path,
                     ))
                     return None
@@ -140,14 +151,16 @@ class VoctocoreConfigParser(VocConfigParser):
             ))
         return self.events
 
-    def _getEventNow(self):
+    def _getEventNow(self) -> Optional[dict[str, Any]]:
         # check for option overlay/event
         if self.getScheduleEvent():
             # find event by ID
-            for event in self._getEvents():
-                if event['id'] == self.getScheduleEvent():
-                    # remember current event
-                    self.event_now = event
+            events = self._getEvents()
+            if events is not None:
+                for event in events:
+                    if event['id'] == self.getScheduleEvent():
+                        # remember current event
+                        self.event_now = event
         else:
             NOW = datetime.now(self.event_tz)
             # If no event is currently running, or the current event
@@ -177,14 +190,14 @@ class VoctocoreConfigParser(VocConfigParser):
                     self.event_now = None
         return self.event_now
 
-    def getOverlaysPath(self):
+    def getOverlaysPath(self) -> str:
         ''' return overlays path or $PWD from INI configuration '''
         if self.has_option('overlay', 'path'):
             return os.path.abspath(self.get('overlay', 'path'))
         else:
             return os.getcwd()
 
-    def getOverlaysTitle(self):
+    def getOverlaysTitle(self) -> Optional[tuple[str, str, Any, Any]]:
         if self.getSchedule():
             event = self._getEventNow()
             if event:
@@ -196,7 +209,11 @@ class VoctocoreConfigParser(VocConfigParser):
                 )
         return None
 
-    def getOverlayFilePath(self, overlay):
+    @overload
+    def getOverlayFilePath(self, overlay: None) -> None: ...
+    @overload
+    def getOverlayFilePath(self, overlay: str) -> str: ...
+    def getOverlayFilePath(self, overlay: Optional[str]) -> Optional[str]:
         ''' return absolute file path to overlay by given string of overlay
             file name (and maybe |-separated name)
         '''
@@ -213,7 +230,11 @@ class VoctocoreConfigParser(VocConfigParser):
         # return absolute path of filename
         return os.path.join(self.getOverlaysPath(), filename)
 
-    def getOverlayNameFromFilePath(self, filepath):
+    @overload
+    def getOverlayNameFromFilePath(self, filepath: None) -> None: ...
+    @overload
+    def getOverlayNameFromFilePath(self, filepath: str) -> str: ...
+    def getOverlayNameFromFilePath(self, filepath: Optional[str]) -> Optional[str]:
         ''' return overlay name from filepath (which may have |-separated
             name attached)
         '''
@@ -231,7 +252,7 @@ class VoctocoreConfigParser(VocConfigParser):
         # attach name again if it was given
         return "|".join((filename, name)) if name else filename
 
-    def getOverlayFiles(self):
+    def getOverlayFiles(self) -> list[str]:
         ''' generate list of available overlay files by the following opportunities:
             - by 'schedule' (and optionally 'room') from section 'overlay'
             - by 'files' from section 'overlay'
@@ -285,14 +306,15 @@ class VoctocoreConfigParser(VocConfigParser):
         # check overlay/file option
         if self.getOverlayFile():
             # append this file if not already in list
-            if not self.getOverlayNameFromFilePath(self.getOverlayFile()) in inserts:
-                inserts += [self.getOverlayNameFromFilePath(self.getOverlayFile())]
+            name = self.getOverlayNameFromFilePath(self.getOverlayFile())
+            if not name in inserts and name is not None:
+                inserts += [name]
         # make a list of inserts with existing image files
-        valid = []
+        valid: list[str] = []
         for i in inserts:
             # get absolute file path
             filename = self.getOverlayFilePath(i.split('|')[0])
-            if os.path.isfile(filename):
+            if filename is not None and os.path.isfile(filename):
                 # append to valid if existing
                 valid.append(i)
             else:
@@ -311,17 +333,17 @@ class VoctocoreConfigParser(VocConfigParser):
                 'Could not find any availbale overlays in configuration.')
         return valid
 
-    def getOverlayBlendTime(self):
+    def getOverlayBlendTime(self) -> int:
         ''' return overlay blending time in milliseconds from INI configuration '''
         if self.has_option('overlay', 'blend'):
             return int(self.get('overlay', 'blend'))
         else:
             return 300
 
-    def getAudioMixMatrix(self):
+    def getAudioMixMatrix(self) -> list[list[float]]:
         if self.has_option('mix', 'audiomixmatrix'):
             # read matrix from config (columns separated by space, rows by slash
-            matrix = []
+            matrix: list[list[float]] = []
             for l, line in enumerate(self.get('mix', 'audiomixmatrix').split('/')):
                 matrix.append([])
                 for v, value in enumerate(line.split()):

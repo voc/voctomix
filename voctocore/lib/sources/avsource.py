@@ -1,21 +1,33 @@
 #!/usr/bin/env python3
 import logging
 from abc import ABCMeta, abstractmethod
-from gi.repository import GLib
+from gi.repository import GLib, Gst
 
+from vocto.audio_streams import AudioStreams
+from voctocore.lib.avnode import AVIONode
 from voctocore.lib.config import Config
 from voctocore.lib.args import Args
+from typing import Optional
 
 
-class AVSource(object, metaclass=ABCMeta):
+class AVSource(AVIONode, metaclass=ABCMeta):
+    log: logging.Logger
+    class_name: str
+    name: str
+    has_audio: bool
+    has_video: bool
+    audio_streams: AudioStreams
+    show_no_signal: Optional[str]
+    timer_resolution: float
+    noSignalSink: Optional[Gst.Pad]
 
     def __init__(self,
-                 class_name,
-                 name,
-                 has_audio=True,
-                 has_video=True,
-                 num_streams=None,
-                 show_no_signal=False):
+                 class_name: str,
+                 name: str,
+                 has_audio: bool=True,
+                 has_video: bool=True,
+                 num_streams: Optional[int]=None,
+                 show_no_signal: Optional[str]=None) -> None:
         # create logging interface
         self.log = logging.getLogger("%s[%s]" % (class_name, name))
 
@@ -40,23 +52,24 @@ class AVSource(object, metaclass=ABCMeta):
             # check if we have video to show no-signal message
             assert self.has_video
             # set timeout at which we check for signal loss
-            GLib.timeout_add(self.timer_resolution * 1000, self.do_timeout)
+            GLib.timeout_add(int(self.timer_resolution * 1000), self.do_timeout)
         
         # this might get attached to the no-signal compositor's input sink
         self.noSignalSink = None
 
     @abstractmethod
-    def __str__(self):
+    def __str__(self) -> str:
         raise NotImplementedError(
             '__str__ not implemented for this source')
 
-    def attach(self, pipeline):
+    def attach(self, pipeline: Gst.Pipeline):
         if self.show_no_signal:
             # attach self.noSignalSink to no-signal compositor
-            self.noSignalSink = pipeline.get_by_name(
-                'compositor-{}'.format(self.name)).get_static_pad('sink_1')
+            element = pipeline.get_by_name('compositor-{}'.format(self.name))
+            if element is not None:
+                self.noSignalSink = element.get_static_pad('sink_1')
 
-    def build_pipeline(self):
+    def build_pipeline(self) -> None:
         # open enveloping <bin>
         self.bin = "" if Args.no_bins else """
             bin.(
@@ -176,10 +189,10 @@ class AVSource(object, metaclass=ABCMeta):
 
         self.bin = self.bin
 
-    def build_source(self):
+    def build_source(self) -> str:
         return ""
 
-    def build_deinterlacer(self):
+    def build_deinterlacer(self) -> Optional[str]:
         source_mode = Config.getSourceScan(self.name)
 
         if source_mode == "interlaced":
@@ -194,41 +207,41 @@ class AVSource(object, metaclass=ABCMeta):
                 "Unknown Deinterlace-Mode on source {} configured: {}".
                     format(self.name, source_mode))
 
-    def video_channels(self):
+    def video_channels(self) -> int:
         return 1 if self.has_video else 0
 
-    def audio_channels(self):
+    def audio_channels(self) -> int:
         return self.audio_streams.num_channels(self.name) if self.has_audio else 0
 
-    def internal_audio_channels(self):
+    def internal_audio_channels(self) -> int:
         return self.audio_streams.num_channels(self.name, self.get_valid_channel_numbers()) if self.has_audio else 0
 
-    def get_valid_channel_numbers(self):
+    def get_valid_channel_numbers(self) -> list[int]:
         return [x for x in range(1, 255)]
 
-    def num_connections(self):
+    def num_connections(self) -> int:
         return 0
 
-    def is_input(self):
+    def is_input(self) -> bool:
         return True
 
-    def section(self):
+    def section(self) -> str:
         return 'source.{}'.format(self.name)
 
     @abstractmethod
-    def port(self):
+    def port(self) -> str:
         raise NotImplementedError("port() not implemented in %s" % self.name)
 
-    def build_audioport(self):
-        raise None
+    def build_audioport(self) -> str:
+        raise NotImplementedError("build_audioport() not implemented for {}".format(self.name))
 
-    def build_videoport(self):
-        raise None
+    def build_videoport(self) -> str:
+        raise NotImplementedError("build_videoport() not implemented for {}".format(self.name))
 
-    def get_nosignal_text(self):
+    def get_nosignal_text(self) -> str:
         return "NO SIGNAL\n" + self.name.upper()
 
-    def do_timeout(self):
+    def do_timeout(self) -> bool:
         if self.noSignalSink:
             self.noSignalSink.set_property(
                 'alpha', 1.0 if self.num_connections() > 0 else 0.0)

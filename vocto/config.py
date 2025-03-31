@@ -8,7 +8,9 @@ from gi.repository import Gst
 
 from vocto import kind_has_audio, kind_has_video
 from vocto.audio_streams import AudioStreams
+from vocto.composites import Composite
 from vocto.transitions import Composites, Transitions
+from typing import Optional
 
 testPatternCount = 0
 
@@ -58,10 +60,14 @@ GST_TYPE_AUDIO_TEST_SRC_WAVE = [
 
 
 class VocConfigParser(ConfigParser):
-    log = logging.getLogger('VocConfigParser')
-    audio_streams = None
+    log: logging.Logger
+    audio_streams: Optional[AudioStreams] = None
 
-    def getList(self, section, option, fallback=None):
+    def __init__(self) -> None:
+        super().__init__()
+        self.log = logging.getLogger('VocConfigParser')
+
+    def getList(self, section: str, option: str) -> list[str]:
         if self.has_option(section, option):
             option = self.get(section, option).strip()
             if len(option) == 0:
@@ -70,15 +76,15 @@ class VocConfigParser(ConfigParser):
             unfiltered = [x.strip() for x in option.split(',')]
             return list(filter(None, unfiltered))
         else:
-            return fallback
+            return []
 
-    def getSources(self):
+    def getSources(self) -> list[str]:
         return self.getList('mix', 'sources')
 
-    def getLiveSources(self):
-        return ["mix"] + self.getList('mix', 'livesources', [])
+    def getLiveSources(self) -> list[str]:
+        return ["mix"] + self.getList('mix', 'livesources')
 
-    def getBackgroundSources(self):
+    def getBackgroundSources(self) -> list[str]:
         if self.has_option('mix', 'backgrounds'):
             return self.getList('mix', 'backgrounds')
         elif self.has_section('source.background'):
@@ -86,18 +92,18 @@ class VocConfigParser(ConfigParser):
         else:
             return []
 
-    def getBackgroundSource(self, composite):
+    def getBackgroundSource(self, composite) -> Optional[str]:
         if not self.getBackgroundSources():
             return None
         for source in self.getBackgroundSources():
-            if composite in self.getList('source.{}'.format(source), 'composites', fallback=[]):
+            if composite in self.getList('source.{}'.format(source), 'composites'):
                 return source
         return self.getBackgroundSources()[0]
 
-    def getSourceKind(self, source):
+    def getSourceKind(self, source) -> str:
         return self.get('source.{}'.format(source), 'kind', fallback='test')
 
-    def getNoSignal(self):
+    def getNoSignal(self) -> Optional[str]:
         nosignal = self.get('mix', 'nosignal', fallback='smpte100').lower()
         if nosignal in ['none', 'false', 'no']:
             return None
@@ -105,83 +111,84 @@ class VocConfigParser(ConfigParser):
             return nosignal
         else:
             self.log.error("Configuration value mix/nosignal has unknown pattern '{}'".format(nosignal))
+            return None
 
-    def getDeckLinkDeviceNumber(self, source):
+    def getDeckLinkDeviceNumber(self, source) -> int:
         return self.getint('source.{}'.format(source), 'devicenumber', fallback=0)
 
-    def getDeckLinkAudioConnection(self, source):
+    def getDeckLinkAudioConnection(self, source) -> str:
         return self.get('source.{}'.format(source), 'audio_connection', fallback='auto')
 
-    def getDeckLinkVideoConnection(self, source):
+    def getDeckLinkVideoConnection(self, source) -> str:
         return self.get('source.{}'.format(source), 'video_connection', fallback='auto')
 
-    def getDeckLinkVideoMode(self, source):
+    def getDeckLinkVideoMode(self, source) -> str:
         return self.get('source.{}'.format(source), 'video_mode', fallback='auto')
 
-    def getDeckLinkVideoFormat(self, source):
+    def getDeckLinkVideoFormat(self, source) -> str:
         return self.get('source.{}'.format(source), 'video_format', fallback='auto')
     
-    def getAJADeviceIdentifier(self, source):
+    def getAJADeviceIdentifier(self, source) -> str:
         return self.get(f'source.{source}', 'device', fallback='')
 
-    def getAJAInputChannel(self, source):
+    def getAJAInputChannel(self, source) -> int:
         return self.getint(f'source.{source}', 'channel', fallback=0)
 
-    def getAJAVideoMode(self, source):
+    def getAJAVideoMode(self, source) -> str:
         return self.get(f'source.{source}', 'video_mode', fallback='auto')
 
-    def getAJAAudioSource(self, source):
+    def getAJAAudioSource(self, source) -> str:
         return self.get(f'source.{source}', 'audio_source', fallback='embedded')
 
-    def getPulseAudioDevice(self, source):
+    def getPulseAudioDevice(self, source) -> str:
         return self.get('source.{}'.format(source), 'device', fallback='auto')
 
-    def getAlsaAudioDevice(self, source):
+    def getAlsaAudioDevice(self, source) -> str:
         return self.get('source.{}'.format(source), 'device', fallback='hw:0')
 
-    def getV4l2Device(self, source):
+    def getV4l2Device(self, source) -> str:
         return self.get('source.{}'.format(source), 'device', fallback='/dev/video0')
 
-    def getV4l2Type(self, source):
+    def getV4l2Type(self, source) -> str:
         return self.get('source.{}'.format(source), 'type', fallback='video/x-raw')
 
-    def getV4l2Width(self, source):
-        return self.get('source.{}'.format(source), 'width', fallback=1920)
+    def getV4l2Width(self, source) -> int:
+        return self.getint('source.{}'.format(source), 'width', fallback=1920)
 
-    def getV4l2Height(self, source):
-        return self.get('source.{}'.format(source), 'height', fallback=1080)
+    def getV4l2Height(self, source) -> int:
+        return self.getint('source.{}'.format(source), 'height', fallback=1080)
 
-    def getV4l2Format(self, source):
+    def getV4l2Format(self, source) -> str:
         return self.get('source.{}'.format(source), 'format', fallback='YUY2')
 
-    def getV4l2Framerate(self, source):
+    def getV4l2Framerate(self, source) -> str:
         return self.get('source.{}'.format(source), 'framerate', fallback='25/1')
 
-    def getRPICamDevice(self, source):
+    def getRPICamDevice(self, source) -> str:
         return self.get('source.{}'.format(source), 'device', fallback='/dev/video0')
 
-    def getRPICamType(self, source):
+    def getRPICamType(self, source) -> str:
         return self.get('source.{}'.format(source), 'type', fallback='video/x-raw')
 
-    def getRPICamWidth(self, source):
-        return self.get('source.{}'.format(source), 'width', fallback=1920)
+    def getRPICamWidth(self, source) -> int:
+        return self.getint('source.{}'.format(source), 'width', fallback=1920)
 
-    def getRPICamHeight(self, source):
-        return self.get('source.{}'.format(source), 'height', fallback=1080)
+    def getRPICamHeight(self, source) -> int:
+        return self.getint('source.{}'.format(source), 'height', fallback=1080)
 
-    def getRPICamCrop(self, source):
+    def getRPICamCrop(self, source) -> Optional[str]:
         return self.get('source.{}'.format(source), 'crop', fallback=None)
 
-    def getRPICamFormat(self, source):
+    def getRPICamFormat(self, source) -> str:
         return self.get('source.{}'.format(source), 'format', fallback='YUY2')
 
-    def getRPICamFramerate(self, source):
+    def getRPICamFramerate(self, source) -> str:
         return self.get('source.{}'.format(source), 'framerate', fallback='25/1')
 
-    def getRPICamAnnotation(self, source):
+    def getRPICamAnnotation(self, source) -> Optional[str]:
         return self.get('source.{}'.format(source), 'annotation', fallback=None)
 
-    def getImageURI(self, source):
+    def getImageURI(self, source) -> str:
         if self.has_option('source.{}'.format(source), 'imguri'):
             return self.get('source.{}'.format(source), 'imguri')
         else:
@@ -190,13 +197,13 @@ class VocConfigParser(ConfigParser):
                 self.log.error("image file '%s' could not be found" % path)
             return "file://{}".format(path)
 
-    def getLocation(self, source):
+    def getLocation(self, source) -> Optional[str]:
         return self.get('source.{}'.format(source), 'location')
 
-    def getLoop(self, source):
+    def getLoop(self, source) -> str:
         return self.get('source.{}'.format(source), 'loop', fallback="true")
 
-    def getTestPattern(self, source):
+    def getTestPattern(self, source) -> str:
         if not self.has_section('source.{}'.format(source)):
             # default blinder source shall be smpte (if not defined otherwise)
             if source == "blinder":
@@ -214,7 +221,7 @@ class VocConfigParser(ConfigParser):
                           .format(source, pattern, testPatternCount))
         return pattern
 
-    def getTestWave(self, source):
+    def getTestWave(self, source) -> str:
         if not self.has_section('source.{}'.format(source)):
             # background needs no sound, blinder should have no sound
             if source == "blinder" or source == "background":
@@ -222,14 +229,14 @@ class VocConfigParser(ConfigParser):
 
         return self.get('source.{}'.format(source), 'wave', fallback="sine")
 
-    def getSourceScan(self, source):
+    def getSourceScan(self, source) -> str:
         section = 'source.{}'.format(source)
         if self.has_option(section, 'deinterlace'):
             self.log.error(
                 "source attribute 'deinterlace' is obsolete. Use 'scan' instead! Falling back to 'progressive' scheme")
         return self.get(section, 'scan', fallback='progressive')
 
-    def getAudioStreams(self):
+    def getAudioStreams(self) -> AudioStreams:
         if self.audio_streams is None:
             self.audio_streams = AudioStreams()
             sources = self.getSources()
@@ -239,81 +246,80 @@ class VocConfigParser(ConfigParser):
                     self.audio_streams.configure_source(self.items(section), source)
         return self.audio_streams
 
-    def getBlinderAudioStreams(self):
+    def getBlinderAudioStreams(self) -> AudioStreams:
         self.audio_streams = AudioStreams()
         section = 'source.blinder'
         if self.has_section(section):
             self.audio_streams.configure_source(self.items(section), "blinder", use_source_as_name=True)
         return self.audio_streams
 
-    def getAudioStream(self, source):
+    def getAudioStream(self, source) -> AudioStreams:
         '''
 
         :param source: name of the source in the config file
         :return:
         '''
         section = 'source.{}'.format(source)
+        audiostreams = AudioStreams()
         if self.has_section(section):
-            return AudioStreams.configure(self.items(section), source)
-        return AudioStreams()
+            audiostreams.configure_source(self.items(section), source)
+        return audiostreams
 
-    def getNumAudioStreams(self):
+    def getNumAudioStreams(self) -> int:
         num_audio_streams = len(self.getAudioStreams())
         if self.getAudioChannels() < num_audio_streams:
             self.log.error(
                 "number of audio channels in mix/audiocaps differs from the available audio input channels within the sources!")
         return num_audio_streams
 
-    def getAudioChannels(self):
+    def getAudioChannels(self) -> int:
         '''
         get the number of audio channels configured for voc2mix
         :return:
         '''
-        caps = Gst.Caps.from_string(self.getAudioCaps()).get_structure(0)
+        caps = self.parseCaps(self.getAudioCaps())
         _, channels = caps.get_int('channels')
         return channels
 
-    def getVideoResolution(self):
-        caps = Gst.Caps.from_string(
-            self.getVideoCaps()).get_structure(0)
+    def getVideoResolution(self) -> tuple[int, int]:
+        caps = self.parseCaps(self.getVideoCaps())
         _, width = caps.get_int('width')
         _, height = caps.get_int('height')
         return (width, height)
 
-    def getVideoRatio(self):
+    def getVideoRatio(self) -> float:
         width, height = self.getVideoResolution()
         return float(width) / float(height)
 
-    def getFramerate(self):
-        caps = Gst.Caps.from_string(
-            self.getVideoCaps()).get_structure(0)
+    def getFramerate(self) -> tuple[int, int]:
+        caps = self.parseCaps(self.getVideoCaps())
         (_, numerator, denominator) = caps.get_fraction('framerate')
         return (numerator, denominator)
 
-    def getFramesPerSecond(self):
+    def getFramesPerSecond(self) -> float:
         num, denom = self.getFramerate()
         return float(num) / float(denom)
 
-    def getVideoSystem(self):
+    def getVideoSystem(self) -> str:
         return self.get('videodisplay', 'system', fallback='gl')
 
-    def getPlayAudio(self):
+    def getPlayAudio(self) -> bool:
         return self.getboolean('audio', 'play', fallback=False)
 
-    def getVolumeControl(self):
+    def getVolumeControl(self) -> bool:
         # Check if there is a fixed audio source configured.
         # If so, we will remove the volume sliders entirely
         # instead of setting them up.
         return (self.getboolean('audio', 'volumecontrol', fallback=True)
                 or self.getboolean('audio', 'forcevolumecontrol', fallback=False))
 
-    def getBlinderEnabled(self):
+    def getBlinderEnabled(self) -> bool:
         return self.getboolean('blinder', 'enabled', fallback=False)
 
-    def isBlinderDefault(self):
+    def isBlinderDefault(self) -> bool:
         return not self.has_option('blinder', 'videos')
 
-    def getBlinderSources(self):
+    def getBlinderSources(self) -> list[str]:
         if self.getBlinderEnabled():
             if self.isBlinderDefault():
                 return ["blinder"]
@@ -322,13 +328,13 @@ class VocConfigParser(ConfigParser):
         else:
             return []
 
-    def getBlinderVolume(self):
+    def getBlinderVolume(self) -> float:
         return self.getfloat('source.blinder', 'volume', fallback=1.0)
 
-    def getMirrorsEnabled(self):
+    def getMirrorsEnabled(self) -> bool:
         return self.getboolean('mirrors', 'enabled', fallback=False)
 
-    def getMirrorsSources(self):
+    def getMirrorsSources(self) -> list[str]:
         if self.getMirrorsEnabled():
             if self.has_option('mirrors', 'sources'):
                 return self.getList('mirrors', 'sources')
@@ -337,10 +343,11 @@ class VocConfigParser(ConfigParser):
         else:
             return []
 
-    def getOutputBuffers(self, channel):
+    def getOutputBuffers(self, channel) -> int:
         return self.getint('output-buffers', channel, fallback=500)
 
-    def splitOptions(line):
+    @staticmethod
+    def splitOptions(line) -> Optional[list[str]]:
         if len(line) == 0:
             return None
         quote = False
@@ -354,50 +361,57 @@ class VocConfigParser(ConfigParser):
                 options[-1] += char
         return options
 
-    def get_audio_encoder(self, section):
+    @staticmethod
+    def parseCaps(caps: str) -> Gst.Structure:
+        struct = Gst.Caps.from_string(caps)
+        if struct is None:
+            raise ValueError("could not parse caps")
+        return struct.get_structure(0)
+
+    def get_audio_encoder(self, section: str) -> str:
         return self.get(section, 'audioencoder')  # => move to audio_codec class
 
-    def get_sink_audio_channels(self, section):
+    def get_sink_audio_channels(self, section: str) -> int:
         return self.getint(section, 'audio_channels')
 
-    def get_sink_audio_map(self, section):
+    def get_sink_audio_map(self, section: str) -> str:
         return self.get(section, 'audio_map')
 
-    def getVideoCodec(self, section):
+    def getVideoCodec(self, section: str) -> tuple[str, Optional[list[str]]]:
         if self.has_option(section, 'videocodec'):
             codec = self.get(section, 'videocodec').split(',', 1)
             if len(codec) > 1:
-                codec, options = self.get(section, 'videocodec').split(',', 1)
-                return codec, VocConfigParser.splitOptions(options) if options else None
+                codec_name, options = self.get(section, 'videocodec').split(',', 1)
+                return codec_name, VocConfigParser.splitOptions(options) if options else None
             else:
                 return codec[0], None
         return "jpeg", ["quality=90"]
 
-    def getVideoEncoder(self, section):
+    def getVideoEncoder(self, section: str) -> Optional[str]:
         if self.has_option(section, 'videoencoder'):
             return self.get(section, 'videoencoder')
         return None
 
-    def getVideoDecoder(self, section):
+    def getVideoDecoder(self, section: str) -> Optional[str]:
         if self.has_option(section, 'videodecoder'):
             return self.get(section, 'videodecoder')
         return None
 
-    def getDenoise(self, section):
+    def getDenoise(self, section: str) -> int:
         if self.has_option(section, 'denoise'):
             if self.getboolean(section, 'denoise'):
                 return 1
         return 0
 
-    def getScaleMethod(self, section):
+    def getScaleMethod(self, section: str) -> int:
         if self.has_option(section, 'scale-method'):
             return self.getint(section, 'scale-method')
         return 0
 
-    def getDeinterlace(self, section):
+    def getDeinterlace(self, section: str) -> bool:
         return self.getboolean(section, 'deinterlace', fallback=False)
 
-    def getAudioCaps(self, section='mix'):
+    def getAudioCaps(self, section='mix') -> str:
         if self.has_option(section, 'audiocaps'):
             return self.get(section, 'audiocaps')
         elif self.has_option('mix', 'audiocaps'):
@@ -405,7 +419,7 @@ class VocConfigParser(ConfigParser):
         else:
             return "audio/x-raw,format=S16LE,channels=2,layout=interleaved,rate=48000"
 
-    def getVideoCaps(self, section='mix'):
+    def getVideoCaps(self, section='mix') -> str:
         if self.has_option(section, 'videocaps'):
             return self.get(section, 'videocaps')
         elif self.has_option('mix', 'videocaps'):
@@ -413,35 +427,35 @@ class VocConfigParser(ConfigParser):
         else:
             return "video/x-raw,format=I420,width=1920,height=1080,framerate=25/1,pixel-aspect-ratio=1/1"
 
-    def getPreviewSize(self):
+    def getPreviewSize(self) -> tuple[int, int]:
         width = self.getint('previews', 'width') if self.has_option(
             'previews', 'width') else 320
         height = self.getint('previews', 'height') if self.has_option(
             'previews', 'height') else int(width * 9 / 16)
         return (width, height)
 
-    def getLocalRecordingEnabled(self):
+    def getLocalRecordingEnabled(self) -> bool:
         return self.getboolean('localrecording', 'enabled', fallback=False)
 
-    def getSRTServerEnabled(self):
+    def getSRTServerEnabled(self) -> bool:
         return self.getboolean('srtserver', 'enabled', fallback=True)
 
-    def getPreviewsEnabled(self):
+    def getPreviewsEnabled(self) -> bool:
         return self.getboolean('previews', 'enabled', fallback=False)
 
-    def getAVRawOutputEnabled(self):
+    def getAVRawOutputEnabled(self) -> bool:
         return self.getboolean('avrawoutput', 'enabled', fallback=True)
 
-    def getProgramOutputEnabled(self):
+    def getProgramOutputEnabled(self) -> bool:
         return self.getboolean('programoutput', 'enabled', fallback=False)
 
-    def getProgramOutputVideoSink(self):
+    def getProgramOutputVideoSink(self) -> str:
         return self.get('programoutput', 'videosink', fallback="autovideosink")
 
-    def getProgramOutputAudioSink(self):
+    def getProgramOutputAudioSink(self) -> str:
         return self.get('programoutput', 'audiosink', fallback="autoaudiosink")
 
-    def getLivePreviews(self):
+    def getLivePreviews(self) -> list[str]:
         if self.getBlinderEnabled():
             singleval = self.get('previews', 'live').lower()
             if singleval in ["true", "yes"]:
@@ -461,33 +475,31 @@ class VocConfigParser(ConfigParser):
             self.log.warning("configuration attribute 'preview/live' is set but blinder is not in use!")
             return []
 
-    def getComposites(self):
-        return Composites.configure(self, self.items('composites'), self.getVideoResolution())
+    def getComposites(self) -> dict[str, Composite]:
+        return Composites.configure(self.items('composites'), self.getVideoResolution())
 
-    def getTargetComposites(self):
-        return Composites.targets(self, self.getComposites())
+    def getTargetComposites(self) -> list[Composite]:
+        return Composites.targets(self.getComposites())
 
-    def getTransitions(self, composites):
-        return Transitions.configure(self, self.items('transitions'),
-                                     composites,
-                                     fps=self.getFramesPerSecond())
+    def getTransitions(self, composites: dict[str, Composite]):
+        return Transitions.configure(self.items('transitions'), composites, fps=self.getFramesPerSecond())
 
-    def getPreviewNameOverlay(self):
+    def getPreviewNameOverlay(self) -> bool:
         return self.getboolean('previews', 'nameoverlay', fallback=True)
 
-    def hasSource(self, source):
+    def hasSource(self, source) -> bool:
         return self.has_section('source.{}'.format(source))
 
-    def hasOverlay(self):
+    def hasOverlay(self) -> bool:
         return self.has_section('overlay')
 
-    def getOverlayAutoOff(self):
+    def getOverlayAutoOff(self) -> bool:
         return self.getboolean('overlay', 'auto-off', fallback=True)
 
-    def getOverlayUserAutoOff(self):
+    def getOverlayUserAutoOff(self) -> bool:
         return self.getboolean('overlay', 'user-auto-off', fallback=False)
 
-    def _getInternalSources(self):
+    def _getInternalSources(self) -> list[str]:
         sources = ["mix"]
         if self.getBlinderEnabled():
             sources += ["blinder", "mix-blinded"]
@@ -495,8 +507,8 @@ class VocConfigParser(ConfigParser):
                 sources += [f"{source}-blinded"]
         return sources
 
-    def getVideoSources(self, internal=False):
-        def source_has_video(source):
+    def getVideoSources(self, internal=False) -> list[str]:
+        def source_has_video(source: str) -> bool:
             return kind_has_video(self.getSourceKind(source))
 
         sources = self.getSources()
@@ -504,8 +516,8 @@ class VocConfigParser(ConfigParser):
             sources.extend(self._getInternalSources())
         return list(filter(source_has_video, sources))
 
-    def getAudioSources(self, internal=False):
-        def source_has_audio(source):
+    def getAudioSources(self, internal=False) -> list[str]:
+        def source_has_audio(source: str) -> bool:
             return kind_has_audio(self.getSourceKind(source))
 
         sources = self.getSources()

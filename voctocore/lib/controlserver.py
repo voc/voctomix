@@ -1,4 +1,5 @@
 import logging
+import socket
 from queue import Empty, Queue
 from threading import Lock
 
@@ -11,6 +12,11 @@ from vocto.port import Port
 
 
 class ControlServer(TCPMultiConnection):
+    log: logging.Logger
+    command_queue: Queue
+    on_loop_lock: Lock
+    on_loop_active: bool
+    commands: ControlServerCommands
 
     def __init__(self, pipeline):
         '''Initialize server and start listening.'''
@@ -141,7 +147,7 @@ class ControlServer(TCPMultiConnection):
 
         return True
 
-    def _schedule_write(self, conn, message):
+    def _schedule_write(self, conn: socket.socket, message):
         queue = self.currentConnections[conn]
 
         self.log.debug('re-starting on_write[%u] scheduling', conn.fileno())
@@ -149,7 +155,7 @@ class ControlServer(TCPMultiConnection):
 
         queue.put(message)
 
-    def on_write(self, conn, *args):
+    def on_write(self, conn: socket.socket, *args):
         self.log.debug('on_write[%u] called', conn.fileno())
 
         try:

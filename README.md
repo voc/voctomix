@@ -10,14 +10,15 @@ those.
 
 ```bash
 uv venv --system-site-packages
-uv sync
-uv pip install pygobject-stubs --config-settings=config=Gtk3
+uv pip install pygobject-stubs --config-settings=config=Gtk3,Gdk3
+uv sync --dev
 ```
 
 ## Tests
 
 ```bash
 uv run pytest
+uv run mypy -p voctocore -p voctogui
 ```
 
 ## Current Documentation

@@ -7,6 +7,7 @@ from gi.repository import Gst
 # import library components
 from voctocore.lib.args import Args
 from voctocore.lib.audiomix import AudioMix
+from voctocore.lib.avnode import AVNode, AVIONode
 from voctocore.lib.avpreviewoutput import AVPreviewOutput
 from voctocore.lib.avrawoutput import AVRawOutput
 from voctocore.lib.blinder import Blinder
@@ -22,11 +23,20 @@ from vocto.debug import gst_generate_dot
 from vocto.port import Port
 from vocto.pretty import pretty
 
+from typing import Optional, cast
+
 
 class Pipeline(object):
     """mixing, streaming and encoding pipeline constuction and control"""
+    log: logging.Logger
+    bins: list[AVNode]
+    ports: list[Port]
+    amix: AudioMix
+    vmix: VideoMix
+    prevstate: Optional[Gst.State]
+    pipeline: Gst.Pipeline
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.log = logging.getLogger('Pipeline')
         # log capabilities
         self.log.info('Video-Caps configured to: %s', Config.getVideoCaps())
@@ -49,6 +59,7 @@ class Pipeline(object):
             self.bins.append(source)
             self.ports.append(Port(source_name, source))
 
+            dest: AVIONode
             if Config.getMirrorsEnabled():
                 if source_name in Config.getMirrorsSources():
                     dest = AVRawOutput(source_name, Port.SOURCES_OUT + idx)
@@ -152,11 +163,11 @@ class Pipeline(object):
         #    self.ports.append(Port('{}-playout'.format("mix"), playout))
 
 
-        for _bin in self.bins:
-            self.log.info("%s\n%s", _bin, pretty(_bin.bin))
+        for node in self.bins:
+            self.log.info("%s\n%s", node, pretty(node.bin))
 
         # concatenate pipeline string
-        pipeline = "\n\n".join(bin.bin for bin in self.bins)
+        pipeline = "\n\n".join([node.bin for node in self.bins])
 
         if Args.pipeline:
             with open("core.pipeline.txt","w") as file:
@@ -165,7 +176,7 @@ class Pipeline(object):
         self.prevstate = None
         try:
             # launch gstreamer pipeline
-            self.pipeline = Gst.parse_launch(pipeline)
+            self.pipeline = cast(Gst.Pipeline, Gst.parse_launch(pipeline))
             self.log.info("pipeline launched successfuly")
         except Exception:
             self.log.exception("Can not launch pipeline")
@@ -189,27 +200,30 @@ class Pipeline(object):
 
         self.pipeline.set_state(Gst.State.PLAYING)
 
-    def fetch_elements_by_name(self, regex):
+    def fetch_elements_by_name(self, regex: str) -> list[Gst.Element]:
         # fetch all watchdogs
         result = []
 
-        def query(element):
-            if re.match(regex, element.get_name()):
+        def query(element: Gst.Element):
+            name = element.get_name()
+            if name is not None and re.match(regex, name):
                 result.append(element)
-        self.pipeline.iterate_recurse().foreach(query)
+        iterator = self.pipeline.iterate_recurse()
+        if iterator is not None:
+            iterator.foreach(query)
         return result
 
-    def on_eos(self, bus, message):
+    def on_eos(self, bus: Gst.Bus, message: Gst.Message):
         self.log.debug('Received End-of-Stream-Signal on Source-Pipeline')
 
-    def on_error(self, bus, message):
+    def on_error(self, bus: Gst.Bus, message: Gst.Message):
         (error, debug) = message.parse_error()
         self.log.debug(debug)
         self.log.error("GStreamer pipeline element '%s' signaled an error #%u: %s" % (message.src.name, error.code, error.message) )
         sys.exit(-1)
 
-    def on_state_changed(self, bus, message):
-        newstate = message.parse_state_changed().newstate
+    def on_state_changed(self, bus: Gst.Bus, message: Gst.Message):
+        oldstate, newstate, pending = message.parse_state_changed()
         states = ["PENDING", "NULL", "READY", "PAUSED", "PLAYING"]
         self.log.debug("element state changed to '%s' by element '%s'", states[newstate], message.src.name )
         if self.prevstate != newstate and message.src.name == "pipeline0":

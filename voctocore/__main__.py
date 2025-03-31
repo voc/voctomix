@@ -66,7 +66,7 @@ class Voctocore(object):
 def main():
     # parse command-line args
     from voctocore.lib import args
-    args.parse()
+    args.parse() # type: ignore
 
     from voctocore.lib.args import Args
     docolor = (Args.color == 'always') \

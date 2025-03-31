@@ -8,12 +8,13 @@ from threading import Lock
 from gi.repository import GObject, Gtk
 
 from vocto.port import Port
+from typing import Optional
 
-log = logging.getLogger('Connection')
-conn = None
+log: logging.Logger = logging.getLogger('Connection')
+conn: Optional[socket.socket] = None
 ip = None
-command_queue = Queue()
-signal_handlers = {}
+command_queue: Queue = Queue()
+signal_handlers: dict = {}
 
 on_loop_lock = Lock()
 on_loop_active = False

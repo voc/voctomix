@@ -1,11 +1,13 @@
 import logging
+from typing import Optional
+
+from voctocore.lib.sources.avsource import AVSource
 
 log = logging.getLogger('AVSourceManager')
 
-sources = {}
+sources: dict[str, AVSource] = {}
 
-
-def spawn_source(name, port, has_audio=True, has_video=True):
+def spawn_source(name: str, port: Optional[int], has_audio: bool=True, has_video: bool=True) -> AVSource:
 
     from voctocore.lib.config import Config
     from voctocore.lib.sources.ajaavsource import AJAAVSource

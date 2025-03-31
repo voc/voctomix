@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# type: ignore
 from configparser import SafeConfigParser
 from vocto.transitions import Composites, Transitions, L, T, R, B, X, Y
 from PIL import Image, ImageDraw, ImageFont

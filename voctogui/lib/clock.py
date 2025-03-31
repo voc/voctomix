@@ -14,7 +14,7 @@ Clock = None
 
 
 def obtainClock(host):
-    global log, Clock, SystemClock
+    global log, Clock
 
     log.debug('obtaining NetClientClock from host %s', host)
     Clock = GstNet.NetClientClock.new('voctocore', host, port, 0)

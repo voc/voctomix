@@ -73,7 +73,6 @@ class DeckLinkAVSource(AVSource):
                 ! videorate
                     name=vout-{name}
                 """.format(
-                deinterlacer=self.build_deinterlacer(),
                 name=self.name
             )
         else:

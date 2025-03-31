@@ -1,8 +1,22 @@
 import argparse
 
+import dataclasses
+from typing import Literal
+
 __all__ = ['Args']
 
-Args = None
+Args: 'Arguments' = None  # type: ignore
+
+@dataclasses.dataclass
+class Arguments:
+    verbose: int
+    color: Literal["auto", "always", "never"]
+    timestamp: bool
+    ini_file: str
+    host: str
+    dot: bool
+    gst_debug_details: int
+    gstreamer_log: int
 
 
 def parse():
