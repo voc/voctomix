@@ -18,6 +18,7 @@ uv pip install pygobject-stubs --config-settings=config=Gtk3
 
 ```bash
 uv run pytest
+uv run mypy -p voctocore -p voctogui
 ```
 
 ## Current Documentation
