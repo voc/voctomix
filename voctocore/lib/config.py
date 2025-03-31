@@ -21,12 +21,12 @@ __all__ = ['Config']
 Config: 'VoctocoreConfigParser' = None  # type: ignore
 
 
-def scandatetime(str: str) -> datetime:
-    return datetime.strptime(str[:19], "%Y-%m-%dT%H:%M:%S")
+def scandatetime(value: str) -> datetime:
+    return datetime.strptime(value[:19], "%Y-%m-%dT%H:%M:%S")
 
 
-def scanduration(str: str) -> Optional[timedelta]:
-    r = re.match(r'^(\d+):(\d+)$', str)
+def scanduration(value: str) -> Optional[timedelta]:
+    r = re.match(r'^(\d+):(\d+)$', value)
     if r is None:
         return None
     return timedelta(hours=int(r.group(1)), minutes=int(r.group(2)))

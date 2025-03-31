@@ -43,15 +43,15 @@ class CompositeCommand:
 
     def modify(self, mod: str, reverse: bool=False) -> bool:
         # get command as string and process all replactions
-        command = original = str(self)
+        command_str = original = str(self)
         for r in mod.split(','):
             what, _with = r.split('->')
             if reverse:
                 what, _with = _with, what
-            command = command.replace(what.strip(), _with.strip())
-        modified = original != command
+            command_str = command_str.replace(what.strip(), _with.strip())
+        modified = original != command_str
         # re-convert string to command and take the elements
-        command = CompositeCommand.from_str(command)
+        command = CompositeCommand.from_str(command_str)
         self.composite = command.composite
         self.A = command.A
         self.B = command.B

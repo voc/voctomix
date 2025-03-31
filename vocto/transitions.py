@@ -85,12 +85,12 @@ class Transitions:
         # walk through all items within the configuration string
         for t_name, t in cfg:
             # split animation time and composite sequence from t
-            time, sequence = t.split(',')
-            time = int(time)
+            time_str, sequence_str = t.split(',')
+            time = int(time_str)
             # calculate frames needed for that animation time
             frames = fps * float(time) / 1000.0
             # split sequence list into key frames
-            sequence = [x.strip().lower() for x in sequence.split('/')]
+            sequence = [x.strip().lower() for x in sequence_str.split('/')]
             for seq in parse_asterisk(sequence, targets):
                 if "*" in sequence:
                     name = "%s(%s)" % (t_name, "/".join(seq))

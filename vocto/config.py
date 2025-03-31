@@ -362,10 +362,10 @@ class VocConfigParser(ConfigParser):
 
     @staticmethod
     def parseCaps(caps: str) -> Gst.Structure:
-        caps = Gst.Caps.from_string(caps)
-        if caps is None:
+        struct = Gst.Caps.from_string(caps)
+        if struct is None:
             raise ValueError("could not parse caps")
-        return caps.get_structure(0)
+        return struct.get_structure(0)
 
     def get_audio_encoder(self, section: str) -> str:
         return self.get(section, 'audioencoder')  # => move to audio_codec class
@@ -380,8 +380,8 @@ class VocConfigParser(ConfigParser):
         if self.has_option(section, 'videocodec'):
             codec = self.get(section, 'videocodec').split(',', 1)
             if len(codec) > 1:
-                codec, options = self.get(section, 'videocodec').split(',', 1)
-                return codec, VocConfigParser.splitOptions(options) if options else None
+                codec_name, options = self.get(section, 'videocodec').split(',', 1)
+                return codec_name, VocConfigParser.splitOptions(options) if options else None
             else:
                 return codec[0], None
         return "jpeg", ["quality=90"]

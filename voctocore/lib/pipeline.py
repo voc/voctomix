@@ -161,11 +161,11 @@ class Pipeline(object):
         #    self.ports.append(Port('{}-playout'.format("mix"), playout))
 
 
-        for _bin in self.bins:
-            self.log.info("%s\n%s", _bin, pretty(_bin.bin))
+        for node in self.bins:
+            self.log.info("%s\n%s", node, pretty(node.bin))
 
         # concatenate pipeline string
-        pipeline = "\n\n".join(bin.bin for bin in self.bins)
+        pipeline = "\n\n".join([node.bin for node in self.bins])
 
         if Args.pipeline:
             with open("core.pipeline.txt","w") as file:
@@ -221,7 +221,7 @@ class Pipeline(object):
         sys.exit(-1)
 
     def on_state_changed(self, bus: Gst.Bus, message: Gst.Message):
-        newstate = message.parse_state_changed().newstate
+        oldstate, newstate, pending = message.parse_state_changed()
         states = ["PENDING", "NULL", "READY", "PAUSED", "PLAYING"]
         self.log.debug("element state changed to '%s' by element '%s'", states[newstate], message.src.name )
         if self.prevstate != newstate and message.src.name == "pipeline0":

@@ -214,8 +214,8 @@ class ControlServerCommands(object):
             if cut:
                 return OkResponse('best', 'cut', *cut)
             else:
-                command = CompositeCommand.from_str(command)
-                return OkResponse('best','none',command.A,command.B)
+                composite = CompositeCommand.from_str(command)
+                return OkResponse('best', 'none', composite.A, composite.B)
 
     def cut(self, command: str) -> Response:
         """sets the composite and sources by using the composite command format
