@@ -3,15 +3,22 @@ import logging
 import json
 import inspect
 
+import voctocore.lib.pipeline
 from voctocore.lib.config import Config
-from voctocore.lib.response import NotifyResponse, OkResponse
+from voctocore.lib.response import NotifyResponse, OkResponse, Response
 from vocto.composite_commands import CompositeCommand
 from vocto.command_helpers import quote, dequote, str2bool
 import os
 
 class ControlServerCommands(object):
+    log: logging.Logger
+    pipeline: 'voctocore.lib.pipeline.Pipeline'
+    stored_values: dict[str, str]
+    sources: list[str]
+    blinder_sources: list[str]
+    streams: list[str]
 
-    def __init__(self, pipeline):
+    def __init__(self, pipeline: 'voctocore.lib.pipeline.Pipeline'):
         self.log = logging.getLogger('ControlServerCommands')
 
         self.pipeline = pipeline
@@ -24,12 +31,12 @@ class ControlServerCommands(object):
     # Commands are defined below. Errors are sent to the clients by throwing
     # exceptions, they will be turned into messages outside.
 
-    def message(self, *args):
+    def message(self, *args) -> Response:
         """sends a message through the control-server, which can be received by
         user-defined scripts. does not change the state of the voctocore."""
         return NotifyResponse('message', *args)
 
-    def store_value(self, key, *args):
+    def store_value(self, key: str, *args) -> Response:
         """stores a value from a user-defined script in voctomix' memory.
         setting a value triggers a 'value'-broadcast.
         the value can be later retrieved using fetch_value.
@@ -38,7 +45,7 @@ class ControlServerCommands(object):
         self.stored_values[key] = value
         return NotifyResponse('value', key, value)
 
-    def fetch_value(self, key):
+    def fetch_value(self, key: str) -> Response:
         """retrieves a previusly stored value from a user-defined script.
         does not change the state of the voctocore."""
         try:
@@ -48,9 +55,9 @@ class ControlServerCommands(object):
 
         return OkResponse('value', key, value)
 
-    def help(self):
+    def help(self) -> Response:
         """displays help-messages for all commands"""
-        helplines = []
+        helplines: list[str] = []
 
         helplines.append("Commands:")
         for name, func in ControlServerCommands.__dict__.items():
@@ -92,18 +99,18 @@ class ControlServerCommands(object):
 
         return OkResponse("\n".join(helplines))
 
-    def _get_video_status(self):
+    def _get_video_status(self) -> list[str]:
         a = self.pipeline.vmix.getVideoSourceA()
         b = self.pipeline.vmix.getVideoSourceB()
         return [a, b]
 
-    def get_video(self):
+    def get_video(self) -> Response:
         """gets the current video-status, consisting of the name of
            video-source A and video-source B"""
         status = self.pipeline.vmix.getVideoSources()
         return OkResponse('video_status', *status)
 
-    def set_video_a(self, src_name):
+    def set_video_a(self, src_name: str) -> Response:
         """sets the video-source A to the supplied source-name or source-id,
            swapping A and B if the supplied source is currently used as
            video-source B"""
@@ -112,7 +119,7 @@ class ControlServerCommands(object):
         status = self.pipeline.vmix.getVideoSources()
         return NotifyResponse('video_status', *status)
 
-    def set_video_b(self, src_name):
+    def set_video_b(self, src_name: str) -> Response:
         """sets the video-source B to the supplied source-name or source-id,
            swapping A and B if the supplied source is currently used as
            video-source A"""
@@ -121,7 +128,7 @@ class ControlServerCommands(object):
         status = self.pipeline.vmix.getVideoSources()
         return NotifyResponse('video_status', *status)
 
-    def _get_audio_status(self):
+    def _get_audio_status(self) -> str:
         volumes = self.pipeline.amix.getAudioVolumes()
 
         return json.dumps({
@@ -129,12 +136,12 @@ class ControlServerCommands(object):
             for idx, volume in enumerate(volumes)
         })
 
-    def get_audio(self):
+    def get_audio(self) -> Response:
         """gets the current volumes of the audio-sources"""
         status = self._get_audio_status()
         return OkResponse('audio_status', status)
 
-    def set_audio(self, src_name):
+    def set_audio(self, src_name: str) -> Response:
         """sets the audio-source to the supplied source-name or source-id"""
         src_id = self.sources.index(src_name)
         self.pipeline.amix.setAudioSource(src_id)
@@ -142,7 +149,7 @@ class ControlServerCommands(object):
         status = self._get_audio_status()
         return NotifyResponse('audio_status', status)
 
-    def set_audio_volume(self, stream_name, volume):
+    def set_audio_volume(self, stream_name: str, volume: float) -> Response:
         """sets the volume of the supplied source-name or source-id"""
         volume = float(volume)
         if volume < 0.0:
@@ -155,20 +162,20 @@ class ControlServerCommands(object):
         status = self._get_audio_status()
         return NotifyResponse('audio_status', status)
 
-    def get_composite_mode(self):
+    def get_composite_mode(self) -> Response:
         """gets the name of the current composite-mode"""
         status = self.pipeline.vmix.getCompositeMode()
         return OkResponse('composite_mode', status)
 
-    def get_composite_modes(self):
+    def get_composite_modes(self) -> Response:
         """lists the names of all available composite-mode"""
         # TODO: fix this...
-        #names = [mode.name for mode in CompositeModes]
+        # names = [mode.name for mode in CompositeModes]
         names = [""]
         namestr = ','.join(names)
         return OkResponse('composite_modes', namestr)
 
-    def get_composite_mode_and_video_status(self):
+    def get_composite_mode_and_video_status(self) -> Response:
         """retrieves the composite-mode and the video-status
         in a single call"""
         composite_status = self.pipeline.vmix.getCompositeMode()
@@ -176,7 +183,7 @@ class ControlServerCommands(object):
         return OkResponse('composite_mode_and_video_status',
                           composite_status, *video_status)
 
-    def set_composite_mode(self, mode_name):
+    def set_composite_mode(self, mode_name: str) -> list[Response]:
         """sets the name of the id of the composite-mode"""
         self.pipeline.vmix.setComposite(CompositeCommand(mode_name, "*", "*"))
 
@@ -189,42 +196,42 @@ class ControlServerCommands(object):
                            composite_status, *video_status),
         ]
 
-    def transition(self, command):
+    def transition(self, command: str) -> Response:
         """sets the composite and sources by using the composite command format
            (e.g. 'sbs(cam1,cam2)') as the only parameter
         """
         self.pipeline.vmix.setComposite(command, True)
         return NotifyResponse('composite', self.pipeline.vmix.getComposite())
 
-    def best(self, command):
+    def best(self, command: str) -> Response:
         """tests if transition to the composite described by command is possible.
         """
         transition = self.pipeline.vmix.testTransition(command)
         if transition:
-            return OkResponse('best','transition', *transition)
+            return OkResponse('best', 'transition', *transition)
         else:
             cut = self.pipeline.vmix.testCut(command)
             if cut:
-                return OkResponse('best','cut', *cut)
+                return OkResponse('best', 'cut', *cut)
             else:
                 command = CompositeCommand.from_str(command)
                 return OkResponse('best','none',command.A,command.B)
 
-    def cut(self, command):
+    def cut(self, command: str) -> Response:
         """sets the composite and sources by using the composite command format
            (e.g. 'sbs(cam1,cam2)') as the only parameter
         """
         self.pipeline.vmix.setComposite(command, False)
         return NotifyResponse('composite', self.pipeline.vmix.getComposite())
 
-    def get_composite(self):
+    def get_composite(self) -> Response:
         """fetch current composite and sources using the composite command format
            (e.g. 'sbs(cam1,cam2)') as return value
         """
         return OkResponse('composite', self.pipeline.vmix.getComposite())
 
-    def set_videos_and_composite(self, src_a_name, src_b_name,
-                                 mode_name):
+    def set_videos_and_composite(self, src_a_name: str, src_b_name: str,
+                                 mode_name: str) -> list[Response]:
         """sets the A- and the B-source synchronously with the composition-mode
            all parametets can be set to "*" which will leave them unchanged."""
         self.pipeline.vmix.setComposite(
@@ -241,19 +248,19 @@ class ControlServerCommands(object):
         ]
 
     if Config.getBlinderEnabled():
-        def _get_stream_status(self):
+        def _get_stream_status(self) -> tuple[str] | tuple[str, str]:
             blind_source = self.pipeline.blinder.blind_source
             if blind_source is None:
                 return ('live',)
 
             return 'blinded', self.blinder_sources[blind_source]
 
-        def get_stream_status(self):
+        def get_stream_status(self) -> Response:
             """gets the current blinder-status"""
             status = self._get_stream_status()
             return OkResponse('stream_status', *status)
 
-        def set_stream_blind(self, source_name):
+        def set_stream_blind(self, source_name: str) -> Response:
             """sets the blinder-status to blinder with the specified
                blinder-source-name or -id"""
             src_id = self.blinder_sources.index(source_name)
@@ -263,35 +270,35 @@ class ControlServerCommands(object):
             return NotifyResponse('stream_status', *status)
 
         # for backwards compatibility this command remains obsolete
-        def set_stream_blank(self, source_name):
+        def set_stream_blank(self, source_name: str) -> Response:
 
             return self.set_stream_blind(source_name)
 
-        def set_stream_live(self):
+        def set_stream_live(self) -> Response:
             """sets the blinder-status to live"""
             self.pipeline.blinder.setBlindSource(None)
 
             status = self._get_stream_status()
             return NotifyResponse('stream_status', *status)
 
-    def get_config(self):
+    def get_config(self) -> Response:
         """returns the parsed server-config"""
         confdict = {header: dict(section)
                     for header, section in dict(Config).items()}
         return OkResponse('server_config', json.dumps(confdict))
 
-    def get_config_option(self, section, key):
+    def get_config_option(self, section: str, key: str) -> Response:
         """returns a single value from the server-config"""
         value = Config.get(section, key)
         return OkResponse('server_config_option', section, key, value)
 
-    def report_queues(self):
-        report = dict()
+    def report_queues(self) -> Response:
+        report: dict[str, str] = {}
         for queue in self.pipeline.queues:
             report[queue.name] = queue.get_property("current-level-time")
         return OkResponse('queue_report', json.dumps(report))
 
-    def report_ports(self):
+    def report_ports(self) -> Response:
         for p in self.pipeline.ports:
             p.update()
         return OkResponse('port_report', json.dumps(self.pipeline.ports, default=lambda x: x.todict()))
@@ -299,7 +306,7 @@ class ControlServerCommands(object):
     # only available when overlays are configured
     if Config.hasOverlay():
 
-        def set_overlay(self, overlay):
+        def set_overlay(self, overlay: str) -> Response:
             """set an overlay and show"""
             # decode parameter to filename
             filename = Config.getOverlayFilePath(dequote(overlay))
@@ -314,26 +321,26 @@ class ControlServerCommands(object):
             # respond with current overlay notification
             return self.get_overlay()
 
-        def show_overlay(self, visible):
+        def show_overlay(self, visible: str) -> Response:
             """set an overlay and show"""
             # show or hide overlay in mixing pipeline
             self.pipeline.vmix.showOverlay(str2bool(visible))
             # respond with overlay visibility notification
             return self.get_overlay_visible()
 
-        def get_overlay(self):
+        def get_overlay(self) -> Response:
             """respond any visible overlay"""
             return NotifyResponse('overlay', quote(Config.getOverlayNameFromFilePath(self.pipeline.vmix.getOverlay())))
 
-        def get_overlay_visible(self):
+        def get_overlay_visible(self) -> Response:
             """respond any visible overlay"""
             return NotifyResponse('overlay_visible', str(self.pipeline.vmix.getOverlayVisible()))
 
-        def get_overlays_title(self):
+        def get_overlays_title(self) -> Response:
             """respond with list of all available overlays"""
             return NotifyResponse('overlays_title',
                                   ",".join(quote(t) for t in Config.getOverlaysTitle()))
 
-        def get_overlays(self):
+        def get_overlays(self) -> Response:
             return NotifyResponse('overlays',
                                   ",".join([quote(a) for a in Config.getOverlayFiles()]))

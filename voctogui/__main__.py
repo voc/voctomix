@@ -39,7 +39,7 @@ settings.set_property("gtk-application-prefer-dark-theme", True)  # if you want 
 # main class
 class Voctogui(object):
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.log = logging.getLogger('Voctogui')
         from voctogui.lib.args import Args
         from voctogui.lib.ui import Ui
@@ -74,7 +74,7 @@ class Voctogui(object):
 
         self.ui.setup()
 
-    def run(self):
+    def run(self) -> None:
         self.log.info('Setting UI visible')
         self.ui.show()
 
@@ -85,16 +85,16 @@ class Voctogui(object):
         except KeyboardInterrupt:
             self.log.info('Terminated via Ctrl-C')
 
-    def quit(self):
+    def quit(self) -> None:
         self.log.info('Quitting.')
         Gtk.main_quit()
 
 
 # run mainclass
-def main():
+def main() -> None:
     # parse command-line args
     from voctogui.lib import args
-    args.parse()
+    args.parse() # type: ignore
 
     from voctogui.lib.args import Args
     docolor = (Args.color == 'always') \

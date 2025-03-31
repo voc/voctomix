@@ -1,14 +1,21 @@
 #!/usr/bin/env python3
 import logging
 
+from gi.repository import Gst
+
 from voctocore.lib.args import Args
 from voctocore.lib.config import Config
 from voctocore.lib.tcpmulticonnection import TCPMultiConnection
 
+from typing import Optional
+
 
 class ProgramOutputSink:
+    log: logging.Logger
+    source: str
+    bin: str
 
-    def __init__(self, source, port, use_audio_mix=False, audio_blinded=False):
+    def __init__(self, source: str, port: Optional[int], use_audio_mix: bool=False, audio_blinded: bool=False):
         # create logging interface
         self.log = logging.getLogger("ProgramOutputSink".format(source))
 
@@ -63,23 +70,23 @@ class ProgramOutputSink:
         # close bin
         # self.bin += "" if Args.no_bins else "\n)\n"
 
-    def port(self):
+    def port(self) -> str:
+        return "0"
+
+    def num_connections(self) -> int:
         return 0
 
-    def num_connections(self):
-        return 0
-
-    def audio_channels(self):
+    def audio_channels(self) -> int:
         return Config.getNumAudioStreams()
 
-    def video_channels(self):
+    def video_channels(self) -> int:
         return 1
 
-    def is_input(self):
+    def is_input(self) -> bool:
         return False
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "ProgramOutputSink[{}]".format(self.source)
 
-    def attach(self, pipeline):
+    def attach(self, pipeline: Gst.Pipeline):
         self.pipeline = pipeline

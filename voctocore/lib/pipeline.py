@@ -22,11 +22,20 @@ from vocto.debug import gst_generate_dot
 from vocto.port import Port
 from vocto.pretty import pretty
 
+from typing import Optional, cast
+
 
 class Pipeline(object):
     """mixing, streaming and encoding pipeline constuction and control"""
+    log: logging.Logger
+    bins: list[object]
+    ports: list[Port]
+    amix: AudioMix
+    vmix: VideoMix
+    prevstate: Optional[Gst.State]
+    pipeline: Gst.Pipeline
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.log = logging.getLogger('Pipeline')
         # log capabilities
         self.log.info('Video-Caps configured to: %s', Config.getVideoCaps())
@@ -189,7 +198,7 @@ class Pipeline(object):
 
         self.pipeline.set_state(Gst.State.PLAYING)
 
-    def fetch_elements_by_name(self, regex):
+    def fetch_elements_by_name(self, regex: str) -> list[Gst.Element]:
         # fetch all watchdogs
         result = []
 
@@ -199,16 +208,16 @@ class Pipeline(object):
         self.pipeline.iterate_recurse().foreach(query)
         return result
 
-    def on_eos(self, bus, message):
+    def on_eos(self, bus: Gst.Bus, message: Gst.Message):
         self.log.debug('Received End-of-Stream-Signal on Source-Pipeline')
 
-    def on_error(self, bus, message):
+    def on_error(self, bus: Gst.Bus, message: Gst.Message):
         (error, debug) = message.parse_error()
         self.log.debug(debug)
         self.log.error("GStreamer pipeline element '%s' signaled an error #%u: %s" % (message.src.name, error.code, error.message) )
         sys.exit(-1)
 
-    def on_state_changed(self, bus, message):
+    def on_state_changed(self, bus: Gst.Bus, message: Gst.Message):
         newstate = message.parse_state_changed().newstate
         states = ["PENDING", "NULL", "READY", "PAUSED", "PLAYING"]
         self.log.debug("element state changed to '%s' by element '%s'", states[newstate], message.src.name )

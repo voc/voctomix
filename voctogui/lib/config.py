@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
 import os.path
 import logging
+from typing import Optional
+
 from voctogui.lib.args import Args
 import voctogui.lib.connection as Connection
 from vocto.config import VocConfigParser
 __all__ = ['Config']
 
-Config = None
+Config: 'VoctoguiConfigParser' = None # type: ignore
 
 log = logging.getLogger('VoctoguiConfigParser')
 
 
 class VoctoguiConfigParser(VocConfigParser):
 
-    def fetchServerConfig(self):
+    def fetchServerConfig(self) -> None:
         log.info("reading server-config")
 
         server_config = Connection.fetchServerConfig()
@@ -21,10 +23,10 @@ class VoctoguiConfigParser(VocConfigParser):
         log.info("merging server-config %s", server_config)
         self.read_dict(server_config)
 
-    def getHost(self):
+    def getHost(self) -> str:
         return Args.host if Args.host else self.get('server', 'host')
 
-    def getWindowSize(self):
+    def getWindowSize(self) -> Optional[tuple[int, int]]:
         if self.has_option('mainwindow', 'width') \
                 and self.has_option('mainwindow', 'height'):
             # get size from config

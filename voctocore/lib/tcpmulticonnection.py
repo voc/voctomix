@@ -5,10 +5,16 @@ from queue import Queue
 from abc import ABCMeta, abstractmethod
 from gi.repository import GObject
 
+from typing import Optional
+
 
 class TCPMultiConnection(object, metaclass=ABCMeta):
+    log: logging.Logger
+    _port: Optional[int]
+    boundSocket: Optional[socket.socket]
+    currentConnections: dict[socket.socket, Queue]
 
-    def __init__(self, port):
+    def __init__(self, port: int):
         if not hasattr(self, 'log'):
             self.log = logging.getLogger('TCPMultiConnection')
 
@@ -34,16 +40,16 @@ class TCPMultiConnection(object, metaclass=ABCMeta):
             sys.exit(-1)
 
 
-    def port(self):
+    def port(self) -> str:
         return "%s:%d" % (socket.gethostname(), self._port if self._port else 0)
 
-    def num_connections(self):
+    def num_connections(self) -> int:
         return len(self.currentConnections)
 
-    def is_input(self):
+    def is_input(self) -> bool:
         return False
 
-    def on_connect(self, sock, *args):
+    def on_connect(self, sock: socket.socket, *args):
         conn, addr = sock.accept()
         conn.setblocking(False)
 
@@ -58,7 +64,7 @@ class TCPMultiConnection(object, metaclass=ABCMeta):
 
         return True
 
-    def close_connection(self, conn):
+    def close_connection(self, conn: socket.socket):
         if conn in self.currentConnections:
             conn.close()
             del(self.currentConnections[conn])
@@ -66,7 +72,7 @@ class TCPMultiConnection(object, metaclass=ABCMeta):
                       len(self.currentConnections))
 
     @abstractmethod
-    def on_accepted(self, conn, addr):
+    def on_accepted(self, conn: socket.socket, addr: tuple[str, int]):
         raise NotImplementedError(
             "child classes of TCPMultiConnection must implement on_accepted()"
         )

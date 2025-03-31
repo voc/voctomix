@@ -12,11 +12,15 @@ from vocto.video_codecs import construct_video_encoder_pipeline
 
 
 class LocalRecordingSink:
+    log: logging.Logger
+    source: str
+    _port: int
+    bin: str
     """
     The local playout class handels outputs for the voctocore that are played out directly by the gstreamer pipline.
     """
 
-    def __init__(self, source, port, use_audio_mix=False, audio_blinded=False):
+    def __init__(self, source: str, port: int, use_audio_mix: bool=False, audio_blinded: bool=False) -> None:
         # create logging interface
         self.log = logging.getLogger("LocalRecordingSink".format(source))
 
@@ -111,31 +115,31 @@ class LocalRecordingSink:
         # close bin
         self.bin += "" if Args.no_bins else "\n)\n"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "LocalRecordingSink[{}] at port {}".format(self.source, self._port)
 
-    def port(self):
+    def port(self) -> str:
         return "srt://:{}".format(self._port)
 
-    def num_connections(self):
+    def num_connections(self) -> int:
         return 0
 
-    def audio_channels(self):
+    def audio_channels(self) -> int:
         return Config.getNumAudioStreams()
 
-    def video_channels(self):
+    def video_channels(self) -> int:
         return 1
 
-    def is_input(self):
+    def is_input(self) -> bool:
         return False
 
-    def format_location_callback(self, splitmux, fragment_id):
+    def format_location_callback(self, splitmux, fragment_id: str) -> str:
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         return "/mnt/video/isdn-{timestamp}-{fragment_id}.ts".format(
             timestamp=timestamp, fragment_id=fragment_id
         )
 
-    def attach(self, pipeline):
+    def attach(self, pipeline: Gst.Pipeline):
         if Config.getRecordingEnabled():
             recording_sink = pipeline.get_by_name(
                 "recording-{source}".format(source=self.source)

@@ -7,12 +7,21 @@ from voctocore.lib.config import Config
 from voctocore.lib.clock import Clock
 from voctocore.lib.args import Args
 
+from typing import Optional
+
 
 class Blinder(object):
-    # create logging interface
-    log = logging.getLogger('Blinder')
+    log: logging.Logger
+    acaps: str
+    vcaps: str
+    volume: float
+    bin: str
+    blindersources: list[str]
+    livesources: list[str]
+    blind_source: Optional[int]
 
     def __init__(self):
+        self.log = logging.getLogger('Blinder')
 
         # remember some things
         self.acaps = Config.getAudioCaps()

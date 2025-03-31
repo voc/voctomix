@@ -1,13 +1,21 @@
 #!/usr/bin/env python3
 import logging
-from configparser import NoOptionError, NoSectionError
+from gi.repository import Gst
 
+from vocto.audio_streams import AudioStreams
 from voctocore.lib.config import Config
 from voctocore.lib.errors.configuration_error import ConfigurationError
 from voctocore.lib.args import Args
 
 
 class AudioMix(object):
+    log: logging.Logger
+    audio_streams: AudioStreams
+    streams: list[str]
+    volumes: list[float]
+    mix_volume: float
+    bin: str
+    pipeline: Gst.Pipeline
 
     def __init__(self):
         self.log = logging.getLogger('AudioMix')
