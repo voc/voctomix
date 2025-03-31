@@ -79,9 +79,9 @@ class Composite:
     mirror: bool
     order: int
 
-    def __init__(self, order: Optional[int], name: Optional[str], a: Frame=Frame(True), b: Frame=Frame(True)) -> None:
-        assert type(order) is int or order is None
-        assert type(name) is str or not name
+    def __init__(self, order: int, name: str, a: Frame=Frame(True), b: Frame=Frame(True)) -> None:
+        assert type(order) is int
+        assert type(name) is str
         self.name = name
         self.frame = [copy.deepcopy(a), copy.deepcopy(b)]
         self.default = [None, None]

@@ -8,7 +8,7 @@ import math
 # for cloning objects
 import copy
 
-from typing import Optional, Generator
+from typing import Optional, Generator, overload
 
 V = 2  # distance (velocity) index
 
@@ -225,6 +225,10 @@ class Transition:
 
     def frames(self) -> int: return len(self.composites)
 
+    @overload
+    def A(self, n: None) -> list[Frame]: ...
+    @overload
+    def A(self, n: int) -> Frame: ...
     def A(self, n=None):
         if n is None:
             return [c.A() for c in self.composites]
@@ -232,6 +236,10 @@ class Transition:
             assert type(n) is int
             return self.composites[n].A()
 
+    @overload
+    def B(self, n: None) -> list[Frame]: ...
+    @overload
+    def B(self, n: int) -> Frame: ...
     def B(self, n=None):
         if n is None:
             return [c.B() for c in self.composites]
