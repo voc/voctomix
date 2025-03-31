@@ -5,6 +5,7 @@ from vocto.composites import Composite, Composites, swap_name
 from vocto.frame import Frame, L, R, T, B, X, Y
 # for calculating square roots
 import math
+import numpy as np
 # for cloning objects
 import copy
 
@@ -370,7 +371,6 @@ def bspline(points: 'np.ndarray') -> Optional[list['np.ndarray']]:
     # for generating B-Splines
     from scipy import interpolate as spi
     # for converting arrays
-    import numpy as np
     # parameter check
     assert type(points) is np.ndarray
     assert type(points[0]) is np.ndarray and len(points[0]) == 2
@@ -381,7 +381,7 @@ def bspline(points: 'np.ndarray') -> Optional[list['np.ndarray']]:
         # do interpolation
         tck, u = spi.splprep(points.transpose(), s=0, k=2)
         unew = np.arange(0, 1.0 + resolution, resolution)
-        return spi.splev(unew, tck)
+        return spi.splev(unew, tck) # type: ignore
     elif len(points) == 2:
         # throw points on direct line
         x, y = [], []
@@ -396,8 +396,6 @@ def bspline(points: 'np.ndarray') -> Optional[list['np.ndarray']]:
 def find_nearest(spline, points: list) -> list:
     """ find indices in spline which are most near to the coordinates in points
     """
-    # for converting arrays
-    import numpy as np
     nearest = []
     for p in points:
         # calculation lamba fn

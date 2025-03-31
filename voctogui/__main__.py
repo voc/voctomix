@@ -27,8 +27,8 @@ if sys.version_info < minPy:
     raise Exception('Python version', sys.version_info,
                     'is too old, at least', minPy, 'is required')
 
-Gdk.init([])
-Gtk.init([])
+Gdk.init([]) # type: ignore
+Gtk.init([]) # type: ignore
 
 # select Awaita:Dark theme
 settings = Gtk.Settings.get_default()
