@@ -23,7 +23,7 @@ class LocalRecordingSink(AVIONode):
 
     def __init__(self, source: str, port: int, use_audio_mix: bool=False, audio_blinded: bool=False) -> None:
         # create logging interface
-        self.log = logging.getLogger("LocalRecordingSink".format(source))
+        self.log = logging.getLogger("LocalRecordingSink")
 
         # remember things
         self.source = source

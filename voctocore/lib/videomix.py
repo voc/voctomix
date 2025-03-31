@@ -116,7 +116,6 @@ class VideoMix(AVNode):
                 ! videomixer.
                 """.format(
                 name=name,
-                idx=idx
             )
 
         self.bin += "" if Args.no_bins else """)

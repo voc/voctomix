@@ -71,11 +71,6 @@ class Transitions:
             string in <cfg> by using the given <composites> and return them
             in a dictonary
         """
-        def index(composite):
-            for i in range(len(targets)):
-                if composites[targets[i]].equals(composite, True):
-                    return i
-            return None
 
         # filter target composites from given composites
         if targets is None:

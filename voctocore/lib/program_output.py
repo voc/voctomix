@@ -18,7 +18,7 @@ class ProgramOutputSink(AVIONode):
 
     def __init__(self, source: str, port: Optional[int], use_audio_mix: bool=False, audio_blinded: bool=False):
         # create logging interface
-        self.log = logging.getLogger("ProgramOutputSink".format(source))
+        self.log = logging.getLogger("ProgramOutputSink")
 
         # initialize super
         # super().__init__(port)
@@ -42,7 +42,6 @@ class ProgramOutputSink(AVIONode):
                     name=queue-mux-video-localui
                 ! {videosink} sync=false
         """.format(
-            source=self.source,
             vcaps=Config.getVideoCaps(),
             videosink=Config.getProgramOutputVideoSink(),
         )

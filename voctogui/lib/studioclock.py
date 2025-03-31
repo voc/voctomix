@@ -12,7 +12,7 @@ class StudioClock(Gtk.ToolItem):
 
     # set resolution of the update timer in seconds
     timer_resolution: float = 0.5
-    last_draw_time: float = time.localtime(0)
+    last_draw_time: float
 
     # init widget
     def __init__(self) -> None:

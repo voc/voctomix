@@ -23,7 +23,7 @@ class SRTServerSink(AVIONode):
 
     def __init__(self, source: str, port: int, use_audio_mix: bool=False, audio_blinded: bool=False):
         # create logging interface
-        self.log = logging.getLogger("SRTServerSink".format(source))
+        self.log = logging.getLogger("SRTServerSink")
 
         # remember things
         self.source = source
