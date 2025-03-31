@@ -3,9 +3,9 @@ import sys
 
 from gi.repository import Gst, Gdk
 
-from lib.args import Args
-from lib.config import Config
-from lib.clock import Clock
+from voctogui.lib.args import Args
+from voctogui.lib.config import Config
+from voctogui.lib.clock import Clock
 
 from vocto.port import Port
 from vocto.debug import gst_generate_dot
@@ -46,7 +46,7 @@ class VideoDisplay(object):
                     name=queue-video-{name}
                 ! {video_decoder}
                 """.format(name=name,
-                           video_decoder=construct_video_decoder_pipeline('previews'))
+                           video_decoder=construct_video_decoder_pipeline(Config, 'previews'))
 
         else:
             video_decoder = None
@@ -143,7 +143,7 @@ class VideoDisplay(object):
 
         if Args.dot:
             self.log.debug("Generating DOT image of videodisplay pipeline")
-            gst_generate_dot(self.pipeline, "gui.videodisplay.{}".format(name))
+            gst_generate_dot(self.pipeline, "gui.videodisplay.{}".format(name), Args.gst_debug_details)
 
         self.pipeline.use_clock(Clock)
 

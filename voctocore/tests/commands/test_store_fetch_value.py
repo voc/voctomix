@@ -1,7 +1,5 @@
-from mock import ANY
-
-from lib.response import NotifyResponse, OkResponse
-from tests.commands.commands_test_base import CommandsTestBase
+from voctocore.lib.response import NotifyResponse, OkResponse
+from voctocore.tests.commands.commands_test_base import CommandsTestBase
 
 
 class SetStoreFetchValueTest(CommandsTestBase):

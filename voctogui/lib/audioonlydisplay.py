@@ -3,9 +3,9 @@ import sys
 
 from gi.repository import Gst, Gdk
 
-from lib.args import Args
-from lib.config import Config
-from lib.clock import Clock
+from voctogui.lib.args import Args
+from voctogui.lib.config import Config
+from voctogui.lib.clock import Clock
 
 from vocto.port import Port
 from vocto.debug import gst_generate_dot
@@ -67,7 +67,7 @@ class AudioOnlyDisplay(object):
 
         if Args.dot:
             self.log.debug("Generating DOT image of audioonlydisplay pipeline")
-            gst_generate_dot(self.pipeline, "gui.audioonlydisplay.{}".format(name))
+            gst_generate_dot(self.pipeline, "gui.audioonlydisplay.{}".format(name), Args.gst_debug_details)
 
         self.pipeline.use_clock(Clock)
 

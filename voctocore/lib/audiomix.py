@@ -2,9 +2,9 @@
 import logging
 from configparser import NoOptionError, NoSectionError
 
-from lib.config import Config
-from lib.errors.configuration_error import ConfigurationError
-from lib.args import Args
+from voctocore.lib.config import Config
+from voctocore.lib.errors.configuration_error import ConfigurationError
+from voctocore.lib.args import Args
 
 
 class AudioMix(object):
@@ -84,7 +84,7 @@ class AudioMix(object):
 
     def setAudioSource(self, source):
         self.volumes = [float(idx == source)
-                        for idx in range(len(self.sources))]
+                        for idx in range(len(self.streams))]
         self.updateMixerState()
 
     def setAudioSourceVolume(self, stream, volume):

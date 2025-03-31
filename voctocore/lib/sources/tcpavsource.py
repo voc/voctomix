@@ -4,8 +4,8 @@ import logging
 from gi.repository import Gst, GObject
 import socket
 
-from lib.config import Config
-from lib.sources.avsource import AVSource
+from voctocore.lib.config import Config
+from voctocore.lib.sources.avsource import AVSource
 
 ALL_AUDIO_CAPS = Gst.Caps.from_string('audio/x-raw')
 ALL_VIDEO_CAPS = Gst.Caps.from_string('video/x-raw')

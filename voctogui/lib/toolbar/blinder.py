@@ -5,9 +5,9 @@ import os
 import time
 
 from gi.repository import Gtk, GLib
-import lib.connection as Connection
+import voctogui.lib.connection as Connection
 
-from lib.config import Config
+from voctogui.lib.config import Config
 
 
 class BlinderToolbarController(object):

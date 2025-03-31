@@ -6,12 +6,12 @@ import os
 from configparser import NoOptionError
 
 from gi.repository import Gtk, Gdk, GObject
-from lib.videodisplay import VideoDisplay
-from lib.audioonlydisplay import AudioOnlyDisplay
-from lib.audiodisplay import AudioDisplay
-import lib.connection as Connection
+from voctogui.lib.videodisplay import VideoDisplay
+from voctogui.lib.audioonlydisplay import AudioOnlyDisplay
+from voctogui.lib.audiodisplay import AudioDisplay
+import voctogui.lib.connection as Connection
 
-from lib.config import Config
+from voctogui.lib.config import Config
 from vocto.port import Port
 
 

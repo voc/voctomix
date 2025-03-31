@@ -26,9 +26,6 @@ GObject.threads_init()
 Gst.init([])
 
 # this is to use the same code tha gui uses to get config from core
-sys.path.insert(0, '../..')
-sys.path.insert(0, '.')
-
 import voctogui.lib.connection as Connection
 
 

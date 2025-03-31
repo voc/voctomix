@@ -2,9 +2,9 @@ import logging
 #!/usr/bin/env python3
 from vocto.video_codecs import construct_video_encoder_pipeline
 
-from lib.tcpmulticonnection import TCPMultiConnection
-from lib.config import Config
-from lib.args import Args
+from voctocore.lib.tcpmulticonnection import TCPMultiConnection
+from voctocore.lib.config import Config
+from voctocore.lib.args import Args
 
 class AVPreviewOutput(TCPMultiConnection):
 
@@ -39,7 +39,7 @@ class AVPreviewOutput(TCPMultiConnection):
                         name=queue-mux-preview-{source}
                     ! mux-preview-{source}.
                     """.format(source=self.source,
-                               vpipeline=construct_video_encoder_pipeline('previews'),
+                               vpipeline=construct_video_encoder_pipeline(Config, 'previews'),
                                vcaps=Config.getVideoCaps()
                                )
 

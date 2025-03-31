@@ -3,12 +3,12 @@ import os
 import logging
 
 from gi.repository import Gtk
-import lib.connection as Connection
+import voctogui.lib.connection as Connection
 
-from lib.config import Config
+from voctogui.lib.config import Config
 from vocto.composite_commands import CompositeCommand
-from lib.toolbar.buttons import Buttons
-from lib.uibuilder import UiBuilder
+from voctogui.lib.toolbar.buttons import Buttons
+from voctogui.lib.uibuilder import UiBuilder
 
 
 class MixToolbarController(object):

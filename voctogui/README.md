@@ -60,7 +60,7 @@ sudo apt-get install python-gi-cairo
 ### 1.4.1. Usage
 
 ```text
-python3 voctogui.py [-h] [-v] [-c {auto,always,never}] [-t] [-i INI_FILE] [-H HOST] [-d] [-D GST_DEBUG_DETAILS] [-g]
+python3 -m voctogui [-h] [-v] [-c {auto,always,never}] [-t] [-i INI_FILE] [-H HOST] [-d] [-D GST_DEBUG_DETAILS] [-g]
 ```
 
 ### 1.4.2. Options

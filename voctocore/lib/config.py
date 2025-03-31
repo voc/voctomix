@@ -9,7 +9,7 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from lib.args import Args
+from voctocore.lib.args import Args
 
 from vocto.config import VocConfigParser
 

@@ -4,8 +4,8 @@ import logging
 
 import gi
 from gi.repository import Gst
-from lib.args import Args
-from lib.config import Config
+from voctocore.lib.args import Args
+from voctocore.lib.config import Config
 
 from vocto.audio_codecs import construct_audio_encoder_pipeline
 from vocto.video_codecs import construct_video_encoder_pipeline
@@ -48,7 +48,7 @@ class SRTServerSink:
                 ! tee name=videomix-localplayout-{source}
                 """.format(
             source=self.source,
-            vpipeline=construct_video_encoder_pipeline("localplayout"),
+            vpipeline=construct_video_encoder_pipeline(Config, "localplayout"),
             vcaps=Config.getVideoCaps(),
         )
 
@@ -72,7 +72,7 @@ class SRTServerSink:
                 ! tee name=audiomix-localplayout-{source}
                 """.format(
                 source=self.source,
-                apipeline=construct_audio_encoder_pipeline("localplayout"),
+                apipeline=construct_audio_encoder_pipeline(Config, "localplayout"),
                 use_audio="" if use_audio_mix else "source-",
                 audio_source="mix" if use_audio_mix else self.source,
                 audio_blinded=(

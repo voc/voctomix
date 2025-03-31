@@ -1,7 +1,8 @@
 import configparser
-from lib.config import Config
-from lib.response import OkResponse
-from tests.commands.commands_test_base import CommandsTestBase
+
+from voctocore.lib.config import Config
+from voctocore.lib.response import OkResponse
+from voctocore.tests.commands.commands_test_base import CommandsTestBase
 
 
 class GetConfigOptionTest(CommandsTestBase):

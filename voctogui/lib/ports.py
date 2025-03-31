@@ -4,9 +4,9 @@ import os
 import json
 from gi.repository import Gtk, Gst, GLib
 
-from lib.config import Config
-from lib.uibuilder import UiBuilder
-import lib.connection as Connection
+from voctogui.lib.config import Config
+from voctogui.lib.uibuilder import UiBuilder
+import voctogui.lib.connection as Connection
 from vocto.port import Port
 
 # time interval to re-fetch queue timings

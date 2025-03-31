@@ -1,12 +1,12 @@
 from mock import ANY
 
-from lib.response import NotifyResponse
-from tests.commands.commands_test_base import CommandsTestBase
+from voctocore.lib.response import NotifyResponse
+from voctocore.tests.commands.commands_test_base import CommandsTestBase
 
 
 class SetAudioTest(CommandsTestBase):
     def test_set_audio(self):
-        response = self.commands.set_audio("grabber")
+        response = self.commands.set_audio("slides")
         self.pipeline_mock.amix.setAudioSource.assert_called_with(2)
 
         self.assertIsInstance(response, NotifyResponse)

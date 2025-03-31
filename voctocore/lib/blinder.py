@@ -3,9 +3,9 @@ import logging
 
 from gi.repository import Gst
 
-from lib.config import Config
-from lib.clock import Clock
-from lib.args import Args
+from voctocore.lib.config import Config
+from voctocore.lib.clock import Clock
+from voctocore.lib.args import Args
 
 
 class Blinder(object):

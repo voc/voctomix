@@ -6,6 +6,20 @@ We support all python versions between "latest stable" and "available in
 debian stable". Older python versions might work, but we don't test on
 those.
 
+## Developer Setup
+
+```bash
+uv venv --system-site-packages
+uv sync
+uv pip install pygobject-stubs --config-settings=config=Gtk3
+```
+
+## Tests
+
+```bash
+uv run pytest
+```
+
 ## Current Documentation
 
 - [Core](https://github.com/voc/voctomix/tree/voctomix2/voctocore)

@@ -4,10 +4,10 @@ import os
 import time
 from re import match
 
-import lib.connection as Connection
+import voctogui.lib.connection as Connection
 from gi.repository import GLib, Gtk
-from lib.config import Config
-from lib.toolbar.buttons import Buttons
+from voctogui.lib.config import Config
+from voctogui.lib.toolbar.buttons import Buttons
 
 from vocto.composite_commands import CompositeCommand
 
