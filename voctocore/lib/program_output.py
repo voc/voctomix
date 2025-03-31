@@ -6,11 +6,12 @@ from gi.repository import Gst
 from voctocore.lib.args import Args
 from voctocore.lib.config import Config
 from voctocore.lib.tcpmulticonnection import TCPMultiConnection
+from voctocore.lib.avnode import AVIONode
 
 from typing import Optional
 
 
-class ProgramOutputSink:
+class ProgramOutputSink(AVIONode):
     log: logging.Logger
     source: str
     bin: str

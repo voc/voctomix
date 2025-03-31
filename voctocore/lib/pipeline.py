@@ -7,6 +7,7 @@ from gi.repository import Gst
 # import library components
 from voctocore.lib.args import Args
 from voctocore.lib.audiomix import AudioMix
+from voctocore.lib.avnode import AVNode, AVIONode
 from voctocore.lib.avpreviewoutput import AVPreviewOutput
 from voctocore.lib.avrawoutput import AVRawOutput
 from voctocore.lib.blinder import Blinder
@@ -28,7 +29,7 @@ from typing import Optional, cast
 class Pipeline(object):
     """mixing, streaming and encoding pipeline constuction and control"""
     log: logging.Logger
-    bins: list[object]
+    bins: list[AVNode]
     ports: list[Port]
     amix: AudioMix
     vmix: VideoMix
@@ -58,6 +59,7 @@ class Pipeline(object):
             self.bins.append(source)
             self.ports.append(Port(source_name, source))
 
+            dest: AVIONode
             if Config.getMirrorsEnabled():
                 if source_name in Config.getMirrorsSources():
                     dest = AVRawOutput(source_name, Port.SOURCES_OUT + idx)

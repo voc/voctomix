@@ -7,6 +7,7 @@ import gi
 gi.require_version('GstController', '1.0')
 from gi.repository import Gst
 from vocto.composites import Composite
+from voctocore.lib.avnode import AVNode
 from voctocore.lib.config import Config
 from vocto.transitions import Composites, Transitions, Frame, fade_alpha
 from voctocore.lib.scene import Scene
@@ -18,7 +19,7 @@ from vocto.composite_commands import CompositeCommand
 from typing import Optional, Any
 
 
-class VideoMix(object):
+class VideoMix(AVNode):
     log: logging.Logger
 
     bgSources: list[str]

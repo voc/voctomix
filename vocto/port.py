@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import json
 
+from voctocore.lib.avnode import AVIONode
+
 from typing import Optional, Any
 
 
@@ -31,13 +33,13 @@ class Port(object):
 
     name: str
     port: str
-    source: Optional[object]
+    source: Optional[AVIONode]
     audio: Optional[int]
     video: Optional[int]
     io: int
     connections: int
 
-    def __init__(self, name: str, source: Optional[object]=None, audio: Optional[any]=None, video: Optional[any]=None):
+    def __init__(self, name: str, source: Optional[AVIONode]=None, audio: Optional[int]=None, video: Optional[int]=None):
         self.name = name
         self.source = source
         self.audio = audio

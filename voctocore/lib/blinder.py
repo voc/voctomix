@@ -3,6 +3,7 @@ import logging
 
 from gi.repository import Gst
 
+from voctocore.lib.avnode import AVNode
 from voctocore.lib.config import Config
 from voctocore.lib.clock import Clock
 from voctocore.lib.args import Args
@@ -10,7 +11,7 @@ from voctocore.lib.args import Args
 from typing import Optional
 
 
-class Blinder(object):
+class Blinder(AVNode):
     log: logging.Logger
     acaps: str
     vcaps: str

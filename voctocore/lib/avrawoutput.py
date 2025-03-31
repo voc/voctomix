@@ -5,11 +5,12 @@ import socket
 from gi.repository import Gst
 
 from voctocore.lib.args import Args
+from voctocore.lib.avnode import AVIONode
 from voctocore.lib.config import Config
 from voctocore.lib.tcpmulticonnection import TCPMultiConnection
 
 
-class AVRawOutput(TCPMultiConnection):
+class AVRawOutput(TCPMultiConnection, AVIONode):
     log: logging.Logger
     source: str
     bin: str

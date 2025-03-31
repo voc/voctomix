@@ -6,12 +6,13 @@ import gi
 from gi.repository import Gst
 from voctocore.lib.args import Args
 from voctocore.lib.config import Config
+from voctocore.lib.avnode import AVIONode
 
 from vocto.audio_codecs import construct_audio_encoder_pipeline
 from vocto.video_codecs import construct_video_encoder_pipeline
 
 
-class LocalRecordingSink:
+class LocalRecordingSink(AVIONode):
     log: logging.Logger
     source: str
     _port: int

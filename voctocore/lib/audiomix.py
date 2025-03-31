@@ -6,9 +6,10 @@ from vocto.audio_streams import AudioStreams
 from voctocore.lib.config import Config
 from voctocore.lib.errors.configuration_error import ConfigurationError
 from voctocore.lib.args import Args
+from voctocore.lib.avnode import AVNode
 
 
-class AudioMix(object):
+class AudioMix(AVNode):
     log: logging.Logger
     audio_streams: AudioStreams
     streams: list[str]

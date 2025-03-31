@@ -4,12 +4,13 @@ import socket
 from gi.repository import Gst
 
 from vocto.video_codecs import construct_video_encoder_pipeline
+from voctocore.lib.avnode import AVIONode
 
 from voctocore.lib.tcpmulticonnection import TCPMultiConnection
 from voctocore.lib.config import Config
 from voctocore.lib.args import Args
 
-class AVPreviewOutput(TCPMultiConnection):
+class AVPreviewOutput(TCPMultiConnection, AVIONode):
     log: logging.Logger
     source: str
     bin: str

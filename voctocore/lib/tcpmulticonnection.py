@@ -8,7 +8,7 @@ from gi.repository import GObject
 from typing import Optional
 
 
-class TCPMultiConnection(object, metaclass=ABCMeta):
+class TCPMultiConnection(metaclass=ABCMeta):
     log: logging.Logger
     _port: Optional[int]
     boundSocket: Optional[socket.socket]

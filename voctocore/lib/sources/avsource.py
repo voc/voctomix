@@ -4,12 +4,13 @@ from abc import ABCMeta, abstractmethod
 from gi.repository import GLib, Gst
 
 from vocto.audio_streams import AudioStreams
+from voctocore.lib.avnode import AVIONode
 from voctocore.lib.config import Config
 from voctocore.lib.args import Args
 from typing import Optional
 
 
-class AVSource(object, metaclass=ABCMeta):
+class AVSource(AVIONode, metaclass=ABCMeta):
     log: logging.Logger
     class_name: str
     name: str
