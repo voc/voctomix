@@ -126,7 +126,7 @@ class VoctocoreConfigParser(VocConfigParser):
                 ):
                     # the other code assumes these values are there, exit
                     # early if we're missing these.
-                    self.logger.error('found malformed talk in {} - missing id/title/date/duration!'.format(
+                    self.log.error('found malformed talk in {} - missing id/title/date/duration!'.format(
                         schedule_path,
                     ))
                     return None

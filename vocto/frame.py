@@ -34,7 +34,7 @@ class Frame:
         self.zorder = zorder
 
     def __repr__(self) -> str:
-        z = [round(x, 1) for x in self.zoom]
+        z = [round(x, 1) for x in self.zoom()]
         return ("{0.rect} {0.crop} {0.alpha} {1}").format(self, z)
 
     @staticmethod

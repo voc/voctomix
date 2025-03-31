@@ -260,9 +260,10 @@ class VocConfigParser(ConfigParser):
         :return:
         '''
         section = 'source.{}'.format(source)
+        audiostreams = AudioStreams()
         if self.has_section(section):
-            return AudioStreams.configure(self.items(section), source)
-        return AudioStreams()
+            audiostreams.configure_source(self.items(section), source)
+        return audiostreams
 
     def getNumAudioStreams(self) -> int:
         num_audio_streams = len(self.getAudioStreams())

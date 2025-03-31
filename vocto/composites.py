@@ -219,7 +219,7 @@ class Composite:
         return above.invisible()
 
     def both(self) -> bool:
-        return not (single() or covered())
+        return not (self.single() or self.covered())
 
 
 def add_swapped_targets(composites: dict[str, Composite]) -> None:
