@@ -13,6 +13,7 @@ class CompositeCommand:
         self.A = A
         self.B = B
 
+    @staticmethod
     def from_str(command: str) -> 'CompositeCommand':
         A = None
         B = None

@@ -37,6 +37,7 @@ class Frame:
         z = [round(x, 1) for x in self.zoom]
         return ("{0.rect} {0.crop} {0.alpha} {1}").format(self, z)
 
+    @staticmethod
     def str_title() -> str:
         return "(   L,   T     R,   B alpha  LCRP,TCRP,RCRP,BCRP  XZOM,YZOM,  Z)"
 

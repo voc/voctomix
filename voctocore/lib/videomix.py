@@ -135,8 +135,7 @@ class VideoMix(object):
         self.compositeMode = None
         self.sourceA = None
         self.sourceB = None
-        self.setCompositeEx(Composites.targets(self, self.composites)[
-                            0].name, self.sources[0], self.sources[1])
+        self.setCompositeEx(Composites.targets(self.composites)[0].name, self.sources[0], self.sources[1])
 
         if Config.hasOverlay():
             self.overlay = Overlay(

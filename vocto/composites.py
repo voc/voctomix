@@ -17,7 +17,8 @@ class Composites:
     """ a namespace for composite related methods
     """
 
-    def configure(self, cfg, size, add_swap=True) -> dict[str, 'Composite']:
+    @staticmethod
+    def configure(cfg, size, add_swap=True) -> dict[str, 'Composite']:
         """ read INI like configuration from <cfg> and return all the defined
             composites. <size> is the overall frame size which all proportional
             (floating point) coordinates are related to.
@@ -48,7 +49,8 @@ class Composites:
             add_swapped_targets(composites)
         return composites
 
-    def targets(self, composites: dict[str, 'Composite']) -> list['Composite']:
+    @staticmethod
+    def targets(composites: dict[str, 'Composite']) -> list['Composite']:
         """ return a list of all composites that are not intermediate
         """
         result: list[Composite] = []
@@ -57,7 +59,8 @@ class Composites:
                 result.append(c)
         return sorted(result, key=lambda c: c.order)
 
-    def intermediates(self, composites: dict[str, 'Composite']) -> list['Composite']:
+    @staticmethod
+    def intermediates(composites: dict[str, 'Composite']) -> list['Composite']:
         """ return a list of all composites that are intermediate
         """
         result = []
@@ -87,7 +90,8 @@ class Composite:
         self.mirror = False
         self.order = order
 
-    def str_title(self) -> str:
+    @staticmethod
+    def str_title() -> str:
         return "Key A%s\tB%s  Name" % (Frame.str_title(), Frame.str_title())
 
     def __str__(self) -> str:

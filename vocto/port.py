@@ -62,6 +62,7 @@ class Port(object):
             self.io = self.IN if self.source.is_input() else self.OUT
             self.connections = self.source.num_connections()
 
+    @staticmethod
     def from_str(_str: dict[str, Any]) -> 'Port':
         p = Port(_str['name'])
         p.port = _str['port']

@@ -59,8 +59,8 @@ class Transitions:
         transition.calculate(frames - 1)
         self.transitions.append(transition)
 
+    @staticmethod
     def configure(
-        self,
         cfg: list[tuple[str, str]],
         composites: dict[str, 'Composite'],
         targets: Optional[list['Composite']] = None,
@@ -78,7 +78,7 @@ class Transitions:
 
         # filter target composites from given composites
         if not targets:
-            targets = Composites.targets(self, composites)
+            targets = Composites.targets(composites)
         # prepare result
         transitions = Transitions(targets,fps)
 
@@ -136,6 +136,7 @@ class Transitions:
                 return transition.reversed(), False
         return None, False
 
+    @staticmethod
     def travel(composites: list['Composite'], previous: Optional[list['Composite']] = None):
         """ return a list of pairs of composites along all possible transitions
             between all given composites by walking the tree of all combinations
@@ -198,7 +199,7 @@ class Transition:
         result = "\t%s = %s -> %s:\n" % (self.name(),
                                       self.begin().name, self.end().name)
         # add table title
-        result += "\tNo. %s\n" % Composite.str_title(self)
+        result += "\tNo. %s\n" % Composite.str_title()
         # add composites until flipping point
         for i in range(self.frames()):
             if (not logKeyFramesOnly) or self.A(i).key:

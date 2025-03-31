@@ -346,7 +346,8 @@ class VocConfigParser(ConfigParser):
     def getOutputBuffers(self, channel) -> int:
         return self.getint('output-buffers', channel, fallback=500)
 
-    def splitOptions(line: str) -> Optional[list[str]]:
+    @staticmethod
+    def splitOptions(line) -> Optional[list[str]]:
         if len(line) == 0:
             return None
         quote = False
@@ -468,15 +469,13 @@ class VocConfigParser(ConfigParser):
             return []
 
     def getComposites(self) -> dict[str, Composite]:
-        return Composites.configure(self, self.items('composites'), self.getVideoResolution())
+        return Composites.configure(self.items('composites'), self.getVideoResolution())
 
     def getTargetComposites(self) -> list[Composite]:
-        return Composites.targets(self, self.getComposites())
+        return Composites.targets(self.getComposites())
 
     def getTransitions(self, composites: dict[str, Composite]):
-        return Transitions.configure(self, self.items('transitions'),
-                                     composites,
-                                     fps=self.getFramesPerSecond())
+        return Transitions.configure(self.items('transitions'), composites, fps=self.getFramesPerSecond())
 
     def getPreviewNameOverlay(self) -> bool:
         return self.getboolean('previews', 'nameoverlay', fallback=True)
