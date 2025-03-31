@@ -31,7 +31,7 @@ class AudioStreams(list['AudioStream']):
                         log.error("input audio stream name '%s' can't be addressed a second time within source '%s'",
                                   name, source)
                     else:
-                        audiostreams.append(AudioStream(source, i, name, channel))
+                        audiostreams.append(AudioStream(source, i, name, int(channel)))
         self.extend(audiostreams)
 
     @staticmethod

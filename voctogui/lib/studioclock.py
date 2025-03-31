@@ -22,7 +22,7 @@ class StudioClock(Gtk.ToolItem):
         # remember last draw time
         self.last_draw_time = time.time()
         # set up timeout for periodic redraw
-        GLib.timeout_add(self.timer_resolution * 1000, self.do_timeout)
+        GLib.timeout_add(int(self.timer_resolution * 1000), self.do_timeout)
 
     def do_timeout(self) -> bool:
         # get current time

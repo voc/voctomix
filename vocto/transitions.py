@@ -88,7 +88,7 @@ class Transitions:
             time_str, sequence_str = t.split(',')
             time = int(time_str)
             # calculate frames needed for that animation time
-            frames = fps * float(time) / 1000.0
+            frames = int(fps * float(time) / 1000.0)
             # split sequence list into key frames
             sequence = [x.strip().lower() for x in sequence_str.split('/')]
             for seq in parse_asterisk(sequence, targets):

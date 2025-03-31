@@ -153,10 +153,10 @@ class VocConfigParser(ConfigParser):
         return self.get('source.{}'.format(source), 'type', fallback='video/x-raw')
 
     def getV4l2Width(self, source) -> int:
-        return self.get('source.{}'.format(source), 'width', fallback=1920)
+        return self.getint('source.{}'.format(source), 'width', fallback=1920)
 
     def getV4l2Height(self, source) -> int:
-        return self.get('source.{}'.format(source), 'height', fallback=1080)
+        return self.getint('source.{}'.format(source), 'height', fallback=1080)
 
     def getV4l2Format(self, source) -> str:
         return self.get('source.{}'.format(source), 'format', fallback='YUY2')
@@ -171,10 +171,10 @@ class VocConfigParser(ConfigParser):
         return self.get('source.{}'.format(source), 'type', fallback='video/x-raw')
 
     def getRPICamWidth(self, source) -> int:
-        return self.get('source.{}'.format(source), 'width', fallback=1920)
+        return self.getint('source.{}'.format(source), 'width', fallback=1920)
 
     def getRPICamHeight(self, source) -> int:
-        return self.get('source.{}'.format(source), 'height', fallback=1080)
+        return self.getint('source.{}'.format(source), 'height', fallback=1080)
 
     def getRPICamCrop(self, source) -> Optional[str]:
         return self.get('source.{}'.format(source), 'crop', fallback=None)
