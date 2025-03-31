@@ -141,7 +141,7 @@ class SRTServerSink:
         )
 
     def attach(self, pipeline: Gst.Pipeline):
-        if Config.getRecordingEnabled():
+        if Config.getRecordingEnabled(): # type: ignore
             recording_sink = pipeline.get_by_name(
                 "recording-{source}".format(source=self.source)
             )
