@@ -6,19 +6,24 @@ import gi
 from gi.repository import Gst
 from voctocore.lib.args import Args
 from voctocore.lib.config import Config
+from voctocore.lib.avnode import AVIONode
 
 from vocto.audio_codecs import construct_audio_encoder_pipeline
 from vocto.video_codecs import construct_video_encoder_pipeline
 
 
-class SRTServerSink:
+class SRTServerSink(AVIONode):
+    log: logging.Logger
+    source: str
+    _port: int
+    bin: str
     """
     The local playout class handels outputs for the voctocore that are played out directly by the gstreamer pipline.
     """
 
-    def __init__(self, source, port, use_audio_mix=False, audio_blinded=False):
+    def __init__(self, source: str, port: int, use_audio_mix: bool=False, audio_blinded: bool=False):
         # create logging interface
-        self.log = logging.getLogger("SRTServerSink".format(source))
+        self.log = logging.getLogger("SRTServerSink")
 
         # remember things
         self.source = source
@@ -112,33 +117,35 @@ class SRTServerSink:
         # close bin
         self.bin += "" if Args.no_bins else "\n)\n"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "SRTServerSink[{}] at port {}".format(self.source, self._port)
 
-    def port(self):
+    def port(self) -> str:
         return "srt://:{}".format(self._port)
 
-    def num_connections(self):
+    def num_connections(self) -> int:
         return 0
 
-    def audio_channels(self):
+    def audio_channels(self) -> int:
         return Config.getNumAudioStreams()
 
-    def video_channels(self):
+    def video_channels(self) -> int:
         return 1
 
-    def is_input(self):
+    def is_input(self) -> bool:
         return False
 
-    def format_location_callback(self, splitmux, fragment_id):
+    def format_location_callback(self, splitmux, fragment_id: str) -> str:
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         return "/mnt/video/isdn-{timestamp}-{fragment_id}.ts".format(
             timestamp=timestamp, fragment_id=fragment_id
         )
 
-    def attach(self, pipeline):
-        if Config.getRecordingEnabled():
+    def attach(self, pipeline: Gst.Pipeline):
+        if Config.getRecordingEnabled(): # type: ignore
             recording_sink = pipeline.get_by_name(
                 "recording-{source}".format(source=self.source)
             )
+            if recording_sink is None:
+                raise Exception("could not find pipeline element for {}".format(self))
             recording_sink.connect("format-location", self.format_location_callback)

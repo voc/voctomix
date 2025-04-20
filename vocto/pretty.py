@@ -1,7 +1,7 @@
 # for parsing configuration items
 import re
 
-def pretty(pipe):
+def pretty(pipe: str) -> str:
     result = ""
     for line in pipe.splitlines():
         line = line.strip()

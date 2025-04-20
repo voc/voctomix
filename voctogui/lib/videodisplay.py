@@ -58,8 +58,7 @@ class VideoDisplay(object):
                     name=queue-video-{name}
                 ! {previewcaps}
                 """.format(name=name,
-                           previewcaps=preview_caps,
-                           vcaps=Config.getVideoCaps())
+                           previewcaps=preview_caps)
 
         pipe += """ ! videoconvert
                     ! videoscale

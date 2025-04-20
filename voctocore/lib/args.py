@@ -1,9 +1,23 @@
 import argparse
 
+import dataclasses
+from typing import Literal
+
 __all__ = ['Args']
 
-Args = None
+Args: 'Arguments' = None  # type: ignore
 
+@dataclasses.dataclass
+class Arguments:
+    verbose: int
+    color: Literal["auto", "always", "never"]
+    timestamp: bool
+    ini_file: str
+    pipeline: bool
+    no_bins: bool
+    dot: bool
+    gst_debug_details: int
+    gstreamer_log: int
 
 def parse():
     global Args
@@ -39,4 +53,4 @@ def parse():
     parser.add_argument('-g', '--gstreamer-log', action='count', default=0,
                         help="Log gstreamer messages into voctocore log (Set log level by using -g, -gg or -ggg).")
 
-    Args = parser.parse_args()
+    Args = Arguments(**vars(parser.parse_args()))

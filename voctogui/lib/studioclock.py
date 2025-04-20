@@ -11,20 +11,20 @@ class StudioClock(Gtk.ToolItem):
     __gtype_name__ = 'StudioClock'
 
     # set resolution of the update timer in seconds
-    timer_resolution = 0.5
-    last_draw_time = time.localtime(0)
+    timer_resolution: float = 0.5
+    last_draw_time: float
 
     # init widget
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         # suggest size of widget
         self.set_size_request(130, 50)
         # remember last draw time
         self.last_draw_time = time.time()
         # set up timeout for periodic redraw
-        GLib.timeout_add(self.timer_resolution * 1000, self.do_timeout)
+        GLib.timeout_add(int(self.timer_resolution * 1000), self.do_timeout)
 
-    def do_timeout(self):
+    def do_timeout(self) -> bool:
         # get current time
         current_time = time.time()
         # if time did not change since last redraw
@@ -35,7 +35,7 @@ class StudioClock(Gtk.ToolItem):
         return True
 
     # override drawing of the widget
-    def do_draw(self, cr):
+    def do_draw(self, cr: cairo.Context) -> bool:
         # get actual widget size
         width = self.get_allocated_width()
         height = self.get_allocated_height()
@@ -89,3 +89,4 @@ class StudioClock(Gtk.ToolItem):
         # draw time
         cr.move_to(center[0] - textwidth / 2, center[1] + textheight / 2)
         cr.show_text(text)
+        return False

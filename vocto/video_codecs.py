@@ -7,6 +7,8 @@ from gi.repository import Gst
 
 gi.require_version('GstController', '1.0')
 
+from vocto.config import VocConfigParser
+
 log = logging.getLogger('video_codecs')
 
 # https://blogs.igalia.com/vjaquez/2016/04/06/gstreamer-vaapi-1-8-the-codec-split/
@@ -57,7 +59,7 @@ cpu_decoders = {
 }
 
 
-def construct_video_encoder_pipeline(config, section):
+def construct_video_encoder_pipeline(config: VocConfigParser, section: str) -> str:
     encoder = config.getVideoEncoder(section)
     codec, options = config.getVideoCodec(section)
     vcaps = config.getVideoCaps(section)
@@ -116,7 +118,7 @@ def construct_video_encoder_pipeline(config, section):
     return pipeline
 
 
-def construct_video_decoder_pipeline(config, section):
+def construct_video_decoder_pipeline(config: VocConfigParser, section: str) -> str:
     decoder = config.getVideoDecoder(section)
     codec, options = config.getVideoCodec(section)
     if decoder == 'vaapi':

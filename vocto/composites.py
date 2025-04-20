@@ -8,6 +8,8 @@ import copy
 # for parsing configuration items
 import re
 
+from typing import Union
+
 log = logging.getLogger('Composites')
 
 
@@ -15,13 +17,14 @@ class Composites:
     """ a namespace for composite related methods
     """
 
-    def configure(self, cfg, size, add_swap=True):
+    @staticmethod
+    def configure(cfg, size, add_swap=True) -> dict[str, 'Composite']:
         """ read INI like configuration from <cfg> and return all the defined
             composites. <size> is the overall frame size which all proportional
             (floating point) coordinates are related to.
         """
         # prepare resulting composites dictonary
-        composites = dict()
+        composites: dict[str, Composite] = dict()
         # walk through composites configuration
         for c_name, c_val in cfg:
             if '.' not in c_name:
@@ -46,16 +49,18 @@ class Composites:
             add_swapped_targets(composites)
         return composites
 
-    def targets(self, composites):
+    @staticmethod
+    def targets(composites: dict[str, 'Composite']) -> list['Composite']:
         """ return a list of all composites that are not intermediate
         """
-        result = []
+        result: list[Composite] = []
         for c_name, c in composites.items():
             if not c.inter:
                 result.append(c)
         return sorted(result, key=lambda c: c.order)
 
-    def intermediates(self, composites):
+    @staticmethod
+    def intermediates(composites: dict[str, 'Composite']) -> list['Composite']:
         """ return a list of all composites that are intermediate
         """
         result = []
@@ -66,10 +71,17 @@ class Composites:
 
 
 class Composite:
+    name: str
+    frame: list[Frame]
+    default: list
+    inter: bool
+    noswap: bool
+    mirror: bool
+    order: int
 
-    def __init__(self, order, name, a=Frame(True), b=Frame(True)):
-        assert type(order) is int or order is None
-        assert type(name) is str or not name
+    def __init__(self, order: int, name: str, a: Frame=Frame(True), b: Frame=Frame(True)) -> None:
+        assert type(order) is int
+        assert type(name) is str
         self.name = name
         self.frame = [copy.deepcopy(a), copy.deepcopy(b)]
         self.default = [None, None]
@@ -78,11 +90,12 @@ class Composite:
         self.mirror = False
         self.order = order
 
-    def str_title(self):
+    @staticmethod
+    def str_title() -> str:
         return "Key A%s\tB%s  Name" % (Frame.str_title(), Frame.str_title())
 
-    def __str__(self):
-        def hidden( x, hidden ):
+    def __str__(self) -> str:
+        def hidden(x: Frame, hidden: bool) -> str:
             return str(x).replace(' ','_') if hidden else str(x)
 
         return "%s A%s\tB%s  %s" % (" * " if self.A().key else "   ",
@@ -90,7 +103,7 @@ class Composite:
                                     hidden(self.B(), self.B().invisible()),
                                     self.name)
 
-    def equals(self, other, treat_covered_as_invisible, swapped=False):
+    def equals(self, other: 'Composite', treat_covered_as_invisible: bool, swapped: bool=False):
         """ compare two composites if they are looking the same
             (e.g. a rectangle with size 0x0=looks the same as one with alpha=0
             and so it is treated as equal here)
@@ -107,23 +120,23 @@ class Composite:
                 return False
         return True
 
-    def A(self):
+    def A(self) -> Frame:
         return self.frame[0]
 
-    def B(self):
+    def B(self) -> Frame:
         return self.frame[1]
 
-    def Az(self, zorder):
+    def Az(self, zorder: int) -> Frame:
         frame = copy.deepcopy(self.frame[0])
         frame.zorder = zorder
         return frame
 
-    def Bz(self, zorder):
+    def Bz(self, zorder: int) -> Frame:
         frame = copy.deepcopy(self.frame[1])
         frame.zorder = zorder
         return frame
 
-    def swapped(self):
+    def swapped(self) -> 'Composite':
         """ swap A and B source items
         """
         if self.noswap:
@@ -136,7 +149,7 @@ class Composite:
             s.name = swap_name(self.name)
             return s
 
-    def mirrored(self):
+    def mirrored(self) -> 'Composite':
         """ mirror A and B source items
         """
         # deep copy everything
@@ -146,13 +159,13 @@ class Composite:
         s.name = mirror_name(self.name)
         return s
 
-    def key(self):
+    def key(self) -> bool:
         for f in self.frame:
             if f.key:
                 return True
         return False
 
-    def config(self, attr, value, size):
+    def config(self, attr: str, value, size):
         """ set value <value> from INI attribute <attr>.
             <size> is the input channel size
         """
@@ -181,7 +194,7 @@ class Composite:
         self.frame[0].original_size = size
         self.frame[1].original_size = size
 
-    def covered(self):
+    def covered(self) -> bool:
         """ check if below (A) is invisible or covered by above (B)
             (considers shape with cropping and transparency)
         """
@@ -199,18 +212,18 @@ class Composite:
                 bc[R] <= ac[R] and
                 bc[B] <= ac[B])
 
-    def single(self):
+    def single(self) -> bool:
         """ check if above (B) is invisible
         """
         below, above = self.frame
         return above.invisible()
 
-    def both(self):
-        return not (single() or covered())
+    def both(self) -> bool:
+        return not (self.single() or self.covered())
 
 
-def add_swapped_targets(composites):
-    result = dict()
+def add_swapped_targets(composites: dict[str, Composite]) -> None:
+    result: dict[str, Composite] = dict()
     for c_name, c in composites.items():
         if not (c.inter or c.noswap):
             inc = True
@@ -226,8 +239,8 @@ def add_swapped_targets(composites):
                 result[swap_name(c_name)] = r
     return composites.update(result)
 
-def add_mirrored_composites(composites):
-    result = dict()
+def add_mirrored_composites(composites: dict[str, Composite]) -> None:
+    result: dict[str, Composite] = dict()
     for c_name, c in composites.items():
         if c.mirror:
             r = c.mirrored()
@@ -236,34 +249,34 @@ def add_mirrored_composites(composites):
     return composites.update(result)
 
 
-def swap_name(name): return name[1:] if name[0] == '^' else "^" + name
-def mirror_name(name): return name[1:] if name[0] == '|' else "|" + name
+def swap_name(name: str) -> str: return name[1:] if name[0] == '^' else "^" + name
+def mirror_name(name: str) -> str: return name[1:] if name[0] == '|' else "|" + name
 
 
-def absolute(str, max):
-    if str == '*':
+def absolute(value: str, max: float) -> int:
+    if value == '*':
         assert max
         # return maximum value
         return int(max)
-    elif '.' in str:
+    elif '.' in value:
         assert max
         # return absolute (Pixel) value in proportion to max
-        return int(float(str) * max)
+        return int(float(value) * max)
     else:
         # return absolute (Pixel) value
-        return int(str)
+        return int(value)
 
 
-def str2rect(str, size):
+def str2rect(value: str, size: Union[tuple[int, int], list[int]]) -> list[float]:
     """ read rectangle pair from string '*', 'X/Y WxH', 'X/Y', 'WxH', 'X/Y WH', 'X/Y WH' or 'XY WH'
     """
     # check for '*'
-    if str == "*":
+    if value == "*":
         # return overall position and size
         return [0, 0, size[X], size[Y]]
 
     # check for 'X/Y'
-    r = re.match(r'^\s*([-.\d]+)\s*/\s*([-.\d]+)\s*$', str)
+    r = re.match(r'^\s*([-.\d]+)\s*/\s*([-.\d]+)\s*$', value)
     if r:
         # return X,Y and overall size
         return [absolute(r.group(1), size[X]),
@@ -271,7 +284,7 @@ def str2rect(str, size):
                 size[X],
                 size[Y]]
     # check for 'WxH'
-    r = re.match(r'^\s*([.\d]+)\s*x\s*([.\d]+)\s*$', str)
+    r = re.match(r'^\s*([.\d]+)\s*x\s*([.\d]+)\s*$', value)
     if r:
         # return overall pos and W,H
         return [0,
@@ -280,7 +293,7 @@ def str2rect(str, size):
                 absolute(r.group(4), size[Y])]
     # check for 'X/Y WxH'
     r = re.match(
-        r'^\s*([-.\d]+)\s*/\s*([-.\d]+)\s+([.\d]+)\s*x\s*([.\d]+)\s*$', str)
+        r'^\s*([-.\d]+)\s*/\s*([-.\d]+)\s+([.\d]+)\s*x\s*([.\d]+)\s*$', value)
     if r:
         # return X,Y,X+W,Y+H
         return [absolute(r.group(1), size[X]),
@@ -288,7 +301,7 @@ def str2rect(str, size):
                 absolute(r.group(1), size[X]) + absolute(r.group(3), size[X]),
                 absolute(r.group(2), size[Y]) + absolute(r.group(4), size[Y])]
     # check for 'XY WxH'
-    r = re.match(r'^\s*(-?\d+.\d+)\s+([.\d]+)\s*x\s*([.\d]+)\s*$', str)
+    r = re.match(r'^\s*(-?\d+.\d+)\s+([.\d]+)\s*x\s*([.\d]+)\s*$', value)
     if r:
         # return XY,XY,XY+W,XY+H
         return [absolute(r.group(1), size[X]),
@@ -296,7 +309,7 @@ def str2rect(str, size):
                 absolute(r.group(1), size[X]) + absolute(r.group(2), size[X]),
                 absolute(r.group(1), size[Y]) + absolute(r.group(3), size[Y])]
     # check for 'X/Y WH'
-    r = re.match(r'^\s*([-.\d]+)\s*/\s*([-.\d]+)\s+(\d+.\d+)\s*$', str)
+    r = re.match(r'^\s*([-.\d]+)\s*/\s*([-.\d]+)\s+(\d+.\d+)\s*$', value)
     if r:
         # return X,Y,X+WH,Y+WH
         return [absolute(r.group(1), size[X]),
@@ -304,7 +317,7 @@ def str2rect(str, size):
                 absolute(r.group(1), size[X]) + absolute(r.group(3), size[X]),
                 absolute(r.group(2), size[Y]) + absolute(r.group(3), size[Y])]
     # check for 'XY WH'
-    r = re.match(r'^\s*(-?\d+.\d+)\s+(\d+.\d+)\s*$', str)
+    r = re.match(r'^\s*(-?\d+.\d+)\s+(\d+.\d+)\s*$', value)
     if r:
         # return XY,XY,XY+WH,XY+WH
         return [absolute(r.group(1), size[X]),
@@ -316,16 +329,16 @@ def str2rect(str, size):
                        "(must be either '*', 'X/Y WxH', 'X/Y', 'WxH', 'X/Y WH', 'X/Y WH' or 'XY WH' where X, Y, W, H may be int or float and XY, WH must be float)".format(str))
 
 
-def str2crop(str, size):
+def str2crop(value: str, size: Union[tuple[int, int], list[int]]) -> list[float]:
     """ read crop values pair from string '*' or 'L/T/R/B'
     """
     # check for '*'
-    if str == "*":
+    if value == "*":
         # return zero borders
         return [0, 0, 0, 0]
     # check for L/T/R/B
     r = re.match(
-        r'^\s*([.\d]+)\s*/\s*([.\d]+)\s*/\s*([.\d]+)\s*/\s*([.\d]+)\s*$', str)
+        r'^\s*([.\d]+)\s*/\s*([.\d]+)\s*/\s*([.\d]+)\s*/\s*([.\d]+)\s*$', value)
     if r:
         return [absolute(r.group(1), size[X]),
                 absolute(r.group(2), size[Y]),
@@ -333,7 +346,7 @@ def str2crop(str, size):
                 absolute(r.group(4), size[Y])]
     # check for LR/TB
     r = re.match(
-        r'^\s*([.\d]+)\s*/\s*([.\d]+)\s*$', str)
+        r'^\s*([.\d]+)\s*/\s*([.\d]+)\s*$', value)
     if r:
         return [absolute(r.group(1), size[X]),
                 absolute(r.group(2), size[Y]),
@@ -341,7 +354,7 @@ def str2crop(str, size):
                 absolute(r.group(2), size[Y])]
     # check for LTRB
     r = re.match(
-        r'^\s*([.\d]+)\s*$', str)
+        r'^\s*([.\d]+)\s*$', value)
     if r:
         return [absolute(r.group(1), size[X]),
                 absolute(r.group(1), size[Y]),
@@ -352,16 +365,16 @@ def str2crop(str, size):
                        "(must be either '*', 'L/T/R/B', 'LR/TB', 'LTRB' where L, T, R, B, LR/TB and LTRB must be int or float')".format(str))
 
 
-def str2alpha(str):
+def str2alpha(value: str) -> int:
     """ read alpha values from string as float between 0.0 and 1.0 or as int between 0 an 255
     """
     # check for floating point value
     r = re.match(
-        r'^\s*([.\d]+)\s*$', str)
+        r'^\s*([.\d]+)\s*$', value)
     if r:
         # return absolute proportional to 255
 
         return absolute(r.group(1), 255)
     # didn't get it
     raise RuntimeError("syntax error in alpha value '{}' "
-                       "(must be float or int)".format(str))
+                       "(must be float or int)".format(value))

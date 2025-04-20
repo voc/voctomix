@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "scipy>=1.15.2",
+    "scipy-stubs>=1.15.2.1",
     "sdnotify>=0.3.2",
 ]
 
@@ -14,10 +15,19 @@ dev = [
     "mock>=5.2.0",
     "pytest>=8.3.5",
     "pygobject-stubs>=2.13.0",
+    "mypy>=1.15.0",
 ]
 
 [tool.uv]
 python-preference = "only-system"
+
+[tool.mypy]
+mypy_path = "python_stubs"
+exclude = "tests|venv"
+
+[[tool.mypy.overrides]]
+module = ["cairo.*"]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = [
