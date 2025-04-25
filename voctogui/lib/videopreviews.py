@@ -7,6 +7,7 @@ from configparser import NoOptionError
 from typing import cast
 
 from gi.repository import Gst, Gtk, Gdk, GObject
+from voctogui.lib.videopreviewframe import VideoPreviewFrame
 from voctogui.lib.videodisplay import VideoDisplay
 from voctogui.lib.audioonlydisplay import AudioOnlyDisplay
 from voctogui.lib.audiodisplay import AudioDisplay
@@ -68,8 +69,7 @@ class VideoPreviewsController(object):
                                   has_audio=has_audio,
                                   )
             video = cast(Gtk.Widget, player.widget)
-            frame = Gtk.AspectFrame.new(None, 0, 0, Config.getVideoRatio(), False)
-            frame.set_size_request(*self.previewSize)
+            frame = VideoPreviewFrame(*self.previewSize)
             frame.add(video)
             self.video_box.pack_start(frame, False, False, 0)
             player.play()
