@@ -5,7 +5,7 @@ gi.require_version('Gtk', '3.0')
 gi.require_version('Gst', '1.0')
 gi.require_version('GstVideo', '1.0')
 gi.require_version('GstNet', '1.0')
-from gi.repository import Gtk, Gdk, Gst, GstVideo
+from gi.repository import Gtk, Gdk, Gst, GstVideo, GLib
 
 import signal
 import logging
@@ -29,6 +29,9 @@ if sys.version_info < minPy:
 
 Gdk.init([])
 Gtk.init([])
+
+# select window icon on wayland
+GLib.set_prgname("voctogui.desktop")
 
 # select Awaita:Dark theme
 settings = Gtk.Settings.get_default()
