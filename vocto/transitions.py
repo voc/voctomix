@@ -5,8 +5,11 @@ from vocto.composites import Composite, Composites, swap_name
 from vocto.frame import Frame, L, R, T, B, X, Y
 # for calculating square roots
 import math
+import numpy as np
 # for cloning objects
 import copy
+
+from typing import Optional, Generator, overload
 
 V = 2  # distance (velocity) index
 
@@ -22,25 +25,29 @@ class Transitions:
     LoRes       = 0.01
     resolution  = HiRes
 
-    def __init__(self, targets=[], fps=25):
+    transitions: list
+    targets: list[Composite]
+    fps: float
+
+    def __init__(self, targets: list[Composite] = [], fps: float = 25) -> None:
         self.transitions = []
         self.targets = targets
         self.fps = fps
 
-    def __str__(self):
+    def __str__(self) -> str:
         """ write transition table into a string
         """
         return "\n".join([t.name() for t in self.transitions])
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.transitions)
 
-    def count(self):
+    def count(self) -> int:
         """ count available transition
         """
         return len(self.transitions)
 
-    def add(self, transition,frames):
+    def add(self, transition: 'Transition', frames: int):
         # check if a compatible transition is already in our pool
         for t in self.transitions:
             if t.begin().equals(transition.begin(), True) and t.end().equals(transition.end(), True):
@@ -53,32 +60,33 @@ class Transitions:
         transition.calculate(frames - 1)
         self.transitions.append(transition)
 
-    def configure(self, cfg, composites, targets=None, fps=25):
+    @staticmethod
+    def configure(
+        cfg: list[tuple[str, str]],
+        composites: dict[str, 'Composite'],
+        targets: Optional[list['Composite']] = None,
+        fps: float = 25
+    ) -> 'Transitions':
         """ generate all transitions configured in the INI-like configuration
             string in <cfg> by using the given <composites> and return them
             in a dictonary
         """
-        def index(composite):
-            for i in range(len(targets)):
-                if composites[targets[i]].equals(composite, True):
-                    return i
-            return None
 
         # filter target composites from given composites
-        if not targets:
-            targets = Composites.targets(self, composites)
+        if targets is None:
+            targets = Composites.targets(composites)
         # prepare result
         transitions = Transitions(targets,fps)
 
         # walk through all items within the configuration string
         for t_name, t in cfg:
             # split animation time and composite sequence from t
-            time, sequence = t.split(',')
-            time = int(time)
+            time_str, sequence_str = t.split(',')
+            time = int(time_str)
             # calculate frames needed for that animation time
-            frames = fps * float(time) / 1000.0
+            frames = int(fps * float(time) / 1000.0)
             # split sequence list into key frames
-            sequence = [x.strip().lower() for x in sequence.split('/')]
+            sequence = [x.strip().lower() for x in sequence_str.split('/')]
             for seq in parse_asterisk(sequence, targets):
                 if "*" in sequence:
                     name = "%s(%s)" % (t_name, "/".join(seq))
@@ -105,7 +113,7 @@ class Transitions:
         # return dictonary
         return transitions
 
-    def solve(self, begin, end, flip):
+    def solve(self, begin: 'Composite', end: 'Composite', flip: bool):
         log.debug("Solving transition %s(A,B) -> %s(%s)\n\t    %s\n\t    %s", begin.name, end.name, "B,A" if flip else "A,B", begin, end)
         for transition in self.transitions:
             # try to find original transition
@@ -124,7 +132,8 @@ class Transitions:
                 return transition.reversed(), False
         return None, False
 
-    def travel(composites, previous=None):
+    @staticmethod
+    def travel(composites: list['Composite'], previous: Optional[list['Composite']] = None):
         """ return a list of pairs of composites along all possible transitions
             between all given composites by walking the tree of all combinations
         """
@@ -153,6 +162,9 @@ class Transitions:
         return None
 
 class Transition:
+    _name: str
+    composites: list['Composite']
+    flip: Optional[int]
 
     def __init__(self, name, a=None, b=None):
         assert type(name) is str
@@ -175,15 +187,15 @@ class Transition:
             self.composites = []
         self.flip = None
 
-    def __str__(self):
-        def hidden( x, hidden ):
+    def __str__(self) -> str:
+        def hidden(x: Frame, hidden: bool) -> str:
             return str(x).replace(' ','_') if hidden else str(x)
 
         # remember index when to flip sources A/B
         result = "\t%s = %s -> %s:\n" % (self.name(),
                                       self.begin().name, self.end().name)
         # add table title
-        result += "\tNo. %s\n" % Composite.str_title(self)
+        result += "\tNo. %s\n" % Composite.str_title()
         # add composites until flipping point
         for i in range(self.frames()):
             if (not logKeyFramesOnly) or self.A(i).key:
@@ -197,18 +209,22 @@ class Transition:
     def phi(self):
         return self.begin().equals(self.end().swapped(), False)
 
-    def name(self):
+    def name(self) -> str:
         if self.phi():
             return "Φ(" + self._name + ")"
         else:
             return self._name
 
-    def append(self, composite):
+    def append(self, composite: Composite):
         assert type(composite) == Composite
         self.composites.append(composite)
 
-    def frames(self): return len(self.composites)
+    def frames(self) -> int: return len(self.composites)
 
+    @overload
+    def A(self, n: None) -> list[Frame]: ...
+    @overload
+    def A(self, n: int) -> Frame: ...
     def A(self, n=None):
         if n is None:
             return [c.A() for c in self.composites]
@@ -216,6 +232,10 @@ class Transition:
             assert type(n) is int
             return self.composites[n].A()
 
+    @overload
+    def B(self, n: None) -> list[Frame]: ...
+    @overload
+    def B(self, n: int) -> Frame: ...
     def B(self, n=None):
         if n is None:
             return [c.B() for c in self.composites]
@@ -223,7 +243,7 @@ class Transition:
             assert type(n) is int
             return self.composites[n].B()
 
-    def Az(self, z0, z1):
+    def Az(self, z0, z1) -> list[Frame]:
         frames = []
         for i,c in enumerate(self.composites):
             if (not self.flip) or i < self.flip:
@@ -232,7 +252,7 @@ class Transition:
                 frames.append(c.Az(z1))
         return frames
 
-    def Bz(self, z0, z1):
+    def Bz(self, z0, z1) -> list[Frame]:
         frames = []
         for i,c in enumerate(self.composites):
             if (not self.flip) or i < self.flip:
@@ -241,17 +261,17 @@ class Transition:
                 frames.append(c.Bz(z1))
         return frames
 
-    def begin(self): return self.composites[0]
+    def begin(self) -> Composite: return self.composites[0]
 
-    def end(self): return self.composites[-1]
+    def end(self) -> Composite: return self.composites[-1]
 
-    def reversed(self):
+    def reversed(self) -> 'Transition':
         return Transition(self._name + "⁻¹", self.composites[::-1])
 
-    def swapped(self):
+    def swapped(self) -> 'Transition':
         return Transition(swap_name(self._name), [c.swapped() for c in self.composites])
 
-    def calculate_flip(self):
+    def calculate_flip(self) -> Optional[int]:
         """ find the first non overlapping rectangle pair within parameters and
             return it's index
         """
@@ -259,7 +279,7 @@ class Transition:
         if self.phi():
 
             # check if rectangle a and b overlap
-            def overlap(a, b):
+            def overlap(a: list[float], b: list[float]):
                 return (a[L] < b[R] and a[R] > b[L] and a[T] < b[B] and a[B] > b[T])
 
             # find the first non overlapping composite
@@ -271,7 +291,7 @@ class Transition:
         # no flipping
         return None
 
-    def calculate(self, frames, a_corner=(R, T), b_corner=(L, T)):
+    def calculate(self, frames: int, a_corner: tuple[int, int] = (R, T), b_corner: tuple[int, int] = (L, T)):
         """ calculate a transition between the given composites which shall
             have the given amount of frames. Use a_corner of frames in A and
             b_corner of frames in B to interpolate the animation movement.
@@ -297,7 +317,7 @@ class Transition:
             # generate animation
             a = interpolate(a, frames, a_corner)
             b = interpolate(b, frames, b_corner)
-            composites = []
+            composites: list[Composite] = []
             j = 0
             for i in range(len(a)):
                 if a[i].key:
@@ -309,17 +329,17 @@ class Transition:
             self.composites = composites
             self.flip = self.calculate_flip()
 
-    def keys(self):
+    def keys(self) -> list[Composite]:
         """ return the indices of all key composites
         """
         return [i for i in self.composites if i.key()]
 
 
-def parse_asterisk(sequence, composites):
+def parse_asterisk(sequence: list[str], composites: list[Composite]) -> list[list[str]]:
     """ parses a string like '*/*' and returns all available variants with '*'
         being replaced by composite names in 'composites'.
     """
-    sequences = []
+    sequences: list[list[str]] = []
     for k in range(len(sequence)):
         if sequence[k] == '*':
             for c in composites:
@@ -331,7 +351,7 @@ def parse_asterisk(sequence, composites):
     return sequences
 
 
-def frange(x, y, jump):
+def frange(x: float, y: float, jump: float) -> Generator[float, None, None]:
     """ like range() but for floating point values
     """
     while x < y:
@@ -339,14 +359,13 @@ def frange(x, y, jump):
         x += jump
 
 
-def bspline(points):
+def bspline(points: 'np.ndarray') -> Optional[list['np.ndarray']]:
     """ do a B - Spline interpolation between the given points
         returns interpolated points
     """
     # for generating B-Splines
     from scipy import interpolate as spi
     # for converting arrays
-    import numpy as np
     # parameter check
     assert type(points) is np.ndarray
     assert type(points[0]) is np.ndarray and len(points[0]) == 2
@@ -357,7 +376,7 @@ def bspline(points):
         # do interpolation
         tck, u = spi.splprep(points.transpose(), s=0, k=2)
         unew = np.arange(0, 1.0 + resolution, resolution)
-        return spi.splev(unew, tck)
+        return spi.splev(unew, tck) # type: ignore
     elif len(points) == 2:
         # throw points on direct line
         x, y = [], []
@@ -369,11 +388,9 @@ def bspline(points):
         return None
 
 
-def find_nearest(spline, points):
+def find_nearest(spline, points: list) -> list:
     """ find indices in spline which are most near to the coordinates in points
     """
-    # for converting arrays
-    import numpy as np
     nearest = []
     for p in points:
         # calculation lamba fn
@@ -385,10 +402,10 @@ def find_nearest(spline, points):
     return nearest
 
 
-def measure(points):
+def measure(points: list[list[float]]) -> list[tuple[float, float, float]]:
     """ measure distances between every given 2D point and the first point
     """
-    positions = [(0, 0, 0)]
+    positions: list[tuple[float, float, float]] = [(0, 0, 0)]
     # enumerate between all points
     for i in range(1, len(points)):
         # calculate X/Y distances
@@ -406,13 +423,13 @@ def measure(points):
     return positions
 
 
-def smooth(x):
+def smooth(x: float) -> float:
     """ smooth value x by using a cosinus wave (0.0 <= x <= 1.0)
     """
     return (-math.cos(math.pi * x) + 1) / 2
 
 
-def distribute(points, positions, begin, end, x0, x1, n):
+def distribute(points: 'np.ndarray', positions: list, begin: 'np.int64', end: 'np.int64', x0: float, x1: float, n: int) -> list:
     """ from the sub set given by <points>[<begin>:<end>+1] selects <n> points
         whose distances are smoothly distributed and returns them.
         <poisitions> holds a list of distances between all <points> that will

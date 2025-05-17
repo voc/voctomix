@@ -6,6 +6,8 @@ from enum import Enum, unique
 import gi
 gi.require_version('GstController', '1.0')
 from gi.repository import Gst
+from vocto.composites import Composite
+from voctocore.lib.avnode import AVNode
 from voctocore.lib.config import Config
 from vocto.transitions import Composites, Transitions, Frame, fade_alpha
 from voctocore.lib.scene import Scene
@@ -14,11 +16,27 @@ from voctocore.lib.args import Args
 
 from vocto.composite_commands import CompositeCommand
 
+from typing import Optional, Any
 
-class VideoMix(object):
-    log = logging.getLogger('VideoMix')
+
+class VideoMix(AVNode):
+    log: logging.Logger
+
+    bgSources: list[str]
+    sources: list[str]
+    composites: dict[str, Composite]
+    transitions: Transitions
+    scene: Optional[Any]
+    bgScene: Optional[Any]
+    overlay: Optional[Any]
+    bin: str
+    pipeline: Gst.Pipeline
+    compositeMode: Optional[str]
+    sourceA: Optional[str]
+    sourceB: Optional[str]
 
     def __init__(self):
+        self.log = logging.getLogger('VideoMix')
         # read sources from confg file
         self.bgSources = Config.getBackgroundSources()
         self.sources = Config.getVideoSources()
@@ -98,17 +116,18 @@ class VideoMix(object):
                 ! videomixer.
                 """.format(
                 name=name,
-                idx=idx
             )
 
         self.bin += "" if Args.no_bins else """)
                     """
 
-    def attach(self, pipeline):
+    def attach(self, pipeline: Gst.Pipeline):
         self.log.debug('Binding Handoff-Handler for '
                        'Synchronus mixer manipulation')
         self.pipeline = pipeline
         sig = pipeline.get_by_name('sig')
+        if sig is None:
+            raise Exception("Could not find element sig in pipeline")
         sig.connect('handoff', self.on_handoff)
 
         self.log.debug('Initializing Mixer-State')
@@ -118,8 +137,7 @@ class VideoMix(object):
         self.compositeMode = None
         self.sourceA = None
         self.sourceB = None
-        self.setCompositeEx(Composites.targets(self, self.composites)[
-                            0].name, self.sources[0], self.sources[1])
+        self.setCompositeEx(Composites.targets(self.composites)[0].name, self.sources[0], self.sources[1])
 
         if Config.hasOverlay():
             self.overlay = Overlay(

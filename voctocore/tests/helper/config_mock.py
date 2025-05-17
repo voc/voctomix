@@ -2,19 +2,21 @@ from configparser import NoSectionError, NoOptionError, DuplicateSectionError
 
 from voctocore.lib.config import VoctocoreConfigParser
 
+from typing import Any, Iterable
+
 
 class ConfigMock(VoctocoreConfigParser):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self._sections = {}
 
-    def given(self, section, option, value):
+    def given(self, section: str, option: str, value):
         if section not in self._sections:
             self._sections[section] = {}
         self._sections[section][option] = value
         return self
 
-    def _mock_get(self, section, option, fallback):
+    def _mock_get(self, section: str, option: str, fallback):
         if section not in self._sections:
             if fallback:
                 return fallback
@@ -30,40 +32,49 @@ class ConfigMock(VoctocoreConfigParser):
 
         return section_values[option]
 
-    def add_section(self, section):
+    def has_section(self, section: str) -> bool:
+        return section in self._sections
+
+    def has_option(self, section: str, option: str) -> bool:
+        return section in self._sections and option in self._sections[section]
+
+    def items(self, section: str) -> Iterable[tuple[str, Any]]:
+        return self._sections[section].items()
+
+    def add_section(self, section: str) -> None:
         if section in self._sections:
             raise DuplicateSectionError(section)
 
         self._sections[section] = {}
 
-    def set(self, section, option, value=None):
+    def set(self, section: str, option: str, value=None) -> None:
         if section not in self._sections:
             raise NoSectionError(section)
 
         self._sections[section][option] = value
 
     # noinspection PyMethodOverriding
-    def get(self, section, option, *, raw=False, vars=None, fallback=None):
+    def get(self, section: str, option: str, *, raw=False, vars=None, fallback=None):
         return self._mock_get(section, option, fallback)
 
-    def getint(self, section, option, *, raw=False, vars=None,
-               fallback=None, **kwargs):
+    def getint(self, section: str, option: str, *, raw=False, vars=None,
+               fallback=None, **kwargs) -> int:
         return int(self._mock_get(section, option, fallback))
 
-    def getfloat(self, section, option, *, raw=False, vars=None,
-                 fallback=None, **kwargs):
+    def getfloat(self, section: str, option: str, *, raw=False, vars=None,
+                 fallback=None, **kwargs) -> float:
         return float(self._mock_get(section, option, fallback))
 
-    def getboolean(self, section, option, *, raw=False, vars=None,
-                   fallback=None, **kwargs):
+    def getboolean(self, section: str, option: str, *, raw=False, vars=None,
+                   fallback=None, **kwargs) -> bool:
         return self._convert_to_boolean(
             self._mock_get(section, option, fallback))
 
-    def reset(self):
+    def reset(self) -> 'ConfigMock':
         self._sections = {}
         return self
 
-    def resetToDefaults(self):
+    def resetToDefaults(self) -> 'ConfigMock':
         return self \
             .reset() \
             .given("mix", "videocaps",

@@ -27,22 +27,23 @@ if sys.version_info < minPy:
     raise Exception('Python version', sys.version_info,
                     'is too old, at least', minPy, 'is required')
 
-Gdk.init([])
-Gtk.init([])
+Gdk.init([]) # type: ignore
+Gtk.init([]) # type: ignore
 
 # select window icon on wayland
 GLib.set_prgname("voctogui.desktop")
 
 # select Awaita:Dark theme
 settings = Gtk.Settings.get_default()
-settings.set_property("gtk-theme-name", "Adwaita")
-settings.set_property("gtk-application-prefer-dark-theme", True)  # if you want use dark theme, set second arg to True
+if settings is not None:
+    settings.set_property("gtk-theme-name", "Adwaita")
+    settings.set_property("gtk-application-prefer-dark-theme", True)  # if you want use dark theme, set second arg to True
 
 
 # main class
 class Voctogui(object):
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.log = logging.getLogger('Voctogui')
         from voctogui.lib.args import Args
         from voctogui.lib.ui import Ui
@@ -69,15 +70,18 @@ class Voctogui(object):
         else:
             raise Exception("Can't find .css file '{}'".format(path))
 
+        screen = Gdk.Screen.get_default()
+        if screen is None:
+            raise Exception("No default screen available")
         context.add_provider_for_screen(
-            Gdk.Screen.get_default(),
+            screen,
             css_provider,
             Gtk.STYLE_PROVIDER_PRIORITY_USER
         )
 
         self.ui.setup()
 
-    def run(self):
+    def run(self) -> None:
         self.log.info('Setting UI visible')
         self.ui.show()
 
@@ -88,16 +92,16 @@ class Voctogui(object):
         except KeyboardInterrupt:
             self.log.info('Terminated via Ctrl-C')
 
-    def quit(self):
+    def quit(self) -> None:
         self.log.info('Quitting.')
         Gtk.main_quit()
 
 
 # run mainclass
-def main():
+def main() -> None:
     # parse command-line args
     from voctogui.lib import args
-    args.parse()
+    args.parse() # type: ignore
 
     from voctogui.lib.args import Args
     docolor = (Args.color == 'always') \

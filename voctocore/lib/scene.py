@@ -10,12 +10,13 @@ class Scene:
         and voctomix frames.
         With commit() you add frames at a specified play time
     """
-    log = logging.getLogger('Scene')
+    log: logging.Logger
 
     def __init__(self, sources, pipeline, fps, start_sink, cropping=True):
         """ initialize with a gstreamer pipeline and names
             of the sources to manage
         """
+        self.log = logging.getLogger('Scene')
         # frames to apply from
         self.frames = dict()
         # binding pads to apply to
