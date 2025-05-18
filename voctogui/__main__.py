@@ -13,6 +13,7 @@ import sys
 import os
 
 from vocto.debug import gst_log_messages
+from vocto.sd_notify import sd_notify
 
 # check min-version
 minGst = (1, 5)
@@ -87,7 +88,9 @@ class Voctogui(object):
 
         try:
             self.log.info('Running.')
+            sd_notify.ready()
             Gtk.main()
+            sd_notify.stopping()
             self.log.info('Connection lost. Exiting.')
         except KeyboardInterrupt:
             self.log.info('Terminated via Ctrl-C')

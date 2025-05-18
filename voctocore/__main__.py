@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 import gi
-import sdnotify
 import signal
 import logging
 import sys
 
 from vocto.debug import gst_log_messages
+from vocto.sd_notify import sd_notify
 
 # import GStreamer and GLib-Helper classes
 gi.require_version('Gst', '1.0')
@@ -53,7 +53,9 @@ class Voctocore(object):
     def run(self):
         self.log.info('Running. Waiting for connections....')
         try:
+            sd_notify.ready()
             self.mainloop.run()
+            sd_notify.stopping()
         except KeyboardInterrupt:
             self.log.info('Terminated via Ctrl-C')
 
@@ -95,11 +97,6 @@ def main():
     # init main-class and main-loop
     logging.debug('initializing Voctocore')
     voctocore = Voctocore()
-
-    # Inform systemd that we are ready
-    # for use with the notify service type
-    n = sdnotify.SystemdNotifier()
-    n.notify("READY=1")
 
     logging.debug('running Voctocore')
     voctocore.run()

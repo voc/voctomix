@@ -8,7 +8,6 @@ dependencies = [
     "numpy<2.0",
     "scipy>=1.15.2",
     "scipy-stubs>=1.15.2.1",
-    "sdnotify>=0.3.2",
 ]
 
 [dependency-groups]
