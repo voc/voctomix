@@ -1,7 +1,8 @@
 import logging
 import sys
+from typing import cast
 
-from gi.repository import Gst, Gdk
+from gi.repository import Gst, Gdk, Gtk
 
 from voctogui.lib.args import Args
 from voctogui.lib.config import Config
@@ -15,12 +16,14 @@ from vocto.video_codecs import construct_video_decoder_pipeline
 
 class VideoDisplay(object):
     """Displays a Voctomix-Video-Stream into a GtkWidget"""
+    imagesink: Gst.Element
+    widget: Gtk.Widget
+    pipeline: Gst.Pipeline
 
-    def __init__(self, video_drawing_area, audio_display, port, name, width=None, height=None,
+    def __init__(self, audio_display, port, name, width=None, height=None,
                  has_audio=True, play_audio=False):
         self.log = logging.getLogger('VideoDisplay:%s' % name)
         self.name = name
-        self.video_drawing_area = video_drawing_area
         self.level_callback = None if audio_display is None else audio_display.callback
         video_decoder = None
 
@@ -78,28 +81,16 @@ class VideoDisplay(object):
         # Video Display
         videosystem = Config.getVideoSystem()
         self.log.debug('Configuring for Video-System %s', videosystem)
+        if videosystem == 'gtk':
+            pipe += """ ! gtksink
+                            name=imagesink-{name} sync=false
+                """.format(name=name)
 
-        if videosystem == 'gl':
+        elif videosystem == 'gtkgl':
             pipe += """ ! glupload
-                        ! glcolorconvert
-                        ! glimagesinkelement
-                            name=imagesink-{name}
-                            """.format(name=name)
-
-        elif videosystem == 'xv':
-            pipe += """ ! xvimagesink
-                            name=imagesink-{name}
-                        """.format(name=name)
-
-        elif videosystem == 'x':
-            pipe += """ ! ximagesink
-                            name=imagesink-{name}
-                        """.format(name=name)
-
-        elif videosystem == 'vaapi':
-            pipe += """ ! vaapisink
-                            name=imagesink-{name}
-                        """.format(name=name)
+                        ! gtkglsink
+                            name=imagesink-{name} sync=false
+                """.format(name=name)
 
         else:
             raise Exception(
@@ -134,47 +125,26 @@ class VideoDisplay(object):
         self.log.info("Creating Display-Pipeline:\n%s",  pretty(pipe))
         try:
             # launch gstreamer pipeline
-            self.pipeline = Gst.parse_launch(pipe)
+            self.pipeline = cast(Gst.Pipeline, Gst.parse_launch(pipe))
             self.log.info("pipeline launched successfuly")
         except:
             self.log.error("Can not launch pipeline")
             sys.exit(-1)
 
+        self.imagesink = cast(Gst.Element, self.pipeline.get_by_name('imagesink-{name}'.format(name=self.name)))
+        self.widget = cast(Gtk.Widget, self.imagesink.get_property("widget"))
+
         if Args.dot:
             self.log.debug("Generating DOT image of videodisplay pipeline")
             gst_generate_dot(self.pipeline, "gui.videodisplay.{}".format(name), Args.gst_debug_details)
 
-        self.pipeline.use_clock(Clock)
-
-        self.video_drawing_area.add_events(
-            Gdk.EventMask.KEY_PRESS_MASK | Gdk.EventMask.KEY_RELEASE_MASK)
-        self.video_drawing_area.connect("realize", self.on_realize)
+        self.pipeline.set_clock(Clock)
         bus = self.pipeline.get_bus()
         bus.add_signal_watch()
         bus.enable_sync_message_emission()
 
         bus.connect('message::error', self.on_error)
-        bus.connect('sync-message::element', self.on_syncmsg)
-        bus.connect('message::state-changed', self.on_state_changed)
         bus.connect("message::element", self.on_level)
-
-    def on_realize(self, win):
-        self.imagesink = self.pipeline.get_by_name(
-            'imagesink-{name}'.format(name=self.name))
-        self.xid = self.video_drawing_area.get_property('window').get_xid()
-
-        self.log.debug('Realized Drawing-Area with xid %u', self.xid)
-        self.video_drawing_area.realize()
-
-        self.log.info("Launching Display-Pipeline")
-        self.pipeline.set_state(Gst.State.PLAYING)
-
-    def on_syncmsg(self, bus, msg):
-        if type(msg) == Gst.Message and self.imagesink:
-            if msg.get_structure().get_name() == "prepare-window-handle":
-                self.log.info(
-                    'Setting imagesink window-handle to 0x%x', self.xid)
-                self.imagesink.set_window_handle(self.xid)
 
     def on_error(self, bus, message):
         (error, debug) = message.parse_error()
@@ -192,6 +162,5 @@ class VideoDisplay(object):
             decay = msg.get_structure().get_value('decay')
             self.level_callback(rms, peak, decay)
 
-    def on_state_changed(self, bus, message):
-        if message.parse_state_changed().newstate == Gst.State.PLAYING:
-            self.video_drawing_area.show()
+    def play(self):
+        self.pipeline.set_state(Gst.State.PLAYING)
