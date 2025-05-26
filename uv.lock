@@ -203,12 +203,6 @@ wheels = [
 ]
 
 [[package]]
-name = "sdnotify"
-version = "0.3.2"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/ce/d8/9fdc36b2a912bf78106de4b3f0de3891ff8f369e7a6f80be842b8b0b6bd5/sdnotify-0.3.2.tar.gz", hash = "sha256:73977fc746b36cc41184dd43c3fe81323e7b8b06c2bb0826c4f59a20c56bb9f1", size = 2459 }
-
-[[package]]
 name = "typing-extensions"
 version = "4.13.0"
 source = { registry = "https://pypi.org/simple" }
@@ -225,7 +219,6 @@ dependencies = [
     { name = "numpy" },
     { name = "scipy" },
     { name = "scipy-stubs" },
-    { name = "sdnotify" },
 ]
 
 [package.dev-dependencies]
@@ -241,7 +234,6 @@ requires-dist = [
     { name = "numpy", specifier = "<2.0" },
     { name = "scipy", specifier = ">=1.15.2" },
     { name = "scipy-stubs", specifier = ">=1.15.2.1" },
-    { name = "sdnotify", specifier = ">=0.3.2" },
 ]
 
 [package.metadata.requires-dev]

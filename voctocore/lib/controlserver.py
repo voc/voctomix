@@ -9,6 +9,7 @@ from voctocore.lib.response import NotifyResponse
 from voctocore.lib.tcpmulticonnection import TCPMultiConnection
 
 from vocto.port import Port
+from vocto.sd_notify import sd_notify
 
 
 class ControlServer(TCPMultiConnection):
@@ -29,6 +30,11 @@ class ControlServer(TCPMultiConnection):
         self.on_loop_active = False
 
         self.commands = ControlServerCommands(pipeline)
+
+    def _log_num_connections(self):
+        # Overwrite method of TCPMultiConnection to add status information to sd_notify
+        self.log.info(f'Now {self.num_connections()} Receiver(s) connected')
+        sd_notify.status(f'{self.num_connections()} receiver(s) connected to ControlServer')
 
     def on_accepted(self, conn, addr):
         '''Asynchronous connection listener.

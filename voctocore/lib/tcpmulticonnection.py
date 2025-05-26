@@ -46,6 +46,10 @@ class TCPMultiConnection(metaclass=ABCMeta):
     def num_connections(self) -> int:
         return len(self.currentConnections)
 
+    def _log_num_connections(self):
+        # lives in its own method so we can overwrite it in children
+        self.log.info(f'Now {self.num_connections()} Receiver(s) connected')
+
     def is_input(self) -> bool:
         return False
 
@@ -57,8 +61,7 @@ class TCPMultiConnection(metaclass=ABCMeta):
                       addr[0], addr[1], conn.fileno())
 
         self.currentConnections[conn] = Queue()
-        self.log.info('Now %u Receiver(s) connected',
-                      len(self.currentConnections))
+        self._log_num_connections()
 
         self.on_accepted(conn, addr)
 
@@ -68,8 +71,7 @@ class TCPMultiConnection(metaclass=ABCMeta):
         if conn in self.currentConnections:
             conn.close()
             del(self.currentConnections[conn])
-        self.log.info('Now %u Receiver connected',
-                      len(self.currentConnections))
+        self._log_num_connections()
 
     @abstractmethod
     def on_accepted(self, conn: socket.socket, addr: tuple[str, int]):

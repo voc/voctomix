@@ -24,7 +24,6 @@ Depends: gstreamer1.0-plugins-bad,
     python3-gi,
     gir1.2-gstreamer-1.0,
     gir1.2-gst-plugins-base-1.0,
-    python3-sdnotify,
     gstreamer1.0-gl,
     gstreamer1.0-pulseaudio
 Suggests: gstreamer1.0-vaapi,
