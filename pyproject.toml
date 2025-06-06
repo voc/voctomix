@@ -1,6 +1,6 @@
 [project]
 name = "voctomix"
-version = "0.1.0"
+version = "2.3"
 description = "voctomix is a video mixing software, written in python."
 readme = "README.md"
 requires-python = ">=3.11"
