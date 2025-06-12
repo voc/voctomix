@@ -213,7 +213,7 @@ wheels = [
 
 [[package]]
 name = "voctomix"
-version = "0.1.0"
+version = "2.3"
 source = { virtual = "." }
 dependencies = [
     { name = "numpy" },
