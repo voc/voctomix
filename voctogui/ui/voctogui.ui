@@ -113,16 +113,13 @@
                     <property name="shadow-type">none</property>
                     <property name="obey-child">False</property>
                     <child>
-                      <object class="GtkBox" id="video_main">
+                      <object class="GtkDrawingArea" id="video_main">
                         <property name="width-request">100</property>
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="double-buffered">False</property>
                         <property name="hexpand">True</property>
                         <property name="vexpand">True</property>
-                        <child>
-                          <placeholder/>
-                        </child>
                       </object>
                     </child>
                   </object>

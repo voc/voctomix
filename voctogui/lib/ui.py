@@ -1,6 +1,4 @@
 import logging
-from typing import cast
-
 from gi.repository import Gtk, Gdk
 
 from voctogui.lib.config import Config
@@ -81,14 +79,12 @@ class Ui(UiBuilder):
         self.mix_audio_display = AudioDisplay(audio_box, "mix", uibuilder=self)
 
         # Create Main-Video Display
-        video_main = cast(Gtk.Box, self.find_widget_recursive(self.win, 'video_main'))
         self.mix_video_display = VideoDisplay(
+            self.find_widget_recursive(self.win, 'video_main'),
             self.mix_audio_display,
             port=Port.MIX_PREVIEW if Config.getPreviewsEnabled() else Port.MIX_OUT,
             name="MIX"
         )
-        video_main.pack_start(self.mix_video_display.widget, fill=True, expand=True, padding=0)
-        self.mix_video_display.play()
 
         for idx, livepreview in enumerate(Config.getLivePreviews()):
             if Config.getPreviewsEnabled():
