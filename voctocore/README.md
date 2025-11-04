@@ -198,7 +198,7 @@ To change the *kind* of a source you need to set the `kind` attribute in the sou
 ##### 1.6.1.1.2. TCP Sources
 
 You can use `tcp` as a source's `kind` if you would like to provide Matroska A/V streams via TCP.
-**TCP sources** will be assigned to port `16000` and the following in the order in which they appear in `mix/sources`.
+**TCP sources** will be assigned to port `10000` and the following in the order in which they appear in `mix/sources`.
 
 ```ini
 [mix]
@@ -211,7 +211,7 @@ kind = tcp
 kind = tcp
 ```
 
-This configuration let VOC2CORE listen at port `16000` for an incoming TCP connection transporting a Matroska A/V stream for source `cam1` and at port `16001` for source `cam2`.
+This configuration let VOC2CORE listen at port `10000` for an incoming TCP connection transporting a Matroska A/V stream for source `cam1` and at port `10001` for source `cam2`.
 
 ##### 1.6.1.1.3. File Sources
 
