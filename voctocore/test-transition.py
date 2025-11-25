@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # type: ignore
-from configparser import SafeConfigParser
+from configparser import ConfigParser
 from vocto.transitions import Composites, Transitions, L, T, R, B, X, Y
 from PIL import Image, ImageDraw, ImageFont
 # for integer maximum size
@@ -74,7 +74,7 @@ def read_config(filename=None):
     if not filename:
         filename = Args.config
     # load INI files
-    config = SafeConfigParser()
+    config = ConfigParser()
     config.read(filename)
     if Args.size:
         r = re.match(

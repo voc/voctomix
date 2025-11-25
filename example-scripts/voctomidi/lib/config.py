@@ -1,5 +1,5 @@
 import os.path
-from configparser import SafeConfigParser
+from configparser import ConfigParser
 
 __all__ = ['get_config']
 
@@ -19,7 +19,7 @@ def get_config(filename=None):
     if filename is not None:
         files.append(filename)
 
-    Config = SafeConfigParser()
+    Config = ConfigParser()
     Config.read(files)
 
     return Config
