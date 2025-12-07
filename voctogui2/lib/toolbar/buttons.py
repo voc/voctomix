@@ -26,18 +26,18 @@ class Buttons(Widgets):
                 # create button and manage grouping of radio buttons
                 if group:
                     if not first_btn:
-                        first_btn = btn = Gtk.RadioToolButton(None)
+                        first_btn = btn = Gtk.ToggleButton()
                     else:
-                        btn = Gtk.RadioToolButton.new_from_widget(first_btn)
+                        btn = Gtk.ToggleButton(group=first_btn)
                 else:
-                    btn = Gtk.ToggleToolButton()
+                    btn = Gtk.ToggleButton()
             else:
-                btn = Gtk.ToolButton()
+                btn = Gtk.Button()
 
             # set button properties
             self.add(btn, id, accelerators, callback, ('toggled' if radio else 'clicked'), css, sensitive, visible, multiline_names)
-            btn.set_visible_horizontal(visible)
-            btn.set_visible_vertical(visible)
+            #btn.set_visible_horizontal(visible)
+            #btn.set_visible_vertical(visible)
             btn.set_can_focus(False)
 
             # remember created button in attributes
@@ -50,7 +50,6 @@ class Buttons(Widgets):
         # add all buttons in right order
         def key(x):
             return x[0]
-        pos = toolbar.get_n_items()
+        #pos = toolbar.get_n_items()
         for btn in sorted(buttons, key=key):
-            toolbar.insert(btn[1], pos)
-            pos += 1
+            toolbar.append(btn[1])

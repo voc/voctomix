@@ -7,7 +7,7 @@ from gi.repository import Gtk, GLib
 
 # studio clock that displays a clock like mentioned in:
 # https://masterbase.at/studioclock/#C3CD2D
-class StudioClock(Gtk.ToolItem):
+class StudioClock(Gtk.DrawingArea):
     __gtype_name__ = 'StudioClock'
 
     # set resolution of the update timer in seconds
@@ -18,11 +18,12 @@ class StudioClock(Gtk.ToolItem):
     def __init__(self) -> None:
         super().__init__()
         # suggest size of widget
-        self.set_size_request(130, 50)
+        self.set_size_request(130, 130)
         # remember last draw time
         self.last_draw_time = time.time()
         # set up timeout for periodic redraw
         GLib.timeout_add(int(self.timer_resolution * 1000), self.do_timeout)
+        self.set_draw_func(self.draw_callback)
 
     def do_timeout(self) -> bool:
         # get current time
@@ -35,7 +36,7 @@ class StudioClock(Gtk.ToolItem):
         return True
 
     # override drawing of the widget
-    def do_draw(self, cr: cairo.Context) -> bool:
+    def draw_callback(self, widget, cr: cairo.Context, width, height):
         # get actual widget size
         width = self.get_allocated_width()
         height = self.get_allocated_height()

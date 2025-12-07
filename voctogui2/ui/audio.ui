@@ -1,31 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Generated with glade 3.22.1 -->
 <interface>
-  <requires lib="gtk+" version="3.20"/>
+    <requires lib="gtk" version="4.0"/>
   <object class="GtkImage" id="Monitor">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">headphones.svg</property>
+    <!--<property name="pixbuf">headphones.svg</property>-->
   </object>
   <object class="GtkImage" id="Mute">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="tooltip_text" translatable="yes">Mute</property>
-    <property name="pixbuf">mute.svg</property>
-    <property name="icon_size">3</property>
+    <!--<property name="pixbuf">mute.svg</property>-->
   </object>
   <object class="GtkAdjustment" id="audio_level_adjustment">
     <property name="lower">-20</property>
     <property name="upper">10</property>
     <property name="step_increment">0.10000000000000001</property>
   </object>
-  <object class="GtkFrame" id="audio">
+    <template class="VoctoguiAudioPanel" parent="GtkFrame">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="margin_bottom">6</property>
     <property name="hexpand">True</property>
     <property name="label_xalign">0.5</property>
-    <property name="shadow_type">in</property>
     <child>
       <object class="GtkBox">
         <property name="visible">True</property>
@@ -41,26 +39,13 @@
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
               </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
             </child>
             <child>
               <object class="AudioLevelDisplay" id="audio_level_display">
             <property name="width_request">20</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="margin_right">0</property>
-            <property name="margin_top">0</property>
-            <property name="margin_bottom">0</property>
           </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
             </child>
             <child>
               <object class="GtkScale" id="audio_level">
@@ -74,29 +59,14 @@
                 <property name="fill_level">0</property>
                 <property name="round_digits">1</property>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">2</property>
-              </packing>
             </child>
             <child>
               <object class="GtkLabel">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
               </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">3</property>
-              </packing>
             </child>
           </object>
-          <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
-            <property name="position">0</property>
-          </packing>
         </child>
         <child>
           <object class="GtkBox">
@@ -107,60 +77,32 @@
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
               </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
             </child>
             <child>
               <object class="GtkToggleButton" id="monitor_button">
                 <property name="can_focus">False</property>
                 <property name="focus_on_click">False</property>
                 <property name="receives_default">True</property>
-                <property name="no_show_all">True</property>
                 <property name="tooltip_text" translatable="yes">Monitor these channels</property>
-                <property name="image">Monitor</property>
+                <!--<property name="image">Monitor</property>-->
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
             </child>
             <child>
               <object class="GtkLabel">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="no_show_all">True</property>
               </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">2</property>
-              </packing>
             </child>
             <child>
               <object class="GtkToggleButton" id="mute_button">
                 <property name="can_focus">False</property>
                 <property name="focus_on_click">False</property>
                 <property name="receives_default">True</property>
-                <property name="no_show_all">True</property>
                 <property name="tooltip_text" translatable="yes">Mute</property>
-                <property name="image">Mute</property>
+                <!--<property name="image">Mute</property>-->
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">3</property>
-              </packing>
             </child>
           </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">1</property>
-          </packing>
         </child>
       </object>
     </child>
@@ -171,5 +113,5 @@
         <property name="label" translatable="yes">ORIGINAL</property>
       </object>
     </child>
-  </object>
+  </template>
 </interface>

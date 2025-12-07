@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from typing import cast
+
 from gi.repository import Gtk
 import sys
 import os
@@ -97,11 +99,11 @@ class Widgets(dict):
                 widget.set_tooltip_text(tip)
 
             # set button tooltip
-            if 'expand' in attr:
-                widget.set_expand(True)
+            #if 'expand' in attr:
+                #widget.set_expand(True)
 
             if 'icon' in attr:
                 img = Gtk.Image.new_from_file(os.path.join(self.iconpath, attr['icon']))
-                widget.set_icon_widget(img)
+                #widget.set_icon_widget(img)
 
             widget.set_can_focus(False)

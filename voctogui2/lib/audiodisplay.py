@@ -7,13 +7,29 @@ from configparser import NoOptionError
 
 from gi.repository import Gtk, Gdk, GObject
 import voctogui2.lib.connection as Connection
+from voctogui2.lib.audioleveldisplay import AudioLevelDisplay
 
 from voctogui2.lib.config import Config
 from vocto.port import Port
+from voctogui2.ui.ui_file import ui_file
+
+
+@Gtk.Template(filename=ui_file("audio.ui"))
+class VoctoguiAudioPanel(Gtk.Frame):
+    __gtype_name__ = 'VoctoguiAudioPanel'
+
+    audio_label: Gtk.Label = Gtk.Template.Child()
+    mute_button: Gtk.ToggleButton = Gtk.Template.Child()
+    monitor_button: Gtk.ToggleButton = Gtk.Template.Child()
+    audio_level: Gtk.Scale = Gtk.Template.Child()
+    audio_level_display: AudioLevelDisplay = Gtk.Template.Child()
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
 class AudioDisplay(object):
 
-    def __init__(self, audio_box, source, uibuilder, has_volume=True):
+    def __init__(self, audio_box, source, has_volume=True):
         self.log = logging.getLogger('VideoPreviewsController')
         self.source = source
         self.panel = None
@@ -24,22 +40,19 @@ class AudioDisplay(object):
             self.audio_streams = Config.getAudioStreams().get_source_streams(source)
             for name, stream in self.audio_streams.items():
                 self.panels[name] = self.createAudioPanel(
-                    name, audio_box, has_volume, uibuilder)
+                    name, audio_box, has_volume)
         else:
-            self.panel = self.createAudioPanel(source, audio_box, has_volume, uibuilder)
+            self.panel = self.createAudioPanel(source, audio_box, has_volume)
 
-    def createAudioPanel(self, name, audio_box, has_volume, uibuilder):
-        audio = uibuilder.load_check_widget('audio',
-                                            os.path.dirname(uibuilder.uifile) +
-                                            "/audio.ui")
-        audio_box.pack_start(audio, fill=False,
-                             expand=False, padding=0)
-        audio_label = uibuilder.find_widget_recursive(audio, 'audio_label')
+    def createAudioPanel(self, name, audio_box, has_volume):
+        audio = VoctoguiAudioPanel()
+        audio_box.append(audio)
+        audio_label = audio.audio_label
         audio_label.set_label(name.upper())
 
-        self.init_volume_slider(name, audio, has_volume, uibuilder)
+        self.init_volume_slider(name, audio, has_volume)
 
-        return {"level": uibuilder.find_widget_recursive(audio, 'audio_level_display')}
+        return {"level": audio.audio_level_display}
 
     def callback(self, rms, peak, decay):
         if self.audio_streams:
@@ -55,9 +68,8 @@ class AudioDisplay(object):
         elif self.panel:
             self.panel["level"].level_callback(rms, peak, decay)
 
-    def init_volume_slider(self, name, audio_box, has_volume, uibuilder):
-        volume_slider = uibuilder.find_widget_recursive(audio_box,
-                                                        'audio_level')
+    def init_volume_slider(self, name, audio_box: VoctoguiAudioPanel, has_volume):
+        volume_slider = audio_box.audio_level
 
         if has_volume:
             volume_signal = volume_slider.connect('value-changed',
@@ -73,7 +85,7 @@ class AudioDisplay(object):
                 else:
                     return "{:.{}f}\u202fdB".format(value,
                                                     scale.get_digits())
-            volume_slider.connect('format-value', slider_format)
+            volume_slider.set_format_value_func(slider_format)
             self.volume_sliders[name] = (volume_slider, volume_signal)
             if not Config.getVolumeControl():
                 volume_slider.set_sensitive(False)
@@ -81,7 +93,7 @@ class AudioDisplay(object):
             Connection.on('audio_status', self.on_audio_status)
             Connection.send('get_audio')
         else:
-            volume_slider.set_no_show_all(True)
+            #volume_slider.set_no_show_all(True)
             volume_slider.hide()
 
     def slider_changed(self, slider):

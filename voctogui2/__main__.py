@@ -1,11 +1,18 @@
 #!/usr/bin/env python3
+import typing
+from typing import Optional
+
 import gi
+
+from voctogui2.ui.ui_file import ui_file
+
 # import GStreamer and GLib-Helper classes
-gi.require_version('Gtk', '3.0')
+gi.require_version('Gtk', '4.0')
 gi.require_version('Gst', '1.0')
 gi.require_version('GstVideo', '1.0')
 gi.require_version('GstNet', '1.0')
-from gi.repository import Gtk, Gdk, Gst, GstVideo, GLib
+gi.require_version('Adw', '1')
+from gi.repository import Adw, Gtk, Gdk, Gst, GstVideo, GLib
 
 import signal
 import logging
@@ -15,81 +22,49 @@ import os
 from vocto.debug import gst_log_messages
 from vocto.sd_notify import sd_notify
 
-# check min-version
-minGst = (1, 5)
-minPy = (3, 0)
+Gst.init()
 
-Gst.init([])
-if Gst.version() < minGst:
-    raise Exception('GStreamer version', Gst.version(),
-                    'is too old, at least', minGst, 'is required')
+class VoctoguiApplication(Adw.Application):
+    log: logging.Logger
+    ui: Optional['Ui']
 
-if sys.version_info < minPy:
-    raise Exception('Python version', sys.version_info,
-                    'is too old, at least', minPy, 'is required')
+    def __init__(self):
+        super().__init__(application_id='com.example.TextViewer')
+        self.log = logging.getLogger('VoctoguiApplication')
+        self.ui = None
 
-Gdk.init([]) # type: ignore
-Gtk.init([]) # type: ignore
+        style_manager = Adw.StyleManager.get_default()
+        style_manager.set_color_scheme(Adw.ColorScheme.FORCE_DARK)
 
-# select window icon on wayland
-GLib.set_prgname("voctogui2.desktop")
+        css_provider = Gtk.CssProvider()
+        css_provider.load_from_path(ui_file('voctogui.css'))
+        Gtk.StyleContext.add_provider_for_display(
+            Gdk.Display.get_default(),
+            css_provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
+        )
 
-# select Awaita:Dark theme
-settings = Gtk.Settings.get_default()
-if settings is not None:
-    settings.set_property("gtk-theme-name", "Adwaita")
-    settings.set_property("gtk-application-prefer-dark-theme", True)  # if you want use dark theme, set second arg to True
+        self.connect('activate', self.on_activate)
 
+    def on_activate(self, application: 'VoctoguiApplication'):
+        if not self.ui:
+            from voctogui2.lib.ui import Ui
+            self.ui = Ui(application=self)
+            self.ui.setup()
+        self.ui.show()
 
 # main class
 class Voctogui(object):
 
     def __init__(self) -> None:
         self.log = logging.getLogger('Voctogui')
-        from voctogui2.lib.args import Args
-        from voctogui2.lib.ui import Ui
-
-        # Load UI file
-        path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ui/voctogui.ui')
-        self.log.info('Loading ui-file from file %s', path)
-        if os.path.isfile(path):
-            self.ui = Ui(path)
-        else:
-            raise Exception("Can't find any .ui-Files to use in {}".format(path))
-
-        #
-        # search for a .css style sheet file and load it
-        #
-
-        css_provider = Gtk.CssProvider()
-        context = Gtk.StyleContext()
-
-        path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'ui/voctogui.css')
-        self.log.info('Loading css-file from file %s', path)
-        if os.path.isfile(path):
-            css_provider.load_from_path(path)
-        else:
-            raise Exception("Can't find .css file '{}'".format(path))
-
-        screen = Gdk.Screen.get_default()
-        if screen is None:
-            raise Exception("No default screen available")
-        context.add_provider_for_screen(
-            screen,
-            css_provider,
-            Gtk.STYLE_PROVIDER_PRIORITY_USER
-        )
-
-        self.ui.setup()
+        self.app = VoctoguiApplication()
 
     def run(self) -> None:
-        self.log.info('Setting UI visible')
-        self.ui.show()
-
         try:
             self.log.info('Running.')
             sd_notify.ready()
-            Gtk.main()
+            self.app.run([])
             sd_notify.stopping()
             self.log.info('Connection lost. Exiting.')
         except KeyboardInterrupt:
@@ -97,7 +72,7 @@ class Voctogui(object):
 
     def quit(self) -> None:
         self.log.info('Quitting.')
-        Gtk.main_quit()
+        self.app.quit()
 
 
 # run mainclass

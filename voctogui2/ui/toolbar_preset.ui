@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.38.2 -->
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <template class="VoctoguiPresetToolbar" parent="GtkBox">
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="label" translatable="yes">PRESETS</property>
+                                    <!--<property name="angle">90</property>-->
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkBox">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="spacing">6</property>
+                                    <child>
+                                      <object class="GtkFrame">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <child>
+                                              <object class="GtkBox" id="preset_toolbar">
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">False</property>
+                                                <property name="halign">center</property>
+                                                <!--<property name="toolbar-style">both</property>-->
+                                                <!--<property name="show-arrow">False</property>-->
+                                                <style>
+                                                  <class name="secondary-toolbar"/>
+                                                </style>
+                                              </object>
+                                        </child>
+                                        <child type="label">
+                                          <object class="GtkLabel">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">False</property>
+                                            <property name="label" translatable="yes">PRESET</property>
+                                            <property name="justify">center</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+  </template>
+</interface>

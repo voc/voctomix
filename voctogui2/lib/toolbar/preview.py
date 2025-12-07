@@ -10,40 +10,53 @@ from voctogui2.lib.config import Config
 from vocto.composite_commands import CompositeCommand
 from voctogui2.lib.toolbar.buttons import Buttons
 from voctogui2.lib.uibuilder import UiBuilder
+from voctogui2.ui.ui_file import ui_file
+
+@Gtk.Template(filename=ui_file("toolbar_preview.ui"))
+class VoctoguiPreviewToolbar(Gtk.Box):
+    __gtype_name__ = 'VoctoguiPreviewToolbar'
+
+    toolbar_preview_composite: Gtk.Box = Gtk.Template.Child()
+    toolbar_preview_a: Gtk.Box = Gtk.Template.Child()
+    toolbar_preview_b: Gtk.Box = Gtk.Template.Child()
+    toolbar_preview_mod: Gtk.Box = Gtk.Template.Child()
+    frame_preview_b: Gtk.Frame = Gtk.Template.Child()
+    box_preview_modify: Gtk.Frame = Gtk.Template.Child()
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
 
 class PreviewToolbarController(object):
     """Manages Accelerators and Clicks on the Preview Composition Toolbar-Buttons"""
 
-    def __init__(self, win, uibuilder):
+    def __init__(self, toolbar: VoctoguiPreviewToolbar):
         self.initialized = False
 
         self.log = logging.getLogger('PreviewToolbarController')
 
-        accelerators = Gtk.AccelGroup()
-        win.add_accel_group(accelerators)
+        #accelerators = Gtk.AccelGroup()
+        #win.add_accel_group(accelerators)
 
         self.sourcesA = Buttons(Config.getToolbarSourcesA())
         self.sourcesB = Buttons(Config.getToolbarSourcesB())
         self.composites = Buttons(Config.getToolbarComposites())
         self.mods = Buttons(Config.getToolbarMods())
 
-        toolbar_composite = uibuilder.find_widget_recursive(
-            win, 'toolbar_preview_composite')
-        toolbar_a = uibuilder.find_widget_recursive(win, 'toolbar_preview_a')
-        toolbar_b = uibuilder.find_widget_recursive(win, 'toolbar_preview_b')
-        toolbar_mod = uibuilder.find_widget_recursive(
-            win, 'toolbar_preview_mod')
+        toolbar_composite = toolbar.toolbar_preview_composite
+        toolbar_a = toolbar.toolbar_preview_a
+        toolbar_b = toolbar.toolbar_preview_b
+        toolbar_mod = toolbar.toolbar_preview_mod
 
-        self.frame_b = uibuilder.find_widget_recursive(win, 'frame_preview_b')
+        self.frame_b = toolbar.frame_preview_b
 
         # hide modify box if not needed
-        box_modify = uibuilder.find_widget_recursive(win, 'box_preview_modify')
+        box_modify = toolbar.box_preview_modify
         if not Config.getToolbarMods():
             box_modify.hide()
-            box_modify.set_no_show_all(True)
 
-        self.composites.create(toolbar_composite,accelerators, self.on_btn_toggled)
+        accelerators = None
+        self.composites.create(toolbar_composite, accelerators, self.on_btn_toggled)
         self.sourcesA.create(toolbar_a, accelerators, self.on_btn_toggled)
         self.sourcesB.create(toolbar_b, accelerators, self.on_btn_toggled)
         self.mods.create(toolbar_mod, accelerators, self.on_btn_toggled, group=False)

@@ -8,6 +8,19 @@ from gi.repository import Gtk, GLib
 import voctogui2.lib.connection as Connection
 
 from voctogui2.lib.config import Config
+from voctogui2.ui.ui_file import ui_file
+
+
+@Gtk.Template(filename=ui_file("toolbar_blinder.ui"))
+class VoctoguiBlinderToolbar(Gtk.Frame):
+    __gtype_name__ = 'VoctoguiBlinderToolbar'
+
+    toolbar_blinder: Gtk.Box = Gtk.Template.Child()
+    stream_live: Gtk.ToggleButton = Gtk.Template.Child()
+    stream_blind: Gtk.ToggleButton = Gtk.Template.Child()
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
 
 class BlinderToolbarController(object):
@@ -16,17 +29,14 @@ class BlinderToolbarController(object):
     # set resolution of the blink timer in seconds
     timer_resolution = 1.0
 
-    def __init__(self, win, uibuilder):
+    def __init__(self, toolbar: VoctoguiBlinderToolbar):
         self.log = logging.getLogger('BlinderToolbarController')
-        self.toolbar = uibuilder.find_widget_recursive(win, 'toolbar_blinder')
+        self.toolbar = toolbar.toolbar_blinder
 
-        live_button = uibuilder.find_widget_recursive(self.toolbar, 'stream_live')
-        blind_button = uibuilder.find_widget_recursive(
-            self.toolbar, 'stream_blind')
-        blinder_box = uibuilder.find_widget_recursive(
-            win, 'box_blinds')
+        live_button = toolbar.stream_live
+        blind_button = toolbar.stream_blind
 
-        blind_button_pos = self.toolbar.get_item_index(blind_button)
+        #blind_button_pos = self.toolbar.get_item_index(blind_button)
 
         if not Config.getBlinderEnabled():
             self.log.info('disabling blinding features '
@@ -35,9 +45,9 @@ class BlinderToolbarController(object):
             self.toolbar.remove(live_button)
             self.toolbar.remove(blind_button)
 
-            # hide blinder box 
-            blinder_box.hide()
-            blinder_box.set_no_show_all(True)
+            # hide blinder box
+            toolbar.hide()
+            #toolbar.set_no_show_all(True)
             return
 
         blinder_sources = Config.getBlinderSources()
@@ -55,8 +65,8 @@ class BlinderToolbarController(object):
             if idx == 0:
                 new_btn = blind_button
             else:
-                new_btn = Gtk.RadioToolButton(group=live_button)
-                self.toolbar.insert(new_btn, blind_button_pos)
+                new_btn = Gtk.ToggleButton(group=live_button)
+                self.toolbar.append(new_btn)
 
             new_btn.set_name(name)
             new_btn.get_style_context().add_class("output")

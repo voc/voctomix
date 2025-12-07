@@ -10,20 +10,31 @@ from voctogui2.lib.config import Config
 from voctogui2.lib.toolbar.buttons import Buttons
 
 from vocto.composite_commands import CompositeCommand
+from voctogui2.ui.ui_file import ui_file
+
+
+@Gtk.Template(filename=ui_file("toolbar_preset.ui"))
+class VoctoguiPresetToolbar(Gtk.Box):
+    __gtype_name__ = 'VoctoguiPresetToolbar'
+
+    preset_toolbar: Gtk.Box = Gtk.Template.Child()
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
 
 class PresetController(object):
-    def __init__(self, win, preview_controller, uibuilder):
+    def __init__(self, toolbar: VoctoguiPresetToolbar, preview_controller):
         self.log = logging.getLogger("PresetController")
-        self.box = uibuilder.find_widget_recursive(win, "preset_box")
-        self.toolbar = uibuilder.find_widget_recursive(win, "preset_toolbar")
+        self.box = toolbar
+        self.toolbar = toolbar.preset_toolbar
         self.preview_controller = preview_controller
 
         presets = Config.getPresetOptions()
         defaults_b = Config.getVideoSources()
 
-        accelerators = Gtk.AccelGroup()
-        win.add_accel_group(accelerators)
+        #accelerators = Gtk.AccelGroup()
+        #win.add_accel_group(accelerators)
 
         buttons = {}
         self.button_to_composites = {}
@@ -79,6 +90,7 @@ class PresetController(object):
 
         self.log.debug(f"{buttons=}")
         self.buttons = Buttons(buttons)
+        accelerators = None
         self.buttons.create(self.toolbar, accelerators, self.on_btn_toggled)
 
         Connection.on("best", self.on_best)

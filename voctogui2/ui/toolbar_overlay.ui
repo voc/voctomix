@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.38.2 -->
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <object class="GtkListStore" id="insert-store">
+    <columns>
+      <!-- column-name id -->
+      <column type="gchararray"/>
+      <!-- column-name text -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
+  <template class="VoctoguiOverlayToolbar" parent="GtkBox">
+                                    <child>
+                                      <object class="GtkLabel">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="label" translatable="yes">OVERLAY</property>
+                                        <!--<property name="angle">90</property>-->
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="GtkBox">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="orientation">vertical</property>
+                                        <child>
+                                          <object class="GtkFrame">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">False</property>
+                                            <child>
+                                                  <object class="GtkBox">
+                                                    <property name="visible">True</property>
+                                                    <property name="can-focus">False</property>
+                                                    <property name="orientation">vertical</property>
+                                                    <property name="spacing">2</property>
+                                                    <child>
+                                                      <object class="GtkLabel" id="overlay-description">
+                                                        <property name="can-focus">False</property>
+                                                        <!--<property name="no-show-all">True</property>-->
+                                                        <property name="margin-top">2</property>
+                                                        <property name="margin-bottom">2</property>
+                                                        <property name="wrap">True</property>
+                                                        <attributes>
+                                                          <attribute name="style" value="oblique"/>
+                                                        </attributes>
+                                                      </object>
+                                                    </child>
+                                                    <child>
+                                                      <object class="GtkBox">
+                                                        <property name="visible">True</property>
+                                                        <property name="can-focus">False</property>
+                                                        <!--<property name="margin-left">8</property>-->
+                                                        <!--<property name="margin-right">8</property>-->
+                                                        <property name="spacing">6</property>
+                                                        <child>
+                                                          <object class="GtkCheckButton" id="insert-auto-off">
+                                                            <property name="label" translatable="yes">AUTO-OFF</property>
+                                                            <property name="name">auto-off</property>
+                                                            <property name="visible">True</property>
+                                                            <property name="can-focus">False</property>
+                                                            <property name="receives-default">False</property>
+                                                            <property name="tooltip-text" translatable="yes">automatically turn off insertion before every mix</property>
+                                                            <property name="active">True</property>
+                                                            <!--<property name="draw-indicator">False</property>-->
+                                                            <style>
+                                                            <class name="option"/>
+                                                            <class name="insertion"/>
+                                                            <class name="overlay"/>
+                                                            </style>
+                                                          </object>
+                                                        </child>
+                                                        <child>
+                                                          <object class="GtkButton" id="update-inserts">
+                                                            <property name="label" translatable="yes">UPDATE</property>
+                                                            <property name="name">update</property>
+                                                            <property name="visible">True</property>
+                                                            <property name="can-focus">False</property>
+                                                            <property name="receives-default">False</property>
+                                                            <property name="tooltip-text" translatable="yes">Update current event</property>
+                                                          </object>
+                                                        </child>
+                                                        <child>
+                                                          <object class="GtkComboBox" id="inserts">
+                                                            <property name="name">inserts</property>
+                                                            <property name="visible">True</property>
+                                                            <property name="can-focus">False</property>
+                                                            <property name="focus-on-click">False</property>
+                                                            <property name="tooltip-text" translatable="yes">Select insert (overlay) from preconfigured ones </property>
+                                                            <property name="model">insert-store</property>
+                                                            <!--<property name="column-span-column">0</property>-->
+                                                            <property name="has-frame">False</property>
+                                                            <child>
+                                                            <object class="GtkCellRendererText" id="text">
+                                                            <property name="single-paragraph-mode">True</property>
+                                                            </object>
+                                                            <attributes>
+                                                            <attribute name="text">1</attribute>
+                                                            </attributes>
+                                                            </child>
+                                                          </object>
+                                                        </child>
+                                                        <child>
+                                                          <object class="GtkCheckButton" id="insert">
+                                                            <property name="label" translatable="yes">INSERT</property>
+                                                            <property name="name">insert</property>
+                                                            <property name="visible">True</property>
+                                                            <property name="can-focus">False</property>
+                                                            <property name="receives-default">False</property>
+                                                            <property name="tooltip-text" translatable="yes">Show or hide current insertion</property>
+                                                            <!--<property name="draw-indicator">False</property>-->
+                                                          </object>
+                                                        </child>
+                                                      </object>
+                                                    </child>
+                                                  </object>
+                                            </child>
+                                            <child type="label">
+                                              <object class="GtkLabel">
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">False</property>
+                                                <property name="label" translatable="yes">INSERTION</property>
+                                                <property name="justify">center</property>
+                                              </object>
+                                            </child>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+  </template>
+</interface>

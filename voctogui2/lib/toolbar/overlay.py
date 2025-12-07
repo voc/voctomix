@@ -10,43 +10,60 @@ from voctogui2.lib.uibuilder import UiBuilder
 from voctogui2.lib.toolbar.widgets import Widgets
 from datetime import datetime, timedelta
 from vocto.command_helpers import quote, dequote, str2bool
+from voctogui2.ui.ui_file import ui_file
+
+
+@Gtk.Template(filename=ui_file("toolbar_overlay.ui"))
+class VoctoguiOverlayToolbar(Gtk.Box):
+    __gtype_name__ = 'VoctoguiOverlayToolbar'
+
+    inserts = Gtk.Template.Child("inserts")
+    insert_store = Gtk.Template.Child("insert-store")
+    insert = Gtk.Template.Child("insert")
+    update_inserts = Gtk.Template.Child("update-inserts")
+    insert_auto_off = Gtk.Template.Child("insert-auto-off")
+    overlay_description: Gtk.Label = Gtk.Template.Child("overlay-description")
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
 class OverlayToolbarController(object):
     """Manages Accelerators and Clicks on the Overlay Composition Toolbar-Buttons"""
 
-    def __init__(self, win, uibuilder):
+    def __init__(self, toolbar: VoctoguiOverlayToolbar):
         self.initialized = False
 
         self.log = logging.getLogger('OverlayToolbarController')
 
-        accelerators = Gtk.AccelGroup()
-        win.add_accel_group(accelerators)
+        #accelerators = Gtk.AccelGroup()
+        #win.add_accel_group(accelerators)
+
+        accelerators = None
 
         if Config.hasOverlay():
 
             widgets = Widgets(Config.getToolbarInsert())
 
             # connect to inserts selection combo box
-            self.inserts = uibuilder.get_check_widget('inserts')
-            self.inserts_store = uibuilder.get_check_widget('insert-store')
+            self.inserts = toolbar.inserts
+            self.inserts_store = toolbar.insert_store
             self.inserts.connect('changed', self.on_inserts_changed)
 
             # connect to INSERT toggle button
-            self.insert = uibuilder.get_check_widget('insert')
+            self.insert = toolbar.insert
             widgets.add(self.insert, 'insert', accelerators, self.on_insert_toggled, signal='toggled' )
 
-            self.update_inserts = uibuilder.get_check_widget('update-inserts')
+            self.update_inserts = toolbar.update_inserts
             widgets.add(self.update_inserts, 'update', accelerators, self.update_overlays)
 
             # initialize to AUTO-OFF toggle button
-            self.autooff = uibuilder.get_check_widget('insert-auto-off')
+            self.autooff = toolbar.insert_auto_off
             self.autooff.set_visible(Config.getOverlayUserAutoOff())
             self.autooff.set_active(Config.getOverlayAutoOff())
             widgets.add(self.autooff, 'auto-off', accelerators)
 
             # remember overlay description label
-            self.overlay_description = uibuilder.get_check_widget(
-                'overlay-description')
+            self.overlay_description = toolbar.overlay_description
 
             # initialize our overlay list until we get one from the core
             self.overlays = []
@@ -59,10 +76,10 @@ class OverlayToolbarController(object):
             # call core for a list of available overlays
             self.update_overlays()
             # show insert tool bar
-            uibuilder.get_check_widget('box_insert').show()
+            toolbar.show()
         else:
             # hide insert tool bar
-            uibuilder.get_check_widget('box_insert').hide()
+            toolbar.hide()
 
         # Hint: self.initialized will be set to True in response to 'get_overlay'
 
@@ -138,11 +155,10 @@ class OverlayToolbarController(object):
         Connection.send('get_overlay_visible')
         Connection.send('get_overlay')
 
-    def on_overlays_title(self, title):
+    def on_overlays_title(self, title = None):
         # decode parameter
-        title = [dequote(t) for t in title.split(",")]
-        # title given?
         if title:
+            title = [dequote(t) for t in title.split(",")]
             # show title
             if len(title) == 4:
                 start, end, id, text = title

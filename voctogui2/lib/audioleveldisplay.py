@@ -20,7 +20,7 @@ class AudioLevelDisplay(Gtk.DrawingArea):
         self.height = -1
 
         # register on_draw handler
-        self.connect('draw', self.draw_callback)
+        self.set_draw_func(self.draw_callback)
 
     # generate gradient from green to yellow to red in logarithmic scale
     def gradient(self, brightness, darkness, height):
@@ -35,7 +35,7 @@ class AudioLevelDisplay(Gtk.DrawingArea):
         # return result
         return lg
 
-    def draw_callback(self, widget, cr):
+    def draw_callback(self, widget, cr, width, height):
         # number of audio-channels
         channels = len(self.levelrms)
 

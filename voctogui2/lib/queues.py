@@ -5,21 +5,31 @@ import json
 from gi.repository import Gtk, Gst, GLib
 
 from voctogui2.lib.config import Config
-from voctogui2.lib.uibuilder import UiBuilder
 import voctogui2.lib.connection as Connection
+from voctogui2.ui.ui_file import ui_file
 
 # time interval to re-fetch queue timings
 TIMER_RESOLUTION = 1.0
 
-class QueuesWindowController():
+@Gtk.Template(filename=ui_file("window_queue.ui"))
+class VoctoguiQueueWindow(Gtk.Box):
+    __gtype_name__ = 'VoctoguiQueueWindow'
 
-    def __init__(self,uibuilder):
+    scroll: Gtk.ScrolledWindow = Gtk.Template.Child("queue_scroll")
+    store: Gtk.ListStore = Gtk.Template.Child("queue_store")
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+class QueuesWindowController:
+
+    def __init__(self, window: VoctoguiQueueWindow):
         self.log = logging.getLogger('QueuesWindowController')
 
         # get related widgets
-        self.win = uibuilder.get_check_widget('queue_win')
-        self.store = uibuilder.get_check_widget('queue_store')
-        self.scroll = uibuilder.get_check_widget('queue_scroll')
+        self.win = window
+        self.store = window.store
+        self.scroll = window.scroll
 
         # remember row iterators
         self.iterators = None

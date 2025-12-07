@@ -26,7 +26,7 @@ class UiBuilder(object):
         return widget
 
     def _find_widget_recursive(self, widget, name):
-        if Gtk.Buildable.get_name(widget) == name:
+        if Gtk.Buildable.get_buildable_id(widget) == name:
             return widget
 
         if hasattr(widget, 'get_children'):

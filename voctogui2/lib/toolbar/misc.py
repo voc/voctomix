@@ -1,72 +1,84 @@
 #!/usr/bin/env python3
 import logging
+
 from gi.repository import Gdk, Gtk
 
 from voctogui2.lib.config import Config
 import voctogui2.lib.connection as Connection
+from voctogui2.ui.ui_file import ui_file
+
+
+@Gtk.Template(filename=ui_file("toolbar_misc.ui"))
+class VoctoguiMiscToolbar(Gtk.Box):
+    __gtype_name__ = 'VoctoguiMiscToolbar'
+
+    close: Gtk.Button = Gtk.Template.Child()
+    fullscreen: Gtk.ToggleButton = Gtk.Template.Child()
+    mute_button: Gtk.ToggleButton = Gtk.Template.Child()
+    queue_button: Gtk.ToggleButton = Gtk.Template.Child()
+    ports_button: Gtk.ToggleButton = Gtk.Template.Child()
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
 
 class MiscToolbarController(object):
     """Manages Accelerators and Clicks Misc buttons"""
 
-    def __init__(self, win, uibuilder, queues_controller, ports_controller, video_display):
-        self.win = win
+    win: Gtk.ApplicationWindow
+
+    def __init__(self, window, toolbar, queues_controller, ports_controller, video_display):
         self.log = logging.getLogger('MiscToolbarController')
-        self.toolbar = uibuilder.find_widget_recursive(win, 'toolbar_main')
+        self.win = window
+        self.toolbar = toolbar
 
         # Accelerators
-        accelerators = Gtk.AccelGroup()
-        win.add_accel_group(accelerators)
+        #accelerators = Gtk.AccelGroup()
+        #win.add_accel_group(accelerators)
 
-        closebtn = uibuilder.find_widget_recursive(self.toolbar, 'close')
-        closebtn.set_visible(Config.getShowCloseButton())
-        closebtn.connect('clicked', self.on_closebtn_clicked)
+        accelerators = None
 
-        fullscreenbtn = uibuilder.find_widget_recursive(self.toolbar, 'fullscreen')
-        fullscreenbtn.set_visible(Config.getShowFullScreenButton())
-        fullscreenbtn.connect('clicked', self.on_fullscreenbtn_clicked)
-        key, mod = Gtk.accelerator_parse('F11')
-        fullscreenbtn.add_accelerator('clicked', accelerators,
-                               key, mod, Gtk.AccelFlags.VISIBLE)
-        self.fullscreen_button = fullscreenbtn
+        toolbar.close.set_visible(Config.getShowCloseButton())
+        toolbar.close.connect('clicked', self.on_closebtn_clicked)
 
-        mutebtn = uibuilder.find_widget_recursive(self.toolbar, 'mute_button')
+        toolbar.fullscreen.set_visible(Config.getShowFullScreenButton())
+        toolbar.fullscreen.connect('clicked', self.on_fullscreenbtn_clicked)
+        #key, mod = Gtk.accelerator_parse('F11')
+        #toolbar.fullscreen.add_accelerator('clicked', accelerators,
+        #                                   key, mod, Gtk.AccelFlags.VISIBLE)
+        self.fullscreen_button = toolbar.fullscreen
+
         if Config.getPlayAudio():
-            mutebtn.set_active(True)
-            mutebtn.connect('clicked', self.on_mutebtn_clicked)
+            toolbar.mute_button.set_active(True)
+            toolbar.mute_button.connect('clicked', self.on_mutebtn_clicked)
             self.video_display = video_display
         else:
-            mutebtn.set_no_show_all(True)
-            mutebtn.hide()
+            toolbar.mute_button.hide()
 
-        queues_button = uibuilder.find_widget_recursive(self.toolbar, 'queue_button')
-        queues_button.set_visible(Config.getShowQueueButton())
-        queues_button.connect('toggled', self.on_queues_button_toggled)
+        toolbar.queue_button.set_visible(Config.getShowQueueButton())
+        toolbar.queue_button.connect('toggled', self.on_queues_button_toggled)
         self.queues_controller = queues_controller
 
-        ports_button = uibuilder.find_widget_recursive(self.toolbar, 'ports_button')
-        ports_button.set_visible(Config.getShowPortButton())
-        ports_button.connect('toggled', self.on_ports_button_toggled)
+        toolbar.ports_button.set_visible(Config.getShowPortButton())
+        toolbar.ports_button.connect('toggled', self.on_ports_button_toggled)
         self.ports_controller = ports_controller
 
-        key, mod = Gtk.accelerator_parse('t')
-        tooltip = Gtk.accelerator_get_label(key, mod)
+        #key, mod = Gtk.accelerator_parse('t')
+        #tooltip = Gtk.accelerator_get_label(key, mod)
 
-	    # Controller for fullscreen behavior
-        self.__is_fullscreen = False
-        win.connect("window-state-event", self.on_window_state_event)
+        # Controller for fullscreen behavior
+        window.connect("notify", self.on_window_state_event)
 
     def on_closebtn_clicked(self, btn):
         self.log.info('close-button clicked')
-        Gtk.main_quit()
+        self.win.get_application().quit()
 
     def on_fullscreenbtn_clicked(self, btn):
-        if not self.within_state_event:
-            self.log.info('fullscreen-button clicked')
-            if self.__is_fullscreen:
-                self.win.unfullscreen()
-            else:
-                self.win.fullscreen()
+        self.log.info('fullscreen-button clicked')
+        if self.win.is_fullscreen():
+            self.win.unfullscreen()
+        else:
+            self.win.fullscreen()
 
     def on_mutebtn_clicked(self, btn):
         self.log.info('mute-button clicked')
@@ -81,7 +93,4 @@ class MiscToolbarController(object):
         self.ports_controller.show(btn.get_active())
 
     def on_window_state_event(self, widget, ev):
-        self.within_state_event = True
-        self.__is_fullscreen = bool(ev.new_window_state & Gdk.WindowState.FULLSCREEN)
-        self.fullscreen_button.set_active(self.__is_fullscreen)
-        self.within_state_event = False
+        self.fullscreen_button.set_active(self.win.is_fullscreen())

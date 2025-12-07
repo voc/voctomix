@@ -1,7 +1,8 @@
 import logging
 import sys
+import typing
 
-from gi.repository import Gst, Gdk
+from gi.repository import Gst, Gdk, Gtk
 
 from voctogui2.lib.args import Args
 from voctogui2.lib.config import Config
@@ -12,15 +13,14 @@ from vocto.debug import gst_generate_dot
 from vocto.pretty import pretty
 from vocto.video_codecs import construct_video_decoder_pipeline
 
-
 class VideoDisplay(object):
     """Displays a Voctomix-Video-Stream into a GtkWidget"""
 
-    def __init__(self, video_drawing_area, audio_display, port, name, width=None, height=None,
+    def __init__(self, videopreview: Gtk.Picture, audio_display, port, name, width=None, height=None,
                  has_audio=True, play_audio=False):
         self.log = logging.getLogger('VideoDisplay:%s' % name)
         self.name = name
-        self.video_drawing_area = video_drawing_area
+        self.video_drawing_area = videopreview
         self.level_callback = None if audio_display is None else audio_display.callback
         video_decoder = None
 
@@ -74,37 +74,9 @@ class VideoDisplay(object):
                     shaded-background=yes
                     font-desc="Roboto, 22"
                 """.format(name=name)
-
-        # Video Display
-        videosystem = Config.getVideoSystem()
-        self.log.debug('Configuring for Video-System %s', videosystem)
-
-        if videosystem == 'gl':
-            pipe += """ ! glupload
-                        ! glcolorconvert
-                        ! glimagesinkelement
-                            name=imagesink-{name}
-                            """.format(name=name)
-
-        elif videosystem == 'xv':
-            pipe += """ ! xvimagesink
-                            name=imagesink-{name}
+        pipe += """ ! gtk4paintablesink
+                        name=imagesink-{name}
                         """.format(name=name)
-
-        elif videosystem == 'x':
-            pipe += """ ! ximagesink
-                            name=imagesink-{name}
-                        """.format(name=name)
-
-        elif videosystem == 'vaapi':
-            pipe += """ ! vaapisink
-                            name=imagesink-{name}
-                        """.format(name=name)
-
-        else:
-            raise Exception(
-                'Invalid Videodisplay-System configured: %s' % videosystem
-            )
 
         if has_audio:
             # add an Audio-Path through a level-Element
@@ -145,9 +117,6 @@ class VideoDisplay(object):
             gst_generate_dot(self.pipeline, "gui.videodisplay.{}".format(name), Args.gst_debug_details)
 
         self.pipeline.use_clock(Clock)
-
-        self.video_drawing_area.add_events(
-            Gdk.EventMask.KEY_PRESS_MASK | Gdk.EventMask.KEY_RELEASE_MASK)
         self.video_drawing_area.connect("realize", self.on_realize)
         bus = self.pipeline.get_bus()
         bus.add_signal_watch()
@@ -159,15 +128,11 @@ class VideoDisplay(object):
         bus.connect("message::element", self.on_level)
 
     def on_realize(self, win):
-        self.imagesink = self.pipeline.get_by_name(
-            'imagesink-{name}'.format(name=self.name))
-        self.xid = self.video_drawing_area.get_property('window').get_xid()
-
-        self.log.debug('Realized Drawing-Area with xid %u', self.xid)
-        self.video_drawing_area.realize()
-
         self.log.info("Launching Display-Pipeline")
         self.pipeline.set_state(Gst.State.PLAYING)
+
+    def on_paintable(self, target: Gst.Element, *user_data: any):
+        self.video_drawing_area.set_paintable(target.get_property("paintable"))
 
     def on_syncmsg(self, bus, msg):
         if type(msg) == Gst.Message and self.imagesink:
@@ -195,3 +160,6 @@ class VideoDisplay(object):
     def on_state_changed(self, bus, message):
         if message.parse_state_changed().newstate == Gst.State.PLAYING:
             self.video_drawing_area.show()
+        self.imagesink = self.pipeline.get_by_name('imagesink-{name}'.format(name=self.name))
+        self.imagesink.connect("notify::paintable", self.on_paintable)
+        self.on_paintable(self.imagesink)

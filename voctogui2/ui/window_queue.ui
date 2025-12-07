@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.38.2 -->
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <object class="GtkListStore" id="queue_store">
+    <columns>
+      <!-- column-name Name -->
+      <column type="gchararray"/>
+      <!-- column-name Delay -->
+      <column type="gfloat"/>
+    </columns>
+  </object>
+  <template class="VoctoguiQueueWindow" parent="GtkBox">
+                        <child>
+                          <object class="GtkHeaderBar">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="show-title-buttons">False</property>
+                            <!--<property name="title" translatable="yes">Delay Diagnosis</property>-->
+                            <!--<property name="subtitle" translatable="yes">Queue filling levels in seconds</property>-->
+                              <property name="title-widget">
+                                <object class="GtkLabel">
+                                  <property name="label" translatable="yes">Delay Diagnosis</property>
+                                  <property name="single-line-mode">True</property>
+                                  <style>
+                                    <class name="title"/>
+                                  </style>
+                                </object>
+                              </property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkScrolledWindow" id="queue_scroll">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="vexpand">True</property>
+                            <property name="hscrollbar-policy">never</property>
+                            <property name="propagate-natural-width">True</property>
+                            <child>
+                              <object class="GtkTreeView" id="queue_tree">
+                                <property name="name">queues</property>
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="model">queue_store</property>
+                                <property name="search-column">1</property>
+                                <property name="enable-grid-lines">both</property>
+                                <child internal-child="selection">
+                                  <object class="GtkTreeSelection"/>
+                                </child>
+                                <child>
+                                  <object class="GtkTreeViewColumn">
+                                    <property name="title" translatable="yes">Name</property>
+                                    <property name="sort-indicator">True</property>
+                                    <property name="sort-column-id">0</property>
+                                    <child>
+                                      <object class="GtkCellRendererText"/>
+                                      <attributes>
+                                        <attribute name="text">0</attribute>
+                                      </attributes>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkTreeViewColumn">
+                                    <property name="title" translatable="yes">Delay</property>
+                                    <property name="sort-indicator">True</property>
+                                    <property name="sort-order">descending</property>
+                                    <property name="sort-column-id">1</property>
+                                    <child>
+                                      <object class="GtkCellRendererText"/>
+                                      <attributes>
+                                        <attribute name="text">1</attribute>
+                                      </attributes>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+  </template>
+</interface>

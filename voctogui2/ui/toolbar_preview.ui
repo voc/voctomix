@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.38.2 -->
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <template class="VoctoguiPreviewToolbar" parent="GtkBox">
+                                    <child>
+                                      <object class="GtkLabel">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="label" translatable="yes">COMPOSE</property>
+                                        <!--<property name="angle">90</property>-->
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="GtkBox">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="spacing">6</property>
+                                        <child>
+                                          <object class="GtkFrame">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">False</property>
+                                            <child>
+
+                                                  <object class="GtkBox" id="toolbar_preview_composite">
+                                                    <property name="visible">True</property>
+                                                    <property name="can-focus">False</property>
+                                                    <property name="halign">center</property>
+                                                    <!--<property name="toolbar-style">both</property>-->
+                                                    <!--<property name="show-arrow">False</property>-->
+                                                    <style>
+                                                      <class name="secondary-toolbar"/>
+                                                    </style>
+                                                  </object>
+                                            </child>
+                                            <child type="label">
+                                              <object class="GtkLabel">
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">False</property>
+                                                <property name="label" translatable="yes">COMPOSITE</property>
+                                                <property name="justify">center</property>
+                                              </object>
+                                            </child>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="GtkFrame" id="box_preview_modify">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">False</property>
+                                            <child>
+                                                  <object class="GtkBox" id="toolbar_preview_mod">
+                                                    <property name="visible">True</property>
+                                                    <property name="can-focus">False</property>
+                                                    <property name="halign">center</property>
+                                                    <!--<property name="toolbar-style">text</property>-->
+                                                    <!--<property name="show-arrow">False</property>-->
+                                                  </object>
+                                            </child>
+                                            <child type="label">
+                                              <object class="GtkLabel">
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">False</property>
+                                                <property name="label" translatable="yes">MODIFY</property>
+                                                <property name="justify">center</property>
+                                              </object>
+                                            </child>
+                                          </object>
+                                        </child>
+                                        <child>
+                                          <object class="GtkBox">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">False</property>
+                                            <property name="orientation">vertical</property>
+                                            <property name="spacing">6</property>
+                                            <child>
+                                              <object class="GtkFrame">
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">False</property>
+                                                <child>
+                                                      <object class="GtkBox" id="toolbar_preview_a">
+                                                        <property name="visible">True</property>
+                                                        <property name="can-focus">False</property>
+                                                        <property name="halign">center</property>
+                                                        <!--<property name="toolbar-style">text</property>-->
+                                                        <!--<property name="show-arrow">False</property>-->
+                                                      </object>
+                                                </child>
+                                                <child type="label">
+                                                  <object class="GtkLabel">
+                                                    <property name="visible">True</property>
+                                                    <property name="can-focus">False</property>
+                                                    <property name="label" translatable="yes">CHANNEL A</property>
+                                                  </object>
+                                                </child>
+                                              </object>
+                                            </child>
+                                            <child>
+                                              <object class="GtkFrame" id="frame_preview_b">
+                                                <property name="name">preview_b</property>
+                                                <property name="visible">True</property>
+                                                <property name="can-focus">False</property>
+                                                <child>
+                                                      <object class="GtkBox" id="toolbar_preview_b">
+                                                        <property name="visible">True</property>
+                                                        <property name="can-focus">False</property>
+                                                        <property name="halign">center</property>
+                                                        <!--<property name="toolbar-style">text</property>-->
+                                                        <!--<property name="show-arrow">False</property>-->
+                                                      </object>
+                                                </child>
+                                                <child type="label">
+                                                  <object class="GtkLabel">
+                                                    <property name="visible">True</property>
+                                                    <property name="can-focus">False</property>
+                                                    <property name="label" translatable="yes">CHANNEL B</property>
+                                                    <!--<property name="angle">2.2351741811588166e-10</property>-->
+                                                  </object>
+                                                </child>
+                                              </object>
+                                            </child>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+  </template>
+</interface>

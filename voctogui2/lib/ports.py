@@ -5,9 +5,9 @@ import json
 from gi.repository import Gtk, Gst, GLib
 
 from voctogui2.lib.config import Config
-from voctogui2.lib.uibuilder import UiBuilder
 import voctogui2.lib.connection as Connection
 from vocto.port import Port
+from voctogui2.ui.ui_file import ui_file
 
 # time interval to re-fetch queue timings
 TIMER_RESOLUTION = 5.0
@@ -16,18 +16,28 @@ COLOR_OK = ("white", "darkgreen")
 COLOR_WARN = ("darkred", "darkorange")
 COLOR_ERROR = ("white", "red")
 
+@Gtk.Template(filename=ui_file("window_ports.ui"))
+class VoctoguiPortsWindow(Gtk.Box):
+    __gtype_name__ = 'VoctoguiPortsWindow'
 
-class PortsWindowController():
+    title: Gtk.Label = Gtk.Template.Child("ports_title")
+    scroll: Gtk.ScrolledWindow = Gtk.Template.Child("ports_scroll")
+    store: Gtk.ListStore = Gtk.Template.Child("ports_store")
 
-    def __init__(self, uibuilder):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+
+class PortsWindowController:
+    def __init__(self, window: VoctoguiPortsWindow):
         self.log = logging.getLogger('QueuesWindowController')
 
         # get related widgets
-        self.win = uibuilder.get_check_widget('ports_win')
-        self.store = uibuilder.get_check_widget('ports_store')
-        self.scroll = uibuilder.get_check_widget('ports_scroll')
-        self.title = uibuilder.get_check_widget('ports_title')
-        self.title.set_title("VOC2CORE {}".format(Config.getHost()))
+        self.win = window
+        self.store = window.store
+        self.scroll = window.scroll
+        self.title = window.title
+        self.title.set_label("VOC2CORE {}".format(Config.getHost()))
         # remember row iterators
         self.iterators = None
 
