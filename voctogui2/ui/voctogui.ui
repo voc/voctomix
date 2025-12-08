@@ -121,6 +121,8 @@
                               <object class="GtkFrame">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
+                                        <property name="label-xalign">0.50</property>
+                                        <property name="label" translatable="yes">CLOCK</property>
                                 <!--<property name="margin-left">6</property>-->
                                 <!--<property name="margin-right">6</property>-->
                                 <!--<property name="margin-bottom">4</property>-->
@@ -130,13 +132,6 @@
                                         <property name="can_focus">False</property>
                                         <property name="margin_bottom">6</property>
                     </object>
-                                </child>
-                                <child type="label">
-                                  <object class="GtkLabel">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="label" translatable="yes">CLOCK</property>
-                                  </object>
                                 </child>
                               </object>
                             </child>
@@ -181,6 +176,8 @@
                               <object class="GtkFrame">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
+                                        <property name="label-xalign">0.50</property>
+                                        <property name="label" translatable="yes">MIX</property>
                                 <child>
                                       <object class="GtkBox" id="toolbar_mix1">
                                         <property name="visible">True</property>
@@ -190,13 +187,6 @@
                                         <!--<property name="toolbar-style">text</property>-->
                                         <!--<property name="show-arrow">False</property>-->
                                       </object>
-                                </child>
-                                <child type="label">
-                                  <object class="GtkLabel">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="label" translatable="yes">MIX</property>
-                                  </object>
                                 </child>
                               </object>
                             </child>
@@ -251,6 +241,8 @@
                               <object class="GtkFrame">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
+                                        <property name="label-xalign">0.50</property>
+                                        <property name="label" translatable="yes">MIX</property>
                                 <child>
 
                                       <object class="GtkBox" id="toolbar_mix">
@@ -261,13 +253,6 @@
                                         <!--<property name="toolbar-style">both-horiz</property>-->
                                         <!--<property name="show-arrow">False</property>-->
                                       </object>
-                                </child>
-                                <child type="label">
-                                  <object class="GtkLabel">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="label" translatable="yes">MIX</property>
-                                  </object>
                                 </child>
                               </object>
                             </child>

@@ -4,66 +4,46 @@
   <requires lib="gtk" version="4.0"/>
   <template class="VoctoguiMiscToolbar" parent="GtkBox">
                     <child>
-                      <object class="GtkBox" id="s1">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <!--<property name="draw">False</property>-->
+                      <object class="GtkBox">
+                        <property name="hexpand">True</property>
                       </object>
                     </child>
                     <child>
-                      <object class="GtkButton" id="voc-btn">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="label">voctomix2</property>
-                        <!--<property name="icon-widget">img-voc</property>-->
+                      <object class="GtkImage">
+                        <property name="icon-name">voctomix-logo-symbolic</property>
                       </object>
                     </child>
                     <child>
-                      <object class="GtkButton" id="logo">
-                        <property name="visible">True</property>
-                        <property name="sensitive">False</property>
-                        <property name="can-focus">False</property>
-                        <!--<property name="resize-mode">immediate</property>-->
-                        <property name="label" translatable="yes">Logo</property>
-                        <property name="use-underline">True</property>
-                        <!--<property name="icon-widget">img-logo</property>-->
+                      <object class="GtkLabel">
+                        <property name="label" translatable="yes">voctomix2</property>
                       </object>
                     </child>
                     <child>
-                      <object class="GtkBox" id="s6">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <!--<property name="draw">False</property>-->
+                      <object class="GtkBox">
                       </object>
                     </child>
                     <child>
                       <object class="GtkToggleButton" id="ports_button">
-                        <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="label">Ports</property>
-                        <!--<property name="icon-widget">img-ports</property>-->
+                        <property name="icon-name">voctomix-ports-symbolic</property>
                       </object>
                     </child>
                     <child>
                       <object class="GtkToggleButton" id="queue_button">
-                        <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="label">Queues</property>
-                        <!--<property name="icon-widget">img-queues</property>-->
+                        <property name="icon-name">voctomix-queue-symbolic</property>
                       </object>
                     </child>
                     <child>
-                      <object class="GtkBox" id="s7">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
+                      <object class="GtkBox">
+                        <property name="hexpand">True</property>
                       </object>
                     </child>
                     <child>
                       <object class="GtkToggleButton" id="mute_button">
-                        <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="label">Mute Sound</property>
-                        <property name="icon-name">audio-volume-muted</property>
+                        <property name="icon-name">audio-volume-muted-symbolic</property>
                       </object>
                     </child>
                     <child>
@@ -73,7 +53,7 @@
                         <property name="tooltip-text" translatable="yes">Enlarges main window to full screen
 Key: 'F11'</property>
                         <property name="label">True</property>
-                        <!--<property name="stock-id">gtk-fullscreen</property>-->
+                        <property name="icon-name">view-fullscreen-symbolic</property>
                       </object>
                     </child>
                     <child>
@@ -83,7 +63,7 @@ Key: 'F11'</property>
                         <property name="tooltip-text" translatable="yes">Quits voctomix
 Key: 'Alt+F4'</property>
                         <property name="use-underline">True</property>
-                        <!--<property name="stock-id">gtk-close</property>-->
+                        <property name="icon-name">window-close-symbolic</property>
                       </object>
                     </child>
                     <style>

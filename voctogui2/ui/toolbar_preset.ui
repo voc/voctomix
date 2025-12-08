@@ -8,7 +8,9 @@
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
                                     <property name="label" translatable="yes">PRESETS</property>
-                                    <!--<property name="angle">90</property>-->
+                                                <style>
+                                                  <class name="toolbar-title-vertical"/>
+                                                </style>
                                   </object>
                                 </child>
                                 <child>
@@ -20,6 +22,8 @@
                                       <object class="GtkFrame">
                                         <property name="visible">True</property>
                                         <property name="can-focus">False</property>
+                                        <property name="label-xalign">0.50</property>
+                                        <property name="label" translatable="yes">PRESET</property>
                                         <child>
                                               <object class="GtkBox" id="preset_toolbar">
                                                 <property name="visible">True</property>
@@ -31,14 +35,6 @@
                                                   <class name="secondary-toolbar"/>
                                                 </style>
                                               </object>
-                                        </child>
-                                        <child type="label">
-                                          <object class="GtkLabel">
-                                            <property name="visible">True</property>
-                                            <property name="can-focus">False</property>
-                                            <property name="label" translatable="yes">PRESET</property>
-                                            <property name="justify">center</property>
-                                          </object>
                                         </child>
                                       </object>
                                     </child>

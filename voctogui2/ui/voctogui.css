@@ -9,11 +9,11 @@
     font-family: roboto condensed, sans-serif;
 }
 
-.name {
+#mixer .name {
     font-size: 1.0em;
 }
 
-button {
+#mixer button {
     font-size: 20px;
     border-radius: 15px;
     background-color: #505050;
@@ -21,54 +21,55 @@ button {
     background-image: none;
 }
 
-button:disabled {
+#mixer button:disabled {
     background-color: #303030;
 }
 
-label:disabled {
+#mixer label:disabled {
     color: #505050;
 }
 
 /* green, preselected for next cut/transition */
-button:checked, button:active {
+#mixer button:checked,
+#mixer button:active {
     background-image: none;
     background-color: var(--preview);
     color: var(--preview-text);
 }
 
-button:checked:disabled {
+#mixer button:checked:disabled {
     background-color: #504530;
 }
 
-button:checked:disabled label {
+#mixer button:checked:disabled label {
     color: #302510;
 }
 
-button:checked label {
+#mixer button:checked label {
     text-shadow: 0 0 2px #707070;
 }
 
-button:checked:disabled label {
+#mixer button:checked:disabled label {
     text-shadow: 0 0 2px #302510;
 }
 
-button#preview_b:checked:disabled {
+#mixer button#preview_b:checked:disabled {
     background-color: #303030;
 }
 
-button#preview_b:checked:disabled label {
+#mixer button#preview_b:checked:disabled label {
     color: #505050;
 }
 
-button#preview_b:checked:disabled label {
+#mixer button#preview_b:checked:disabled label {
     text-shadow: 0 0 2px #505050;
 }
 
-.mode:disabled label {
+#mixer .mode:disabled label {
     text-shadow: 0 0 2px #106610;
 }
 
-button.mode.blink:checked {
+#mixer button.mode.blink:checked {
     background-color: #FF0000;
     color: #FFFFFF;
     border-color: #FF8080;
@@ -76,20 +77,20 @@ button.mode.blink:checked {
     text-shadow: 0 0 0.3em #FFFFFF;
 }
 
-button.mode:checked label {
+#mixer button.mode:checked label {
     text-shadow: 0 0 2px #CCAA80;
 }
 
-button.mode.blink:checked label {
+#mixer button.mode.blink:checked label {
     text-shadow: 0 0 2px #FFFFFF;
 }
 
-button.mode:checked {
+#mixer button.mode:checked {
     background-color: #6B0002;
     color: #CCAA80;
 }
 
-button.mode.live:checked {
+#mixer button.mode.live:checked {
     background-color: #208020;
     color: #80FF80;
     border-color: #80FF80;
@@ -97,30 +98,30 @@ button.mode.live:checked {
     text-shadow: 0 0 0.3em #FFFFFF;
 }
 
-button.mode.live:checked label {
+#mixer button.mode.live:checked label {
     text-shadow: 0 0 2px #80FF80;
 }
 
-button:checked.option {
+#mixer button:checked.option {
     background-color: #C06000;
     color: #FFDD80;
 }
 
-button:checked.option label {
+#mixer button:checked.option label {
     text-shadow: 0 0 2px #FFDD80;
 }
 
-#queues {
+#mixer #queues {
     font-size: 1.0em;
 }
 
-toolbar {
+#mixer toolbar {
     background-color: rgba(0, 0, 0, 0);
 }
 
 
 /* glow means stuf behind button is live */
-button.glow {
+#mixer button.glow {
     background-color: var(--live);
     color: var(--live-text);
     border-color: var(--live);
@@ -129,7 +130,7 @@ button.glow {
 }
 
 /* live and selected for next cut/transition */
-button.glow:checked {
+#mixer button.glow:checked {
     background-image: linear-gradient(90deg, var(--live), #505050, var(--preview));
     color: var(--live-text);
     border-color: #505050;
@@ -137,27 +138,27 @@ button.glow:checked {
     box-shadow: 0 0 0.3em var(--live);
 }
 
-button.glow:disabled {
+#mixer button.glow:disabled {
     text-shadow: 0 0 0.3em #403010;
 }
 
-button.glow:disabled label {
+#mixer button.glow:disabled label {
     color: #605040;
 }
 
-button.glow label {
+#mixer button.glow label {
     text-shadow: 0 0 2px #707070;
 }
 
-button.glow:checked label {
+#mixer button.glow:checked label {
     text-shadow: 0 0 2px #707070;
 }
 
-.notebook {
+#mixer .notebook {
     box-shadow: 0 0 0.3em rgba(0, 0, 0, 128);
 }
 
-frame border {
+#mixer frame border {
     background-color: rgba(37, 42, 44, 0);
     border-left-color: rgba(74, 84, 88, 0);
     border-right-color: rgba(74, 84, 88, 0);
@@ -165,7 +166,21 @@ frame border {
     border-bottom-color: rgba(74, 84, 88, 0);
 }
 
-frame > label {
-    margin-left: 1em;
-    margin-right: 1em;
+#mixer .toolbar-title-vertical {
+    transform: rotate(-90deg);
+}
+
+#mixer frame > label {
+    text-align: center;
+}
+
+.primary-toolbar > * {
+    margin-left: .1em;
+    margin-right: .1em;
+}
+
+.primary-toolbar > label,
+.primary-toolbar > image {
+    margin-left: .5em;
+    margin-right: .5em;
 }

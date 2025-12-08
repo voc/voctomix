@@ -3,6 +3,8 @@
 <interface>
   <requires lib="gtk" version="4.0"/>
   <template class="VoctoguiBlinderToolbar" parent="GtkFrame">
+                                        <property name="label-xalign">0.50</property>
+                                        <property name="label" translatable="yes">BLINDS</property>
                                 <child>
                                       <object class="GtkBox" id="toolbar_blinder">
                                         <property name="visible">True</property>
@@ -43,13 +45,6 @@
                                           <class name="secondary-toolbar"/>
                                         </style>
                                       </object>
-                                </child>
-                                <child type="label">
-                                  <object class="GtkLabel">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="label" translatable="yes">BLINDS</property>
-                                  </object>
                                 </child>
   </template>
 </interface>

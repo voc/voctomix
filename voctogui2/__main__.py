@@ -33,6 +33,10 @@ class VoctoguiApplication(Adw.Application):
         self.log = logging.getLogger('VoctoguiApplication')
         self.ui = None
 
+        icon_theme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default())
+        icon_theme.add_search_path(ui_file("icons"))
+        print(icon_theme.get_search_path())
+
         style_manager = Adw.StyleManager.get_default()
         style_manager.set_color_scheme(Adw.ColorScheme.FORCE_DARK)
 

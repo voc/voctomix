@@ -18,7 +18,6 @@ from voctogui2.ui.ui_file import ui_file
 class VoctoguiAudioPanel(Gtk.Frame):
     __gtype_name__ = 'VoctoguiAudioPanel'
 
-    audio_label: Gtk.Label = Gtk.Template.Child()
     mute_button: Gtk.ToggleButton = Gtk.Template.Child()
     monitor_button: Gtk.ToggleButton = Gtk.Template.Child()
     audio_level: Gtk.Scale = Gtk.Template.Child()
@@ -47,8 +46,7 @@ class AudioDisplay(object):
     def createAudioPanel(self, name, audio_box, has_volume):
         audio = VoctoguiAudioPanel()
         audio_box.append(audio)
-        audio_label = audio.audio_label
-        audio_label.set_label(name.upper())
+        audio.set_label(name.upper())
 
         self.init_volume_slider(name, audio, has_volume)
 
