@@ -1,0 +1,180 @@
+/* red, green isn'T too great because of colour blindness, but industry standard?? */
+
+@define-color live #dd0000;
+@define-color live-text white;
+@define-color preview #00bb00;
+@define-color preview-text black;
+
+/* alternative colour scheme*/
+/*
+@define-color live #bb4a05;
+@define-color live-text white;
+@define-color preview #167bdc;
+@define-color preview-text black;
+*/
+
+#mixer {
+  font-family: roboto condensed;
+}
+
+#mixer .name {
+  font-size: 1.0em;
+}
+
+#mixer button {
+  font-size: 20px;
+  border-radius: 15px;
+  background-color: #505050;
+  margin-left:0.3em;
+  margin-top:0.3em;
+  margin-bottom:0.3em;
+  margin-right:0.3em;
+  background-image: none;
+}
+
+#mixer button:disabled {
+  background-color: #303030;
+}
+
+#mixer label:disabled {
+  color: #505050;
+}
+
+/* green, preselected for next cut/transition */
+#mixer button:checked, #mixer button:active {
+  background-image: none;
+  background-color: @preview;
+  color: @preview-text;
+}
+
+#mixer button:checked:disabled {
+  background-color: #504530
+}
+
+#mixer button:checked:disabled label {
+  color: #302510;
+}
+
+#mixer button:checked label:backdrop {
+  color: #707070;
+}
+
+#mixer button:checked:disabled label:backdrop {
+  color: #302510;
+}
+
+#preview_b button:checked:disabled {
+  background-color: #303030
+}
+
+#preview_b button:checked:disabled label {
+  color: #505050;
+}
+
+#preview_b button:checked:disabled label:backdrop {
+  color: #505050;
+}
+
+#mixer .mode:disabledlabel:backdrop {
+  color: #106610;
+}
+
+#mixer .mode.blink button:checked  {
+  background-color: #FF0000;
+  color: #FFFFFF;
+  border-color: #FF8080;
+  box-shadow: 0 0 0.3em #FF8080;
+  text-shadow: 0 0 0.3em #FFFFFF;
+}
+
+#mixer .mode button:checked label:backdrop  {
+  color: #CCAA80;
+}
+
+#mixer .mode.blink button:checked label:backdrop  {
+  color: #FFFFFF;
+}
+
+#mixer .mode button:checked  {
+  background-color: #6B0002;
+  color: #CCAA80;
+}
+
+#mixer .mode.live button:checked {
+  background-color: #208020;
+  color: #80FF80;
+  border-color: #80FF80;
+  box-shadow: 0 0 0.3em #80FF80;
+  text-shadow: 0 0 0.3em #FFFFFF;
+}
+
+#mixer .mode.live button:checked label:backdrop  {
+  color: #80FF80;
+}
+
+#mixer button:checked.option {
+  background-color: #C06000;
+  color: #FFDD80;
+}
+
+#mixer button:checked.option label:backdrop {
+  color: #FFDD80;
+}
+
+#queues { font-size: 1.0em; }
+
+toolbar {
+  background-color:rgba(0,0,0,0);
+}
+
+
+/* glow means stuf behind button is live */
+#mixer .glow button {
+  background-color: @live;
+  color: @live-text;
+  border-color: shade(@live, 1.5);
+  text-shadow: 0 0 0.3em #000000;
+  box-shadow: 0 0 0.3em shade(@live, 1.5);
+}
+
+/* live and selected for next cut/transition */
+#mixer .glow button:checked {
+  background-image: linear-gradient(90deg, @live, #505050, @preview);
+  color: @live-text;
+  border-color: #505050;
+  text-shadow: 0 0 0.3em #000000;
+  box-shadow: 0 0 0.3em shade(@live, 1.5);
+}
+
+#mixer .glow button:disabled {
+  text-shadow: 0 0 0.3em #403010;
+}
+
+#mixer .glow button:disabled label {
+  color: #605040;
+}
+
+#mixer .glow button label:backdrop {
+  color: #707070;
+}
+
+#mixer .glow button:checked label:backdrop {
+  color: #707070;
+}
+
+.notebook {
+  box-shadow: 0 0 0.3em rgba(0,0,0,128);
+}
+
+#mixer frame border {
+  background-color:rgba(37,42,44,0);
+  border-left-color:rgba(74,84,88,0);
+  border-right-color:rgba(74,84,88,0);
+  border-top-color:rgb(74,84,88);
+  border-bottom-color:rgba(74,84,88,0);
+}
+
+#mixer frame > label {
+  margin-left: 1em;
+  margin-right: 1em;
+}
