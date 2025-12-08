@@ -1,0 +1,51 @@
+using Gtk 4.0;
+
+template $VoctoguiMiscToolbar: Box {
+    styles ["primary-toolbar"]
+
+    Box {
+        hexpand: true;
+    }
+
+    Image {
+        icon-name: "voctomix-logo-symbolic";
+    }
+
+    Label {
+        label: "voctomix2";
+    }
+
+    Box {}
+
+    ToggleButton ports_button {
+        can-focus: false;
+        icon-name: "voctomix-ports-symbolic";
+    }
+
+    ToggleButton queue_button {
+        can-focus: false;
+        icon-name: "voctomix-queue-symbolic";
+    }
+
+    Box {
+        hexpand: true;
+    }
+
+    ToggleButton mute_button {
+        can-focus: false;
+        tooltip-text: _("Mute Sound");
+        icon-name: "audio-volume-muted-symbolic";
+    }
+
+    ToggleButton fullscreen {
+        can-focus: false;
+        tooltip-text: _("Enlarges main window to full screen\nKey: 'F11'");
+        icon-name: "view-fullscreen-symbolic";
+    }
+
+    Button close {
+        can-focus: false;
+        tooltip-text: _("Quits voctomix\nKey: 'Alt+F4'");
+        icon-name: "window-close-symbolic";
+    }
+}

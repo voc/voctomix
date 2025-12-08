@@ -1,0 +1,65 @@
+using Gtk 4.0;
+
+template $VoctoguiPreviewToolbar: Box {
+    Label {
+        styles ["toolbar-title-vertical"]
+        can-focus: false;
+        label: _("COMPOSE");
+    }
+
+    Box {
+        can-focus: false;
+        spacing: 6;
+
+        Frame {
+            can-focus: false;
+            label-xalign: 0.5;
+            label: _("COMPOSITE");
+
+            Box toolbar_preview_composite {
+                styles ["secondary-toolbar"]
+                can-focus: false;
+                halign: center;
+            }
+        }
+
+        Frame box_preview_modify {
+            can-focus: false;
+            label-xalign: 0.5;
+            label: _("MODIFY");
+
+            Box toolbar_preview_mod {
+                can-focus: false;
+                halign: center;
+            }
+        }
+
+        Box {
+            can-focus: false;
+            orientation: vertical;
+            spacing: 6;
+
+            Frame {
+                can-focus: false;
+                label-xalign: 0.5;
+                label: _("CHANNEL A");
+
+                Box toolbar_preview_a {
+                    can-focus: false;
+                    halign: center;
+                }
+            }
+
+            Frame frame_preview_b {
+                can-focus: false;
+                label-xalign: 0.5;
+                label: _("CHANNEL B");
+
+                Box toolbar_preview_b {
+                    can-focus: false;
+                    halign: center;
+                }
+            }
+        }
+    }
+}

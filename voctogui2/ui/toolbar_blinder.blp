@@ -1,0 +1,30 @@
+using Gtk 4.0;
+
+template $VoctoguiBlinderToolbar: Frame {
+    styles ["secondary-toolbar"]
+
+    label-xalign: 0.5;
+    label: _("BLINDS");
+
+    Box toolbar_blinder {
+        can-focus: false;
+        orientation: vertical;
+
+        ToggleButton stream_live {
+            styles ["mode", "live"]
+
+            can-focus: false;
+            tooltip-text: _("Put output on air");
+            label: "LIVE";
+        }
+
+        ToggleButton stream_blind {
+            styles ["mode"]
+
+            can-focus: false;
+            tooltip-text: _("Put pause stream on air");
+            group: stream_live;
+            label: "BLIND";
+        }
+    }
+}

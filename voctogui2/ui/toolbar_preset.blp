@@ -1,0 +1,32 @@
+using Gtk 4.0;
+
+template $VoctoguiPresetToolbar: Box {
+    Label {
+        styles ["toolbar-title-vertical"]
+
+        visible: true;
+        can-focus: false;
+        label: _("PRESETS");
+    }
+
+    Box {
+        visible: true;
+        can-focus: false;
+        spacing: 6;
+
+        Frame {
+            visible: true;
+            can-focus: false;
+            label-xalign: 0.5;
+            label: _("PRESET");
+
+            Box preset_toolbar {
+                styles ["secondary-toolbar"]
+
+                visible: true;
+                can-focus: false;
+                halign: center;
+            }
+        }
+    }
+}

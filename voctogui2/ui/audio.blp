@@ -1,0 +1,54 @@
+using Gtk 4.0;
+
+template $VoctoguiAudioPanel: Frame {
+    can-focus: false;
+    margin-bottom: 6;
+    label-xalign: 0.5;
+    label: "ORIGINAL";
+
+    Adjustment audio_level_adjustment {
+        lower: -20;
+        upper: 10;
+        step-increment: 0.1;
+    }
+
+    Box {
+        orientation: vertical;
+
+        Box {
+            margin-top: 6;
+
+            $AudioLevelDisplay audio_level_display {
+                width-request: 20;
+                can-focus: false;
+                vexpand: true;
+            }
+
+            Scale audio_level {
+                width-request: 42;
+                can-focus: true;
+                orientation: vertical;
+                adjustment: audio_level_adjustment;
+                inverted: true;
+                restrict-to-fill-level: false;
+                fill-level: 0;
+                round-digits: 1;
+                vexpand: true;
+            }
+        }
+
+        Box {
+            ToggleButton monitor_button {
+                can-focus: false;
+                tooltip-text: _("Monitor these channels");
+                icon-name: "audio-headphones-symbolic";
+            }
+
+            ToggleButton mute_button {
+                can-focus: false;
+                tooltip-text: _("Mute");
+                icon-name: "audio-volume-muted-symbolic";
+            }
+        }
+    }
+}
