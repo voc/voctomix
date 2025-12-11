@@ -15,7 +15,7 @@ class Buttons(Widgets):
     def __init__(self, cfg_items):
         super().__init__(cfg_items,"buttons")
 
-    def create(self, toolbar, accelerators=None, callback=None, css=[], group=True, radio=True, sensitive=True, visible=True, multiline_names=True):
+    def create(self, toolbar, callback=None, css=[], group=True, radio=True, sensitive=True, visible=True, multiline_names=True):
         ''' create toolbar from read configuration items '''
 
         # generate a list of all buttons
@@ -35,7 +35,7 @@ class Buttons(Widgets):
                 btn = Gtk.Button()
 
             # set button properties
-            self.add(btn, id, accelerators, callback, ('toggled' if radio else 'clicked'), css, sensitive, visible, multiline_names)
+            self.add(btn, id, callback, ('toggled' if radio else 'clicked'), css, sensitive, visible, multiline_names)
             #btn.set_visible_horizontal(visible)
             #btn.set_visible_vertical(visible)
             btn.set_can_focus(False)

@@ -35,9 +35,6 @@ class PreviewToolbarController(object):
 
         self.log = logging.getLogger('PreviewToolbarController')
 
-        #accelerators = Gtk.AccelGroup()
-        #win.add_accel_group(accelerators)
-
         self.sourcesA = Buttons(Config.getToolbarSourcesA())
         self.sourcesB = Buttons(Config.getToolbarSourcesB())
         self.composites = Buttons(Config.getToolbarComposites())
@@ -55,11 +52,10 @@ class PreviewToolbarController(object):
         if not Config.getToolbarMods():
             box_modify.hide()
 
-        accelerators = None
-        self.composites.create(toolbar_composite, accelerators, self.on_btn_toggled)
-        self.sourcesA.create(toolbar_a, accelerators, self.on_btn_toggled)
-        self.sourcesB.create(toolbar_b, accelerators, self.on_btn_toggled)
-        self.mods.create(toolbar_mod, accelerators, self.on_btn_toggled, group=False)
+        self.composites.create(toolbar_composite, self.on_btn_toggled)
+        self.sourcesA.create(toolbar_a, self.on_btn_toggled)
+        self.sourcesB.create(toolbar_b, self.on_btn_toggled)
+        self.mods.create(toolbar_mod, self.on_btn_toggled, group=False)
 
         self.invalid_buttons = []
         self.validate(self.sourcesA)

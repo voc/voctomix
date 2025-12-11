@@ -33,19 +33,19 @@ class MiscToolbarController(object):
         self.toolbar = toolbar
 
         # Accelerators
-        #accelerators = Gtk.AccelGroup()
-        #win.add_accel_group(accelerators)
-
-        accelerators = None
-
         toolbar.close.set_visible(Config.getShowCloseButton())
         toolbar.close.connect('clicked', self.on_closebtn_clicked)
 
         toolbar.fullscreen.set_visible(Config.getShowFullScreenButton())
         toolbar.fullscreen.connect('clicked', self.on_fullscreenbtn_clicked)
-        #key, mod = Gtk.accelerator_parse('F11')
-        #toolbar.fullscreen.add_accelerator('clicked', accelerators,
-        #                                   key, mod, Gtk.AccelFlags.VISIBLE)
+        controller = Gtk.ShortcutController(scope=Gtk.ShortcutScope.GLOBAL)
+        controller.add_shortcut(
+            Gtk.Shortcut(
+                trigger=Gtk.ShortcutTrigger.parse_string("F11"),
+                action=Gtk.ActivateAction()
+            )
+        )
+        toolbar.fullscreen.add_controller(controller)
         self.fullscreen_button = toolbar.fullscreen
 
         if Config.getPlayAudio():
@@ -63,9 +63,6 @@ class MiscToolbarController(object):
         toolbar.ports_button.connect('toggled', self.on_ports_button_toggled)
         self.ports_controller = ports_controller
 
-        #key, mod = Gtk.accelerator_parse('t')
-        #tooltip = Gtk.accelerator_get_label(key, mod)
-
         # Controller for fullscreen behavior
         window.connect("notify", self.on_window_state_event)
 
@@ -73,7 +70,7 @@ class MiscToolbarController(object):
         self.log.info('close-button clicked')
         self.win.get_application().quit()
 
-    def on_fullscreenbtn_clicked(self, btn):
+    def on_fullscreenbtn_clicked(self, btn, *user_data):
         self.log.info('fullscreen-button clicked')
         if self.win.is_fullscreen():
             self.win.unfullscreen()

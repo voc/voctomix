@@ -33,10 +33,6 @@ class VideoPreviewsController(object):
         self.video_box = video_box
         self.audio_box = audio_box
 
-        # Accelerators
-        #accelerators = Gtk.AccelGroup()
-        #win.add_accel_group(accelerators)
-
         # count number of previews
         num_previews = len(Config.getSources()) + len(Config.getLivePreviews())
 

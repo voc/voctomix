@@ -33,9 +33,6 @@ class PresetController(object):
         presets = Config.getPresetOptions()
         defaults_b = Config.getVideoSources()
 
-        #accelerators = Gtk.AccelGroup()
-        #win.add_accel_group(accelerators)
-
         buttons = {}
         self.button_to_composites = {}
         self.current_state = None
@@ -45,7 +42,6 @@ class PresetController(object):
 
         if not presets:
             self.box.hide()
-            self.box.set_no_show_all(True)
             return
 
         for preset in presets:
@@ -90,8 +86,7 @@ class PresetController(object):
 
         self.log.debug(f"{buttons=}")
         self.buttons = Buttons(buttons)
-        accelerators = None
-        self.buttons.create(self.toolbar, accelerators, self.on_btn_toggled)
+        self.buttons.create(self.toolbar, self.on_btn_toggled)
 
         Connection.on("best", self.on_best)
         Connection.on("composite", self.on_composite)

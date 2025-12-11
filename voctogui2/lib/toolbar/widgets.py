@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-from typing import cast
+from typing import cast, Optional
 
-from gi.repository import Gtk
+from gi.repository import Gtk, GLib
 import sys
 import os
 
@@ -51,7 +51,7 @@ class Widgets(dict):
                             self[id]['id'] = id
                         self[id][attr] = cfg_value
 
-    def add(self, widget, id, accelerators=None, callback=None, signal='clicked', css=[], sensitive=True, visible=True, multiline_names=True):
+    def add(self, widget, id, callback=None, signal='clicked', css=[], sensitive=True, visible=True, multiline_names=True):
         # set button properties
         widget.set_can_focus(False)
         widget.set_sensitive(sensitive)
@@ -85,16 +85,17 @@ class Widgets(dict):
                 tip = "Select source %s" % _decode(name, False)
 
             # set accelerator key and tooltip
-            if accelerators and 'key' in attr:
-                key, mod = Gtk.accelerator_parse(attr['key'])
-                widget.set_tooltip_text(
-                    "%s\nKey: '%s'" % (tip, attr['key'].upper()))
-                # @HACK: found no explanation why ToolItems must attach their
-                # accelerators to the child window
-                w = widget.get_child() if isinstance(widget,Gtk.ToolItem) else widget
-                w.add_accelerator(
-                    'clicked', accelerators,
-                    key, mod, Gtk.AccelFlags.VISIBLE)
+            if 'key' in attr and callback:
+                controller = Gtk.ShortcutController(scope=Gtk.ShortcutScope.GLOBAL)
+                widget.set_tooltip_text(f"{tip}\nKey: '{attr['key'].upper()}'")
+                shortcut = Gtk.Shortcut(
+                    trigger=Gtk.ShortcutTrigger.parse_string(attr['key']),
+                    action=Gtk.ActivateAction.get(),
+                )
+                controller.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
+                controller.add_shortcut(shortcut)
+                print(f"Registering shortcut for {attr['key']}")
+                widget.add_controller(controller)
             else:
                 widget.set_tooltip_text(tip)
 

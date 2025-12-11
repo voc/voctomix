@@ -19,19 +19,13 @@ class MixToolbarController(object):
         self.overlay_controller = overlay_controller
         self.log = logging.getLogger('PreviewToolbarController')
 
-        #accelerators = Gtk.AccelGroup()
-        #win.add_accel_group(accelerators)
-        accelerators = None
-
         self.mix = Buttons(Config.getToolbarMix())
 
         self.toolbar_composites = toolbar_composites
         self.toolbar_presets = toolbar_presets
 
-        self.mix.create(self.toolbar_composites, accelerators,
-                        self.on_btn_clicked, radio=False)
-        self.mix.create(self.toolbar_presets, accelerators,
-                        self.on_btn_clicked, radio=False)
+        self.mix.create(self.toolbar_composites, self.on_btn_clicked, radio=False)
+        self.mix.create(self.toolbar_presets, self.on_btn_clicked, radio=False)
         Connection.on('best', self.on_best)
 
     def on_btn_clicked(self, btn):

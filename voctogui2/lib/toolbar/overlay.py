@@ -35,11 +35,6 @@ class OverlayToolbarController(object):
 
         self.log = logging.getLogger('OverlayToolbarController')
 
-        #accelerators = Gtk.AccelGroup()
-        #win.add_accel_group(accelerators)
-
-        accelerators = None
-
         if Config.hasOverlay():
 
             widgets = Widgets(Config.getToolbarInsert())
@@ -51,16 +46,16 @@ class OverlayToolbarController(object):
 
             # connect to INSERT toggle button
             self.insert = toolbar.insert
-            widgets.add(self.insert, 'insert', accelerators, self.on_insert_toggled, signal='toggled' )
+            widgets.add(self.insert, 'insert', self.on_insert_toggled, signal='toggled' )
 
             self.update_inserts = toolbar.update_inserts
-            widgets.add(self.update_inserts, 'update', accelerators, self.update_overlays)
+            widgets.add(self.update_inserts, 'update', self.update_overlays)
 
             # initialize to AUTO-OFF toggle button
             self.autooff = toolbar.insert_auto_off
             self.autooff.set_visible(Config.getOverlayUserAutoOff())
             self.autooff.set_active(Config.getOverlayAutoOff())
-            widgets.add(self.autooff, 'auto-off', accelerators)
+            widgets.add(self.autooff, 'auto-off')
 
             # remember overlay description label
             self.overlay_description = toolbar.overlay_description
