@@ -94,7 +94,6 @@ class Widgets(dict):
                 )
                 controller.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
                 controller.add_shortcut(shortcut)
-                print(f"Registering shortcut for {attr['key']}")
                 widget.add_controller(controller)
             else:
                 widget.set_tooltip_text(tip)
