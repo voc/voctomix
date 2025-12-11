@@ -27,6 +27,7 @@ from voctogui2.ui.ui_file import ui_file
 class Ui(Adw.ApplicationWindow):
     __gtype_name__ = 'VoctoguiMainWindow'
 
+    header_bar: Adw.HeaderBar = Gtk.Template.Child()
     output_aspect_ratio = Gtk.Template.Child("output_aspect_ratio")
     audio_box = Gtk.Template.Child("audio_box")
     preview_box = Gtk.Template.Child("preview_box")
@@ -133,7 +134,17 @@ class Ui(Adw.ApplicationWindow):
         )
 
         # Setup Shortcuts window
-        #self.connect('state-event', self.handle_state)
+        self.connect("notify::fullscreened", self.handle_fullscreen)
+
+    def handle_fullscreen(self, *args):
+        # force full screen if whished by configuration
+        if Config.getForceFullScreen():
+            self.log.info('re-forcing fullscreen mode')
+            self.fullscreen()
+        if self.is_fullscreen():
+            self.header_bar.hide()
+        else:
+            self.header_bar.show()
 
     def handle_state(self, window, event):
         # force full screen if whished by configuration
