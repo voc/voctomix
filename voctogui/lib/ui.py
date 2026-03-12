@@ -83,7 +83,8 @@ class Ui(UiBuilder):
             self.find_widget_recursive(self.win, 'video_main'),
             self.mix_audio_display,
             port=Port.MIX_PREVIEW if Config.getPreviewsEnabled() else Port.MIX_OUT,
-            name="MIX"
+            name="MIX",
+            play_audio=Config.getPlayAudio(),
         )
 
         for idx, livepreview in enumerate(Config.getLivePreviews()):

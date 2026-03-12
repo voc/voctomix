@@ -5,7 +5,7 @@ import json
 import shlex
 import subprocess
 import logging
-from configparser import SafeConfigParser
+from configparser import ConfigParser
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger('record-all-audio-streams')
@@ -35,9 +35,9 @@ def getlist(self, section, option):
     return [x.strip() for x in self.get(section, option).split(',')]
 
 
-SafeConfigParser.getlist = getlist
+ConfigParser.getlist = getlist
 
-config = SafeConfigParser()
+config = ConfigParser()
 config.read_dict(server_config)
 
 sources = config.getlist('mix', 'sources')
