@@ -3,7 +3,7 @@ name = "voctomix"
 version = "2.3"
 description = "voctomix is a video mixing software, written in python."
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 dependencies = [
     "numpy<2.0",
     "scipy>=1.15.2",

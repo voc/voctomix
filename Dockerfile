@@ -20,5 +20,7 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 ADD . /voctomix
 WORKDIR /voctomix
-RUN uv pip install --system --requirements pyproject.toml
-ENTRYPOINT ["python3", "-m", "voctocore"]
+RUN uv venv --system-site-packages
+RUN uv pip install pygobject-stubs --config-settings=config=Gtk3,Gdk3
+RUN uv sync --dev
+ENTRYPOINT ["uv", "run", "-m", "voctocore"]
