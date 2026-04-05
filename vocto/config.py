@@ -296,6 +296,10 @@ class VocConfigParser(ConfigParser):
         (_, numerator, denominator) = caps.get_fraction('framerate')
         return (numerator, denominator)
 
+    def getVideoFormat(self) -> str:
+        caps = self.parseCaps(self.getVideoCaps())
+        return caps.get_string('format')
+
     def getFramesPerSecond(self) -> float:
         num, denom = self.getFramerate()
         return float(num) / float(denom)
@@ -524,3 +528,42 @@ class VocConfigParser(ConfigParser):
         if internal:
             sources.extend(self._getInternalSources())
         return list(filter(source_has_audio, sources))
+
+
+    # NDI stuff
+
+    def isNDIEnabled(self) -> bool:
+        return self.getboolean('ndi', 'enabled', fallback=False)
+
+    def getNDIPrefix(self) -> str:
+        return self.get('ndi', 'prefix', fallback='voctomix ')
+
+    def getNDISources(self) -> list[str]:
+        return self.getList('ndi', 'sources')
+
+    def isNDISourcesAudioMixed(self) -> bool:
+        return self.getboolean('ndi', 'sources_audio_mixed', fallback=False)
+
+    def getNDILiveSources(self) -> list[str]:
+        ndi_live_sources = self.getList('ndi', 'livesources')
+        live_sources = set(self.getLiveSources())
+        result = []
+        for ndi_live_source in ndi_live_sources:
+            if ndi_live_source not in live_sources:
+                self.log.error(
+                    f"source '{ndi_live_source}' configured in 'ndi/livesources' must be listed in 'mix/livesources'!")
+            else:
+                result.append(ndi_live_source)
+        return result
+
+    def isNDIPGMOutEnabled(self) -> bool:
+        return self.getboolean('ndi', 'pgmout', fallback=False)
+
+    def getNDIPGMName(self) -> str:
+        return self.get('ndi', 'pgmout_name', fallback='PGM')
+
+    def isNDILiveOutEnabled(self) -> bool:
+        return self.getboolean('ndi', 'liveout', fallback=False)
+
+    def getNDILiveName(self) -> str:
+        return self.get('ndi', 'liveout_name', fallback='Live')

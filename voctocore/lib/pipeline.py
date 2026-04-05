@@ -14,6 +14,7 @@ from voctocore.lib.blinder import Blinder
 from voctocore.lib.clock import Clock
 from voctocore.lib.config import Config
 from voctocore.lib.local_recording import LocalRecordingSink
+from voctocore.lib.ndioutput import NDIOutput
 from voctocore.lib.program_output import ProgramOutputSink
 from voctocore.lib.sources import spawn_source
 from voctocore.lib.srtserver import SRTServerSink
@@ -108,6 +109,18 @@ class Pipeline(object):
             self.bins.append(dest)
             self.ports.append(Port('preview-mix', dest))
 
+        # NDI outputs
+        if Config.isNDIEnabled():
+            if Config.isNDIPGMOutEnabled():
+                ndi_pgmout = NDIOutput('mix', use_audio_mix=True, ndi_name=Config.getNDIPGMName())
+                self.bins.append(ndi_pgmout)
+                self.ports.append(Port('mix', ndi_pgmout))
+
+            for source in Config.getNDISources():
+                dest = NDIOutput(f'{source}', use_audio_mix=Config.isNDISourcesAudioMixed())
+                self.bins.append(dest)
+                self.ports.append(Port(f'{source}', dest))
+
         # create blinding sources and mixer
         if Config.getBlinderEnabled():
             sources = Config.getBlinderSources()
@@ -149,6 +162,19 @@ class Pipeline(object):
                 dest = AVRawOutput('{}-blinded'.format(livesource), Port.LIVE_OUT + idx, use_audio_mix=True, audio_blinded=True )
                 self.bins.append(dest)
                 self.ports.append(Port('{}-blinded'.format(livesource), dest))
+
+            # Blinded NDI Outputs
+            if Config.isNDIEnabled():
+                if Config.isNDILiveOutEnabled():
+                    ndi_liveout = NDIOutput('mix-blinded', use_audio_mix=True, audio_blinded=True,
+                                            ndi_name=Config.getNDILiveName())
+                    self.bins.append(ndi_liveout)
+                    self.ports.append(Port('mix-blinded', ndi_liveout))
+
+                for livesource in Config.getNDILiveSources():
+                    dest = NDIOutput(f'{livesource}-blinded', use_audio_mix=True, audio_blinded=True)
+                    self.bins.append(dest)
+                    self.ports.append(Port(f'{livesource}-blinded', dest))
 
         # TODO test after 2.0 is released
         #if Config.getLocalRecordingEnabled():
