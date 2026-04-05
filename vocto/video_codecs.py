@@ -55,7 +55,7 @@ cpu_decoders = {
                 ! jpegdec""",
     'mpeg2': """video/mpeg
                     mpegversion=2
-                ! mpeg2dec"""
+                ! avdec_mpeg2video"""
 }
 
 

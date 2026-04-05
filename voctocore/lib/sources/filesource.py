@@ -62,7 +62,7 @@ class FileSource(AVSource):
         return """
               file-{name}.
             ! mpegvideoparse
-            ! mpeg2dec
+            ! avdec_mpeg2video
             ! videoconvert
             ! videorate
             ! videoscale
