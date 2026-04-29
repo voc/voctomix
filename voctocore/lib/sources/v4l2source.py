@@ -83,10 +83,6 @@ class V4l2AVSource(AVSource):
             ! videoconvert
             ! videoscale
             ! videorate
-            """
-        pipe = f'fallbacksrc source="{pipe}"'
-
-        pipe += """\
                 name=vout-{name}
         """.format(name=self.name)
 
