@@ -21,6 +21,7 @@ class V4l2AVSource(AVSource):
         self.height = Config.getV4l2Height(name)
         self.framerate = Config.getV4l2Framerate(name)
         self.format = Config.getV4l2Format(name)
+        self.falbacksrc = Config.getV4l2FallbackSrc(name)
         self.name = name
         self.signalPad = None
 
@@ -83,6 +84,12 @@ class V4l2AVSource(AVSource):
             ! videoconvert
             ! videoscale
             ! videorate
+            """
+
+        if self.falbacksrc:
+            pipe = f'fallbacksrc source="{pipe}"'
+
+        pipe += """\
                 name=vout-{name}
         """.format(name=self.name)
 
