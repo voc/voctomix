@@ -23,6 +23,8 @@ from vocto.debug import gst_generate_dot
 from vocto.port import Port
 from vocto.pretty import pretty
 
+from vocto.sd_notify import sd_notify
+
 from typing import Optional, cast
 
 
@@ -231,6 +233,7 @@ class Pipeline(object):
             self.log.debug("pipeline state changed to '%s'", states[newstate] )
             if newstate == Gst.State.PLAYING:
                 self.log.info("\n\n====================== UP AND RUNNING =====================\n" )
+                sd_notify.ready()
 
             if Args.dot or Args.gst_debug_details:
                 # make DOT file from pipeline

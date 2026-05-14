@@ -53,7 +53,6 @@ class Voctocore(object):
     def run(self):
         self.log.info('Running. Waiting for connections....')
         try:
-            sd_notify.ready()
             self.mainloop.run()
             sd_notify.stopping()
         except KeyboardInterrupt:
