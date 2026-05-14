@@ -9,7 +9,7 @@ if not 'GST_DEBUG_DUMP_DOT_DIR' in os.environ:
     os.environ['GST_DEBUG_DUMP_DOT_DIR'] = os.getcwd()
 
 def kind_has_audio(source: str) -> bool:
-    return source in ["aja", "decklink", "tcp", "test", "pa", "alsa"]
+    return source in ["aja", "decklink", "tcp", "test", "pa", "alsa", "gst"]
 
 def kind_has_video(source: str) -> bool:
-    return source in ["aja", "decklink", "tcp", "test", "v4l2", "img", "file", "background", "RPICam"]
+    return source in ["aja", "decklink", "tcp", "test", "v4l2", "img", "file", "background", "RPICam", "gst"]

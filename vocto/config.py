@@ -127,7 +127,7 @@ class VocConfigParser(ConfigParser):
 
     def getDeckLinkVideoFormat(self, source) -> str:
         return self.get('source.{}'.format(source), 'video_format', fallback='auto')
-    
+
     def getAJADeviceIdentifier(self, source) -> str:
         return self.get(f'source.{source}', 'device', fallback='')
 
@@ -524,3 +524,24 @@ class VocConfigParser(ConfigParser):
         if internal:
             sources.extend(self._getInternalSources())
         return list(filter(source_has_audio, sources))
+
+    def getGstAudioPipe(self, source) -> str:
+        return self.get(f'source.{source}',
+                        'audio_source',
+                        fallback='audiotestsrc wave=ticks freq=330')
+
+    def getGstAudioDebug(self, source) -> bool:
+        return self.get(f'source.{source}',
+                        'audio_debug',
+                        fallback=False)
+
+    def getGstVideoPipe(self, source) -> str:
+        return self.get(f'source.{source}',
+                        'video_source',
+                        fallback='videotestsrc pattern=ball motion=hsweep animation-mode=wall-time')
+
+    def getGstVideoDebug(self, source) -> bool:
+        return self.get(f'source.{source}',
+                        'video_debug',
+                        fallback=False)
+

@@ -21,6 +21,8 @@ def spawn_source(name: str, port: Optional[int], has_audio: bool=True, has_video
     from voctocore.lib.sources.pulseaudiosource import PulseAudioSource
     from voctocore.lib.sources.alsaaudiosource import AlsaAudioSource
 
+    from voctocore.lib.sources.gstsource import GstAVSource
+
     kind = Config.getSourceKind(name)
 
     if kind == 'img':
@@ -41,6 +43,8 @@ def spawn_source(name: str, port: Optional[int], has_audio: bool=True, has_video
         sources[name] = PulseAudioSource(name)
     elif kind == 'alsa':
         sources[name] = AlsaAudioSource(name)
+    elif kind == 'gst':
+        sources[name] = GstAVSource(name)
     else:
         if kind != 'test':
             log.warning(
