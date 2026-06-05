@@ -36,8 +36,11 @@ jobs:
       - name: Install documentation dependencies
         run: uv pip install --system sphinx sphinx-wagtail-theme
 
-      - name: Build documentation
+      - name: Build HTML documentation
         run: sphinx-build doc doc/_build/html
+
+      - name: Build man pages
+        run: sphinx-build -b man doc doc/_build/man
 
       - name: Upload pages artifact
         uses: actions/upload-pages-artifact@v3

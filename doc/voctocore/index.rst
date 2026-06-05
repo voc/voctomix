@@ -41,5 +41,5 @@ Or with a custom config file:
 
    python3 -m voctocore -i /path/to/config.ini
 
-See :doc:`running` for all command-line options and :doc:`configuration` for
+See :doc:`../man/voctocore` for all command-line options and :doc:`configuration` for
 the full configuration reference.

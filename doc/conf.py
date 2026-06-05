@@ -27,6 +27,11 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 html_theme = 'sphinx_wagtail_theme'
 html_static_path = ['_static']
 
+man_pages = [
+    ('man/voctocore', 'voctocore', 'software video mixer', ['c3voc'], 1),
+    ('man/voctogui', 'voctogui', 'graphical control interface for voctocore', ['c3voc'], 1),
+]
+
 html_theme_options = {
     'project_name': 'voctomix',
     'logo': 'voctocat.svg',

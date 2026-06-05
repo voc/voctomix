@@ -20,7 +20,7 @@ the mixed video feed to disk.
    :caption: voctocore
 
    voctocore/index
-   voctocore/running
+   man/voctocore
    voctocore/configuration
    voctocore/sources/index
    voctocore/ports
@@ -30,6 +30,7 @@ the mixed video feed to disk.
    :caption: voctogui
 
    voctogui/index
+   man/voctogui
    voctogui/configuration
 
 .. toctree::

@@ -15,54 +15,6 @@ It connects to a running voctocore instance over TCP and provides:
    :alt: voctogui screenshot
    :align: center
 
-Running
--------
-
-.. code-block:: text
-
-   python3 -m voctogui [-h] [-v] [-c {auto,always,never}] [-t]
-                       [-i INI_FILE] [-H HOST] [-d] [-D DETAILS] [-g]
-
-Command-line options
-````````````````````
-
-.. option:: -h, --help
-
-   Show help and exit.
-
-.. option:: -v, --verbose
-
-   Increase log verbosity (``-v``, ``-vv``, ``-vvv``).
-
-.. option:: -c {auto,always,never}, --color {auto,always,never}
-
-   ANSI colour in log output. Default: ``auto``.
-
-.. option:: -t, --timestamp
-
-   Add timestamps to log output.
-
-.. option:: -i INI_FILE, --ini-file INI_FILE
-
-   Load a custom configuration file.
-   Default: ``voctogui/default-config.ini``.
-
-.. option:: -H HOST, --host HOST
-
-   Connect to this host instead of the one in the config file.
-
-.. option:: -d, --dot
-
-   Write DOT graphs of GStreamer pipelines into ``$GST_DEBUG_DUMP_DOT_DIR``.
-
-.. option:: -D DETAILS, --gst-debug-details DETAILS
-
-   Like ``-d`` but set the DOT detail level (bitmask, default ``15``).
-
-.. option:: -g, --gstreamer-log
-
-   Include GStreamer messages in the voctogui log (``-g``, ``-gg``, ``-ggg``).
-
 Server configuration takes precedence
 --------------------------------------
 
