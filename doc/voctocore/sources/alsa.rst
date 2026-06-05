@@ -26,3 +26,6 @@ Example
    [source.mic]
    kind = alsa
    device = hw:1,0
+
+.. seealso::
+   :ref:`common-source-attributes` for the ``scan`` and ``volume`` attributes that apply to all source kinds.

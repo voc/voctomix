@@ -34,3 +34,6 @@ Use ffmpeg to push a Matroska A/V stream to voctocore:
    ffmpeg -i input.mp4 \
      -f matroska -vcodec libx264 -acodec aac \
      tcp://localhost:10000
+
+.. seealso::
+   :ref:`common-source-attributes` for the ``scan`` and ``volume`` attributes that apply to all source kinds.

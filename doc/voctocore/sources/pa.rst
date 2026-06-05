@@ -28,3 +28,6 @@ Example
    [source.headset]
    kind = pa
    device = alsa_output.usb-Logitech_Headset-00.analog-stereo.monitor
+
+.. seealso::
+   :ref:`common-source-attributes` for the ``scan`` and ``volume`` attributes that apply to all source kinds.

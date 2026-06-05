@@ -23,3 +23,6 @@ Example
    [source.background]
    kind = img
    file = /opt/voctomix/background.png
+
+.. seealso::
+   :ref:`common-source-attributes` for the ``scan`` and ``volume`` attributes that apply to all source kinds.

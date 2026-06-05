@@ -23,3 +23,6 @@ Example
    kind = file
    location = /path/to/pause.ts
    loop = true
+
+.. seealso::
+   :ref:`common-source-attributes` for the ``scan`` and ``volume`` attributes that apply to all source kinds.

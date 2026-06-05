@@ -45,6 +45,8 @@ section selects the input type. Without a ``kind``, the source defaults to a
    overlay
    live
 
+.. _common-source-attributes:
+
 Common source attributes
 ------------------------
 

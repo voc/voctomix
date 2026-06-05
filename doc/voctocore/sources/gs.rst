@@ -30,3 +30,6 @@ Example
    kind = gs
    video_source = v4l2src device=/dev/video0 ! image/jpeg,width=1920,height=1080 ! jpegdec
    audio_source = pulsesrc device=alsa_input.usb-device
+
+.. seealso::
+   :ref:`common-source-attributes` for the ``scan`` and ``volume`` attributes that apply to all source kinds.

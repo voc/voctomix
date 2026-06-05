@@ -45,3 +45,6 @@ Example
    kind = aja
    device = 00A00012
    channel = 1
+
+.. seealso::
+   :ref:`common-source-attributes` for the ``scan`` and ``volume`` attributes that apply to all source kinds.

@@ -49,3 +49,6 @@ Example
    kind = decklink
    devicenumber = 1
    video_mode = 1080p25
+
+.. seealso::
+   :ref:`common-source-attributes` for the ``scan`` and ``volume`` attributes that apply to all source kinds.

@@ -54,3 +54,6 @@ Example
    format = I420
    type = video/x-raw
    annotation = time
+
+.. seealso::
+   :ref:`common-source-attributes` for the ``scan`` and ``volume`` attributes that apply to all source kinds.

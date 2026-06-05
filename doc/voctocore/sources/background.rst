@@ -39,3 +39,6 @@ is set.
 When a composite switch occurs, voctocore cuts or fades to the matching
 background automatically. The first background in the list is used as
 fallback when no ``composites`` match.
+
+.. seealso::
+   :ref:`common-source-attributes` for the ``scan`` and ``volume`` attributes that apply to all source kinds.

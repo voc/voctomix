@@ -40,3 +40,6 @@ Example
    height = 720
    framerate = 30/1
    format = YUY2
+
+.. seealso::
+   :ref:`common-source-attributes` for the ``scan`` and ``volume`` attributes that apply to all source kinds.

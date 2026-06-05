@@ -38,3 +38,6 @@ Example
    kind = test
    pattern = ball
    wave = white-noise
+
+.. seealso::
+   :ref:`common-source-attributes` for the ``scan`` and ``volume`` attributes that apply to all source kinds.
