@@ -17,6 +17,8 @@ dev = [
     "pygobject-stubs (>=2.13.0, <2.17.0)",
     "mypy>=1.15.0",
     "pytest-cov>=7.1.0",
+    "sphinx>=7",
+    "sphinx-wagtail-theme>=6",
 ]
 
 [tool.uv]
