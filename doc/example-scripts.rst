@@ -56,19 +56,6 @@ voctolight
 ``example-scripts/voctolight/`` — controls tally lights or external
 indicators based on the current voctocore mixing state.
 
-voctoremote
------------
-
-``example-scripts/voctoremote/`` — a simple Flask web app that sends
-voctocore commands when buttons are clicked. Suitable for a tablet-based
-operator remote.
-
-.. code-block:: bash
-
-   cd example-scripts/voctoremote
-   pip install -r requirements.txt
-   ./voctoremote.py
-
 voctopanel
 ----------
 
