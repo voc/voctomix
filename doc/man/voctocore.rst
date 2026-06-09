@@ -46,8 +46,9 @@ Options
 
 .. option:: -p, --pipeline
 
-   Write GStreamer pipeline descriptions to text files instead of starting
-   the mixer.
+   In addition to starting the mixer, dump the assembled GStreamer pipeline
+   description to ``core.pipeline.txt`` in the current working directory.
+   Useful for inspecting or debugging the generated pipeline.
 
 .. option:: -n, --no-bins
 
@@ -62,7 +63,7 @@ Options
 .. option:: -D GST_DEBUG_DETAILS, --gst-debug-details GST_DEBUG_DETAILS
 
    Like ``-d`` but control the detail level of the DOT graph (bitmask,
-   default ``1``): 1 caps names, 2 caps details, 4 modified parameters,
+   default ``15``): 1 caps names, 2 caps details, 4 modified parameters,
    8 element states, 16 full parameter values.
 
 .. option:: -g, --gstreamer-log
