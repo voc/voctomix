@@ -39,6 +39,10 @@ at startup, so most options only need to be set in the voctocore config.
 ``ports``
    Show the port status panel toggle button. Default: ``false``.
 
+``presets``
+   Comma-separated list of preset names (see :ref:`presets <preset-buttons>` below).
+   Default: empty (the preset toolbar is hidden).
+
 .. note::
    To prevent users from enabling these features via a local GUI config,
    set them to ``false`` in the voctocore config (which takes precedence).
@@ -136,6 +140,54 @@ Controls which mix actions are shown. Available buttons: ``retake``,
 
    insert.key   = i
    insert.tip   = Show or hide current insertion
+
+.. _preset-buttons:
+
+``[preset.<name>]`` — preset buttons
+--------------------------------------
+
+Preset buttons are one-click shortcuts that switch to a specific composite
+with specific sources on channels A and B. List the presets you want in
+``toolbar/presets``; each preset name encodes the target state in the form
+``<composite>_<sourceA>[_<sourceB>]``. If ``<sourceB>`` is omitted, voctogui
+picks the first available source other than ``<sourceA>``.
+
+Each preset can be customised with a ``[preset.<name>]`` section. Unlike
+other toolbar sections, attributes here are written without a button-name
+prefix because each preset has its own section:
+
+.. code-block:: ini
+
+   [toolbar]
+   presets = fs_cam1, fs_cam2, sbs_cam1_cam2, pip_cam1_cam2
+
+   [preset.fs_cam1]
+   name = CAM 1
+   key  = 1
+   icon = camera-video-symbolic
+
+   [preset.fs_cam2]
+   name = CAM 2
+   key  = 2
+   icon = camera-video-symbolic
+
+   [preset.sbs_cam1_cam2]
+   name = SIDE|BY SIDE
+   key  = s
+
+   [preset.pip_cam1_cam2]
+   name = PIP
+   key  = p
+
+Preset-specific attribute:
+
+``icon``
+   File name of an icon to display on the button. Looked up relative to
+   ``voctogui/ui/``. Optional.
+
+``name`` and ``key`` work as documented under :ref:`common-button-attrs`
+(``name`` accepts ``|`` to insert a line break). If no presets are listed in
+``toolbar/presets`` the preset toolbar is hidden entirely.
 
 .. _common-button-attrs:
 
