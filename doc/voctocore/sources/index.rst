@@ -58,6 +58,22 @@ These attributes apply to all source kinds.
    Accepted values: ``progressive``, ``interlaced``, ``psf``
    (Progressive Segmented Frame).
 
+``audio.<streamname>``
+   Defines a named audio stream from the source's input channels. The value
+   is a plus-separated list of 0-based channel indices on the source.
+
+   Example — expose the source's first two input channels as a stereo
+   stream named ``music``::
+
+      [source.cam1]
+      kind = decklink
+      audio.music = 0+1
+
+   A source can declare multiple ``audio.*`` streams (e.g. ``audio.speech =
+   2``). If no ``audio.*`` option is set, the source contributes no audio
+   to the mix.
+
 ``volume``
-   Audio volume for this source, between ``0.0`` and ``1.0``.
-   Default: ``0.0``.
+   Initial audio volume for the source. Currently only read for
+   ``[source.blinder]`` — setting it on other sources has no effect.
+   Default: ``1.0``.

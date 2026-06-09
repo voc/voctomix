@@ -22,6 +22,9 @@ voctocore reads an INI-style configuration file. The search order is:
    Background source names, enables multi-background mode.
    Example: ``bg_fs,bg_sbs``
 
+   If this list is omitted but a ``[source.background]`` section exists,
+   voctocore automatically uses that single background for all composites.
+
 ``videocaps``
    GStreamer caps string for the video format of the mix.
    Default: ``video/x-raw,format=I420,width=1920,height=1080,framerate=25/1,pixel-aspect-ratio=1/1``

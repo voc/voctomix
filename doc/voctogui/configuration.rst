@@ -179,15 +179,10 @@ prefix because each preset has its own section:
    name = PIP
    key  = p
 
-Preset-specific attribute:
-
-``icon``
-   File name of an icon to display on the button. Looked up relative to
-   ``voctogui/ui/``. Optional.
-
-``name`` and ``key`` work as documented under :ref:`common-button-attrs`
-(``name`` accepts ``|`` to insert a line break). If no presets are listed in
-``toolbar/presets`` the preset toolbar is hidden entirely.
+Presets support the ``name``, ``key``, and ``icon`` attributes from
+:ref:`common-button-attrs` (``name`` accepts ``|`` to insert a line break);
+the other common attributes are ignored. If ``toolbar/presets`` is empty
+the preset toolbar is hidden entirely.
 
 .. _common-button-attrs:
 
@@ -210,6 +205,10 @@ These attributes can be set on any button in any toolbar section.
 ``.expand``
    Whether the button expands to fill available space. Accepts ``true`` or
    ``false``.
+
+``.icon``
+   File name of an icon to display on the button. Looked up relative to
+   ``voctogui/ui/``.
 
 ``.pos``
    Position (0-based integer) within the toolbar. Appended in config order
