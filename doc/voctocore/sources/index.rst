@@ -73,6 +73,11 @@ These attributes apply to all source kinds.
    2``). If no ``audio.*`` option is set, the source contributes no audio
    to the mix.
 
+   .. important::
+      At least one source must define an ``audio.*`` stream — voctocore's
+      audio mixer needs at least one input, so the pipeline will fail to
+      start if no source provides any.
+
 ``volume``
    Initial audio volume for the source. Currently only read for
    ``[source.blinder]`` — setting it on other sources has no effect.
