@@ -1,10 +1,15 @@
 Network Ports
 =============
 
-voctocore communicates entirely over TCP. All ports are plain TCP unless noted.
+All ports are plain TCP unless noted otherwise.
 
-Control port
-------------
+Control and clock ports
+-----------------------
+
+``9998`` (IN, UDP)
+   GStreamer NetTimeProvider — clients use this to synchronise their
+   pipeline clock with voctocore. Required for any client that sends or
+   receives A/V streams (TCP sources, ffmpeg sinks, voctogui previews).
 
 ``9999`` (IN)
    Control interface. voctogui and other clients (e.g. voctoremote, voctomidi)
