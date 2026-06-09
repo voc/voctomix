@@ -129,19 +129,38 @@ See :doc:`../transitions` for details.
 ``nameoverlay``
    Overlay the source name on preview thumbnails. Default: ``true``.
 
-``vaapi``
-   Use VAAPI hardware encoder for previews. Omit to use CPU encoding.
-   Accepted values: ``h264``, ``mpeg2``, ``jpeg``
+``videoencoder``
+   Encoder backend used for preview streams. **Required when**
+   ``enabled = true``. Accepted values:
 
-``scale-method``
-   Scaling quality. Default: ``0``.
+   * ``cpu`` — software encoder
+   * ``vaapi`` — Intel/AMD hardware encoder
+   * ``v4l2`` — V4L2 hardware encoder
 
-   - ``0`` — default
-   - ``1`` — fast, lower quality
-   - ``2`` — high quality, slower
+``videocodec``
+   Codec name with optional comma-separated GStreamer element properties.
+   Default: ``jpeg,quality=90``. Accepted codecs: ``jpeg``, ``h264``,
+   ``mpeg2`` (the available codecs depend on the chosen ``videoencoder``).
 
-``vaapi-denoise``
-   Apply VAAPI denoising before encoding. Default: ``false``.
+   Examples::
+
+      videocodec = jpeg,quality=90
+      videocodec = h264,bitrate=2000
+
+``videodecoder``
+   Decoder backend used by voctogui when displaying the preview stream.
+   Accepted values: ``cpu``, ``vaapi``.
+
+``deinterlace``
+   Deinterlace the preview stream before encoding. Default: ``false``.
+
+``videocaps``
+   GStreamer caps string overriding the mix's ``videocaps`` for this
+   section. Default: inherit from ``[mix] videocaps``.
+
+``audiocaps``
+   GStreamer caps string overriding the mix's ``audiocaps`` for this
+   section. Default: inherit from ``[mix] audiocaps``.
 
 
 ``[blinder]`` — stream blanker
@@ -167,6 +186,10 @@ See :doc:`sources/overlay`.
 ``enabled``
    Expose a copy of each source's raw input stream on its own TCP port.
    Default: ``false``.
+
+``sources``
+   Comma-separated list of source names to mirror. Default: every source
+   listed in ``mix/sources``.
 
 ``[localrecording]`` — local recording
 ---------------------------------------

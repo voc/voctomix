@@ -401,17 +401,6 @@ class VocConfigParser(ConfigParser):
             return self.get(section, 'videodecoder')
         return None
 
-    def getDenoise(self, section: str) -> int:
-        if self.has_option(section, 'denoise'):
-            if self.getboolean(section, 'denoise'):
-                return 1
-        return 0
-
-    def getScaleMethod(self, section: str) -> int:
-        if self.has_option(section, 'scale-method'):
-            return self.getint(section, 'scale-method')
-        return 0
-
     def getDeinterlace(self, section: str) -> bool:
         return self.getboolean(section, 'deinterlace', fallback=False)
 
