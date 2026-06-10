@@ -18,6 +18,7 @@ class Arguments:
     dot: bool
     gst_debug_details: int
     gstreamer_log: int
+    metrics: bool
 
 def parse():
     global Args
@@ -52,5 +53,7 @@ def parse():
 
     parser.add_argument('-g', '--gstreamer-log', action='count', default=0,
                         help="Log gstreamer messages into voctocore log (Set log level by using -g, -gg or -ggg).")
+
+    parser.add_argument('-m', '--metrics', action='store_true', help="Enable prometheus metrics endpoint.")
 
     Args = Arguments(**vars(parser.parse_args()))

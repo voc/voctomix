@@ -4,6 +4,8 @@ import signal
 import logging
 import sys
 
+from prometheus_client import REGISTRY
+
 from vocto.debug import gst_log_messages
 from vocto.sd_notify import sd_notify
 
@@ -38,6 +40,8 @@ class Voctocore(object):
         # before reading the config
         from voctocore.lib.pipeline import Pipeline
         from voctocore.lib.controlserver import ControlServer
+        from voctocore.lib.metrics import Metrics
+        from voctocore.lib.args import Args
 
         self.log = logging.getLogger('Voctocore')
         self.log.debug('Creating GLib-MainLoop')
@@ -50,9 +54,17 @@ class Voctocore(object):
         self.log.debug('Creating ControlServer')
         self.controlserver = ControlServer(self.pipeline)
 
+        if Args.metrics:
+            self.metrics = Metrics(self.pipeline)
+            REGISTRY.register(self.metrics)
+        else:
+            self.metrics = None
+
     def run(self):
         self.log.info('Running. Waiting for connections....')
         try:
+            if self.metrics:
+                self.metrics.start()
             self.mainloop.run()
             sd_notify.stopping()
         except KeyboardInterrupt:
@@ -61,6 +73,8 @@ class Voctocore(object):
     def quit(self):
         self.log.info('Quitting.')
         self.mainloop.quit()
+        if self.metrics:
+            self.metrics.stop()
 
 
 # run mainclass
