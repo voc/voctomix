@@ -63,3 +63,9 @@ target/
 # IDE project files
 /*.iml
 /.idea
+
+# Dot files
+/*.dot
+
+# Coverage
+/junit/
