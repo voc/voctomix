@@ -1,6 +1,6 @@
 from typing import Iterable
 
-from prometheus_client.metrics_core import GaugeMetricFamily, InfoMetricFamily, UnknownMetricFamily
+from prometheus_client.metrics_core import GaugeMetricFamily, UnknownMetricFamily
 
 from vocto.port import Port
 import voctocore.lib.pipeline
@@ -44,9 +44,9 @@ class Metrics(Collector):
         )
 
         for idx, source_name in enumerate(sources):
-            port = Port.SOURCES_IN + idx
+            source_port = Port.SOURCES_IN + idx
             kind = Config.getSourceKind(source_name)
-            source_info.add_metric([str(port), source_name, kind], 1)
+            source_info.add_metric([str(source_port), source_name, kind], 1)
 
         yield source_info
 
@@ -72,7 +72,7 @@ class Metrics(Collector):
         for port in self.pipeline.ports:
             port_source = '<NONE>'
 
-            if hasattr(port.source, 'source'):
+            if port.source and hasattr(port.source, 'source'):
                 port_source = port.source.source
 
             port_type = type(port.source).__name__
@@ -113,6 +113,11 @@ class Metrics(Collector):
             labels=['composite', 'a', 'b']
         )
 
-        current_composite.add_metric([self.pipeline.vmix.compositeMode, self.pipeline.vmix.sourceA, self.pipeline.vmix.sourceB], 1)
+        if self.pipeline.vmix.compositeMode is not None and self.pipeline.vmix.sourceA is not None and self.pipeline.vmix.sourceB is not None:
+            current_composite.add_metric([
+                self.pipeline.vmix.compositeMode,
+                self.pipeline.vmix.sourceA,
+                self.pipeline.vmix.sourceB
+            ], 1)
 
         yield current_composite
