@@ -11,20 +11,17 @@ from prometheus_client import Metric, start_http_server
 import logging
 
 from voctocore.lib.config import Config
-from voctocore.lib.controlserver import ControlServer
 
 
 class Metrics(Collector):
     log: logging.Logger
     pipeline: 'voctocore.lib.pipeline.Pipeline'
-    controlserver: ControlServer
 
-    def __init__(self, pipeline, controlserver):
+    def __init__(self, pipeline):
         if not hasattr(self, 'log'):
             self.log = logging.getLogger('Metrics')
 
         self.pipeline = pipeline
-        self.controlserver = controlserver
         self.server, self.server_thread = None, None
 
     def start(self, port=20000):
@@ -96,22 +93,19 @@ class Metrics(Collector):
         yield port_connections
 
         if Config.getBlinderEnabled():
-            stream_status_metric = GaugeMetricFamily(
-                'voctocore_is_live',
+            blinder_metric = GaugeMetricFamily(
+                'voctocore_blinder',
                 '1 if live, 0 if blinded',
                 labels=['blind_source']
             )
 
-            stream_status: tuple[str] | tuple[str, str] = self.controlserver.commands.get_stream_status().args
-
-            if len(stream_status) > 2:
-                stream_status_blind_source = stream_status[2]
+            blind_source = self.pipeline.blinder.blind_source
+            if blind_source is None:
+                blinder_metric.add_metric([''], 1)
             else:
-                stream_status_blind_source = ''
+                blinder_metric.add_metric([self.pipeline.blinder.blindersources[blind_source]], 0)
 
-            stream_status_metric.add_metric([stream_status_blind_source], stream_status[1] == 'live')
-
-            yield stream_status_metric
+            yield blinder_metric
 
         current_composite = UnknownMetricFamily(
             'voctocore_current_composite',

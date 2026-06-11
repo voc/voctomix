@@ -55,7 +55,7 @@ class Voctocore(object):
         self.controlserver = ControlServer(self.pipeline)
 
         if Args.metrics:
-            self.metrics = Metrics(self.pipeline, self.controlserver)
+            self.metrics = Metrics(self.pipeline)
             REGISTRY.register(self.metrics)
         else:
             self.metrics = None
