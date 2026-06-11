@@ -24,9 +24,9 @@ class Metrics(Collector):
         self.pipeline = pipeline
         self.server, self.server_thread = None, None
 
-    def start(self):
+    def start(self, port=20000):
         self.log.info('Starting metrics server...')
-        self.server, self.server_thread = start_http_server(Port.METRICS)
+        self.server, self.server_thread = start_http_server(port)
 
     def stop(self):
         if self.server:

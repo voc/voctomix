@@ -32,8 +32,6 @@ class Port(object):
     LIVE_OUT = 15000
     LIVE_PREVIEW = LIVE_OUT+OFFSET_PREVIEW
     LOCALPLAYOUT_OUT = 19000
-    # metrics
-    METRICS = 20000
 
     name: str
     port: str
