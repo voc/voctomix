@@ -40,11 +40,25 @@ class Metrics(Collector):
         source_info = UnknownMetricFamily(
             f'voctocore_source',
             f'Info about a source',
-            labels=['port', 'name']
+            labels=['port', 'name', 'kind']
         )
 
         for idx, source_name in enumerate(sources):
             port = Port.SOURCES_IN + idx
-            source_info.add_metric([str(port), source_name], 1)
+            kind = Config.getSourceKind(source_name)
+            source_info.add_metric([str(port), source_name, kind], 1)
 
         yield source_info
+
+        queue_info = GaugeMetricFamily(
+            f'voctocore_gst_queue',
+            f'Info about a queue',
+            labels=['name', 'property'],
+        )
+
+        for queue_item in self.pipeline.queues:
+            for prop in ['current-level-time']:
+                value = queue_item.get_property(prop)
+                queue_info.add_metric([queue_item.name, prop], value)
+
+        yield queue_info
