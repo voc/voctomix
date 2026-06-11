@@ -164,7 +164,7 @@ class VocConfigParser(ConfigParser):
     def getV4l2Framerate(self, source) -> str:
         return self.get('source.{}'.format(source), 'framerate', fallback='25/1')
 
-    def getV4l2FallbackSrc(self) -> bool:
+    def getV4l2FallbackSrc(self, source) -> bool:
         # TODO always use fallbacksrc once it has arrived in debian stable
         return self.getboolean('source.{}'.format(source), 'fallbacksrc', fallback=True)
 
@@ -535,7 +535,7 @@ class VocConfigParser(ConfigParser):
                         fallback='audiotestsrc wave=ticks freq=330')
 
     def getGstAudioDebug(self, source) -> bool:
-        return self.get(f'source.{source}',
+        return self.getboolean(f'source.{source}',
                         'audio_debug',
                         fallback=False)
 
@@ -545,7 +545,7 @@ class VocConfigParser(ConfigParser):
                         fallback='videotestsrc pattern=ball motion=hsweep animation-mode=wall-time')
 
     def getGstVideoDebug(self, source) -> bool:
-        return self.get(f'source.{source}',
+        return self.getboolean(f'source.{source}',
                         'video_debug',
                         fallback=False)
 
