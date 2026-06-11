@@ -1,6 +1,6 @@
 [project]
 name = "voctomix"
-version = "2.3"
+version = "2.4"
 description = "voctomix is a video mixing software, written in python."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -14,12 +14,14 @@ dependencies = [
 dev = [
     "mock>=5.2.0",
     "pytest>=8.3.5",
-    "pygobject-stubs>=2.13.0",
+    "pygobject-stubs (>=2.13.0, <2.17.0)",
     "mypy>=1.15.0",
+    "pytest-cov>=7.1.0",
 ]
 
 [tool.uv]
 python-preference = "only-system"
+config-settings-package = { pygobject-stubs = { config = "Gtk3,Gdk3" } }
 
 [tool.mypy]
 mypy_path = "python_stubs"
