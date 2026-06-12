@@ -8,6 +8,13 @@ on:
       - 'doc/**'
       - 'pyproject.toml'
       - '.github/workflows/docs.yaml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'doc/**'
+      - 'pyproject.toml'
+      - '.github/workflows/docs.yaml'
 
 # Allow only one deployment at a time, but don't cancel a run in progress —
 # let it finish so the live site is never left in a broken state.
@@ -45,12 +52,14 @@ jobs:
         run: sphinx-build -b man doc doc/_build/man
 
       - name: Upload pages artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v5
         with:
           path: doc/_build/html
 
   deploy:
     name: Deploy documentation to Github Pages
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-latest
     environment:
