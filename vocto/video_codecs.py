@@ -20,7 +20,7 @@ if Gst.version() < (1, 8):
     }
 else:
     vaapi_encoders = {
-        'h264': 'vaapih264enc keyframe-period=1',
+        'h264': 'vah264enc i-frames=1 key-int-max=1 rate-control=16',
         'jpeg': 'vaapijpegenc',
         'mpeg2': 'vaapimpeg2enc',
     }
@@ -43,7 +43,7 @@ if Gst.version() < (1, 8):
     }
 else:
     vaapi_decoders = {
-        'h264': 'vaapih264dec',
+        'h264': 'vah264dec',
         'jpeg': 'vaapijpegdec',
         'mpeg2': 'vaapimpeg2dec',
     }
@@ -74,7 +74,7 @@ def construct_video_encoder_pipeline(config: VocConfigParser, section: str) -> s
         # we can also force a video format here (format=I420) but this breaks scalling at least on Intel HD3000 therefore it currently removed
         pipeline = """  ! capsfilter
                             caps=video/x-raw,interlace-mode=progressive
-                        ! vaapipostproc
+                        ! vapostproc
                         ! {encoder}
                         """.format(encoder=vaapi_encoders[codec])
 
