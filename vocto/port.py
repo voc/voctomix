@@ -14,6 +14,8 @@ class Port(object):
     OUT = 2
 
     OFFSET_PREVIEW = 100
+    # clock sync port (GStreamer NetTimeProvider, UDP)
+    CLOCK = 9998
     # core listening port
     CORE_LISTENING = 9999
     # input ports

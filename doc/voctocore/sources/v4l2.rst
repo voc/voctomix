@@ -1,0 +1,45 @@
+Video4Linux2 sources
+====================
+
+``kind = v4l2`` — captures video from a V4L2 device (video only, no audio).
+
+Use ``ffprobe /dev/videoX`` to query the supported modes, resolutions and
+framerates of a device.
+
+Configuration options
+---------------------
+
+``device``
+   V4L2 device node. Default: ``/dev/video0``.
+
+``width``
+   Capture width in pixels. Default: ``1920``.
+
+``height``
+   Capture height in pixels. Default: ``1080``.
+
+``framerate``
+   Capture frame rate as numerator/denominator. Default: ``25/1``.
+
+``format``
+   Pixel format expected from the device. Default: ``YUY2``.
+
+``fallbacksrc``
+   Wrap the source in ``fallbacksrc`` to automatically recover from
+   disconnects. Default: ``true``.
+
+Example
+-------
+
+.. code-block:: ini
+
+   [source.cam1]
+   kind = v4l2
+   device = /dev/video2
+   width = 1280
+   height = 720
+   framerate = 30/1
+   format = YUY2
+
+.. seealso::
+   :ref:`common-source-attributes` for the ``scan`` and ``volume`` attributes that apply to all source kinds.

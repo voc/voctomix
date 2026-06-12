@@ -47,7 +47,7 @@ def parse():
     parser.add_argument('-d', '--dot', action='store_true',
                         help="Generate DOT files of pipelines into directory given in environment variable GST_DEBUG_DUMP_DOT_DIR")
 
-    parser.add_argument('-D', '--gst-debug-details', action='store', default=1,
+    parser.add_argument('-D', '--gst-debug-details', action='store', default=15,
                         help="Set details in dot graph. GST_DEBUG_DETAILS must be a combination the following values: 1 = show caps-name on edges, 2 = show caps-details on edges, 4 = show modified parameters on elements, 8 = show element states, 16 = show full element parameter values even if they are very long. Default: 15 = show all the typical details that one might want (15=1+2+4+8)")
 
     parser.add_argument('-g', '--gstreamer-log', action='count', default=0,
