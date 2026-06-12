@@ -36,6 +36,7 @@ Debian / Ubuntu
      python3-pyinotify \
      python3-scipy \
      python3-sdnotify \
+     python3-prometheus-client \
      rlwrap
 
 For VAAPI hardware en-/decoding

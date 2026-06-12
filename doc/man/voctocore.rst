@@ -71,6 +71,10 @@ Options
    Include GStreamer messages in the log. Use ``-g``, ``-gg``, or ``-ggg``
    for increasing GStreamer verbosity.
 
+.. option:: -m, --metrics
+
+   Activates a http server on port 20000 that serves metrics in a prometheus-style format.
+
 Files
 -----
 

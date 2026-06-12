@@ -76,6 +76,9 @@ Other ports
 ``19000`` (OUT)
    Local playout output.
 
+``20000`` (OUT)
+   Metrics served in prometheus format.
+
 Viewing port assignments
 ------------------------
 
