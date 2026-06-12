@@ -7,6 +7,7 @@ on:
     paths:
       - 'doc/**'
       - 'pyproject.toml'
+      - '.github/workflows/docs.yaml'
 
 # Allow only one deployment at a time, but don't cancel a run in progress —
 # let it finish so the live site is never left in a broken state.
