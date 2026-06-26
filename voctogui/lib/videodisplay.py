@@ -1,7 +1,7 @@
 import logging
 import sys
 
-from gi.repository import Gst, Gdk
+from gi.repository import Gst, Gdk, Gtk
 
 from voctogui.lib.args import Args
 from voctogui.lib.config import Config
@@ -100,7 +100,11 @@ class VideoDisplay(object):
             pipe += """ ! vaapisink
                             name=imagesink-{name}
                         """.format(name=name)
-
+        elif videosystem == 'gtk':
+            pipe += """ ! gtksink
+                            name=imagesink-{name}
+                            sync=false
+                        """.format(name=name)
         else:
             raise Exception(
                 'Invalid Videodisplay-System configured: %s' % videosystem
@@ -146,6 +150,38 @@ class VideoDisplay(object):
 
         self.pipeline.use_clock(Clock)
 
+        # glvideosink is broken on OSX for many years and many attempts have been tried to fix it.
+        # https://discourse.gstreamer.org/t/trying-to-fix-broken-for-4-years-cocoa-implementation-of-glimagesink-on-macos/4600
+        #
+        # Replacing the video drawing area with a gtk widget, rewiring the properies since they are only set on initialisation.
+        # I have not found a better or cleaner way to do this that works on OSX - fspijkerman
+        if videosystem == 'gtk':
+            imagesink_elem = self.pipeline.get_by_name('imagesink-{name}'.format(name=self.name))
+            gtk_widget = imagesink_elem.props.widget
+
+            w, h = self.video_drawing_area.get_size_request()
+            if w > 0 or h > 0:
+                gtk_widget.set_size_request(w, h)
+
+            parent = self.video_drawing_area.get_parent()
+            if isinstance(parent, Gtk.Box):
+                children = parent.get_children()
+                position = children.index(self.video_drawing_area)
+                expand  = parent.child_get_property(self.video_drawing_area, 'expand')
+                fill    = parent.child_get_property(self.video_drawing_area, 'fill')
+                padding = parent.child_get_property(self.video_drawing_area, 'padding')
+                parent.remove(self.video_drawing_area)
+                parent.pack_start(gtk_widget, expand=expand, fill=fill, padding=padding)
+                parent.reorder_child(gtk_widget, position)
+            else:
+                parent.remove(self.video_drawing_area)
+                parent.add(gtk_widget)
+
+            gtk_widget.set_hexpand(self.video_drawing_area.get_hexpand())
+            gtk_widget.set_vexpand(self.video_drawing_area.get_vexpand())
+            gtk_widget.show()
+            self.video_drawing_area = gtk_widget
+
         self.video_drawing_area.add_events(
             Gdk.EventMask.KEY_PRESS_MASK | Gdk.EventMask.KEY_RELEASE_MASK)
         self.video_drawing_area.connect("realize", self.on_realize)
@@ -161,9 +197,14 @@ class VideoDisplay(object):
     def on_realize(self, win):
         self.imagesink = self.pipeline.get_by_name(
             'imagesink-{name}'.format(name=self.name))
-        self.xid = self.video_drawing_area.get_property('window').get_xid()
 
-        self.log.debug('Realized Drawing-Area with xid %u', self.xid)
+        if Config.getVideoSystem() == 'gtk':
+            self.xid = None
+            self.log.debug('Realized gtksink widget (no XID needed)')
+        else:
+            self.xid = self.video_drawing_area.get_property('window').get_xid()
+            self.log.debug('Realized Drawing-Area with xid %u', self.xid)
+
         self.video_drawing_area.realize()
 
         self.log.info("Launching Display-Pipeline")
@@ -172,9 +213,10 @@ class VideoDisplay(object):
     def on_syncmsg(self, bus, msg):
         if type(msg) == Gst.Message and self.imagesink:
             if msg.get_structure().get_name() == "prepare-window-handle":
-                self.log.info(
-                    'Setting imagesink window-handle to 0x%x', self.xid)
-                self.imagesink.set_window_handle(self.xid)
+                if self.xid is not None:
+                    self.log.info(
+                        'Setting imagesink window-handle to 0x%x', self.xid)
+                    self.imagesink.set_window_handle(self.xid)
 
     def on_error(self, bus, message):
         (error, debug) = message.parse_error()
