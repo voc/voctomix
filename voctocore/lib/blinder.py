@@ -78,6 +78,8 @@ class Blinder(AVNode):
                 name=audiomixer-blinder
             ! audioamplify
                 amplification={volume}
+            ! capssetter
+                caps={acaps}
             ! queue
                 name=queue-audio-mix-blinded
                 max-size-time=3000000000
