@@ -58,6 +58,18 @@ cpu_decoders = {
                 ! mpeg2dec"""
 }
 
+videotoolbox_encoders = {
+    'h264': 'vtenc_h264 realtime=true allow-frame-reordering=false',
+    'h265': 'vtenc_h265 realtime=true allow-frame-reordering=false',
+}
+
+videotoolbox_decoders = {
+    'h264': """ video/x-h264
+                ! h264parse ! vtdec""",
+    'h265': """ video/x-hevc
+                ! h265parse ! vtdec""",
+}
+
 
 def construct_video_encoder_pipeline(config: VocConfigParser, section: str) -> str:
     encoder = config.getVideoEncoder(section)
@@ -101,6 +113,12 @@ def construct_video_encoder_pipeline(config: VocConfigParser, section: str) -> s
                         ! videoscale
                         ! {encoder}
                         """.format(encoder=cpu_encoders[codec])
+
+    elif encoder == 'videotoolbox':
+        pipeline += """ ! videorate
+                        ! videoscale
+                        ! {encoder}
+                        """.format(encoder=videotoolbox_encoders[codec])
     else:
         log.error("Unknown video encoder '{}'.".format(encoder))
         sys.exit(-1)
@@ -125,6 +143,8 @@ def construct_video_decoder_pipeline(config: VocConfigParser, section: str) -> s
         return vaapi_decoders[codec]
     elif decoder == 'cpu':
         return cpu_decoders[codec]
+    elif decoder == 'videotoolbox':
+        return videotoolbox_decoders[codec]
     else:
         log.error("Unknown video decoder '{}'.".format(decoder))
         exit(-1)

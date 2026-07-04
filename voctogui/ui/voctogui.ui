@@ -112,6 +112,8 @@
                     <property name="label-xalign">0</property>
                     <property name="shadow-type">none</property>
                     <property name="obey-child">False</property>
+                    <property name="hexpand">True</property>
+                    <property name="vexpand">True</property>
                     <child>
                       <object class="GtkDrawingArea" id="video_main">
                         <property name="width-request">100</property>
@@ -124,7 +126,7 @@
                     </child>
                   </object>
                   <packing>
-                    <property name="expand">False</property>
+                    <property name="expand">True</property>
                     <property name="fill">True</property>
                     <property name="position">0</property>
                   </packing>
