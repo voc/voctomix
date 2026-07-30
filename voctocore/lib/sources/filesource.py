@@ -62,11 +62,14 @@ class FileSource(AVSource):
         return """
               file-{name}.
             ! mpegvideoparse
-            ! mpeg2dec
+            ! {decoder}
             ! videoconvert
             ! videorate
             ! videoscale
-            """.format(name=self.name)
+            """.format(
+                name=self.name,
+                decoder='mpeg2dec' if Gst.version() < (1,28) else 'avdec_mpeg2video',
+            )
 
     def build_audioport(self):
         return """

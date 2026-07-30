@@ -31,10 +31,15 @@ v4l2_encoders = {
 }
 
 cpu_encoders = {
-    'jpeg': "jpegenc",
-    'h264': "x264enc",
-    'mpeg2': "mpeg2enc"
+    'jpeg': 'jpegenc',
+    'h264': 'x264enc',
 }
+
+# Deprecation mpeg2enc, https://gstreamer.freedesktop.org/releases/1.28/
+if Gst.version() < (1, 28):
+    cpu_encoders['mpeg2'] = 'mpeg2enc'
+else:
+    cpu_encoders['mpeg2'] = 'avenc_mpeg2video'
 
 if Gst.version() < (1, 8):
     vaapi_decoders = {
@@ -53,10 +58,15 @@ cpu_decoders = {
                 ! h264parse ! avdec_h264""",
     'jpeg': """ image/jpeg
                 ! jpegdec""",
-    'mpeg2': """video/mpeg
-                    mpegversion=2
-                ! mpeg2dec"""
 }
+
+# Deprecation mpeg2dec, https://gstreamer.freedesktop.org/releases/1.28/
+if Gst.version() < (1, 28):
+    cpu_decoders['mpeg2'] = """ video/mpeg,mpegversion=2
+        ! mpeg2dec"""
+else:
+    cpu_decoders['mpeg2'] = """ video/mpeg,mpegversion=2
+        ! avdec_mpeg2video"""
 
 
 def construct_video_encoder_pipeline(config: VocConfigParser, section: str) -> str:
