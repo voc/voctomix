@@ -85,21 +85,21 @@ class PresetController(object):
         Connection.on("composite", self.on_composite)
 
     def on_btn_toggled(self, btn):
-        id = btn.get_name()
-        self.log.debug(f">on_btn_toggle {btn=} {id=}")
+        btn_id = btn.get_name()
+        self.log.debug(f">on_btn_toggle {btn=} {btn_id=}")
         if btn.get_active():
-            self.log.info(f"Preset Button {id} was pressed")
-            if id not in self.button_to_composites:
-                self.log.error(f"Button {id} not found in composites!")
+            self.log.info(f"Preset Button {btn_id} was pressed")
+            if btn_id not in self.button_to_composites:
+                self.log.error(f"Button {btn_id} not found in composites!")
                 return
-            self.log.debug(f"{self.button_to_composites[id]=}")
-            self.log.info(f"Selecting {self.button_to_composites[id]} for next scene")
+            self.log.debug(f"{self.button_to_composites[btn_id]=}")
+            self.log.info(f"Selecting {self.button_to_composites[btn_id]} for next scene")
             if not self._compare_command(
-                self.button_to_composites[id],
+                self.button_to_composites[btn_id],
                 self.preview_controller.command(),
             ):
-                self.preview_controller.set_command(self.button_to_composites[id])
-        self.log.debug(f"<on_btn_toggle {btn=} {id=}")
+                self.preview_controller.set_command(self.button_to_composites[btn_id])
+        self.log.debug(f"<on_btn_toggle {btn=} {btn_id=}")
 
     def _compare_command(self, commandA, commandB):
         is_equal = (

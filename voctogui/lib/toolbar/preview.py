@@ -85,37 +85,37 @@ class PreviewToolbarController(object):
         if not self.initialized:
             return
 
-        id = btn.get_name()
+        btn_id = btn.get_name()
         if btn.get_active():
             # sources button toggled?
-            if id in self.sourcesA or id in self.sourcesB:
+            if btn_id in self.sourcesA or btn_id in self.sourcesB:
                 # check for A and B switch to the same source and fix it
-                if self.sourcesA[id]['button'] == btn:
-                    if id in self.sourcesB and self.sourcesB[id]['button'].get_active():
+                if self.sourcesA[btn_id]['button'] == btn:
+                    if btn_id in self.sourcesB and self.sourcesB[btn_id]['button'].get_active():
                         self.sourceB = None
                         self.sourcesB[self.sourceA]['button'].set_active(True)
-                    self.sourceA = id
+                    self.sourceA = btn_id
                     self.log.info(
                         "Selected '%s' for preview source A", self.sourceA)
-                elif self.sourcesB[id]['button'] == btn:
-                    if self.sourcesA[id]['button'].get_active():
+                elif self.sourcesB[btn_id]['button'] == btn:
+                    if self.sourcesA[btn_id]['button'].get_active():
                         self.sourceA = None
                         self.sourcesA[self.sourceB]['button'].set_active(True)
-                    self.sourceB = id
+                    self.sourceB = btn_id
                     self.log.info(
                         "Selected '%s' for preview source B", self.sourceB)
                 self.test()
-            elif id in self.composites:
-                self.composite = id
+            elif btn_id in self.composites:
+                self.composite = btn_id
                 self.enable_sourcesB()
                 self.enable_modifiers()
                 self.log.info(
                     "Selected '%s' for preview target composite", self.composite)
                 self.test()
-        if id in self.mods:
-            self.modstates[id] = btn.get_active()
-            self.log.info("Turned preview modifier '%s' %s", id,
-                          'on' if self.modstates[id] else 'off')
+        if btn_id in self.mods:
+            self.modstates[btn_id] = btn.get_active()
+            self.log.info("Turned preview modifier '%s' %s", btn_id,
+                          'on' if self.modstates[btn_id] else 'off')
             self.test()
         self.enable_sources();
         self.log.debug("current command is '%s", self.command())

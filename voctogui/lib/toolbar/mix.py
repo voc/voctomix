@@ -35,10 +35,10 @@ class MixToolbarController(object):
         Connection.on('best', self.on_best)
 
     def on_btn_clicked(self, btn):
-        id = btn.get_name()
+        btn_id = btn.get_name()
 
         # on transition hide overlay if AUTO-OFF is on
-        if self.overlay_controller.isAutoOff() and id != 'retake':
+        if self.overlay_controller.isAutoOff() and btn_id != 'retake':
             Connection.send('show_overlay',str(False))
 
         command = self.preview_controller.command()
@@ -48,10 +48,10 @@ class MixToolbarController(object):
         if command.B == output.B and command.A != output.A:
             output.A = command.A
         self.preview_controller.set_command(output,False)
-        if id == 'cut':
+        if btn_id == 'cut':
             self.log.info('Sending new composite: %s', command)
             Connection.send('cut', str(command))
-        elif id == 'trans':
+        elif btn_id == 'trans':
             self.log.info(
                 'Sending new composite (using transition): %s', command)
             Connection.send('transition', str(command))
