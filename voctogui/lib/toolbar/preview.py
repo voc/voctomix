@@ -117,7 +117,7 @@ class PreviewToolbarController(object):
             self.log.info("Turned preview modifier '%s' %s", btn_id,
                           'on' if self.modstates[btn_id] else 'off')
             self.test()
-        self.enable_sources();
+        self.enable_sources()
         self.log.debug("current command is '%s", self.command())
 
     def enable_modifiers(self):
