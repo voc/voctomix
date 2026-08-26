@@ -138,9 +138,10 @@ class OverlayToolbarController(object):
         Connection.send('get_overlay_visible')
         Connection.send('get_overlay')
 
-    def on_overlays_title(self, title):
+    def on_overlays_title(self, title = ''):
         # decode parameter
-        title = [dequote(t) for t in title.split(",")]
+        # the `if t` is required because `dequote(t)` returns None if t is empty.
+        title = [dequote(t) for t in title.split(",") if t]
         # title given?
         if title:
             # show title
