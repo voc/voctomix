@@ -264,7 +264,7 @@ class VideoMix(AVNode):
                             curComposite, newComposite, True)
                         if not swap:
                             targetA, targetB = newB, newA
-                    if transition and not dry:
+                    if not transition and not dry:
                         self.log.warning("No transition found")
             if dry:
                 return (newA, newB) if transition else False

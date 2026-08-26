@@ -130,6 +130,8 @@ class Transitions:
             if transition.begin().equals(end, True, flip) and transition.end().equals(begin, True):
                 log.debug("Solved #4 %s\n%s", transition.name(), transition)
                 return transition.reversed(), False
+
+        log.debug(f'Unable to solve transition %s(A,B) -> %s(%s)', begin.name, end.name, "B,A" if flip else "A,B")
         return None, False
 
     @staticmethod
