@@ -43,10 +43,10 @@ class MixToolbarController(object):
 
         command = self.preview_controller.command()
         output = self.preview_controller.output
-        if command.A == output.A and command.B != output.B:
-            output.B = command.B
-        if command.B == output.B and command.A != output.A:
-            output.A = command.A
+        # if command.A == output.A and command.B != output.B:
+        #     output.B = command.B
+        # if command.B == output.B and command.A != output.A:
+        #     output.A = command.A
         self.preview_controller.set_command(output,False)
         if btn_id == 'cut':
             self.log.info('Sending new composite: %s', command)
