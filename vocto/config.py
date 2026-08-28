@@ -62,6 +62,7 @@ GST_TYPE_AUDIO_TEST_SRC_WAVE = [
 class VocConfigParser(ConfigParser):
     log: logging.Logger
     audio_streams: Optional[AudioStreams] = None
+    blinder_audio_streams: Optional[AudioStreams] = None
 
     def __init__(self) -> None:
         super().__init__()
@@ -251,11 +252,12 @@ class VocConfigParser(ConfigParser):
         return self.audio_streams
 
     def getBlinderAudioStreams(self) -> AudioStreams:
-        self.audio_streams = AudioStreams()
-        section = 'source.blinder'
-        if self.has_section(section):
-            self.audio_streams.configure_source(self.items(section), "blinder", use_source_as_name=True)
-        return self.audio_streams
+        if self.blinder_audio_streams is None:
+            self.blinder_audio_streams = AudioStreams()
+            section = 'source.blinder'
+            if self.has_section(section):
+                self.blinder_audio_streams.configure_source(self.items(section), "blinder", use_source_as_name=True)
+        return self.blinder_audio_streams
 
     def getAudioStream(self, source) -> AudioStreams:
         '''
