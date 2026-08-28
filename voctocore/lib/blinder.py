@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import logging
+import re
 
 from gi.repository import Gst
 
@@ -29,6 +30,25 @@ class Blinder(AVNode):
         self.vcaps = Config.getVideoCaps()
         self.volume = Config.getBlinderVolume()
         self.blindersources = Config.getBlinderSources()
+
+        # make sure blinder audio caps match program caps
+        mixmatrix = Config.getAudioMixMatrix()
+        self.mix_channels = len(mixmatrix[0])
+        self.program_channels = len(mixmatrix)
+        self.program_acaps = re.sub(r'channels=(\(int\))?\d+',
+                                    f'channels={self.program_channels}',
+                                    self.acaps)
+        if self.program_channels == self.mix_channels:
+            self.blinder_downmix = ""
+        else:
+            matrix = str(mixmatrix).replace("[", "<").replace("]", ">")
+            self.blinder_downmix = f"""
+            ! audiomixmatrix
+                name=audiomixmatrix-blinder
+                in_channels={self.mix_channels}
+                out_channels={self.program_channels}
+                matrix="{matrix}"
+            """
 
         self.log.info('Configuring video blinders for %u sources',
                       len(self.blindersources))
@@ -79,7 +99,7 @@ class Blinder(AVNode):
             ! audioamplify
                 amplification={volume}
             ! capssetter
-                caps={acaps}
+                caps={program_acaps}
             ! queue
                 name=queue-audio-mix-blinded
                 max-size-time=3000000000
@@ -91,21 +111,21 @@ class Blinder(AVNode):
                 max-size-time=3000000000
                 name=queue-capssetter-blinder
             ! capssetter
-                caps={acaps}
+                caps={program_acaps}
             ! queue
                 max-size-time=3000000000
                 name=queue-audiomixer-blinder
             ! audiomixer-blinder.
-            """.format(acaps=self.acaps,
+            """.format(program_acaps=self.program_acaps,
                        volume=Config.getBlinderVolume()
                        )
 
         # Source from the Blank-Audio-Tee into the Audiomixer
-        self.bin += """
+        self.bin += f"""
             audio-blinder.
             ! queue
                 max-size-time=3000000000
-                name=queue-audio-blinded-audiomixer-blinder
+                name=queue-audio-blinded-audiomixer-blinder{self.blinder_downmix}
             ! audiomixer-blinder.
             """
 
