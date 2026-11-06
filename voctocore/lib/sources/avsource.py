@@ -100,13 +100,12 @@ class AVSource(AVIONode, metaclass=ABCMeta):
                 if not audio_stream_names:
                     self.bin += """
                         source-audio-{name}.
-                        ! {acaps}
                         ! queue
                             max-size-time=3000000000
                             name=queue-source-audio-fakesink-{name}
                         ! fakesink
                             async=false
-                        """.format(name=self.name, acaps=Config.getAudioCaps())
+                        """.format(name=self.name)
                 else:
                     for stream in audio_stream_names:
                         self.log.info("Creating audio streams '{}' from source '{}'".format(stream,self.name))
