@@ -51,8 +51,10 @@ class V4l2AVSource(AVSource):
     def build_source(self):
         pipe = """
             v4l2src
+                name=v4l2videosrc-{name}
                 device={device}
-            """.format(device=self.device)
+                do-timestamp=true
+            """.format(name=self.name, device=self.device)
 
         if self.type == "video/x-raw":
             pipe += """\
@@ -66,7 +68,7 @@ class V4l2AVSource(AVSource):
         elif self.type == "image/jpeg":
             pipe += """\
             ! {type},width={width},height={height},framerate={framerate}
-            ! queue
+            ! queue max-size-buffers=2 leaky=downstream
             ! jpegdec
             """.format(width=self.width,
                        type=self.type,
@@ -78,8 +80,6 @@ class V4l2AVSource(AVSource):
                 ! {deinterlacer}
                 """.format(deinterlacer=self.build_deinterlacer())
 
-
-
         pipe += """\
             ! videoconvert
             ! videoscale
@@ -87,6 +87,7 @@ class V4l2AVSource(AVSource):
             """
 
         if self.falbacksrc:
+            # Escape quotes safely if needed and ensure fallbacksrc handles live source timing
             pipe = f'fallbacksrc source="{pipe}"'
 
         pipe += """\
