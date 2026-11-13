@@ -2,6 +2,7 @@
 import logging
 import gi
 import sys
+import re
 
 from gi.repository import Gst
 
@@ -81,12 +82,14 @@ def construct_video_encoder_pipeline(config: VocConfigParser, section: str) -> s
             log.error("Unknown codec '{}' for video encoder '{}'. Falling back to 'h264'.".format(codec, encoder))
             sys.exit(-1)
         # generate pipeline
-        # we can also force a video format here (format=I420) but this breaks scalling at least on Intel HD3000 therefore it currently removed
+        # we can also force a video format here (format=I420) but this breaks scaling at least on Intel HD3000 therefore it currently removed
+        raw_vcaps = re.sub(r'^video/x-[^,]+', 'video/x-raw,format=NV12', vcaps)
         pipeline = """  ! capsfilter
                             caps=video/x-raw,interlace-mode=progressive
                         ! vapostproc
+                        ! {raw_vcaps}
                         ! {encoder}
-                        """.format(encoder=vaapi_encoders[codec])
+                        """.format(raw_vcaps=raw_vcaps, encoder=vaapi_encoders[codec])
 
     elif encoder == 'v4l2':
         if codec not in v4l2_encoders:
