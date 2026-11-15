@@ -167,7 +167,7 @@ class VocConfigParser(ConfigParser):
 
     def getV4l2FallbackSrc(self, source) -> bool:
         # TODO always use fallbacksrc once it has arrived in debian stable
-        return self.getboolean('source.{}'.format(source), 'fallbacksrc', fallback=True)
+        return self.getboolean('source.{}'.format(source), 'fallbacksrc', fallback=False)
 
     def getRPICamDevice(self, source) -> str:
         return self.get('source.{}'.format(source), 'device', fallback='/dev/video0')
